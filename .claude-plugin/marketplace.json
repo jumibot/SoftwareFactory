@@ -57,8 +57,8 @@
       "name": "oklch-skill",
       "description": "Skill de color OKLCH de Jakub Krehel (MIT), dependencia de sf: paletas de los temas de documento_vision, fijada a un commit",
       "source": {
-        "source": "github",
-        "repo": "jakubkrehel/oklch-skill",
+        "source": "url",
+        "url": "https://github.com/jakubkrehel/oklch-skill.git",
         "sha": "0e81f040e16d48fcc61d3e1b7ea548542371321f"
       },
       "strict": false,
