@@ -4,4 +4,4 @@
 - **Contexto:** el mod guarda en caché que la carpeta no es de la SF (`llevaRegla` en `contexto.ts`) hasta que se recarga, así que ni `/clear` entrega las reglas. Se valoró que la incorporación acabara pidiendo `/clear`.
 - **Decisión:** el mod no guarda el «no es de la SF». Al detectar que la carpeta ya tiene `.sf/proyecto.json`, entrega las reglas y la orquestación con el siguiente mensaje, sin reiniciar. `/clear` queda como respaldo.
 - **Consecuencias:** tras incorporar se sigue en la misma conversación con la SF activa.
-- **Aplicada en:** pendiente; en la 289.
+- **Aplicada en:** la 289.

@@ -2,13 +2,13 @@
 antetitulo: Software Factory · Informe de diagnóstico · Noviembre 2026
 lema: Lo que solo vale aquí, a la vista; // lo que bloquea, antes de la prueba.
 subtitulo: Dónde se atasca un usuario nuevo al instalar el plugin sf, incorporar un proyecto y hacer su primera tarea, qué supone de esta máquina o del propietario, qué ha resuelto ya la 1.5.0 y qué decide el propietario antes de la prueba del colega.
-version: Versión 1.1 · 02/11/2026
-estado: Diagnóstico revisado con la 1.5.0 · Tarea 289
+version: Versión 1.2 · 02/11/2026
+estado: Segunda vuelta con la 1.7.2 · Tarea 289
 portada: oscura
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
 tipo: Informe de diagnóstico
-pie: Primera tanda de la tarea «Primeros cinco minutos de un usuario nuevo con la SF» (289). Sale de leer plugins/sf en develop (sf 1.4.2), los README, el informe «Plugin en otros proyectos» (171) y el de «Incorporar sin cambiar el proyecto» (222, en su rama), y de un recorrido en una configuración desechable de Claude Code. La versión 1.1 lo revisa contra develop en la sf 1.5.0 («Implementar la configuración inicial», 193, y las decisiones 205-234) y prepara las decisiones del paso 6. La 1.0 está en _respaldo/. Espera la decisión del propietario.
+pie: Primera tanda de la tarea «Primeros cinco minutos de un usuario nuevo con la SF» (289). Sale de leer plugins/sf en develop (sf 1.4.2), los README, el informe «Plugin en otros proyectos» (171) y el de «Incorporar sin cambiar el proyecto» (222, en su rama), y de un recorrido en una configuración desechable de Claude Code. La versión 1.1 lo revisa contra develop en la sf 1.5.0 («Implementar la configuración inicial», 193, y las decisiones 205-234) y prepara las decisiones del paso 6. La 1.2 suma la segunda vuelta, tras la primera instalación real de un colega, con la sf 1.7.2. La 1.0 está en _respaldo/. Espera la decisión del propietario.
 ---
 # Primeros cinco minutos
 
@@ -26,7 +26,126 @@ Casi todo lo que solo vale en esta máquina ya lo inventarió «Plugin en otros 
 
 > **Con la 1.5.0, de los tres bloqueos queda uno seguro y otro según el sistema del colega.** La incorporación ya crea git, `develop` y el remoto en GitHub, y el kanban es opcional y por defecto ninguno. Siguen el repositorio privado y la orden `python` fija. De los 18 atascos, cuatro quedan resueltos, seis a medias y ocho siguen; sale uno nuevo: sin GitHub y `gh` no hay SF.
 
-[Ver la revisión](#revision){: .salto} · [Ver las decisiones](#decidir){: .salto}
+[Ver la segunda vuelta](#segunda-vuelta){: .salto} · [Ver la revisión](#revision){: .salto} · [Ver las decisiones](#decidir){: .salto}
+
+## Segunda vuelta | La primera instalación real · 2 de noviembre de 2026 | Segunda vuelta {#segunda-vuelta}
+
+Un colega instaló la SF en su Mac desde la portada pública. Tropezó así:
+
+- **Ejecutó primero las órdenes de las dependencias.** Salían en un recuadro antiguo, y él aún no había añadido el catálogo. Fallaron con «not found in marketplace».
+- **oklch-skill se clonaba por SSH,** y sin clave fallaba.
+- **Le quedaron las tres dependencias sin `sf`,** y nada lo avisó. Su Claude tuvo que buscar en `~/.claude` dónde estaba el panel.
+- **Después no sabía qué hacer.** En su carpeta vacía, el panel enseñaba dos JSON de ejemplo y las secciones a cero.
+
+Los dos primeros tropiezos los arreglan la 1.7.1 y la 1.7.2, y el tercero lo previenen. Esta vuelta mira lo que queda.
+
+### Lo comprobado {#segunda-comprobado}
+
+- **La instalación desde `jumibot/SoftwareFactory`,** en una configuración desechable, con las dos órdenes de la portada. El catálogo se añade en 6 s. `sf` 1.7.2 se instala con sus tres dependencias en 13 s. `claude plugin list` da las cuatro como activas.
+- **Una sesión en una carpeta vacía:** el mod carga y copia la cola. Claude no contesta: «Not logged in». Lo que ve Claude se ha deducido del código del mod.
+- **El código instalado es el de `develop`:** solo cambia la versión.
+
+> **Lo más grave no está en la instalación, sino justo después.** Si se incorpora el proyecto en la misma conversación, la SF no entra. El mod decide al empezar si la carpeta es de la SF y guarda la respuesta, «no», hasta recargar el plugin. Ni `/clear` la cambia. La primera tarea va sin las reglas de la SF ni la orquestación.
+
+### Fricciones, por impacto {#segunda-fricciones}
+
+::: tarjetas 2 plegables
+
+### Tras incorporar, la SF no entra {: #f-reglas}
+
+Qué pasa
+:   No llegan a la conversación las reglas, la orquestación ni la regla de lo que es de la SF. Tampoco tras `/clear`. La primera tarea va sin cola ni subagente.
+
+Por qué
+:   El mod guarda, por carpeta, si es un proyecto de la SF. Una carpeta vacía se queda en «no» hasta recargar el plugin. Además, la incorporación solo pide `/clear` al poner al día un proyecto, no al incorporar uno nuevo.
+
+Opción A
+:   El mod deja de guardar el «no». Cuando ve que la carpeta pasa a tener SF, entrega las reglas con el siguiente mensaje. *Pro:* no depende del usuario. *Contra:* cambia el mod y necesita su prueba.
+
+Opción B
+:   El mod deja de guardar el «no», y la incorporación pide `/clear` al terminar. *Pro:* cambio pequeño. *Contra:* es un paso más. Si se olvida, la primera tarea va sin SF.
+
+Recomendación
+:   **A**, con la línea de `/clear` como respaldo. Es un bug, así que va a la cola ya.
+
+### El panel sin SF era ruido {: #f-panel}
+
+Qué pasaba
+:   Una carpeta sin SF enseñaba el nombre de la skill, dos JSON de ejemplo, «ninguna tarea en curso» y tres secciones a cero.
+
+Hecho
+:   Ahora sale una bienvenida: «SF» en letras de bloque, en naranja, una frase y una sola acción, «Para empezar, escribe en el chat: incorpora este proyecto a la SF». Se centra según el ancho del panel. La caja sobre el prompt lo dice en dos líneas.
+
+Queda
+:   Verla en una sesión real a pantalla completa, en un panel estrecho y en uno ancho. Y quitar la descripción antigua del documento del panel.
+
+### Claude no sabe nada de la SF fuera de un proyecto suyo {: #f-claude}
+
+Qué pasa
+:   Fuera de un proyecto incorporado, el mod no da contexto a Claude, salvo el aviso de Python cuando hace falta. Ante «¿qué hago ahora?» o «¿dónde está el panel?», Claude solo tiene las descripciones de las skills.
+
+Opción A
+:   Una línea de contexto al empezar, solo en las carpetas sin SF. Dice que la SF está instalada, que esta carpeta no está incorporada, cómo se incorpora y que el panel se abre con `/sf`. Claude no lo ofrece si no se le pregunta. *Pro:* responde bien a la primera. *Contra:* unas decenas de tokens en cada carpeta sin SF.
+
+Opción B
+:   Una orden de barra, `/sf_incorporar`, que pide la incorporación a Claude. *Pro:* sale en el menú de `/`. *Contra:* hay que conocerla.
+
+Recomendación
+:   **A y B.** A responde a lo que se pregunta y B da un atajo. La bienvenida del panel puede nombrar la orden.
+
+### Instalación a medias, sin aviso {: #f-medias}
+
+Qué pasa
+:   Si `sf` no llega a instalarse, o le falta una dependencia, no carga nada de la SF. No hay panel ni mod que avisen.
+
+Límite
+:   Sin `sf` cargado, la SF no puede decir nada. Las dependencias son repositorios de otros, sin código nuestro. Claude Code solo avisa en `/plugin`: «failed to load», con la primera dependencia que falta.
+
+Opción A
+:   En la portada, un paso de comprobación: `claude plugin list` debe dar `sf@softwarefactory` activo; si no, se repite la instalación. Y se quita del README del plugin el recuadro antiguo de las dependencias, el de quien actualiza desde la 1.2.10. *Pro:* se hace ya. *Contra:* funciona solo si se lee.
+
+Opción B
+:   Las dependencias dejan de ser obligatorias. `sf` carga siempre, y el panel avisa de las que faltan y las instala, como ya hace ACTUALIZAR. *Pro:* `sf` siempre puede avisar. *Contra:* cambia cómo se distribuye la SF, y una skill puede necesitar una dependencia que aún no está.
+
+Recomendación
+:   **A** ahora. B, como propuesta, si vuelve a pasar.
+
+### El panel y la pantalla completa {: #f-pantalla}
+
+Qué pasa
+:   El panel se abre solo a pantalla completa. Sin ella, sale una caja sobre el prompt, y `/sf` pinta el panel en la conversación, donde los clics no llegan. Claude ofrece activarla con el primer mensaje, también en una carpeta sin SF, donde aún no hace falta.
+
+Propuesta
+:   La guía dice `/tui fullscreen` antes de empezar. En una carpeta sin SF no se ofrece: la ofrece la incorporación al terminar.
+
+Recomendación
+:   **Las dos.** La bienvenida ya no lleva el aviso de los botones.
+
+### Al terminar la incorporación, ¿qué? {: #f-despues}
+
+Qué pasa
+:   El informe final dice qué se ha creado y qué mirar en el panel, pero no cómo seguir.
+
+Propuesta
+:   Que acabe con una línea: «Pide tu primera tarea, por ejemplo: añade un README que explique el proyecto». Claude la pone en la cola, la hace en su rama y te pide probarla.
+
+Recomendación
+:   **Hacerlo,** junto con el arreglo de las reglas.
+
+:::
+
+### Guía de arranque {: #segunda-guia}
+
+Es un borrador para la portada, en lugar del apartado «Instalar». Son seis pasos:
+
+1. **Antes:** Claude Code con la sesión iniciada, git con nombre y correo, `gh` con `gh auth login` hecho y Python 3.9 o posterior.
+2. **Instala**, una vez por equipo, con `claude plugin marketplace add jumibot/SoftwareFactory` y después `claude plugin install sf@softwarefactory --scope user`.
+3. **Comprueba** con `claude plugin list` que sale `sf@softwarefactory` activo. Si no sale, repite la segunda orden. No instales las dependencias a mano.
+4. **Abre Claude Code** en una carpeta vacía o en tu proyecto, y pon la pantalla completa con `/tui fullscreen`. El panel de la SF se abre a la derecha, con la bienvenida.
+5. **Escribe «incorpora este proyecto a la SF».** Contesta los tres menús y pulsa «Aplicar». En una carpeta vacía, la incorporación crea git, las ramas y un repositorio privado en tu GitHub.
+6. **Pide tu primera tarea**, por ejemplo «añade un README». Claude la hace en su rama y te pide probarla. Ciérrala desde el panel.
+
+Hasta que se arregle lo de las reglas, entre los pasos 5 y 6 hay que salir de Claude Code y volver a abrirlo en la carpeta. `/clear` no basta.
 
 ## Recorrido | Qué se ha podido hacer y qué no | Recorrido {#recorrido}
 

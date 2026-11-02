@@ -4,4 +4,4 @@
 - **Contexto:** con la SF instalada, en una carpeta sin `.sf/proyecto.json` el mod solo da a Claude la línea de Python; el colega tuvo que preguntar dónde estaba el panel.
 - **Decisión:** en una carpeta sin SF, Claude pregunta al usuario, con un menú, si quiere incorporar el proyecto a la SF. Si dice que sí, lanza la incorporación (`sf:incorporar_proyecto_a_sf`).
 - **Consecuencias:** el mod da a Claude ese encargo al empezar en una carpeta sin SF. Queda por concretar cuándo no se vuelve a preguntar si el usuario dice que no.
-- **Aplicada en:** pendiente; en la 289.
+- **Aplicada en:** la 289.

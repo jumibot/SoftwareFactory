@@ -895,7 +895,12 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <pre><code class="language-bash"><span class="sx-f">claude</span> plugin marketplace add jumibot/SoftwareFactory
 <span class="sx-f">claude</span> plugin install sf@softwarefactory <span class="sx-a">--scope</span> user
 </code></pre>
-<p>Después, reinicia Claude Code. Instalar <code>sf</code> trae solas sus tres dependencias (<code>gsap-skills</code>, <code>threejs-skills</code> y <code>oklch-skill</code>). Más detalle, en <a href="plugins/sf/README.md#instalación">el README del plugin</a>.</p>
+<p>Instalar <code>sf</code> trae solas sus tres dependencias (<code>gsap-skills</code>, <code>threejs-skills</code> y <code>oklch-skill</code>): no las instales a mano. Después:</p>
+<ol>
+<li><strong>Comprueba la instalación.</strong> Abre Claude Code y pídele: «Comprueba la instalación de la SF: el catálogo softwarefactory, el plugin sf@softwarefactory y sus dependencias, con <code>claude plugin list</code>, y arregla lo que falte con mi OK». Claude lo mira todo, te dice qué falta y lo arregla si le das el OK.</li>
+<li><strong>Empieza.</strong> Abre Claude Code en una carpeta vacía o en tu proyecto. Claude te preguntará si quieres incorporarlo a la SF; dile que sí. Pon la pantalla completa (<code>/tui fullscreen</code>) para ver el panel de la SF a la derecha.</li>
+</ol>
+<p>Más detalle, en <a href="plugins/sf/README.md#instalación">el README del plugin</a>.</p>
 <p>La SF tiene licencia MIT (<a href="LICENSE">LICENSE</a>); lo que toma de terceros y sus licencias, en <a href="plugins/sf/LICENCIAS-DE-TERCEROS.md"><code>plugins/sf/LICENCIAS-DE-TERCEROS.md</code></a>.</p>
 </details><details id="las-visiones-de-la-sf" class="bloque bloque-2" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Las visiones de la SF</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
 <p>Empieza por aquí. Cada visión cuenta la SF desde una perspectiva, a vista de pájaro, para no perder el rumbo.</p>
@@ -1094,7 +1099,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 
     <footer class="site-footer">
       SoftwareFactory · Índice
-    <p class="procedencia">Generado el 02/11/2026 18:19 · fuente Índice de la SoftwareFactory.md · huella 1a1e4efb7819 · sin commit</p></footer>
+    <p class="procedencia">Generado el 02/11/2026 19:05 · fuente Índice de la SoftwareFactory.md · huella 8395b4849c70 · sin commit</p></footer>
 
   </div>
 <script>

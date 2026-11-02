@@ -1,5 +1,6 @@
 import { atom, read, update } from 'claude-code'
 import type { $ } from './lectura'
+import { sinSf } from './contexto'
 
 // ── Sin pantalla completa, los clics no llegan (tarea 264) ──
 // Fuera de la pantalla completa de Claude Code (ajuste «tui»), el panel y la caja se pintan en la conversación y no
@@ -45,9 +46,11 @@ export async function textoPantalla($: $): Promise<string> {
   return `${base}Con su OK, añade "tui": "fullscreen" a .claude/settings.local.json del proyecto (nunca a ~/.claude sin su OK expreso) y dile que la tome con /exit y claude --continue. Alternativa suya: /tui fullscreen, que cambia al momento pero la guarda en ~/.claude, para todos sus proyectos.`
 }
 
-// El contexto del primer mensaje del propietario sin pantalla completa, una vez por conversación; si no, null.
+// El contexto del primer mensaje del propietario sin pantalla completa, una vez por conversación; si no, null. En una
+// carpeta sin SF, todavía no: se ofrece con el primer mensaje tras incorporarla, junto a las reglas (decisión 245).
 export async function ofrecerPantalla($: $): Promise<string | null> {
   if (vista !== false || (await read($, ofrecida))) return null
+  if (await sinSf($)) return null
   await update($, ofrecida, () => true)
   return textoPantalla($)
 }

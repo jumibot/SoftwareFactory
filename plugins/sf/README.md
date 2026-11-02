@@ -73,17 +73,7 @@ claude plugin install sf@softwarefactory --scope user
 
 Al instalar `sf` se instalan también sus dependencias: `gsap-skills`, `threejs-skills` y `oklch-skill`. Son entradas del catálogo de la SF fijadas a un commit de sus repositorios (decisiones 175 y 176), así que no hace falta añadir ningún otro catálogo.
 
-### Si actualizas desde la 1.2.10 o antes
-
-Desde la 1.3.0, `sf` depende de `threejs-skills`, `oklch-skill` y `gsap-skills`. El botón ACTUALIZAR de la 1.2.10 o antes y `claude plugin update` no las instalan, y sin ellas `sf` no carga, ni su panel: `/plugin` lo da como «failed to load» y nombra solo la primera que falta. Instálalas con una orden por dependencia, porque `claude plugin install` instala solo el primer plugin que se le da, y reinicia Claude Code:
-
-```
-claude plugin install threejs-skills@softwarefactory --scope user
-claude plugin install oklch-skill@softwarefactory --scope user
-claude plugin install gsap-skills@softwarefactory --scope user
-```
-
-Con `sf` instalado en otro scope, el mismo en las tres órdenes.
+Después, en Claude Code, pide «comprueba la instalación de la SF»: la skill `sf:comprobar_instalacion` revisa el catálogo, `sf`, sus dependencias y los requisitos, y arregla lo que falte con tu OK (decisión 244).
 
 ## Publicar un cambio
 

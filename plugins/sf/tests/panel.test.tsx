@@ -5980,3 +5980,96 @@ test('Bienvenida: en ancho, el logo y el nombre espaciado; en estrecho, sin part
   expect(bienvenida(20).filter(x => x.estilo === 'orden').length).toBeGreaterThan(1)
   expect(partir('una palabra', 5)).toEqual(['una', 'palab'])
 })
+
+// ── Tras incorporar, las reglas sin reiniciar (decisión 242); sin SF, ofrecer incorporarla (243) ──
+test('Reglas: una carpeta que se incorpora en la conversación recibe las reglas con el siguiente mensaje, una vez', async (...m) => {
+  const { archivos, contextos } = await preparar(m, { sinMarca: true, extra: REGLAS_PLUGIN })
+  expect(await inicio(m, 'startup')).toEqual([])
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)?.some(c => /entregado por su mod/.test(c))).toBe(false)
+  archivos['/sf/.sf/proyecto.json'] = PROYECTO_DEMO()
+  await escribe(m, 'ya está incorporado')
+  const dado = contextos.at(-1)!.find(c => /entregado por su mod/.test(c))!
+  expect(dado).toMatch(/^Software Factory \(plugin sf, entregado por su mod al incorporarse el proyecto en esta conversación\)/)
+  expect(dado).toMatch(/sf:orquestacion, ya cargada/)
+  await escribe(m, 'sigo')
+  expect(contextos.at(-1)?.some(c => /entregado por su mod/.test(c)) ?? false).toBe(false)
+  // /clear, de respaldo: las vuelve a dar en su SessionStart, sin repetirlas después.
+  expect((await inicio(m, 'clear'))[0]).toMatch(/al hacer \/clear/)
+  await escribe(m, 'tras clear')
+  expect(contextos.at(-1)?.some(c => /entregado por su mod/.test(c)) ?? false).toBe(false)
+})
+
+test('Reglas: en un proyecto ya incorporado, el primer mensaje no las repite', async (...m) => {
+  const { contextos } = await preparar(m, { sinMarca: true, extra: { ...REGLAS_PLUGIN, '/sf/.sf/proyecto.json': PROYECTO_DEMO() } })
+  expect((await inicio(m, 'startup')).length).toBe(1)
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)?.some(c => /entregado por su mod/.test(c)) ?? false).toBe(false)
+})
+
+test('Incorporar: sin SF, el primer mensaje lleva el encargo de preguntar con un menú, una vez; tras /clear, otra vez', async (...m) => {
+  const { contextos } = await preparar(m, { sinMarca: true })
+  await escribe(m, 'hola')
+  const encargo = contextos.at(-1)!.find(c => /no está incorporada a la SF/.test(c))!
+  expect(encargo).toMatch(/AskUserQuestion/)
+  expect(encargo).toMatch(/«Sí, incorporarlo», «Ahora no» y «No, y no vuelvas a preguntar en esta carpeta»/)
+  expect(encargo).toMatch(/escribiendo «incorpora este proyecto a la SF»/)
+  expect(encargo).toMatch(/sf:incorporar_proyecto_a_sf/)
+  await escribe(m, 'otra')
+  expect(contextos.at(-1)).toBe(undefined)
+  await m[0].classic.SessionStart({ source: 'clear' })
+  await escribe(m, 'de nuevo')
+  expect(contextos.at(-1)?.some(c => /no está incorporada a la SF/.test(c))).toBe(true)
+})
+
+test('Incorporar: en un proyecto con SF o en la propia SF, nada', async (...m) => {
+  const { contextos } = await preparar(m)
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)?.some(c => /no está incorporada a la SF/.test(c)) ?? false).toBe(false)
+})
+
+test('Pantalla completa: sin SF no se ofrece; tras incorporar, con el siguiente mensaje, junto a las reglas', async (...m) => {
+  const { archivos, contextos } = await preparar(m, { sinMarca: true, extra: REGLAS_PLUGIN })
+  await inicio(m, 'startup')
+  await ofertaTras(m, CAJA_NORMAL)
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)?.some(c => /no está en pantalla completa/.test(c))).toBe(false)
+  archivos['/sf/.sf/proyecto.json'] = PROYECTO_DEMO()
+  await escribe(m, 'incorporado')
+  const c = contextos.at(-1)!
+  expect(c.some(x => /entregado por su mod al incorporarse/.test(x))).toBe(true)
+  expect(c.some(x => /no está en pantalla completa/.test(x))).toBe(true)
+})
+
+// Decisión 246: «No, y no vuelvas a preguntar en esta carpeta» se recuerda por carpeta; «Ahora no», solo en la conversación.
+const respondeMenu = (m: Motor, respuesta: string) => {
+  m[1]('tool.call', { tool: 'AskUserQuestion' }, (_, e) => {
+    const q = (e as unknown as { questions: { question: string }[] }).questions[0]!.question
+    return { result: { questions: (e as unknown as { questions: unknown[] }).questions, answers: { [q]: respuesta } } as never }
+  })
+}
+const preguntaIncorporar = (m: Motor) =>
+  m[0].tool.call({ tool: 'AskUserQuestion', questions: [{ question: '¿Incorporar este proyecto a la SF?', header: 'SF', multiSelect: false, options: [{ label: 'Sí, incorporarlo', description: '' }, { label: 'Ahora no', description: '' }, { label: 'No, y no vuelvas a preguntar en esta carpeta', description: '' }] }] } as never)
+
+test('Incorporar: con «No, y no vuelvas a preguntar en esta carpeta», no se pregunta más en ella, ni tras /clear', async (...m) => {
+  respondeMenu(m, 'No, y no vuelvas a preguntar en esta carpeta')
+  const { contextos, guardado } = await preparar(m, { sinMarca: true })
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)?.some(c => /no está incorporada a la SF/.test(c))).toBe(true)
+  await preguntaIncorporar(m)
+  expect(guardado.noIncorporar).toEqual({ '/sf': true })
+  await m[0].classic.SessionStart({ source: 'clear' })
+  await escribe(m, 'de nuevo')
+  expect(contextos.at(-1)?.some(c => /no está incorporada a la SF/.test(c)) ?? false).toBe(false)
+})
+
+test('Incorporar: con «Ahora no», nada guardado: tras /clear se vuelve a preguntar', async (...m) => {
+  respondeMenu(m, 'Ahora no')
+  const { contextos, guardado } = await preparar(m, { sinMarca: true })
+  await escribe(m, 'hola')
+  await preguntaIncorporar(m)
+  expect(guardado.noIncorporar).toBe(undefined)
+  await m[0].classic.SessionStart({ source: 'clear' })
+  await escribe(m, 'de nuevo')
+  expect(contextos.at(-1)?.some(c => /no está incorporada a la SF/.test(c))).toBe(true)
+})

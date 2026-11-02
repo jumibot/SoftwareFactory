@@ -21,7 +21,12 @@ claude plugin marketplace add jumibot/SoftwareFactory
 claude plugin install sf@softwarefactory --scope user
 ```
 
-Después, reinicia Claude Code. Instalar `sf` trae solas sus tres dependencias (`gsap-skills`, `threejs-skills` y `oklch-skill`). Más detalle, en [el README del plugin](plugins/sf/README.md#instalación).
+Instalar `sf` trae solas sus tres dependencias (`gsap-skills`, `threejs-skills` y `oklch-skill`): no las instales a mano. Después:
+
+1. **Comprueba la instalación.** Abre Claude Code y pídele: «Comprueba la instalación de la SF: el catálogo softwarefactory, el plugin sf@softwarefactory y sus dependencias, con `claude plugin list`, y arregla lo que falte con mi OK». Claude lo mira todo, te dice qué falta y lo arregla si le das el OK.
+2. **Empieza.** Abre Claude Code en una carpeta vacía o en tu proyecto. Claude te preguntará si quieres incorporarlo a la SF; dile que sí. Pon la pantalla completa (`/tui fullscreen`) para ver el panel de la SF a la derecha.
+
+Más detalle, en [el README del plugin](plugins/sf/README.md#instalación).
 
 La SF tiene licencia MIT ([LICENSE](LICENSE)); lo que toma de terceros y sus licencias, en [`plugins/sf/LICENCIAS-DE-TERCEROS.md`](plugins/sf/LICENCIAS-DE-TERCEROS.md).
 

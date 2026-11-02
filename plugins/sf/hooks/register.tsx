@@ -5,7 +5,7 @@ import { CADA_COMPROBACION, arrancar, comprobarActualizacion, copiarCola, elegir
 import { CLAVE_PLEGADO, PANEL, migrarPlegado } from './constantes'
 import { escribir } from './control'
 import { cargarAvisosPanel, encargarAClaude, tomarAvisoPanel } from './avisos'
-import { anadirRegla, contextoInicial, contextoPython } from './contexto'
+import { anadirRegla, anotarRespuestaIncorporar, contextoInicial, contextoPython, ofrecerIncorporar, reglasAlIncorporar, reiniciarIncorporar } from './contexto'
 import { detectarPython } from './python'
 import { marcarSubagente } from './lectura'
 import type { $ } from './lectura'
@@ -86,6 +86,7 @@ async function cargar($: $, nueva = false): Promise<number> {
     await update($, prompts, () => 0)
     await update($, sesion, () => ({ limpiadas: {} }))
     await reiniciarOferta($)
+    await reiniciarIncorporar($)
     olvidarTitulosInicio()
     await rearmarAvisosSubagentes($)
   }
@@ -250,6 +251,13 @@ export const register: Register = on => {
     return aviso ? { ...r, context: [...(r.context ?? []), aviso] } : r
   }).catch(($, e, next) => next(e))
 
+  // La respuesta al menú de incorporar (decisión 246): «No, y no vuelvas a preguntar en esta carpeta» se guarda por carpeta.
+  on('tool.call', { tool: 'AskUserQuestion' }, async ($, e, next) => {
+    const r = await next(e)
+    if (!e.agentId && r.deny === undefined && r.isError !== true) await anotarRespuestaIncorporar($, (r.result as { answers?: unknown } | undefined)?.answers).catch(() => undefined)
+    return r
+  }).catch(($, e, next) => next(e))
+
   // Un subagente parado con TaskStop: su ⚙ se va al momento, aunque el motor ya no lo liste (tarea 225). Si TaskStop
   // falla (ya había entregado su informe y no hay nada que parar), sigue esperando instrucciones.
   on('tool.call', { tool: 'TaskStop' }, async ($, e, next) => {
@@ -290,12 +298,16 @@ export const register: Register = on => {
     if (e.command) return next(e)
     const delPropietario = !e.isMeta && DEL_PROPIETARIO.has(e.origin.kind)
     if (!delPropietario && e.origin.kind !== 'task-notification') return next(e)
+    // La carpeta se acaba de incorporar en esta conversación: las reglas y la orquestación, una vez (decisión 242). Sin
+    // SF, el encargo de ofrecer la incorporación, una vez por conversación (decisión 243).
+    const reglas = delPropietario ? await reglasAlIncorporar($).catch(() => null) : null
+    const incorporar = delPropietario ? await ofrecerIncorporar($).catch(() => null) : null
     const tomado = delPropietario ? await tomarAvisoPanel($).catch(() => null) : null
     const panel = tomado?.aviso ?? null
     // Sin pantalla completa, la oferta de activarla, una vez por conversación (tarea 264).
     const pantalla = delPropietario ? await ofrecerPantalla($).catch(() => null) : null
     const subagentes = await leerAvisoSubagentes($).catch(() => null)
-    const avisos = [panel, pantalla, subagentes].filter((x): x is string => !!x)
+    const avisos = [reglas, incorporar, panel, pantalla, subagentes].filter((x): x is string => !!x)
     if (!avisos.length) return next(e)
     // Si el mensaje no llega a entrar (otro hook lo descarta), el aviso del panel queda pendiente para el siguiente.
     const r = await next({ ...e, context: [...(e.context ?? []), ...avisos] }).catch(async (err: unknown) => {

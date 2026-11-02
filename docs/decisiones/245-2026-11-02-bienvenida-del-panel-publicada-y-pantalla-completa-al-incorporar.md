@@ -4,4 +4,4 @@
 - **Contexto:** en un proyecto sin SF el panel mostraba dos JSON de ejemplo; se sustituyó por una bienvenida con la marca, una frase y la acción «incorpora este proyecto a la SF». La pantalla completa se ofrecía en el primer mensaje.
 - **Decisión:** la bienvenida se publica tal cual. La pantalla completa se ofrece al terminar la incorporación, no en una carpeta sin SF.
 - **Consecuencias:** sale la 1.7.3 con la bienvenida.
-- **Aplicada en:** la bienvenida, en la 289 (1.7.3); la pantalla completa, pendiente en la 289.
+- **Aplicada en:** la 289.

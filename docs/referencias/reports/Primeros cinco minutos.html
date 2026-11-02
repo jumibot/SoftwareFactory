@@ -11,7 +11,7 @@
   <style>
     :root { --primario: #1d6fb6; --oscuro: #124571; --primario-vivo: #5693c8; --fondo: #f1f5f9; --borde: #e2e8f0; --linea: #e2e8f0; --fondo-medio: #e2e8f0; --fondo-suave: #f8fafc; --tenue: #99bede; --pagina: #f8fafc; --texto: #1f2937; --texto-suave: #4b5563; --texto-tenue: #9ca3af; --acento: #be185d; --acento-fondo: #fbf1f5; --acento-borde: #edbed2; --primario-rgb: 29, 111, 182; --fuente-texto: 'DM Sans', Arial, sans-serif; --fuente-titulos: 'Outfit', 'DM Sans', sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; }
   </style>
-  <style data-kit="skills/documento_fundacional/assets/estilo_fundacional.css">
+  <style data-kit="skills/crear_documentos/assets/estilo_documento.css">
 /* Maqueta editorial del documento fundacional (skill documento_fundacional).
  * Portada (clara u oscura, con cifras), menú fijo, secciones numeradas «01 / ETIQUETA», entradilla,
  * recuadros (aviso, decisión), tarjetas, columnas, fichas con buscador, fuentes y referencias.
@@ -211,6 +211,38 @@ summary.tarjeta-cabecera:focus-visible { outline: 3px solid var(--c-oscuro, var(
 .seccion dd p { margin: .3rem 0; }
 .seccion dd > :last-child { margin-bottom: 0; }
 
+/* Botón «Plegar las tarjetas» delante de un bloque de tarjetas plegables (assets/plegado.js). No se imprime. */
+.plegar-tarjetas { display: block; margin: .8rem 0 -.4rem auto; min-height: 28px; padding: .2rem .7rem; border: 1px solid var(--borde);
+                   border-radius: 6px; background: #fff; color: var(--oscuro); font: inherit; font-size: .875rem; font-weight: 650; cursor: pointer; }
+.plegar-tarjetas:hover { background: var(--fondo); }
+.plegar-tarjetas:focus-visible { outline: 3px solid var(--primario); outline-offset: 2px; }
+
+/* Preguntas con opciones («::: preguntas»): tarjetas con cabecera y la marca de su estado (abierta, decidida,
+ * separada). La opción recomendada lleva un filete del color del tema y su marca; la elegida, la suya, y las demás
+ * pasan a gris. «Recomendación» y «Decisión» van en un recuadro suave. El estado no usa los colores de la serie,
+ * que en el documento ya significan otra cosa. */
+.pregunta > .tarjeta-cabecera { flex-wrap: wrap; row-gap: .35rem; }
+.pregunta > summary.tarjeta-cabecera { position: relative; padding-right: 2.6rem; }
+.pregunta > summary.tarjeta-cabecera::after { position: absolute; right: 1.2rem; top: 1.3rem; margin: 0; }
+.estado-pregunta { margin-left: auto; flex: none; padding: .12rem .6rem; border-radius: 999px; font-size: .8125rem; font-weight: 700;
+                   letter-spacing: .04em; line-height: 1.5; white-space: nowrap; }
+.estado-pregunta.abierta { background: #fff; color: var(--acento); border: 1.5px solid var(--acento); }
+.estado-pregunta.decidida { background: var(--primario); color: #fff; border: 1.5px solid var(--primario); }
+.estado-pregunta.separada { background: #fff; color: var(--texto-suave); border: 1.5px dashed var(--texto-tenue); }
+.pregunta dt.opcion { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.pregunta dt.opcion.recomendada, .pregunta dd.opcion.recomendada,
+.pregunta dt.opcion.elegida, .pregunta dd.opcion.elegida { border-left: 3px solid var(--primario); padding-left: .75rem; }
+.pregunta dt.opcion.elegida, .pregunta dd.opcion.elegida { border-left-color: var(--oscuro); }
+.pregunta dd.opcion.descartada { color: var(--texto-suave); }
+.marca-opcion { padding: .05rem .5rem; border-radius: 4px; font-size: .8125rem; letter-spacing: .06em; font-weight: 750; color: #fff;
+                background: var(--primario); }
+.marca-opcion.elegida { background: var(--oscuro); }
+.pregunta dt.recomendacion, .pregunta dt.decision { margin-bottom: 0; padding: .6rem .85rem 0; border-top: 0;
+                                                     background: var(--fondo); border-radius: 8px 8px 0 0; }
+.pregunta dd.recomendacion, .pregunta dd.decision { padding: .25rem .85rem .7rem; background: var(--fondo); border-radius: 0 0 8px 8px; }
+.pregunta dt.decision, .pregunta dd.decision { background: var(--fondo-medio); }
+.pregunta dt.decision { color: var(--oscuro); }
+
 /* Insignias, referencias y saltos */
 a.insignia { display: inline-block; padding: .22rem .5rem; margin: .1rem .1rem .1rem 0; border-radius: 5px; background: var(--fondo-medio);
              color: var(--oscuro); font-size: .8125rem; font-weight: 750; text-decoration: none; }
@@ -274,7 +306,7 @@ code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; bo
   .portada, .portada.oscura { background: #fff; color: var(--texto); padding: 0 0 1rem; break-after: page; border: 0; }
   .oscura .marca, .oscura .cifras strong { color: var(--primario); }
   .oscura .subtitulo, .oscura .idea p, .oscura .datos-version, .oscura .datos-version span, .oscura .cifras span { color: var(--texto); }
-  .menu, .buscador, .sin-resultados, .imprimir, .saltar { display: none !important; }
+  .menu, .buscador, .sin-resultados, .imprimir, .saltar, .plegar-tarjetas { display: none !important; }
   .seccion-titulo::after { display: none; }
   details.seccion::details-content { content-visibility: visible; display: block; } /* abiertas aunque no haya JS */
   .ficha[hidden] { display: flex !important; }
@@ -283,7 +315,7 @@ code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; bo
   .tarjeta { break-inside: avoid; margin-bottom: .8rem; }
   details.tarjeta::details-content { content-visibility: visible; display: block; }
   summary.tarjeta-cabecera::after { display: none; }
-  .con-color > .tarjeta-cabecera { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .con-color > .tarjeta-cabecera, .estado-pregunta, .marca-opcion { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .seccion h2, .etiqueta, .seccion h3, .seccion h4, .seccion dt { break-after: avoid; }
   .seccion ol > li, .seccion tr, .fuentes p { break-inside: avoid; }
   .fuentes { display: block; }
@@ -303,7 +335,7 @@ code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; bo
 .herramienta button:focus-visible, .herramienta input:focus-visible, .herramienta textarea:focus-visible, .abrir-herramienta:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 .herramienta ol, .herramienta p { margin: 0; padding: 0; }
 .bd-campo { display: block; }
-/* Columna de herramientas y buscador, según el modelo de los 20 casos de OncoCore.
+/* Columna de herramientas y buscador.
  * Desde 1400 px, la herramienta va anclada en una columna a la derecha, de ancho ajustable y plegable;
  * la chincheta de la barra (a la derecha del engranaje) las despega todas como ventanas flotantes, que se arrastra y se minimiza. Por debajo, minimizada del todo
  * hasta pulsar «Buscar» en el menú; entonces se abre como panel inferior, sin tapar la cabecera ni el menú. */
@@ -375,7 +407,7 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 .dc-guardar { font: inherit; font-size: .8125rem; font-weight: 700; cursor: pointer; border: 1px solid var(--primario); border-radius: var(--esquinas, 6px);
   background: var(--primario); color: #fff; padding: .3rem .75rem; min-height: 24px; }
 .dc-guardar:hover { background: var(--oscuro); border-color: var(--oscuro); }
-/* En la columna, la barra es su primera tarjeta, como en OncoCore: versión y herramientas, estado y «Guardar». */
+/* En la columna, la barra es su primera tarjeta: versión y herramientas, estado y «Guardar». */
 .columna-herramientas > .barra-doc { display: flex; flex-wrap: nowrap; min-width: 0; box-sizing: border-box; justify-content: space-between; align-items: center; gap: .7rem;
   padding: .45rem .45rem .45rem .8rem; font-size: .78rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px);
   background: linear-gradient(180deg, var(--fondo) 0, #fff 100%); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
@@ -390,7 +422,7 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 .nt-nota textarea { resize: vertical; min-height: 4.2em; line-height: 1.45; }
 .nt-ayuda, .nt-vacio { font-size: .8125rem; color: var(--texto-suave); }
 .nt-lista { list-style: none; display: grid; gap: .6rem; }
-/* Tarjetas de nota (modelo gene_associations de OncoCore). En la columna no hay panel común: cada nota es su propia
+/* Tarjetas de nota. En la columna no hay panel común: cada nota es su propia
  * tarjeta, con el aspecto de una herramienta; en la ventana flotante y en el móvil van dentro del panel «Notas». */
 .nt-general-zona, .nt-foco { display: grid; gap: .8rem; }
 .nt-general-zona:empty, .nt-foco:empty { display: none; }
@@ -443,7 +475,7 @@ mark.nota-cita.destello { background: var(--acento); color: #fff; transition: ba
   background: var(--oscuro); color: #fff; padding: .4rem .8rem; min-height: 32px; box-shadow: 0 6px 18px rgba(0, 0, 0, .25); }
 .boton-anotar[hidden] { display: none; }
 
-/* Aspecto de tarjeta (como en OncoCore): franja de color arriba, fondo tintado y sombra del color del tema. */
+/* Aspecto de tarjeta: franja de color arriba, fondo tintado y sombra del color del tema. */
 html.con-columna .columna-herramientas { background: var(--fondo-suave); box-shadow: -6px 0 18px rgba(var(--primario-rgb, 0, 0, 0), .08); }
 .herramienta { position: relative; padding: .9rem 1rem 1rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px);
   background: linear-gradient(180deg, var(--fondo) 0, #fff 3.2rem); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
@@ -609,7 +641,7 @@ p.editando { outline: 2px solid var(--primario); outline-offset: 4px; border-rad
 /* Pie con la procedencia del documento (la ponen los generadores). */
 .procedencia { font-size: .75rem; color: var(--texto-suave); margin-top: .35rem; font-variant-numeric: tabular-nums; }
 
-/* Tamaño de las notas en la columna (modelo OncoCore): el panel ocupa lo que dejan las demás herramientas y cada
+/* Tamaño de las notas en la columna: el panel ocupa lo que dejan las demás herramientas y cada
  * nota abierta se reparte ese alto con las otras, entre 12em y el 60 % de la pantalla; su texto llena la tarjeta. */
 html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="columna"] { display: flex; }
 html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="columna"]:has(.nt-tarjeta:not(.plegada):not(.nt-todas)) { flex: 1 0 auto; }
@@ -621,7 +653,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .herr-notas.por-seccion[data-modo="columna"] .nt-nota:has(> textarea.nt-amplia) { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 7em; }
 .herr-notas.por-seccion[data-modo="columna"] textarea.nt-amplia { flex: 1 1 auto; min-height: 7em; resize: none; }
 
-/* Notas en su sitio (1.8.0; discretas desde la 1.8.1): sin columna, como en OncoCore, cada sección acaba con un
+/* Notas en su sitio (1.8.0; discretas desde la 1.8.1): sin columna, cada sección acaba con un
    rótulo pequeño, el campo de texto abierto y «Convertir en párrafo» a la derecha, sin caja ni plegado. La nota general
    y «Tus notas» van al principio del documento. */
 :is(.nt-sitio, .nt-sitio-inicio) button { font: inherit; font-size: .8rem; font-weight: 600; line-height: 1.2; cursor: pointer;
@@ -662,14 +694,142 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <p>Lo demás no impide avanzar, pero hace dudar. No hay guía para quien empieza, y el README raíz está escrito para el propietario. JKanban sale en la incorporación. Cerrar sin remoto da un aviso que no se entiende. La metodología sigue hablando del registro común y del kanban de la SF, ya retirados («Sin registro ni mejoras de la SF desde otros proyectos», 194).</p>
 <p>Casi todo lo que solo vale en esta máquina ya lo inventarió «Plugin en otros proyectos» (171) con la 1.2.0. En la 1.4.2 sigue igual, salvo el registro de uso, que lo retiró la decisión 194.</p>
 <aside class="recuadro"><p><strong>Con la 1.5.0, de los tres bloqueos queda uno seguro y otro según el sistema del colega.</strong> La incorporación ya crea git, <code>develop</code> y el remoto en GitHub, y el kanban es opcional y por defecto ninguno. Siguen el repositorio privado y la orden <code>python</code> fija. De los 18 atascos, cuatro quedan resueltos, seis a medias y ocho siguen; sale uno nuevo: sin GitHub y <code>gh</code> no hay SF.</p></aside>
-<p><a class="salto" href="#revision">Ver la revisión</a> · <a class="salto" href="#decidir">Ver las decisiones</a></p></div></details><details class="seccion" id="recorrido"><summary class="seccion-titulo"><span class="etiqueta">02 / Recorrido</span><h2>Qué se ha podido hacer y qué no</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Se ha recorrido el camino en una configuración desechable (<code>CLAUDE_CONFIG_DIR</code> en el scratchpad), sin tocar <code>~/.claude</code> ni los plugins instalados:</p>
+<p><a class="salto" href="#segunda-vuelta">Ver la segunda vuelta</a> · <a class="salto" href="#revision">Ver la revisión</a> · <a class="salto" href="#decidir">Ver las decisiones</a></p></div></details><details class="seccion" id="segunda-vuelta"><summary class="seccion-titulo"><span class="etiqueta">02 / Segunda vuelta</span><h2>La primera instalación real · 2 de noviembre de 2026</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Un colega instaló la SF en su Mac desde la portada pública. Tropezó así:</p>
+<ul>
+<li><strong>Ejecutó primero las órdenes de las dependencias.</strong> Salían en un recuadro antiguo, y él aún no había añadido el catálogo. Fallaron con «not found in marketplace».</li>
+<li><strong>oklch-skill se clonaba por SSH,</strong> y sin clave fallaba.</li>
+<li><strong>Le quedaron las tres dependencias sin <code>sf</code>,</strong> y nada lo avisó. Su Claude tuvo que buscar en <code>~/.claude</code> dónde estaba el panel.</li>
+<li><strong>Después no sabía qué hacer.</strong> En su carpeta vacía, el panel enseñaba dos JSON de ejemplo y las secciones a cero.</li>
+</ul>
+<p>Los dos primeros tropiezos los arreglan la 1.7.1 y la 1.7.2, y el tercero lo previenen. Esta vuelta mira lo que queda.</p>
+<h3 id="segunda-comprobado">Lo comprobado</h3>
+<ul>
+<li><strong>La instalación desde <code>jumibot/SoftwareFactory</code>,</strong> en una configuración desechable, con las dos órdenes de la portada. El catálogo se añade en 6 s. <code>sf</code> 1.7.2 se instala con sus tres dependencias en 13 s. <code>claude plugin list</code> da las cuatro como activas.</li>
+<li><strong>Una sesión en una carpeta vacía:</strong> el mod carga y copia la cola. Claude no contesta: «Not logged in». Lo que ve Claude se ha deducido del código del mod.</li>
+<li><strong>El código instalado es el de <code>develop</code>:</strong> solo cambia la versión.</li>
+</ul>
+<aside class="recuadro"><p><strong>Lo más grave no está en la instalación, sino justo después.</strong> Si se incorpora el proyecto en la misma conversación, la SF no entra. El mod decide al empezar si la carpeta es de la SF y guarda la respuesta, «no», hasta recargar el plugin. Ni <code>/clear</code> la cambia. La primera tarea va sin las reglas de la SF ni la orquestación.</p></aside>
+<h3 id="segunda-fricciones">Fricciones, por impacto</h3>
+<div class="tarjetas cols-2">
+<details class="tarjeta con-cabecera plegable" id="f-reglas" open="open">
+<summary class="tarjeta-cabecera">
+<h3 class="tarjeta-titulo">Tras incorporar, la SF no entra</h3>
+</summary>
+<div class="tarjeta-cuerpo">
+<dl>
+<dt>Qué pasa</dt>
+<dd>No llegan a la conversación las reglas, la orquestación ni la regla de lo que es de la SF. Tampoco tras <code>/clear</code>. La primera tarea va sin cola ni subagente.</dd>
+<dt>Por qué</dt>
+<dd>El mod guarda, por carpeta, si es un proyecto de la SF. Una carpeta vacía se queda en «no» hasta recargar el plugin. Además, la incorporación solo pide <code>/clear</code> al poner al día un proyecto, no al incorporar uno nuevo.</dd>
+<dt>Opción A</dt>
+<dd>El mod deja de guardar el «no». Cuando ve que la carpeta pasa a tener SF, entrega las reglas con el siguiente mensaje. <em>Pro:</em> no depende del usuario. <em>Contra:</em> cambia el mod y necesita su prueba.</dd>
+<dt>Opción B</dt>
+<dd>El mod deja de guardar el «no», y la incorporación pide <code>/clear</code> al terminar. <em>Pro:</em> cambio pequeño. <em>Contra:</em> es un paso más. Si se olvida, la primera tarea va sin SF.</dd>
+<dt>Recomendación</dt>
+<dd><strong>A</strong>, con la línea de <code>/clear</code> como respaldo. Es un bug, así que va a la cola ya.</dd>
+</dl>
+</div>
+</details>
+<details class="tarjeta con-cabecera plegable" id="f-panel" open="open">
+<summary class="tarjeta-cabecera">
+<h3 class="tarjeta-titulo">El panel sin SF era ruido</h3>
+</summary>
+<div class="tarjeta-cuerpo">
+<dl>
+<dt>Qué pasaba</dt>
+<dd>Una carpeta sin SF enseñaba el nombre de la skill, dos JSON de ejemplo, «ninguna tarea en curso» y tres secciones a cero.</dd>
+<dt>Hecho</dt>
+<dd>Ahora sale una bienvenida: «SF» en letras de bloque, en naranja, una frase y una sola acción, «Para empezar, escribe en el chat: incorpora este proyecto a la SF». Se centra según el ancho del panel. La caja sobre el prompt lo dice en dos líneas.</dd>
+<dt>Queda</dt>
+<dd>Verla en una sesión real a pantalla completa, en un panel estrecho y en uno ancho. Y quitar la descripción antigua del documento del panel.</dd>
+</dl>
+</div>
+</details>
+<details class="tarjeta con-cabecera plegable" id="f-claude" open="open">
+<summary class="tarjeta-cabecera">
+<h3 class="tarjeta-titulo">Claude no sabe nada de la SF fuera de un proyecto suyo</h3>
+</summary>
+<div class="tarjeta-cuerpo">
+<dl>
+<dt>Qué pasa</dt>
+<dd>Fuera de un proyecto incorporado, el mod no da contexto a Claude, salvo el aviso de Python cuando hace falta. Ante «¿qué hago ahora?» o «¿dónde está el panel?», Claude solo tiene las descripciones de las skills.</dd>
+<dt>Opción A</dt>
+<dd>Una línea de contexto al empezar, solo en las carpetas sin SF. Dice que la SF está instalada, que esta carpeta no está incorporada, cómo se incorpora y que el panel se abre con <code>/sf</code>. Claude no lo ofrece si no se le pregunta. <em>Pro:</em> responde bien a la primera. <em>Contra:</em> unas decenas de tokens en cada carpeta sin SF.</dd>
+<dt>Opción B</dt>
+<dd>Una orden de barra, <code>/sf_incorporar</code>, que pide la incorporación a Claude. <em>Pro:</em> sale en el menú de <code>/</code>. <em>Contra:</em> hay que conocerla.</dd>
+<dt>Recomendación</dt>
+<dd><strong>A y B.</strong> A responde a lo que se pregunta y B da un atajo. La bienvenida del panel puede nombrar la orden.</dd>
+</dl>
+</div>
+</details>
+<details class="tarjeta con-cabecera plegable" id="f-medias" open="open">
+<summary class="tarjeta-cabecera">
+<h3 class="tarjeta-titulo">Instalación a medias, sin aviso</h3>
+</summary>
+<div class="tarjeta-cuerpo">
+<dl>
+<dt>Qué pasa</dt>
+<dd>Si <code>sf</code> no llega a instalarse, o le falta una dependencia, no carga nada de la SF. No hay panel ni mod que avisen.</dd>
+<dt>Límite</dt>
+<dd>Sin <code>sf</code> cargado, la SF no puede decir nada. Las dependencias son repositorios de otros, sin código nuestro. Claude Code solo avisa en <code>/plugin</code>: «failed to load», con la primera dependencia que falta.</dd>
+<dt>Opción A</dt>
+<dd>En la portada, un paso de comprobación: <code>claude plugin list</code> debe dar <code>sf@softwarefactory</code> activo; si no, se repite la instalación. Y se quita del README del plugin el recuadro antiguo de las dependencias, el de quien actualiza desde la 1.2.10. <em>Pro:</em> se hace ya. <em>Contra:</em> funciona solo si se lee.</dd>
+<dt>Opción B</dt>
+<dd>Las dependencias dejan de ser obligatorias. <code>sf</code> carga siempre, y el panel avisa de las que faltan y las instala, como ya hace ACTUALIZAR. <em>Pro:</em> <code>sf</code> siempre puede avisar. <em>Contra:</em> cambia cómo se distribuye la SF, y una skill puede necesitar una dependencia que aún no está.</dd>
+<dt>Recomendación</dt>
+<dd><strong>A</strong> ahora. B, como propuesta, si vuelve a pasar.</dd>
+</dl>
+</div>
+</details>
+<details class="tarjeta con-cabecera plegable" id="f-pantalla" open="open">
+<summary class="tarjeta-cabecera">
+<h3 class="tarjeta-titulo">El panel y la pantalla completa</h3>
+</summary>
+<div class="tarjeta-cuerpo">
+<dl>
+<dt>Qué pasa</dt>
+<dd>El panel se abre solo a pantalla completa. Sin ella, sale una caja sobre el prompt, y <code>/sf</code> pinta el panel en la conversación, donde los clics no llegan. Claude ofrece activarla con el primer mensaje, también en una carpeta sin SF, donde aún no hace falta.</dd>
+<dt>Propuesta</dt>
+<dd>La guía dice <code>/tui fullscreen</code> antes de empezar. En una carpeta sin SF no se ofrece: la ofrece la incorporación al terminar.</dd>
+<dt>Recomendación</dt>
+<dd><strong>Las dos.</strong> La bienvenida ya no lleva el aviso de los botones.</dd>
+</dl>
+</div>
+</details>
+<details class="tarjeta con-cabecera plegable" id="f-despues" open="open">
+<summary class="tarjeta-cabecera">
+<h3 class="tarjeta-titulo">Al terminar la incorporación, ¿qué?</h3>
+</summary>
+<div class="tarjeta-cuerpo">
+<dl>
+<dt>Qué pasa</dt>
+<dd>El informe final dice qué se ha creado y qué mirar en el panel, pero no cómo seguir.</dd>
+<dt>Propuesta</dt>
+<dd>Que acabe con una línea: «Pide tu primera tarea, por ejemplo: añade un README que explique el proyecto». Claude la pone en la cola, la hace en su rama y te pide probarla.</dd>
+<dt>Recomendación</dt>
+<dd><strong>Hacerlo,</strong> junto con el arreglo de las reglas.</dd>
+</dl>
+</div>
+</details>
+</div>
+<h3 id="segunda-guia">Guía de arranque</h3>
+<p>Es un borrador para la portada, en lugar del apartado «Instalar». Son seis pasos:</p>
+<ol>
+<li><strong>Antes:</strong> Claude Code con la sesión iniciada, git con nombre y correo, <code>gh</code> con <code>gh auth login</code> hecho y Python 3.9 o posterior.</li>
+<li><strong>Instala</strong>, una vez por equipo, con <code>claude plugin marketplace add jumibot/SoftwareFactory</code> y después <code>claude plugin install sf@softwarefactory --scope user</code>.</li>
+<li><strong>Comprueba</strong> con <code>claude plugin list</code> que sale <code>sf@softwarefactory</code> activo. Si no sale, repite la segunda orden. No instales las dependencias a mano.</li>
+<li><strong>Abre Claude Code</strong> en una carpeta vacía o en tu proyecto, y pon la pantalla completa con <code>/tui fullscreen</code>. El panel de la SF se abre a la derecha, con la bienvenida.</li>
+<li><strong>Escribe «incorpora este proyecto a la SF».</strong> Contesta los tres menús y pulsa «Aplicar». En una carpeta vacía, la incorporación crea git, las ramas y un repositorio privado en tu GitHub.</li>
+<li><strong>Pide tu primera tarea</strong>, por ejemplo «añade un README». Claude la hace en su rama y te pide probarla. Ciérrala desde el panel.</li>
+</ol>
+<p>Hasta que se arregle lo de las reglas, entre los pasos 5 y 6 hay que salir de Claude Code y volver a abrirlo en la carpeta. <code>/clear</code> no basta.</p></div></details><details class="seccion" id="recorrido"><summary class="seccion-titulo"><span class="etiqueta">03 / Recorrido</span><h2>Qué se ha podido hacer y qué no</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Se ha recorrido el camino en una configuración desechable (<code>CLAUDE_CONFIG_DIR</code> en el scratchpad), sin tocar <code>~/.claude</code> ni los plugins instalados:</p>
 <ol>
 <li><strong>Leer el README raíz</strong> como quien no sabe nada. No dice cómo instalar: remite al «propietario» y a «Claude Code». Las órdenes de instalación están en el README del plugin, entre el mod y «Publicar un cambio».</li>
 <li><strong><code>claude plugin marketplace add jumibot/SoftwareFactory</code>.</strong> Funciona solo con las credenciales del propietario. La primera vez falló con «Filename too long»: el catálogo clona el repositorio entero, y los nombres de <code>docs/decisiones/</code> llegan a 130 caracteres. Con <code>core.longpaths</code> (puesto solo en el entorno de la orden) clona bien.</li>
 <li><strong><code>claude plugin install sf@softwarefactory --scope user</code>.</strong> Instala la 1.4.2 y sus tres dependencias, sin errores.</li>
 <li><strong>Abrir una carpeta vacía.</strong> El mod carga: copia <code>cola.py</code> y su lanzador a <code>$CLAUDE_CONFIG_DIR/sf</code>. La sesión no sigue: «Not logged in». <strong>No se ha recorrido la conversación</strong> (pantalla completa, petición de incorporar, menús, orquestación) porque iniciar sesión en la configuración desechable necesita al propietario.</li>
 <li><strong>Primera tarea sin Claude</strong>, con <code>cola.py</code> sobre dos carpetas: una sin git y otra con git y solo <code>main</code>. En las dos, <code>crear --en-curso</code> funciona y <code>rama</code> se para en «No hay rama develop.». Con <code>develop</code> creada a mano, el ciclo llega a cerrar. El cierre avisa así: «Aviso: falta el push de develop (and the repository exists.)». Es la última línea del error de git, que sin remoto no se entiende. El commit lleva <code>Co-Authored-By: Claude Opus 5.5</code>, sea cual sea el modelo del colega.</li>
-</ol></div></details><details class="seccion" id="atascos"><summary class="seccion-titulo"><span class="etiqueta">03 / Atascos</span><h2>Por gravedad, con el arreglo propuesto</h2></summary><div class="seccion-cuerpo"><h3 id="bloquean">Bloquean</h3>
+</ol></div></details><details class="seccion" id="atascos"><summary class="seccion-titulo"><span class="etiqueta">04 / Atascos</span><h2>Por gravedad, con el arreglo propuesto</h2></summary><div class="seccion-cuerpo"><h3 id="bloquean">Bloquean</h3>
 <table>
 <thead>
 <tr>
@@ -794,7 +954,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <td data-label="Arreglo propuesto">La skill ya dice qué hacer si falta. Basta mencionarlo en la guía.</td>
 </tr>
 </tbody>
-</table></div></details><details class="seccion" id="revision"><summary class="seccion-titulo"><span class="etiqueta">04 / Revisión</span><h2>Qué resolvió la 1.5.0 y qué queda</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Revisado leyendo <code>plugins/sf</code> en develop (sf 1.5.0), sin sesión y sin tocar otros proyectos ni <code>~/.claude</code>. «Resuelto» quiere decir resuelto en el plugin; lo que depende de la conversación queda por ver en el recorrido con sesión (paso 5).</p>
+</table></div></details><details class="seccion" id="revision"><summary class="seccion-titulo"><span class="etiqueta">05 / Revisión</span><h2>Qué resolvió la 1.5.0 y qué queda</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Revisado leyendo <code>plugins/sf</code> en develop (sf 1.5.0), sin sesión y sin tocar otros proyectos ni <code>~/.claude</code>. «Resuelto» quiere decir resuelto en el plugin; lo que depende de la conversación queda por ver en el recorrido con sesión (paso 5).</p>
 <h3 id="resueltos">Resueltos</h3>
 <table>
 <thead>
@@ -937,20 +1097,20 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <td data-label="Arreglo propuesto">En la guía, como requisito: <code>gh</code> instalado y <code>gh auth login</code> hecho antes de empezar. Dónde prueba el colega, en la decisión 7.</td>
 </tr>
 </tbody>
-</table></div></details><details class="seccion" id="inventario"><summary class="seccion-titulo"><span class="etiqueta">05 / Inventario</span><h2>Lo que solo vale aquí o para el propietario</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Búsqueda en <code>plugins/sf/</code> (sin <code>tests/</code>) de rutas <code>D:</code>/<code>C:</code>, <code>Projectes</code>, el usuario y el correo, los proyectos del propietario, JKanban, Commander, Windows, PowerShell y Python. No aparecen ni el usuario de Windows ni el correo. Lo que sale:</p>
+</table></div></details><details class="seccion" id="inventario"><summary class="seccion-titulo"><span class="etiqueta">06 / Inventario</span><h2>Lo que solo vale aquí o para el propietario</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Búsqueda en <code>plugins/sf/</code> (sin <code>tests/</code>) de rutas <code>D:</code>/<code>C:</code>, <code>Projectes</code>, el usuario y el correo, los proyectos del propietario, JKanban, Commander, Windows, PowerShell y Python. No aparecen ni el usuario de Windows ni el correo. Lo que sale:</p>
 <ul>
 <li><strong>Para la prueba</strong> (pasos 1 y 2): los atascos 2, 3, 6, 7, 10 y 12.</li>
 <li><strong>Ruido, no bloquea:</strong> los atascos 13, 14 y 17.</li>
 <li><strong>Identidad de la distribución, se deja:</strong> <code>jumibot</code> como autor y dueño del catálogo, <code>sf@softwarefactory</code>, «SoftwareFactory» en morado para la propia SF.</li>
 <li><strong>Windows:</strong> el mod ya distingue Windows de los demás sistemas (<code>hooks/cola.ts</code>, 115) y prueba <code>python</code> y <code>python3</code>. Lo que solo funciona en Windows es la orden de Claude (atasco 3).</li>
 <li><strong>MCP propios:</strong> el plugin no declara ninguno. JKanban aparece solo como texto (atascos 6 y 10, y la metodología).</li>
-</ul></div></details><details class="seccion" id="otras"><summary class="seccion-titulo"><span class="etiqueta">06 / Otras tareas</span><h2>Qué ya está en marcha</h2></summary><div class="seccion-cuerpo"><ul>
+</ul></div></details><details class="seccion" id="otras"><summary class="seccion-titulo"><span class="etiqueta">07 / Otras tareas</span><h2>Qué ya está en marcha</h2></summary><div class="seccion-cuerpo"><ul>
 <li><strong>«Incorporar un proyecto sin cambiarlo» (222)</strong> y <strong>«Configuración inicial» (263)</strong>: cerradas, en observación. Decidieron <code>develop</code> siempre (205, 214), el kanban opcional (224), el idioma (206) y el remoto en GitHub (230).</li>
 <li><strong>«Implementar la configuración inicial» (193)</strong>: cerrada, en observación; es la sf 1.5.0. Resuelve los atascos 2 y 6 y casi todo el 7.</li>
 <li><strong>«Poner un proyecto al día con la SF sin tarea» (288)</strong>: en observación. El caso «actualizar» no afecta a un usuario nuevo.</li>
 <li><strong>«Actualizar las reglas del método» (208)</strong>: en cola. Lleva la metodología y la decisión 194 (atasco 9).</li>
 <li><strong>«Skill y orden de barra para cambiar la configuración del proyecto» (299)</strong>: en curso. Un usuario nuevo no la necesita en sus cinco minutos.</li>
-</ul></div></details><details class="seccion" id="decidir"><summary class="seccion-titulo"><span class="etiqueta">07 / Decidir</span><h2>Lo que decide el propietario (paso 6)</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Siete decisiones, por orden de importancia. Las dos primeras dicen si la prueba es posible.</p>
+</ul></div></details><details class="seccion" id="decidir"><summary class="seccion-titulo"><span class="etiqueta">08 / Decidir</span><h2>Lo que decide el propietario (paso 6)</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Siete decisiones, por orden de importancia. Las dos primeras dicen si la prueba es posible.</p>
 <div class="tarjetas cols-2">
 <details class="tarjeta con-cabecera plegable" id="d1" open="open">
 <summary class="tarjeta-cabecera">
@@ -1071,20 +1231,21 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </div>
 </details>
 </div>
-<p><strong>Qué se arregla antes de la prueba.</strong> Con lo anterior, la propuesta es: los atascos 1 y 3, según las decisiones 1 y 2; la guía con el 4, el 5, el 15, el 18 y el 19 (paso 7); los residuos del 7 y del 10, el 12 y el 14 con la mención a Commander (pasos 1 y 2); el 13, según la decisión 4, y el 9, según la 5. Lo demás, después.</p></div></details><details class="seccion" id="prueba"><summary class="seccion-titulo"><span class="etiqueta">08 / Prueba</span><h2>Qué mirar cuando se recorra con sesión</h2></summary><div class="seccion-cuerpo"><p class="entradilla">En una configuración desechable (<code>CLAUDE_CONFIG_DIR</code> y <code>HOME</code> en una carpeta temporal), con el plugin instalado desde el catálogo publicado:</p>
+<p><strong>Qué se arregla antes de la prueba.</strong> Con lo anterior, la propuesta es: los atascos 1 y 3, según las decisiones 1 y 2; la guía con el 4, el 5, el 15, el 18 y el 19 (paso 7); los residuos del 7 y del 10, el 12 y el 14 con la mención a Commander (pasos 1 y 2); el 13, según la decisión 4, y el 9, según la 5. Lo demás, después.</p></div></details><details class="seccion" id="prueba"><summary class="seccion-titulo"><span class="etiqueta">09 / Prueba</span><h2>Qué mirar cuando se recorra con sesión</h2></summary><div class="seccion-cuerpo"><p class="entradilla">En una configuración desechable (<code>CLAUDE_CONFIG_DIR</code> y <code>HOME</code> en una carpeta temporal), con el plugin instalado desde el catálogo publicado:</p>
 <ol>
 <li><strong>Arranque en una carpeta vacía.</strong> El panel dice «Sin SF» y propone «incorpora este proyecto a la SF». Mirar si se abre solo o hay que activar la pantalla completa, y qué entiende de eso alguien nuevo.</li>
 <li><strong>«Incorpora este proyecto a la SF».</strong> Mirar los tres menús (identidad, repositorio y convenciones), que el kanban salga como «Ninguno» por defecto, cómo resuelve el primer commit de una carpeta vacía, si crea git, <code>develop</code> y el remoto con <code>gh</code>, y si el color y el nombre se aplican sin <code>/color</code> ni <code>/rename</code>.</li>
 <li><strong>Primera tarea («añade un README»).</strong> Mirar si va a la cola, si se crea su rama, si lanza un subagente con su worktree, si cierra con el push al remoto y con qué firma.</li>
 <li><strong>Cuánto tarda y cuántas preguntas hace</strong> antes de que el colega vea su primera tarea hecha: es la medida de los cinco minutos.</li>
 </ol></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Informe de diagnóstico · Versión 1.1 · 02/11/2026 · Diagnóstico revisado con la 1.5.0 · Tarea 289</p><p>Primera tanda de la tarea «Primeros cinco minutos de un usuario nuevo con la SF» (289). Sale de leer plugins/sf en develop (sf 1.4.2), los README, el informe «Plugin en otros proyectos» (171) y el de «Incorporar sin cambiar el proyecto» (222, en su rama), y de un recorrido en una configuración desechable de Claude Code. La versión 1.1 lo revisa contra develop en la sf 1.5.0 («Implementar la configuración inicial», 193, y las decisiones 205-234) y prepara las decisiones del paso 6. La 1.0 está en _respaldo/. Espera la decisión del propietario.</p><p class="procedencia">Generado el 02/11/2026 12:15 · fuente Primeros cinco minutos.md · huella d54998885cdf · commit 9433227 (con cambios sin commit)</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Informe de diagnóstico · Versión 1.2 · 02/11/2026 · Segunda vuelta con la 1.7.2 · Tarea 289</p><p>Primera tanda de la tarea «Primeros cinco minutos de un usuario nuevo con la SF» (289). Sale de leer plugins/sf en develop (sf 1.4.2), los README, el informe «Plugin en otros proyectos» (171) y el de «Incorporar sin cambiar el proyecto» (222, en su rama), y de un recorrido en una configuración desechable de Claude Code. La versión 1.1 lo revisa contra develop en la sf 1.5.0 («Implementar la configuración inicial», 193, y las decisiones 205-234) y prepara las decisiones del paso 6. La 1.2 suma la segunda vuelta, tras la primera instalación real de un colega, con la sf 1.7.2. La 1.0 está en _respaldo/. Espera la decisión del propietario.</p><p class="procedencia">Generado el 02/11/2026 18:36 · fuente Primeros cinco minutos.md · huella b37bebf40992 · commit 01b1745 (con cambios sin commit)</p></footer>
 </div>
-<script data-kit="skills/documento_fundacional/assets/plegado.js">
-/* Secciones plegables del documento fundacional (skill documento_fundacional).
+<script data-kit="skills/crear_documentos/assets/plegado.js">
+/* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
  * Cada sección es un <details> que se pliega tocando su título. Este script añade:
  * abrir la sección de destino al seguir un enlace interno (menú, referencias, insignias),
- * el botón «Plegar todo / Desplegar todo» del menú y abrir todo al imprimir.
+ * el botón «Plegar todo / Desplegar todo» del menú, un botón «Plegar las tarjetas / Desplegar las tarjetas»
+ * delante de cada bloque de tarjetas plegables y abrir todo al imprimir.
  * Sin JavaScript, las secciones se ven abiertas y se pliegan igual tocando el título. */
 (function () {
   document.documentElement.classList.add('js');
@@ -1103,6 +1264,21 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
   // Tarjetas plegables («::: tarjetas N plegables»): abiertas en pantallas anchas, plegadas al cargar en el móvil.
   if (matchMedia('(max-width: 640px)').matches)
     document.querySelectorAll('details.tarjeta.plegable').forEach(d => { d.open = false; });
+
+  // «Plegar las tarjetas / Desplegar las tarjetas» delante de cada bloque con tarjetas plegables (también preguntas y fichas).
+  (window.alCopiarDocumento = window.alCopiarDocumento || []).push(c => c.querySelectorAll('.plegar-tarjetas').forEach(x => x.remove()));
+  document.querySelectorAll('.tarjetas, .fichas').forEach(bloque => {
+    const tarjetas = [...bloque.querySelectorAll(':scope > details.tarjeta.plegable')];
+    if (tarjetas.length < 2) return;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'plegar-tarjetas';
+    const rotularBloque = () => { b.textContent = tarjetas.some(d => d.open) ? 'Plegar las tarjetas' : 'Desplegar las tarjetas'; };
+    b.addEventListener('click', () => { const abrir = !tarjetas.some(d => d.open); tarjetas.forEach(d => { d.open = abrir; }); rotularBloque(); });
+    tarjetas.forEach(d => d.addEventListener('toggle', rotularBloque));
+    rotularBloque();
+    bloque.before(b);
+  });
 
   window.addEventListener('hashchange', alCargar);
   alCargar();  // después de plegar las tarjetas, para que el destino del enlace quede abierto
@@ -1132,7 +1308,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
  * Lo usan documento_vision (.report-body con bloques .bloque) y documento_fundacional (main con secciones .seccion);
  * el estilo está en herramientas.css. Al cambiar cualquiera de estos archivos, se sube VERSION (aquí).
  * Las demás piezas usan window.herramientasDocumento (herramienta(), aplicar(), mostrar()…).
- * Modelo: el documento de los 20 casos de referencia de OncoCore (kit_documentos v1.0.57). Reescrito para la SF.
+ * Procedencia: docs/referencias/procedencia/kit_documentos.md del repositorio de la SF.
  * · Pantalla grande (≥ 1400 px): cada herramienta va anclada en una columna a la derecha, de ancho ajustable, y se
  *   pliega con su flecha. La chincheta de la barra, a la derecha del engranaje, despega todas las herramientas como
  *   ventanas flotantes (se arrastran por la cabecera, se minimizan, doble clic las devuelve a su sitio) y las vuelve a anclar.
@@ -1141,17 +1317,17 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
  * Buscador: no distingue mayúsculas ni tildes, resalta, salta con Intro / Mayús+Intro, agrupa por sección y abre la
  *   sección plegada.
  * Notas: personales, de tres clases que el documento activa por separado: sobre un texto seleccionado («Anotar»,
- *   nota-texto), una por sección (nota-seccion) y una general de todo el documento (nota-global). Como en
- *   gene_associations de OncoCore, la columna muestra sola la nota de la sección que se lee, plegada si está vacía,
- *   y lo escrito se ve también al final de su sección. Sin columna (ventanas flotantes o pantalla pequeña), como en
- *   OncoCore, cada nota vuelve a su sitio: una tarjeta editable al final de su sección, y la nota general y «Tus
+ *   nota-texto), una por sección (nota-seccion) y una general de todo el documento (nota-global). En
+ *   la columna se muestra sola la nota de la sección que se lee, plegada si está vacía,
+ *   y lo escrito se ve también al final de su sección. Sin columna (ventanas flotantes o pantalla pequeña),
+ *   cada nota vuelve a su sitio: una tarjeta editable al final de su sección, y la nota general y «Tus
  *   notas» al principio del documento; la ventana «Notas» no aparece. Si el documento
  *   no nombra ninguna de las tres, van las tres. Se guardan solas en el
  *   navegador; «Guardar» crea un documento anotado (copia del HTML con las notas dentro, en el bloque JSON
  *   #notas-documento) y sube la versión. Esa copia se puede pasar al autor: tools/kit_documentos/extraer_notas.py las lista.
  * Sin JavaScript no aparece nada; no se imprime. */
 (function () {
-  const VERSION = '1.9.0';
+  const VERSION = '1.9.2';
   const main = document.querySelector('main, .report-body');
   if (!main) return;
   const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title';
@@ -1583,7 +1759,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
   function persistir() { if (CON_NOTAS) escribir(CLAVE_NOTAS, { notas, borradas: [...borradas], guardado }); estado(); }
 
   if (CON_NOTAS) {
-  // Modelo de gene_associations (kit de OncoCore): sin botones para crear notas. La columna muestra sola la nota de la
+  // Sin botones para crear notas. La columna muestra sola la nota de la
   // sección que se lee (y las de las secciones que la contienen), cada una con su cabecera, plegada si está vacía; lo
   // escrito se ve también, solo para leer, al final de su sección. La nota general va arriba y «Todas las notas»
   // resume las demás.
@@ -1606,7 +1782,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     const v = todasEl.classList.toggle('plegada'); e.currentTarget.setAttribute('aria-expanded', String(!v));
   });
   autorEl.addEventListener('input', () => escribir(CLAVE_AUTOR, autorEl.value.trim()));
-  // Sin columna, las notas van en su sitio (modelo de OncoCore): la general y «Tus notas», al principio del documento.
+  // Sin columna, las notas van en su sitio: la general y «Tus notas», al principio del documento.
   function sitio() { return enSitio(notasT); }  // función: la usa también el arranque, fuera de este bloque
   const inicioSitio = document.createElement('div');
   inicioSitio.className = 'nt-sitio-inicio';
@@ -1654,7 +1830,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
   const enFoco = () => secActual ? cadena(secActual).map(x => x.id).join('|') : '';
   let pintado = null;
   const escribiendo = () => focoEl.contains(document.activeElement) || generalEl.contains(document.activeElement);
-  notasT.el.classList.add('por-seccion');  // en la columna, cada nota es su propia tarjeta, como en OncoCore
+  notasT.el.classList.add('por-seccion');  // en la columna, cada nota es su propia tarjeta
   function actualizarFoco() { if (!sitio() && enFoco() !== pintado && !escribiendo()) pintarNotas(); }
   function seguirSeccion() {
     let s = null;
@@ -1788,7 +1964,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     pintarResumen();
     espejos();
   }
-  // Sin columna, como en OncoCore: un rótulo pequeño, el campo abierto y las acciones; sin caja ni plegado.
+  // Sin columna: un rótulo pequeño, el campo abierto y las acciones; sin caja ni plegado.
   function bloqueSitio(titulo, items) {
     const b = document.createElement('section');
     b.className = 'nt-sitio-bloque';
@@ -2083,7 +2259,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
  * · fuentes: al pasar por una referencia [E1], bocadillo con la fuente y la frase que respalda resaltada;
  * · bocadillos: los subapartados de detalle (visión) se abren en un bocadillo, sin desplazar el texto.
  * Las que elige solo el autor: tablas (anchos ajustables) y leyenda («Cómo leer este documento»).
- * Modelo: kit_documentos de OncoCore (v1.0.57: ANCHOS_JS, ACORDEON_JS, FIJO_JS, FUENTE_JS, RESALTA_JS). */
+ * Procedencia: docs/referencias/procedencia/kit_documentos.md del repositorio de la SF. */
 (function () {
   const api = window.herramientasDocumento;
   if (!api) return;
@@ -2447,7 +2623,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
  * · Los párrafos añadidos desde una nota («Convertir en párrafo», herramientas.js) llevan «Añadido · fecha» y
  *   «Retirar», que pide confirmación en el propio botón.
  * Lo pintado (lápiz, barra, etiquetas) no viaja en la copia guardada: se vuelve a poner al abrirla.
- * Modelo: _EDICION_JS y _PARRAFOS_JS del kit_documentos de OncoCore (v1.0.57), sin sus etiquetas clínicas. */
+ * Procedencia: docs/referencias/procedencia/kit_documentos.md del repositorio de la SF. */
 (function () {
   const api = window.herramientasDocumento;
   const EDITA = api && api.ACTIVAS.has('edicion');

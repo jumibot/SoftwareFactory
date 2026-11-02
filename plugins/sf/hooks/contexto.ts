@@ -1,3 +1,4 @@
+import { atom, read, update } from 'claude-code'
 import type { PromptComposeResult } from 'claude-code'
 import { configuracion, convenciones } from './configuracion'
 import { MARCA_SF, PROYECTO } from './constantes'
@@ -16,18 +17,24 @@ export const REGLA_SF =
   'Software Factory: lo que el plugin sf pinta aquí (panel, caja sobre el prompt con su línea gris «SF x.y.z · fase», avisos) y sus skills y hooks son de la SF, no de este proyecto: una petición sobre ello no se cambia aquí ni se anota en el proyecto, ni en su cola ni en sus propuestas: se dice en una línea que es de la SF; llevarla a la SF es cosa del propietario, en una sesión de la SF. ' +
   'Lo global (~/.claude: ajustes, línea de estado, plugins) afecta a todos los proyectos: no se toca sin que el propietario lo pida y lo confirme.'
 
-// Si la carpeta de la sesión es un proyecto incorporado a la SF que no es la propia SF, por carpeta: el mod se recarga
-// entero, así que dura lo que la carga.
-const conRegla = new Map<string, boolean>()
+// Si la carpeta de la sesión es un proyecto incorporado a la SF que no es la propia SF, por carpeta. Solo se guarda el
+// sí, que dura lo que la carga del mod: el no se vuelve a mirar cada vez, porque la carpeta puede incorporarse en esta
+// misma conversación (decisión 242).
+const conRegla = new Set<string>()
 
 export async function llevaRegla($: $): Promise<boolean> {
   const raiz = await raizSesion($)
   const clave = raiz.toLowerCase()
-  const vista = conRegla.get(clave)
-  if (vista !== undefined) return vista
+  if (conRegla.has(clave)) return true
   const si = (await $.fs.exists(`${raiz}/${PROYECTO}`)) && !(await $.fs.exists(`${raiz}/${MARCA_SF}`))
-  conRegla.set(clave, si)
+  if (si) conRegla.add(clave)
   return si
+}
+
+// Una carpeta sin SF: ni proyecto incorporado ni la propia SF. Sin guardar: puede incorporarse en la conversación.
+export async function sinSf($: $): Promise<boolean> {
+  const raiz = await raizSesion($)
+  return !(await $.fs.exists(`${raiz}/${PROYECTO}`)) && !(await $.fs.exists(`${raiz}/${MARCA_SF}`))
 }
 
 // Añade la regla al final de las secciones en un proyecto incorporado (decisión 167): no en la SF, donde lo del plugin
@@ -79,7 +86,66 @@ export async function contextoPython($: $, e: { source: string; agent_id?: strin
 // o sin nada que entregar.
 export async function contextoInicial($: $, e: { source: string; agent_id?: string }): Promise<string | null> {
   if (!FUENTES_REGLAS.has(e.source) || e.agent_id) return null
+  // Lo que se entrega ahora queda dado en esta conversación: sin SF, no, y se entrega al incorporarse (decisión 242).
+  const lleva = await llevaRegla($)
+  await update($, reglasDadas, () => lleva)
+  if (!lleva) return null
+  return textoReglas($, e.source === 'compact' ? 'compactar' : e.source === 'clear' ? 'hacer /clear' : 'empezar la sesión')
+}
+
+// ── Tras incorporar, las reglas con el siguiente mensaje (decisión 242) ──
+// Si la conversación empezó en una carpeta sin SF y la carpeta se incorpora en ella, el siguiente mensaje del
+// propietario lleva las reglas y la orquestación, una vez: sin reiniciar ni /clear, que sigue valiendo de respaldo.
+// En $.state: /reload-plugins no lo reinicia; cada SessionStart (empezar, /clear, compactar) lo vuelve a fijar.
+const reglasDadas = atom({ plugin: 'sf', key: 'reglasDadas' } as const, false)
+export async function reglasAlIncorporar($: $): Promise<string | null> {
+  if (await read($, reglasDadas)) return null
   if (!(await llevaRegla($))) return null
+  await update($, reglasDadas, () => true)
+  return textoReglas($, 'incorporarse el proyecto en esta conversación')
+}
+
+// ── En una carpeta sin SF, ofrecer incorporarla (decisión 243) ──
+// Con el primer mensaje del propietario de la conversación, Claude pregunta con un menú si quiere incorporar el
+// proyecto. Una vez por conversación: tras /clear o en una sesión nueva, otra vez. En $.state, como la pantalla.
+const incorporarOfrecido = atom({ plugin: 'sf', key: 'incorporarOfrecido' } as const, false)
+// Las tres respuestas del menú (decisión 246). «Ahora no» no pregunta más en la conversación; «No, y no vuelvas a
+// preguntar en esta carpeta» se guarda por carpeta en el almacén del mod, cuando el mod ve la respuesta del menú.
+export const SI_INCORPORAR = 'Sí, incorporarlo'
+export const AHORA_NO = 'Ahora no'
+export const NUNCA_AQUI = 'No, y no vuelvas a preguntar en esta carpeta'
+export const CLAVE_NO_INCORPORAR = 'noIncorporar'
+export const TEXTO_INCORPORAR =
+  'Software Factory: el plugin sf está instalado, pero esta carpeta no está incorporada a la SF (no tiene .sf/proyecto.json). ' +
+  'Si este mensaje ya pide incorporarla, carga la skill sf:incorporar_proyecto_a_sf y síguela, sin preguntar. Si no, antes de atenderlo, ' +
+  `pregunta al usuario con un menú (herramienta AskUserQuestion; sin menú, en una línea) si quiere incorporar este proyecto a la SF, con tres opciones, con estas etiquetas exactas: «${SI_INCORPORAR}», «${AHORA_NO}» y «${NUNCA_AQUI}». ` +
+  `Con el sí, carga sf:incorporar_proyecto_a_sf y síguela. Con cualquiera de los dos no, añade una nota en una línea: el proyecto se puede incorporar cuando lo pida, escribiendo «incorpora este proyecto a la SF»; ` +
+  'después atiende su mensaje y no vuelvas a preguntarlo en esta conversación (el mod recuerda el segundo no para esta carpeta). ' +
+  'Si pregunta por el panel: se abre con /sf (a pantalla completa, solo), y sin incorporar solo da la bienvenida.'
+async function carpetasSinPreguntar($: $): Promise<Record<string, boolean>> {
+  const g = (await $.store.get(CLAVE_NO_INCORPORAR).catch(() => undefined)) as Record<string, boolean> | undefined
+  return g && typeof g === 'object' ? g : {}
+}
+export async function ofrecerIncorporar($: $): Promise<string | null> {
+  if (await read($, incorporarOfrecido)) return null
+  if (!(await sinSf($))) return null
+  if ((await carpetasSinPreguntar($))[(await raizSesion($)).toLowerCase()]) return null
+  await update($, incorporarOfrecido, () => true)
+  return TEXTO_INCORPORAR
+}
+// La respuesta de un menú del principal: si eligió no volver a preguntar, se guarda la carpeta (decisión 246).
+export async function anotarRespuestaIncorporar($: $, respuestas: unknown): Promise<void> {
+  if (!respuestas || typeof respuestas !== 'object') return
+  if (!Object.values(respuestas as Record<string, unknown>).some(v => typeof v === 'string' && v.trim().startsWith(NUNCA_AQUI))) return
+  const g = await carpetasSinPreguntar($)
+  await $.store.set(CLAVE_NO_INCORPORAR, { ...g, [(await raizSesion($)).toLowerCase()]: true })
+}
+export async function reiniciarIncorporar($: $): Promise<void> {
+  await update($, incorporarOfrecido, () => false)
+}
+
+// Las reglas y la orquestación del proyecto de la sesión, con el momento en que se entregan.
+async function textoReglas($: $, momento: string): Promise<string | null> {
   const raiz = await raizSesion($)
   const raizPlugin = normal($.plugin.root).replace(/\/$/, '')
   const partes: string[] = []
@@ -97,5 +163,5 @@ export async function contextoInicial($: $, e: { source: string; agent_id?: stri
       )
   }
   if (partes.length === 0) return null
-  return `Software Factory (plugin sf, entregado por su mod al ${e.source === 'compact' ? 'compactar' : e.source === 'clear' ? 'hacer /clear' : 'empezar la sesión'}):\n\n${partes.join('\n\n---\n\n')}`
+  return `Software Factory (plugin sf, entregado por su mod al ${momento}):\n\n${partes.join('\n\n---\n\n')}`
 }

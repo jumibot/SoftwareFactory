@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 246 | 2026-11-02 | [Si se dice que no a incorporar, se puede no volver a preguntar](246-2026-11-02-si-se-dice-que-no-a-incorporar-se-puede-no-volver-a-preguntar.md) |
 | 245 | 2026-11-02 | [Bienvenida del panel publicada y pantalla completa al incorporar](245-2026-11-02-bienvenida-del-panel-publicada-y-pantalla-completa-al-incorporar.md) |
 | 244 | 2026-11-02 | [La instalación la comprueba y la diagnostica Claude](244-2026-11-02-la-instalacion-la-comprueba-y-la-diagnostica-claude.md) |
 | 243 | 2026-11-02 | [En una carpeta sin SF, Claude ofrece incorporarla](243-2026-11-02-en-una-carpeta-sin-sf-claude-ofrece-incorporarla.md) |
