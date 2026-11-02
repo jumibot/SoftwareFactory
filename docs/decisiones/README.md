@@ -19,6 +19,10 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 245 | 2026-11-02 | [Bienvenida del panel publicada y pantalla completa al incorporar](245-2026-11-02-bienvenida-del-panel-publicada-y-pantalla-completa-al-incorporar.md) |
+| 244 | 2026-11-02 | [La instalación la comprueba y la diagnostica Claude](244-2026-11-02-la-instalacion-la-comprueba-y-la-diagnostica-claude.md) |
+| 243 | 2026-11-02 | [En una carpeta sin SF, Claude ofrece incorporarla](243-2026-11-02-en-una-carpeta-sin-sf-claude-ofrece-incorporarla.md) |
+| 242 | 2026-11-02 | [Tras incorporar, el mod entrega las reglas sin reiniciar](242-2026-11-02-tras-incorporar-el-mod-entrega-las-reglas-sin-reiniciar.md) |
 | 241 | 2026-11-02 | [La SF se publica en un repositorio nuevo sin historia, con licencia MIT](241-2026-11-02-la-sf-se-publica-en-un-repositorio-nuevo-sin-historia.md) |
 | 240 | 2026-11-02 | [Las tareas de código no llevan pasos de documentación](240-2026-11-02-las-tareas-de-codigo-no-llevan-pasos-de-documentacion.md) |
 | 239 | 2026-11-02 | [Así se prepara la prueba del colega](239-2026-11-02-asi-se-prepara-la-prueba-del-colega.md) |
