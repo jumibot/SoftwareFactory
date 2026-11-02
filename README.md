@@ -6,21 +6,24 @@ La SF no parte de cero: integra todo lo que ya existe y sirve, entero o en parte
 
 **Estado (2 de noviembre de 2026):** en desarrollo. La SF se distribuye como el plugin `sf`, cuya versión publicada es la del último tag `vX.Y.Z` (y la `version` de [`plugin.json`](plugins/sf/.claude-plugin/plugin.json) en `main`); JKanban tiene MCP, pero aún no está instalado en la SF; varias propuestas esperan aprobación.
 
-**Para instalarla** necesitas Claude Code, git, una cuenta de GitHub con `gh` y la sesión iniciada, y Python 3.9 o posterior; funciona en Windows, macOS y Linux. Las órdenes y los requisitos, en [el README del plugin](plugins/sf/README.md#instalación). La SF tiene licencia MIT ([LICENSE](LICENSE)); lo que toma de terceros y sus licencias, en [`plugins/sf/LICENCIAS-DE-TERCEROS.md`](plugins/sf/LICENCIAS-DE-TERCEROS.md).
-
-> **Si actualizas `sf` desde la 1.2.10 o antes y deja de cargar:** desde la 1.3.0 necesita tres plugins que la actualización no instala. Instálalos con una orden cada uno y reinicia Claude Code:
->
-> ```
-> claude plugin install threejs-skills@softwarefactory --scope user
-> claude plugin install oklch-skill@softwarefactory --scope user
-> claude plugin install gsap-skills@softwarefactory --scope user
-> ```
->
-> Más, en [el README del plugin](plugins/sf/README.md#si-actualizas-desde-la-1210-o-antes).
-
 Los documentos distinguen acuerdos, propuestas y pendientes.
 
 Para leer este índice en local con el estilo de la SF, abre [README.html](README.html): sus enlaces llevan a las versiones html.
+
+## Instalar
+
+Requisitos: Claude Code, git, `gh` con la sesión iniciada (`gh auth login`) y Python 3.9 o posterior. Funciona en Windows, macOS y Linux.
+
+Una sola vez por equipo:
+
+```bash
+claude plugin marketplace add jumibot/SoftwareFactory
+claude plugin install sf@softwarefactory --scope user
+```
+
+Después, reinicia Claude Code. Instalar `sf` trae solas sus tres dependencias (`gsap-skills`, `threejs-skills` y `oklch-skill`). Más detalle, en [el README del plugin](plugins/sf/README.md#instalación).
+
+La SF tiene licencia MIT ([LICENSE](LICENSE)); lo que toma de terceros y sus licencias, en [`plugins/sf/LICENCIAS-DE-TERCEROS.md`](plugins/sf/LICENCIAS-DE-TERCEROS.md).
 
 ## Las visiones de la SF
 

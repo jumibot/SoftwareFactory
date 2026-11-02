@@ -8,7 +8,7 @@
     {
       "name": "sf",
       "source": "./plugins/sf",
-      "description": "Software Factory para Claude Code: skills, kit de documentos y mod de estado. Si no carga tras actualizar desde la 1.2.10 o antes, instala sus dependencias, una orden cada una: claude plugin install threejs-skills@softwarefactory; claude plugin install oklch-skill@softwarefactory; claude plugin install gsap-skills@softwarefactory"
+      "description": "Software Factory para Claude Code: skills, kit de documentos y mod de estado."
     },
     {
       "name": "gsap-skills",

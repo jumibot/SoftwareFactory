@@ -888,16 +888,16 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     <div class="report-body">
       <p>Una fábrica de software personal sobre Claude Code. Reúne el método y las herramientas con los que una sola persona, el «hombre orquesta», lleva a término muchos proyectos a la vez. Esa persona cada día desarrolla, investiga, crea proyectos y visiones, enseña, aprende y se mantiene al día.</p>
 <p>La SF no parte de cero: integra todo lo que ya existe y sirve, entero o en parte. Claude Code es su sistema nervioso central. Su objetivo no es producir más, sino pedir menos atención.</p>
-<p><strong>Para instalarla</strong> necesitas Claude Code, git, una cuenta de GitHub con <code>gh</code> y la sesión iniciada, y Python 3.9 o posterior; funciona en Windows, macOS y Linux. Las órdenes y los requisitos, en <a href="plugins/sf/README.md#instalación">el README del plugin</a>. La SF tiene licencia MIT (<a href="LICENSE">LICENSE</a>); lo que toma de terceros y sus licencias, en <a href="plugins/sf/LICENCIAS-DE-TERCEROS.md"><code>plugins/sf/LICENCIAS-DE-TERCEROS.md</code></a>.</p>
-<blockquote>
-<p><strong>Si actualizas <code>sf</code> desde la 1.2.10 o antes y deja de cargar:</strong> desde la 1.3.0 necesita tres plugins que la actualización no instala. Instálalos con una orden cada uno y reinicia Claude Code:</p>
-<p><code>claude plugin install threejs-skills@softwarefactory --scope user
-claude plugin install oklch-skill@softwarefactory --scope user
-claude plugin install gsap-skills@softwarefactory --scope user</code></p>
-<p>Más, en <a href="plugins/sf/README.md#si-actualizas-desde-la-1210-o-antes">el README del plugin</a>.</p>
-</blockquote>
 <p>Los documentos distinguen acuerdos, propuestas y pendientes.</p>
-<details id="las-visiones-de-la-sf" class="bloque bloque-1" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Las visiones de la SF</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<details id="instalar" class="bloque bloque-1" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Instalar</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<p>Requisitos: Claude Code, git, <code>gh</code> con la sesión iniciada (<code>gh auth login</code>) y Python 3.9 o posterior. Funciona en Windows, macOS y Linux.</p>
+<p>Una sola vez por equipo:</p>
+<pre><code class="language-bash"><span class="sx-f">claude</span> plugin marketplace add jumibot/SoftwareFactory
+<span class="sx-f">claude</span> plugin install sf@softwarefactory <span class="sx-a">--scope</span> user
+</code></pre>
+<p>Después, reinicia Claude Code. Instalar <code>sf</code> trae solas sus tres dependencias (<code>gsap-skills</code>, <code>threejs-skills</code> y <code>oklch-skill</code>). Más detalle, en <a href="plugins/sf/README.md#instalación">el README del plugin</a>.</p>
+<p>La SF tiene licencia MIT (<a href="LICENSE">LICENSE</a>); lo que toma de terceros y sus licencias, en <a href="plugins/sf/LICENCIAS-DE-TERCEROS.md"><code>plugins/sf/LICENCIAS-DE-TERCEROS.md</code></a>.</p>
+</details><details id="las-visiones-de-la-sf" class="bloque bloque-2" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Las visiones de la SF</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
 <p>Empieza por aquí. Cada visión cuenta la SF desde una perspectiva, a vista de pájaro, para no perder el rumbo.</p>
 <ul>
 <li>
@@ -908,7 +908,7 @@ claude plugin install gsap-skills@softwarefactory --scope user</code></p>
 </li>
 </ul>
 <p>Previstas, sin escribir todavía: productos con un agente dentro; software y hardware, con el gemelo digital primero; y la fábrica que aprende.</p>
-</details><details id="por-donde-empezar" class="bloque bloque-2" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Por dónde empezar</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+</details><details id="por-donde-empezar" class="bloque bloque-3" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Por dónde empezar</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
 <ul>
 <li>
 <p><strong>Si eres el propietario:</strong> las <a href="#las-visiones-de-la-sf">visiones</a> dan la imagen de conjunto. <a href="docs/como-funciona-la-software-factory.html">Cómo funciona la Software Factory</a> describe los componentes de la SF, cómo se instala y cómo se mejora. Después, la metodología y la especificación.</p>
@@ -917,7 +917,7 @@ claude plugin install gsap-skills@softwarefactory --scope user</code></p>
 <p><strong>Si eres Claude Code:</strong> empieza por <a href="CLAUDE.md">CLAUDE.md</a>, que tiene las instrucciones de entrada y de colaboración.</p>
 </li>
 </ul>
-</details><details id="documentos" class="bloque bloque-3" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Documentos</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+</details><details id="documentos" class="bloque bloque-4" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Documentos</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
 <details id="vision" class="subseccion" open><summary class="subseccion-summary">Visión</summary>
 <p>Las visiones están al principio de este README, en <a href="#las-visiones-de-la-sf">Las visiones de la SF</a>.</p>
 </details><details id="metodo-y-especificacion" class="subseccion" open><summary class="subseccion-summary">Método y especificación</summary>
@@ -966,7 +966,7 @@ claude plugin install gsap-skills@softwarefactory --scope user</code></p>
 <ul>
 <li><a href="docs/identidad/identidad.json">identidad.json</a> y <a href="docs/identidad/tema-azul.json">tema-azul.json</a>: el tema y los datos de cabecera que usan las visiones y los informes en HTML.</li>
 </ul>
-</details></details><details id="skills" class="bloque bloque-4" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Skills</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+</details></details><details id="skills" class="bloque bloque-5" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Skills</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
 <p>Todas las skills de la SF viven dentro del plugin <code>sf</code>, en <a href="plugins/sf/skills/"><code>plugins/sf/skills/</code></a>. Su procedencia (qué se tomó, de dónde y qué se cambió) está en <a href="docs/referencias/procedencia/README.md"><code>docs/referencias/procedencia/</code></a>; la atribución y las licencias de lo que es de terceros, en <a href="plugins/sf/LICENCIAS-DE-TERCEROS.md"><code>plugins/sf/LICENCIAS-DE-TERCEROS.md</code></a>. El plugin se publica en GitHub y se instala para el usuario, así que las skills están en cualquier proyecto con el prefijo <code>sf:</code> (por ejemplo, <code>sf:documento_vision</code>). Ver <a href="plugins/sf/README.md"><code>plugins/sf/README.md</code></a>.</p>
 <p><strong>Propias</strong></p>
 <table>
@@ -1028,7 +1028,7 @@ claude plugin install gsap-skills@softwarefactory --scope user</code></p>
 </li>
 </ul>
 <p><code>crear_documentos</code> necesita además <code>dataviz</code> para validar las series de colores; no es un plugin y la trae el entorno. Si no está, la skill dice qué hacer.</p>
-</details><details id="estructura" class="bloque bloque-5" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Estructura</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+</details><details id="estructura" class="bloque bloque-6" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Estructura</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
 <pre><code class="language-text">SoftwareFactory/
 ├── CLAUDE.md                 entrada para Claude Code
 ├── README.md                 este índice (y README.html, para leerlo en local)
@@ -1049,7 +1049,7 @@ claude plugin install gsap-skills@softwarefactory --scope user</code></p>
 └── scripts/                  utilidades del repositorio
 </code></pre>
 <p>Las carpetas <code>_respaldo/</code> guardan versiones anteriores de documentos y skills antes de cambios grandes.</p>
-</details><details id="como-se-trabaja" class="bloque bloque-6" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Cómo se trabaja</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+</details><details id="como-se-trabaja" class="bloque bloque-7" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Cómo se trabaja</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
 <ul>
 <li><strong>Generar el HTML de una visión o de un informe:</strong></li>
 </ul>
@@ -1073,7 +1073,7 @@ claude plugin install gsap-skills@softwarefactory --scope user</code></p>
 <p><strong>Información que falta:</strong> se pide; no se inventan requisitos ni decisiones.</p>
 </li>
 </ul>
-</details><details id="pendiente" class="bloque bloque-7" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Pendiente</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+</details><details id="pendiente" class="bloque bloque-8" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Pendiente</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
 <p>Lo más inmediato:</p>
 <ul>
 <li>
@@ -1094,7 +1094,7 @@ claude plugin install gsap-skills@softwarefactory --scope user</code></p>
 
     <footer class="site-footer">
       SoftwareFactory · Índice
-    <p class="procedencia">Generado el 02/11/2026 14:51 · fuente Índice de la SoftwareFactory.md · huella 2bd6a55272c0 · sin commit</p></footer>
+    <p class="procedencia">Generado el 02/11/2026 18:19 · fuente Índice de la SoftwareFactory.md · huella 1a1e4efb7819 · sin commit</p></footer>
 
   </div>
 <script>
