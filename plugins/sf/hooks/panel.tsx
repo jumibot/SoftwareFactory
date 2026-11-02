@@ -2,7 +2,8 @@ import { atom, read, update } from 'claude-code'
 import type { Register, RenderChildren } from 'claude-code'
 import type { Actualizacion, Cerrada, Estado, FuenteVersion, Paso, Peticion, Prueba, Sesion } from '../types'
 import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, elegirPasos, eliminable, eliminarTarea, enCursoOObservando, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
-import { CLAVE_PLEGADO, COLORES, EJEMPLO_ESTADO, ESTADO, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO, PROYECTO, RGB, ejemploProyecto } from './constantes'
+import { CLAVE_PLEGADO, COLORES, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO, RGB } from './constantes'
+import { COLOR_MARCA, LETRA_MARCA, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
 import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, COLOR_TURBO, COLOR_TAREA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, colorLetra, colorLetraApagada, hueco, puntosDe } from './estilo'
 import { atrasada, commitsDe, creadaEn, cuentaPasos, texto, ultimoCierre } from './lectura'
 import { AVISO_PANTALLA, anotarPantalla, sinPantallaCompleta } from './pantalla'
@@ -174,7 +175,9 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     if (cuenta('en-observacion')) cuentas.push(`observación ${cuenta('en-observacion')}`)
     if (porRevisar) cuentas.push(`propuestas ${porRevisar}`)
     // Sin pantalla completa, los clics no llegan: se dice en texto (tarea 264).
-    const avisos = [sinPantallaCompleta(e) ? AVISO_PANTALLA : null, est.error || est.aviso || est.avisosConfiguracion?.length ? 'revisar .sf/' : null, est.errorPeticiones ? 'revisar .sf/peticiones.json' : null]
+    const sinSf = est.tipo === 'sin-sf'
+    // Sin SF no hay botones: sin el aviso de la pantalla completa; en su lugar, qué escribir para empezar (tarea 289).
+    const avisos = [sinPantallaCompleta(e) && !sinSf ? AVISO_PANTALLA : null, est.error || est.aviso || est.avisosConfiguracion?.length ? 'revisar .sf/' : null, est.errorPeticiones ? 'revisar .sf/peticiones.json' : null]
       .filter((x): x is string => x !== null)
 
     return (
@@ -190,6 +193,16 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
             {avisos.map(t => (
               <Text color={COLOR_AVISO}>⚠ {t}</Text>
             ))}
+          </Box>
+        )}
+        {sinSf && (
+          <Box flexDirection="column">
+            <Text>{PARA_EMPEZAR}</Text>
+            <Box flexDirection="row">
+              <Text backgroundColor={COLOR_MARCA} color={LETRA_MARCA} weight="bold">
+                {` ${ORDEN_EMPEZAR} `}
+              </Text>
+            </Box>
           </Box>
         )}
         <Text dimColor>/sf abre el panel</Text>
@@ -1461,24 +1474,37 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         <Box width={1} flexShrink={0} />
       </Box>
     )
+    // Sin SF, la bienvenida (tarea 289): la marca, qué es la SF y qué escribir para empezar. Sin la línea de la tarea,
+    // sin las secciones (vacías) y sin el aviso de la pantalla completa: aquí no hay botones que pulsar.
     if (est.tipo === 'sin-sf') {
+      const lineas = bienvenida(ancho)
       return conMargen(
         <Box flexDirection="column">
           {cabecera()}
           {cuerpo(
-            bajoCabecera(),
-            seccion(
-              'incorporar',
-              'Incorporarlo a la SF',
-              null,
-              <Box flexDirection="column">
-                <Text>Pide a Claude «incorpora este proyecto a la SF» (skill sf:incorporar_proyecto_a_sf), o crea {PROYECTO}, por ejemplo:</Text>
-                <Text dimColor>{ejemploProyecto(est.versionPlugin)}</Text>
-                <Text>Y el estado, en {ESTADO} (fuera de git):</Text>
-                <Text dimColor>{EJEMPLO_ESTADO}</Text>
-              </Box>,
-            ),
-            bloqueTareas,
+            avisoPrueba,
+            <Box flexDirection="column">
+              {lineas.map((x, i) =>
+                x.estilo === 'orden' ? (
+                  <Box key={`bienvenida:${String(i)}`} flexDirection="row">
+                    <Text>{' '.repeat(sangriaOrden(x.texto, ancho))}</Text>
+                    <Text backgroundColor={COLOR_MARCA} color={LETRA_MARCA} weight="bold">
+                      {x.texto}
+                    </Text>
+                  </Box>
+                ) : (
+                  <Text
+                    key={`bienvenida:${String(i)}`}
+                    color={x.estilo === 'logo' ? COLOR_MARCA : undefined}
+                    weight={x.estilo === 'nombre' || x.estilo === 'normal' ? 'bold' : undefined}
+                    dimColor={x.estilo === 'tenue'}
+                    wrap="truncate-end"
+                  >
+                    {x.texto === '' ? ' ' : x.texto}
+                  </Text>
+                ),
+              )}
+            </Box>,
           )}
         </Box>,
       )

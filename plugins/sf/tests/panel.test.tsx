@@ -4,6 +4,7 @@ import { abreviarRutas, duracionEmergente, pareceError, textoEmergente } from '.
 import { avisoComprobacion, avisoDependencias, proximaComprobacion, subirManifiesto } from '../hooks/cola'
 import { tareasEnDevelop } from '../hooks/lectura'
 import { PRUEBA_PYTHON } from '../hooks/python'
+import { LOGO, NOMBRE, NOMBRE_ANCHO, bienvenida, partir } from '../hooks/bienvenida'
 
 // Un repositorio de la SF de mentira: la marca del plugin, documentos y una cola de peticiones.
 // Cada caso parte de su propia copia, para que un fallo señale un solo comportamiento.
@@ -2557,8 +2558,8 @@ test('Cabecera: sin SF en el proyecto, la etiqueta sigue diciendo la versión de
   await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   expect(await hay(ui, { type: 'Text', text: /^ *SF 0\.32\.3 *$/ })).toBe(true)
-  // Sin la línea gris «sin SF» (decisión 166): lo dice la sección para incorporarlo.
-  expect(await hay(ui, { type: 'Text', text: /^INCORPORARLO A LA SF$/ })).toBe(true)
+  // Sin la línea gris «sin SF» (decisión 166): lo dice la bienvenida (tarea 289).
+  expect(await hay(ui, { type: 'Text', text: / incorpora este proyecto a la SF / })).toBe(true)
   expect(await hay(ui, { type: 'Text', text: /^sin SF$/ })).toBe(false)
   await ui.unmount()
 })
@@ -2726,8 +2727,8 @@ test('TURBO: fuera de un proyecto con SF no sale', async (...m) => {
   await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   expect(await ui.find({ type: 'Button', key: 'turbo' })).toBe(undefined)
-  // Sin la línea gris «sin SF» (decisión 166): lo dice la sección para incorporarlo.
-  expect(await hay(ui, { type: 'Text', text: /^INCORPORARLO A LA SF$/ })).toBe(true)
+  // Sin la línea gris «sin SF» (decisión 166): lo dice la bienvenida (tarea 289).
+  expect(await hay(ui, { type: 'Text', text: / incorpora este proyecto a la SF / })).toBe(true)
   expect(await hay(ui, { type: 'Text', text: /^sin SF$/ })).toBe(false)
   await ui.unmount()
 })
@@ -5954,4 +5955,28 @@ test('Migración 215: una cerrada del historial viejo entra en Cerradas, y el pl
   expect(guardado.plegado).toEqual({ observacion: false, 'pet:observacion:7': false, 'pet:cola:3': true })
   expect(await hay(ui, { type: 'Button', text: /^CERRADAS [▸▾] 1$/ })).toBe(true)
   await ui.unmount()
+})
+
+// La bienvenida sin SF (tarea 289): la marca, qué es y la orden para empezar; nada de JSON, rutas, skills ni secciones.
+test('Bienvenida: sin SF, la marca y qué escribir, sin JSON ni secciones', async (...m) => {
+  await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Text', text: /Para empezar/ })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: / incorpora este proyecto a la SF / })).toBe(true)
+  const pintado = JSON.stringify(await ui.drawn())
+  for (const nada of ['proyecto.json', 'estado.json', 'sf:incorporar', '"fase"', 'PENDIENTES', 'CERRADAS', 'ninguna tarea en curso'])
+    expect(pintado.includes(nada)).toBe(false)
+  await ui.unmount()
+})
+
+test('Bienvenida: en ancho, el logo y el nombre espaciado; en estrecho, sin partir nada fuera del ancho', () => {
+  const ancha = bienvenida(60)
+  expect(ancha.filter(x => x.estilo === 'logo').length).toBe(LOGO.length)
+  expect(ancha.some(x => x.texto.trim() === NOMBRE_ANCHO)).toBe(true)
+  for (const w of [12, 20, 28, 40, 60, 90]) for (const x of bienvenida(w)) expect(x.texto.length).toBeLessThanOrEqual(Math.max(12, w))
+  const estrecha = bienvenida(12)
+  expect(estrecha.some(x => x.estilo === 'logo')).toBe(false)
+  expect(estrecha.filter(x => x.estilo === 'nombre').map(x => x.texto.trim())).toEqual(NOMBRE.split(' '))
+  expect(bienvenida(20).filter(x => x.estilo === 'orden').length).toBeGreaterThan(1)
+  expect(partir('una palabra', 5)).toEqual(['una', 'palab'])
 })

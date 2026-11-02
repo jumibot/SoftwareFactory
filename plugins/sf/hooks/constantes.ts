@@ -81,26 +81,3 @@ export const PLEGADAS_DE_INICIO = ['observacion', 'propuestas']
 // Fondo de los bloques del panel, algo más claro que el del panel (#262626 en tema oscuro): la fila entre
 // bloques queda con el fondo del panel y hace de separador.
 export const FONDO_BLOQUE = '#3a3a3a'
-
-// Un .sf/proyecto.json con la configuración (informe «Configuración inicial»): lo que falta vale lo de por defecto.
-// Con la versión del plugin que corre (sin ella, «X.Y.Z») y un nombre neutro.
-export const ejemploProyecto = (version: string | null) => `{
-  "sf": "${version ?? 'X.Y.Z'}",
-  "proyecto": "MiProyecto",
-  "descripcion": "Qué es el proyecto, en una línea",
-  "color": "green",
-  "metodologia": true,
-  "idioma": "es",
-  "commits": "libre",
-  "remoto": "origin",
-  "rama_main": "main",
-  "manifiesto": null
-}`
-export const EJEMPLO_ESTADO = `{
-  "fase": "especificacion",
-  "detalle": "interfaz: pantalla de revisión",
-  "devslice": null,
-  "hechas": ["vision"],
-  "actualizado": "2026-10-27",
-  "pendientes": ["aclarar qué manifiesto manda"]
-}`
