@@ -1,0 +1,7 @@
+# Las tareas de código no llevan pasos de documentación
+
+- **Origen:** SoftwareFactory, 2026-11-02. En sprite_animation, la tarea «Hacer el código de la demo más legible para los alumnos» (implementar) acabó con el paso «Explicar en el material que la X termina el programa y sus hilos con EXIT_ON_CLOSE». El propietario: «hay que evitar que en las tareas de implementar se mezclen pasos de documentación».
+- **Contexto:** los tipos de tarea se agrupan en familias, y la familia decide cómo se maneja el repositorio y cómo se cierra («Siete tipos de tarea en tres familias», 223; «El tipo de tarea decide cómo se maneja el repositorio», 219). Una documental solo toca su documento. Los documentos compartidos ya se cambian en su tarea «Actualizar <documento>» con un paso «Reflejar…».
+- **Decisión:** una tarea de código (implementar, corregir) no lleva pasos de documentación. Cuando hace falta escribir o cambiar un documento por lo que hace la tarea, ese trabajo va a una tarea documental (especificar, documentar): a la «Actualizar <documento>» si existe, con un paso «Reflejar «<título>» (N)», o a una nueva; en la tarea de código queda, hecho, «Creada la tarea N para …» o «Añadido el paso a la N».
+- **Consecuencias:** se aplica al anotar pasos y al planificar una tarea al ponerla en curso. Los comentarios del código y la documentación técnica que va con él (docstrings, README del módulo) siguen siendo parte de la tarea de código.
+- **Aplicada en:** pendiente; en sf:orquestacion y sf:flujo_tareas.

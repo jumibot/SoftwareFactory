@@ -1,0 +1,7 @@
+# Testing pasa a llamarse «En observación»
+
+- **Origen:** SoftwareFactory, 2026-11-02. El propietario: «¿qué te parece llamarle Cuarentena al testing para evitar prejuzgar erróneamente? Testing sugiere probar, no supervisar en la rama liberada». Valoradas las opciones, eligió «En observación»: «me parece perfecta. Solo revisa todo lo que habla de testing para ver todo lo que hay que cambiar y no dejar rastros».
+- **Contexto:** una tarea en Testing ya está en `develop`; lo que se hace es vigilar cómo funciona con el uso, para cerrarla o revertirla («Los estados de las tareas se nombran con el lenguaje de la SF», 204). «Testing» sugiere que falta probarla. Se valoraron «Cuarentena» (expresivo, pero da a entender que la tarea es sospechosa) y «Vigilancia».
+- **Decisión:** el estado se llama «En observación». Una tarea en observación se cierra (se da por buena) o se revierte (funciona mal). El nombre «Testing» desaparece de todo lo que se ve y se dice: el panel, los avisos, las skills, `cola.py` (ayuda y mensajes) y los documentos.
+- **Consecuencias:** hay que revisar todo lo que habla de Testing, de probada o de dar por probada y cambiarlo sin dejar rastros. El valor interno del estado en la cola puede mantenerse si cambiarlo obliga a migrar colas, pero no se muestra. Las órdenes y botones con ese nombre (`a-testing`, `probada`) se renombran o se les da un alias con el nombre nuevo.
+- **Aplicada en:** pendiente; en «Los estados de las tareas dicen lo que pasa: Testing se cierra o se revierte» (291).

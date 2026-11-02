@@ -1,0 +1,8 @@
+# El título del commit en formato conventional sale del tipo de tarea
+
+- **Origen:** SoftwareFactory, 2026-11-02. En «Implementar la configuración inicial» (193) se preguntó de dónde sale el título del squash de cierre en un proyecto con commits `conventional` o `propio`, porque el título de la tarea («Implementar X») no cumple ese formato. El propietario aceptó la recomendación: sacarlo del tipo de tarea.
+- **Contexto:** «El número de la tarea en el commit, según el formato del proyecto» (207) pone el número como «(N)» o en el trailer `SF-Tarea: N`. La C del panel cierra sin pedir nada, así que el título tiene que salir solo. Se valoró también titular las tareas ya en conventional o pedir el título al cerrar con `--titulo`.
+- **Decisión:** en esos proyectos, el prefijo del título del squash sale del tipo de tarea: implementar → `feat`, corregir → `fix`, documentar y especificar → `docs`; el resto, el que mejor case. Le sigue el título de la tarea.
+- **Precisada el mismo día:** una tarea sin tipo lleva `chore`. Si hay dudas sobre qué tipo es, Claude pregunta el tipo al propietario y lo anota en la tarea antes de cerrarla; si se cierra desde el panel sin tipo, `chore` (propietario: «chore está bien o preguntar por el tipo si hay dudas»).
+- **Consecuencias:** cerrar sigue sin pedir nada, también con la C del panel. Los títulos de las tareas no cambian de forma.
+- **Aplicada en:** pendiente; en «Implementar la configuración inicial» (193).

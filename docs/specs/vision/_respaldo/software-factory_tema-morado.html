@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SoftwareFactory: tu forma de construir, convertida en fábrica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+/* ─────────────────────────────────────────────────────────────────
+ * OncoCore — Estilo HTML del proyecto OPERATIVO (DESPLEGABLE)
+ * Hospital Universitari Son Espases · Servei de Salut de les Illes Balears
+ * @version v1.0.27
+ *
+ * Ámbito: HTMLs que ve el profesional clínico — informes generados en
+ * el backend de la aplicación (D:\Projectes\OncoCore_app\backend\data\casos_clinicos\).
+ * Es un activo desplegable: cuando se quiera servir al profesional, este
+ * archivo viaja junto a los informes (o se embebe en ellos).
+ *
+ * Generadores actuales:
+ *   - md_to_html.py  → informes molecular-report y futuros (toxicity, plan…)
+ *
+ * Pareja: oncocore-html-style-constructivo.css (panel /oncostatus interno).
+ * Hoy ambos son idénticos; mantenlos separados para poder ajustar la
+ * identidad clínica sin afectar las herramientas internas y viceversa.
+ * ───────────────────────────────────────────────────────────────── */
+
+:root {
+  --brand-teal:       #7b2cbf;
+  --brand-teal-dark:  #4c1d80;
+  --brand-teal-light: #f8f5ff;
+  --brand-teal-mid:   #e4d7f5;
+  --obsidian-purple:  #b45309;
+  --obsidian-bg:      #fff7ed;
+  --bg-page:          #faf8fd;
+  --text-main:        #2b2b2f;
+  --text-muted:       #6b7280;
+  --text-faint:       #9ca3af;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Assistant', Arial, sans-serif;
+  background: var(--bg-page);
+  color: var(--text-main);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(0,0,0,.08);
+  min-height: 100vh;
+}
+
+/* ── Header corporativo ── */
+.site-header {
+  background: var(--brand-teal);
+  padding: 0 2.5rem;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+.institution {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem 0;
+}
+.institution-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: .02em;
+  line-height: 1.2;
+}
+.institution-sub {
+  font-size: .73rem;
+  font-weight: 300;
+  color: rgba(255,255,255,.75);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-top: .15rem;
+}
+.system-badge {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem 1rem;
+  background: var(--brand-teal-dark);
+  color: rgba(255,255,255,.9);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  align-self: center;
+  border-radius: 3px;
+}
+.system-badge .dot {
+  width: 7px; height: 7px;
+  background: #c4b5d9;
+  border-radius: 50%;
+}
+
+/* ── Subheader página ── */
+.report-header {
+  background: var(--brand-teal-light);
+  border-bottom: 2px solid var(--brand-teal-mid);
+  padding: 1rem 2.5rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.report-title { font-size: 1rem; font-weight: 600; color: var(--brand-teal-dark); }
+.report-meta  { font-size: .78rem; color: var(--text-muted); font-weight: 300; }
+
+/* Chip de versión del informe (a la derecha del .report-header).
+   Mismo lenguaje visual que .system-badge: pill teal-dark con dot brillante. */
+.report-version {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .35rem .9rem;
+  background: var(--brand-teal-dark);
+  color: rgba(255,255,255,.95);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  align-self: center;
+}
+.report-version .dot {
+  width: 7px; height: 7px;
+  background: #c4b5d9;
+  border-radius: 50%;
+}
+
+/* ── Datos de entrada ── */
+/* Enunciado verbatim del clínico — visible siempre al abrir el informe
+   (no es <details>, no se colapsa). Italica + tamaño compactado para
+   distinguirlo del informe analítico, márgenes laterales que respetan
+   la rejilla del .report-body, borde-cita izquierdo muy discreto. Es
+   contexto del caso, no la lectura central — debe leer cómodo pero
+   ceder protagonismo visual al resto del informe. */
+.report-input {
+  margin: 1.4rem 2.5rem;
+  font-size: .82rem;
+  line-height: 1.5;
+  font-style: italic;
+  color: var(--text-muted);
+}
+/* Cuando .report-input precede al body, neutralizamos el padding-top del
+   body y el margin-top del primer .bloque para que el espacio inferior del
+   input coincida con el superior — visualmente simétrico (NSCLC_7a272911
+   v7 mostraba ~1.4rem arriba vs ~4.8rem abajo por la suma 1.4 + 1.8 + 1.6). */
+.report-input + .report-body { padding-top: 0; }
+.report-input + .report-body > .bloque:first-child { margin-top: 0; }
+.report-input p { margin: 0 0 .35rem; }
+.report-input p:last-child { margin-bottom: 0; }
+.report-input ul,
+.report-input ol { margin: .15rem 0 .45rem 1.15rem; padding: 0; }
+.report-input li { margin: .1rem 0; }
+.report-input strong { color: var(--text-main); font-style: normal; font-weight: 600; }
+
+/* ── Índice (TOC) ── */
+.toc {
+  background: var(--brand-teal-light);
+  border: 1px solid var(--brand-teal-mid);
+  border-radius: 6px;
+  padding: 1rem 1.4rem 1.1rem;
+  margin: 1.6rem 2.5rem 0;
+}
+.toc-title {
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--brand-teal-dark);
+  margin-bottom: .55rem;
+}
+.toc ul { list-style: none; padding: 0; columns: 2; column-gap: 2rem; }
+.toc li { margin: .18rem 0; break-inside: avoid; }
+.toc a   { color: var(--brand-teal-dark); text-decoration: none; font-size: .88rem; }
+.toc a:hover { text-decoration: underline; }
+.toc-h1  { font-weight: 600; }
+.toc-h2  { padding-left: .9rem; font-weight: 500; }
+.toc-h3  { padding-left: 1.7rem; font-weight: 400; font-size: .82rem; color: var(--text-muted); }
+
+/* ── Bloques colapsables (Abstract / Verificación) ── */
+/* Estilo minimalista al estilo /oncostatus: sin recuadros, summary tipo
+   heading con chevron SVG a la derecha que rota al abrir. Sin padding ni
+   borde lateral en el contenido — el cuerpo fluye como texto normal. */
+.bloque {
+  margin: 1.6rem 0 0;
+  border: none;
+  background: transparent;
+}
+.bloque-summary {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--brand-teal-dark);
+  padding: .25rem 0 .2rem;
+  margin-bottom: .6rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  user-select: none;
+  outline: none;
+  transition: color .15s ease;
+}
+.bloque-summary:hover { color: var(--brand-teal); }
+.bloque-summary::-webkit-details-marker { display: none; }
+.bloque-summary::marker { content: ''; }
+.bloque-summary::before {
+  content: '';
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  background: var(--brand-teal);
+  border-radius: 50%;
+  margin-right: .6rem;
+}
+.bloque-chip {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  background: var(--brand-teal-light);
+  border-radius: 999px;
+  padding: .25rem .9rem .25rem .9rem;
+  gap: .45rem;
+}
+.bloque-title {
+  flex: 1 1 auto;
+  padding: .1rem 0;
+}
+.bloque-btn {
+  font-family: inherit;
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--brand-teal-dark);
+  background: transparent;
+  border: 1px solid var(--brand-teal-mid);
+  border-radius: 999px;
+  padding: .15rem .65rem;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+.bloque-btn:hover {
+  background: var(--brand-teal);
+  border-color: var(--brand-teal);
+  color: #fff;
+}
+.bloque-summary::after {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237b2cbf' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+  transition: transform .2s ease;
+  transform-origin: center;
+  flex-shrink: 0;
+  margin-left: .6rem;
+}
+.bloque[open] > .bloque-summary::after { transform: rotate(180deg); }
+
+/* Indentar el contenido del bloque para alinearlo con el literal del título
+   dentro del chip: bullet (1rem) + margin-right (.6rem) + padding-left del
+   chip (.9rem) = 2.5rem. Aplica a todo hijo directo del bloque que no sea
+   su propio summary. */
+.bloque > *:not(.bloque-summary) { padding-left: 2.5rem; }
+/* Las tablas hijas DIRECTAS del bloque (p. ej. el grid de Farmacia) heredan ese
+   padding-left, pero con box-sizing:border-box + width:100% el padding queda DENTRO
+   del ancho → el borde izquierdo arranca en x=0, a la izquierda del chip (la tabla
+   "sobresale"). Para tablas, el indent debe ser margin-left (empuja el borde) y el
+   ancho se recorta para no rebasar el margen derecho. Así el grid se alinea con el chip. */
+.bloque > table { padding-left: 0; margin-left: 2.5rem; width: calc(100% - 2.5rem); }
+
+/* ── Subsecciones colapsables (1.1, 1.2, 2.1, 2.2…) ── */
+.subseccion {
+  margin: 1rem 0 0;
+  border: none;
+  background: transparent;
+}
+.subseccion-summary {
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--brand-teal);
+  padding: .15rem 0;
+  margin: .8rem 0 .3rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  user-select: none;
+  outline: none;
+  transition: color .15s ease;
+}
+.subseccion-summary:hover { color: var(--brand-teal-dark); }
+.subseccion-summary::-webkit-details-marker { display: none; }
+.subseccion-summary::marker { content: ''; }
+.subseccion-summary::after {
+  content: '';
+  display: inline-block;
+  margin-left: auto;
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239d5ce0' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+  transition: transform .2s ease;
+  transform-origin: center;
+  flex-shrink: 0;
+  opacity: .7;
+}
+.subseccion[open] > .subseccion-summary::after { transform: rotate(180deg); }
+
+/* ── Sub-subsecciones colapsables (4.1, 4.2 dentro de cada PA en Farmacia;
+   #### Eventos moleculares / #### Afirmaciones clínicas en Trazabilidad) ── */
+.subsubseccion {
+  margin: .55rem 0 0;
+  border: none;
+  background: transparent;
+}
+.subsubseccion-summary {
+  font-size: .87rem;
+  font-weight: 600;
+  color: var(--brand-teal-dark);
+  padding: .1rem 0;
+  margin: .45rem 0 .2rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  user-select: none;
+  outline: none;
+  transition: color .15s ease;
+}
+.subsubseccion-summary:hover { color: var(--brand-teal); }
+.subsubseccion-summary::-webkit-details-marker { display: none; }
+.subsubseccion-summary::marker { content: ''; }
+.subsubseccion-summary::after {
+  content: '';
+  display: inline-block;
+  margin-left: auto;
+  width: 12px;
+  height: 12px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234c1d80' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px 10px;
+  transition: transform .2s ease;
+  transform-origin: center;
+  flex-shrink: 0;
+  opacity: .55;
+}
+.subsubseccion[open] > .subsubseccion-summary::after { transform: rotate(180deg); }
+
+/* Farmacia — refinamiento tipográfico scoped al bloque:
+   - Nombre del medicamento (### <PA>) en negrita (vs el resto de subsecciones
+     del informe que quedan en semibold).
+   - Subsecciones intra-medicamento (#### 4.1, 4.2, … Toxicidad) en negro
+     (vs el teal-dark de las otras subsubsecciones). */
+#farmacia .subseccion-summary { font-weight: 700; }
+#farmacia .subsubseccion-summary { color: var(--text-main); }
+#farmacia .subsubseccion-summary::before {
+  content: '';
+  display: inline-block;
+  flex: 0 0 auto;
+  width: .42rem;
+  height: .42rem;
+  background: var(--text-main);
+  border-radius: 50%;
+}
+#farmacia .subsubseccion-summary::after {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232b2b2f' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  opacity: 1;
+}
+
+/* ── Aviso de navegación (informes) ── */
+.nav-hint {
+  background: var(--obsidian-bg);
+  border-left: 3px solid var(--obsidian-purple);
+  padding: .5rem 1.2rem;
+  margin: 1.2rem 2.5rem 0;
+  font-size: .78rem;
+  color: #444;
+  border-radius: 0 4px 4px 0;
+}
+.nav-hint strong { color: var(--obsidian-purple); }
+
+/* ── Cuerpo ── */
+.report-body { padding: 1.8rem 2.5rem 3rem; }
+h1 {
+  font-size: 1.3rem; font-weight: 700;
+  color: var(--brand-teal-dark);
+  border-bottom: 2px solid var(--brand-teal);
+  padding-bottom: .4rem; margin: 1.6rem 0 .8rem;
+}
+h2 {
+  font-size: 1.05rem; font-weight: 600;
+  color: var(--brand-teal-dark);
+  border-bottom: 1px solid var(--brand-teal-mid);
+  padding-bottom: .2rem; margin: 2rem 0 .6rem;
+}
+h3 { font-size: .95rem; font-weight: 600; color: var(--brand-teal); margin: 1.2rem 0 .4rem; }
+p  { margin: .55rem 0; }
+ul, ol { padding-left: 1.5rem; margin: .4rem 0; }
+li { margin: .2rem 0; }
+
+/* ── Links Obsidian ── */
+a[href^="obsidian://"] {
+  color: var(--obsidian-purple);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--obsidian-purple);
+  font-weight: 500;
+}
+a[href^="obsidian://"]:hover {
+  background: var(--obsidian-bg);
+  border-radius: 3px;
+  padding: 0 3px;
+  border-bottom-style: solid;
+}
+a[href^="obsidian://"]::after { content: " ↗"; font-size: .7em; opacity: .6; }
+
+/* ── Tablas generales ── */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.1rem 0;
+  font-size: .875rem;
+}
+th {
+  background: var(--brand-teal);
+  color: #fff;
+  padding: .45rem .8rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: .82rem;
+  /* Romper texto largo (motivos de selección, displays de pendientes) dentro de la celda
+     en vez de forzar scroll horizontal / desbordar el margen derecho. */
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+td {
+  padding: .38rem .8rem;
+  border-bottom: 1px solid #ece4f7;
+  vertical-align: top;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+tr:hover td { background: var(--brand-teal-light); }
+
+/* ── Tabla de auditoría (grid visual) ── */
+.audit-table {
+  border: 1px solid var(--brand-teal-mid);
+  border-radius: 6px;
+  overflow: hidden;
+  font-size: .85rem;
+}
+.audit-table th {
+  background: var(--brand-teal-dark);
+  font-size: .8rem;
+  letter-spacing: .03em;
+}
+.audit-table td { border-bottom: 1px solid #e6dcf4; }
+.audit-table tr:last-child td { border-bottom: none; }
+.audit-table tr:hover td { background: #fbf9fe; }
+.audit-table td.s-ok   { background: #f0fdf4; }
+.audit-table td.s-warn { background: #fffbeb; }
+
+/* ── Badges ── */
+.badge {
+  display: inline-block;
+  padding: .15rem .55rem;
+  border-radius: 12px;
+  font-size: .78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.b-ok    { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+.b-warn  { background: #fef9c3; color: #854d0e; border: 1px solid #fde047; }
+.b-bad   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.b-muted { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; letter-spacing: .04em; }
+
+/* ── Badge para terminología técnica/ingenieril (REGLA 5.9) ──
+ * Marca visualmente cualquier alusión al sistema construido o vocabulario
+ * técnico interno (nodo, vault, KB como abreviatura, IDs internos, rutas,
+ * Glob, Paso 4b, etc.) que aparezca en secciones del informe — para que el
+ * comité molecular distinga al instante el meta-vocabulario de la prosa
+ * clínica. Aplica solo a §2.5 (trazabilidad) y §2.6 (auditoría técnica);
+ * en secciones clínicas el badge no debe ser necesario porque la REGLA 5
+ * exige reformulación previa, no marcado.
+ *
+ * Convención de uso en el .md fuente:
+ *   <span class="kb-tech">término técnico</span>
+ *
+ * También aplica al wrapper de párrafo cuando todo el bloque es metadato:
+ *   <p class="kb-tech-block">…</p>
+ */
+.kb-tech {
+  display: inline-block;
+  padding: .05rem .45rem;
+  margin: 0 .12rem;
+  border-radius: 4px;
+  background: var(--obsidian-bg);
+  color: var(--obsidian-purple);
+  border: 1px solid #fcd9b6;
+  font-family: 'Consolas', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: .78rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+.kb-tech::before {
+  content: "\2699\00a0";  /* ⚙ + nbsp */
+  font-size: .82rem;
+  opacity: .75;
+}
+.kb-tech-block {
+  display: block;
+  padding: .55rem .85rem;
+  margin: .4rem 0;
+  border-left: 3px solid var(--obsidian-purple);
+  background: var(--obsidian-bg);
+  color: #3a276b;
+  font-family: 'Consolas', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: .82rem;
+  line-height: 1.55;
+  border-radius: 0 4px 4px 0;
+}
+.kb-tech-block::before {
+  content: "\2699 metadatos del sistema · ";
+  color: var(--obsidian-purple);
+  font-weight: 700;
+  letter-spacing: .02em;
+}
+
+/* Anidados dentro de tablas (las cabeceras técnicas de §2.5 / §2.6) */
+table .kb-tech { font-size: .72rem; padding: .02rem .35rem; }
+
+/* ── Badge para meta-vocabulario clínico-curado (REGLA 5.10) ──
+ * Frases técnicas en origen (describen estado de OncoCore KB: cobertura,
+ * modelado, validación, fichas, categorías) pero reformuladas en registro
+ * clínico aceptable. Aplica SOLO en §1.1–§2.4 (secciones clínicas), donde
+ * el lector debe distinguir prosa clínica positiva (sin marca) del sistema
+ * narrando el estado de su propio conocimiento (fondo teal tenue, sin chip).
+ *
+ * Convención de uso en el .md fuente:
+ *   <span class="kb-meta">sin ficha específica individual en OncoCore KB</span>
+ *   <span class="kb-meta">[pendiente de modelado específico en OncoCore KB]</span>
+ *
+ * NO usar en §2.5 / §2.6 — allí va vocabulario técnico crudo con .kb-tech.
+ * NO envolver `OncoCore KB` suelto — el nombre canónico es vocabulario clínico
+ * admitido (REGLA 5.2). Solo se envuelve la frase completa que predica estado.
+ */
+.kb-meta {
+  background: rgba(123, 44, 191, 0.07);
+  padding: 0 .25rem;
+  border-radius: 2px;
+  color: var(--brand-teal-dark);
+  border-bottom: 1px dotted var(--brand-teal-mid);
+}
+.kb-meta::before { content: none; }
+
+/* Anidados dentro de tablas (poco frecuente — §2.2 y §2.4 pueden tener
+   filas con frases meta-clínicas) */
+table .kb-meta { font-size: .82rem; padding: 0 .2rem; }
+
+/* ── Resto ── */
+blockquote {
+  border-left: 3px solid var(--brand-teal);
+  margin: .8rem 0;
+  padding: .5rem 1.2rem;
+  background: var(--brand-teal-light);
+  color: #333;
+  font-style: italic;
+}
+code {
+  background: #f0f0f0;
+  padding: .1rem .3rem;
+  border-radius: 3px;
+  font-family: 'Consolas', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: .83rem;
+}
+pre  {
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  padding: 1rem;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: .83rem;
+  line-height: 1.55;
+}
+hr   { border: none; border-top: 1px solid var(--brand-teal-mid); margin: 1.8rem 0; }
+em   { color: #444; }
+strong { font-weight: 600; }
+
+/* ── Footer ── */
+.site-footer {
+  background: var(--brand-teal-dark);
+  color: rgba(255,255,255,.55);
+  font-size: .72rem;
+  text-align: center;
+  padding: .9rem 2rem;
+  letter-spacing: .04em;
+}
+.site-footer a { color: rgba(255,255,255,.8); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+
+/* ── Específico de paneles tipo /oncostatus ── */
+.status-section {
+  margin: 1.4rem 0 .6rem;
+}
+.status-section-title {
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--brand-teal-dark);
+  border-bottom: 1px solid var(--brand-teal-mid);
+  padding-bottom: .35rem;
+  margin-bottom: .8rem;
+}
+pre.panel {
+  background: #fafbfb;
+  border: 1px solid var(--brand-teal-mid);
+  border-radius: 4px;
+  padding: .8rem 1rem;
+  white-space: pre;
+  margin: 0;
+}
+pre.panel .ok    { color: #166534; font-weight: 700; }
+pre.panel .warn  { color: #854d0e; font-weight: 700; }
+pre.panel .bad   { color: #991b1b; font-weight: 700; }
+pre.panel .muted { color: #475569; font-weight: 700; letter-spacing: .04em; }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'DM Sans', Arial, sans-serif; }
+
+    /* Tres niveles de lectura:
+       1. narración y explicación: DM Sans (tipografía principal);
+       2. escenas dialogadas: Source Serif 4, con etiqueta, margen lateral y fondo suave;
+       3. datos del caso, fuentes y evidencias: DM Sans compacta, cifras tabulares, etiqueta en versalitas. */
+    .escena { font-family: 'Source Serif 4', Georgia, serif; background: #fbf9fe; border-left: 3px solid #c4b5d9;
+              border-radius: 0 12px 12px 0; padding: 1rem 1.4rem .9rem; margin: 1.8rem 0; max-width: none; }
+    .escena p { margin: 0; }
+    .escena-etiqueta { font-family: 'DM Sans', Arial, sans-serif; font-size: .7rem; font-weight: 700; letter-spacing: .09em;
+                       text-transform: uppercase; color: #7b2cbf; margin-bottom: .35rem !important; }
+    .escena-contexto { font-size: .95rem; color: #6b7280; line-height: 1.5; margin-bottom: .6rem !important; }
+    .turno { display: grid; grid-template-columns: 9.5rem 1fr; gap: .15rem 1.1rem; padding: .6rem 0; border-top: 1px solid #ece4f7; }
+    .ponente { font-family: 'DM Sans', Arial, sans-serif; font-size: .8rem; font-weight: 700; color: #4c1d80; line-height: 1.35; padding-top: .2rem; }
+    .ponente small { display: block; font-weight: 400; color: #9ca3af; font-size: .74rem; }
+    .turno > p:last-child { font-size: 1.04rem; line-height: 1.6; color: #2b2b2f; }
+    .turno.arnes .ponente { color: #6b7280; }
+    .turno.arnes > p:last-child { font-family: 'DM Sans', Arial, sans-serif; font-size: .9rem; color: #4b5563; font-variant-numeric: tabular-nums; }
+    .escena-pie { font-family: 'DM Sans', Arial, sans-serif; font-size: .74rem; color: #9ca3af; border-top: 1px solid #ece4f7; padding-top: .5rem; margin-top: .1rem !important; }
+    /* Hilo conductor: la narración del caso va en cursiva dentro de un recuadro gris claro, con la etiqueta
+       «El caso», al abrir, en cada capítulo, cada vez que se revela un dato y al cerrar. */
+    .caso, .expediente { background: #f7f7f8; border: 1px solid #e5e7eb; border-radius: 10px;
+                         padding: .9rem 1.3rem 1rem; margin: 1.4rem 0 1.6rem; max-width: none; }
+    .caso-etiqueta, .expediente b:first-child { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .09em;
+                                                text-transform: uppercase; color: #4c1d80; margin: 0 0 .35rem; font-style: normal; }
+    /* Aviso de ficción: al principio del documento, antes del prólogo. */
+    .aviso-ficcion { border-left: 4px solid #b91c1c; background: #fef2f2; border-radius: 0 8px 8px 0;
+                     padding: .7rem 1.1rem; margin: .4rem 0 1.4rem; font-size: .92rem; line-height: 1.55; color: #3b0d0d; max-width: none; }
+    .aviso-ficcion p { margin: 0; }
+    .aviso-ficcion p + p { margin-top: .4rem; }
+    .caso p { margin: 0; }
+    .caso p + p { margin-top: .6rem; }
+    .caso > p:not(.caso-etiqueta) { font-size: 1.08rem; line-height: 1.65; color: #2b2b2f; font-style: italic; }
+    .expediente { font-size: .92rem; font-variant-numeric: tabular-nums; color: #2b2b2f; padding: .6rem 1.3rem .7rem; }
+    .ficha { border: 1px solid #e4d7f5; border-radius: 12px; padding: .9rem 1.2rem; margin: 1.6rem 0; max-width: none; font-size: .92rem; }
+    .ficha-titulo { font-family: 'Space Grotesk', 'DM Sans', sans-serif; font-weight: 600; color: #4c1d80; font-size: 1.02rem; margin: 0 0 .5rem; }
+    .ficha dl { display: grid; grid-template-columns: 11rem 1fr; margin: 0; }
+    .ficha dt, .ficha dd { margin: 0; padding: .42rem 0; border-top: 1px solid #f1ebfa; }
+    .ficha dt { font-size: .7rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #6b7280; padding-top: .55rem; }
+    .ficha dt.acordado, .ficha dd.acordado { border-top: 2px solid #7b2cbf; }
+    .ficha dt.acordado { color: #7b2cbf; }
+    .ficha dt.evidencia { color: #b45309; }
+    @media (max-width: 720px) {
+      .escena { padding: .9rem 1rem .8rem; }
+      .turno { grid-template-columns: 1fr; }
+      .ficha dl { grid-template-columns: 1fr; }
+      .ficha dd { border-top: none; padding-top: 0; }
+    }
+    h1, h2, h3, .institution-name, .bloque-title, .subseccion-summary { font-family: 'Space Grotesk', 'DM Sans', sans-serif; }
+    .site-header { background: #fff; border-bottom: 1px solid rgba(123,44,191,.15); justify-content: flex-start; gap: 1rem; align-items: center; }
+    .site-header .brand-logo { height: 52px; width: auto; }
+    .institution-name { color: #2b2b2f; font-weight: 600; }
+    .institution-sub { color: #7b2cbf; }
+
+    /* Ancho completo de pantalla, con márgenes que escalan */
+    .page { max-width: none; box-shadow: none; }
+    .site-header, .report-header { padding-left: clamp(1rem, 4vw, 3.5rem); padding-right: clamp(1rem, 4vw, 3.5rem); }
+    .report-body { padding: 1.8rem clamp(1rem, 4vw, 3.5rem) 3rem; }
+    @media (min-width: 1400px) { body { font-size: 1.06rem; } }
+
+    /* Gráficos: no crecen sin límite en pantallas anchas */
+    figure svg { max-width: 1100px; margin: 0 auto; }
+    /* Diagramas verticales: estrechos en escritorio y a todo el ancho en móvil, sin desplazamiento */
+    figure.vertical svg { max-width: 560px; }
+    @media (max-width: 720px) {
+      figure.vertical { overflow-x: visible; }
+      figure.vertical svg { min-width: 0 !important; }
+      figure.vertical::before { content: none !important; display: none !important; }
+    }
+
+    /* Móvil y tableta estrecha */
+    /* Aviso de desplazamiento solo cuando el gráfico (mín. 680px) no cabe */
+    @media (max-width: 700px) {
+      figure::before { content: 'Desliza para ver el gráfico completo →'; display: block; font-size: .72rem; color: #9ca3af; text-align: right; margin-bottom: .3rem; }
+    }
+    @media (max-width: 720px) {
+      body { line-height: 1.6; }
+      .site-header .brand-logo { height: 38px; }
+      .institution-name { font-size: .98rem; }
+      .institution-sub { font-size: .66rem; }
+      .report-header { padding-top: .7rem; padding-bottom: .7rem; }
+      .bloque > *:not(.bloque-summary) { padding-left: 0; }
+      .bloque > table { margin-left: 0; width: 100%; }
+      .bloque-summary::before { width: .7rem; height: .7rem; margin-right: .45rem; }
+      .bloque-chip { padding: .3rem .75rem; }
+      .bloque-title { font-size: .98rem; line-height: 1.3; }
+      .bloque-btn { display: none; }
+      blockquote { padding: .5rem .9rem; }
+      /* Los gráficos conservan un tamaño legible y se desplazan en horizontal */
+      figure { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-left: 0 !important; margin-right: 0 !important; }
+      figure svg { min-width: 680px; }
+      figcaption { position: sticky; left: 0; max-width: calc(100vw - 2rem); text-align: left !important; }
+      /* Tablas en fichas apiladas: cada fila es una tarjeta con sus etiquetas */
+      table, tbody, tr, td { display: block; width: 100%; }
+      thead { display: none; }
+      tr { border: 1px solid rgba(123,44,191,.15); border-radius: 10px; margin: 0 0 .8rem; padding: .55rem .85rem; background: #fff; }
+      tr:hover td { background: transparent; }
+      td { border: none; padding: .18rem 0; word-break: normal; overflow-wrap: anywhere; hyphens: auto; }
+      td:first-child { font-family: 'Space Grotesk', 'DM Sans', sans-serif; font-weight: 600; color: #4c1d80; font-size: 1rem; padding-bottom: .3rem; }
+      td[data-label]:not(:first-child)::before { content: attr(data-label); display: block; font-size: .7rem; letter-spacing: .05em; text-transform: uppercase; color: #9ca3af; }
+    }
+
+    /* Comparativa de versiones en tarjetas: una tarjeta por idea y, dentro, una subtarjeta por versión
+       con su nombre (data-version), el texto y el comentario de lo que ha cambiado y por qué.
+       Las subtarjetas van en 4 columnas (o --cols) en escritorio, 2 en tableta y 1 en móvil. */
+    .comparativa { margin: 1.6rem 0 1.4rem; font-size: .9rem; }
+    .cmp-cab { display: none; }
+    .cmp-fila { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: .7rem;
+      background: #fff; border: 1px solid #ece4f7; border-radius: 12px; padding: 1rem 1.05rem 1.05rem;
+      margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(123,44,191,.06); }
+    .cmp-idea { grid-column: 1 / -1; margin: 0 0 .1rem; font-family: 'Space Grotesk', 'DM Sans', sans-serif;
+      font-size: .8rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: #7b2cbf; }
+    .cmp-celda { background: #f8f5ff; border-radius: 8px; padding: .7rem .8rem .75rem; min-width: 0; }
+    .cmp-celda[data-version^="Original"] { background: #fff; border: 1px dashed #c4b5d9; }
+    .cmp-celda::before { content: attr(data-version); display: block; font-size: .7rem; font-weight: 700;
+      color: #4c1d80; margin-bottom: .35rem; letter-spacing: .02em; }
+    .cmp-celda p { margin: 0; }
+    .cmp-texto { font-size: .9rem; line-height: 1.5; color: #2b2b2f; }
+    .cmp-texto + .cmp-texto { margin-top: .2rem !important; }
+    .cmp-nota { margin-top: .6rem !important; padding-top: .5rem; border-top: 1px solid #ece4f7;
+      font-size: .78rem; line-height: 1.45; color: #6b7280; }
+    .cmp-vacia .cmp-texto { color: #9ca3af; font-style: italic; }
+    .cmp-pie { background: #f8f5ff; }
+    .cmp-pie .cmp-celda { background: #fff; }
+    .cmp-pie .cmp-texto { font-variant-numeric: tabular-nums; font-weight: 700; font-size: .95rem; }
+    .report-body li, .report-body p { overflow-wrap: anywhere; }
+    /* Hojas del alumno: cada versión tal como se entrega, con su formato y sus ayudas.
+       .hoja-quien y .hoja-ayudas (chips) explican al lector del documento; .hoja-papel es la hoja en sí. */
+    .hojas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem 1.2rem; margin: 1.4rem 0 1.6rem; }
+    .hoja-ancha { grid-column: 1 / -1; }
+    .hoja p { margin: 0; }
+    .hoja-quien { font-family: 'Space Grotesk', 'DM Sans', sans-serif; font-weight: 700; font-size: .9rem; color: #4c1d80; }
+    .hoja-ayudas { display: flex; flex-wrap: wrap; gap: .3rem; margin: .45rem 0 .7rem !important; }
+    .hoja-ayudas span { font-size: .7rem; padding: .15rem .55rem; border-radius: 999px; background: #f8f5ff; color: #4c1d80; border: 1px solid #e4d7f5; }
+    .hoja-nota { font-size: .76rem; color: #6b7280; margin-top: .55rem !important; font-style: italic; }
+    .hoja-papel { border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 10px rgba(0,0,0,.07); padding: 1.3rem 1.4rem 1.5rem; background: #fff; color: #2b2b2f; text-align: left; }
+    .hoja-papel p { margin: 0 0 .8rem; }
+    .papel-cab { display: flex; justify-content: space-between; align-items: center; gap: .6rem; flex-wrap: wrap; font-size: .72rem !important; color: #9ca3af; border-bottom: 1px solid #e6e6e6; padding-bottom: .45rem; margin-bottom: .9rem !important; letter-spacing: normal !important; word-spacing: normal !important; }
+    .escolta { font-size: .72rem; font-weight: 700; color: #fff; background: #4c1d80; border-radius: 999px; padding: .2rem .7rem; white-space: nowrap; }
+    .papel-titol { font-weight: 700; font-size: 1.25em; margin-bottom: 1rem !important; }
+    .papel-dislexia { background: #fbf5e6; font-family: Verdana, Tahoma, Arial, sans-serif; font-size: 1.02rem; line-height: 1.5; letter-spacing: .06em; word-spacing: .22em; }
+    .papel-ic { font-family: Arial, Helvetica, sans-serif; font-size: 1rem; line-height: 1.55; }
+    .papel-lf { font-family: Arial, Helvetica, sans-serif; font-size: 1.12rem; line-height: 1.6; }
+    .papel-lf .lf-text p { margin: 0 0 .25rem; }
+    .lf-cos { display: grid; grid-template-columns: minmax(0, 1fr) 15.5rem; gap: 1.6rem; }
+    .lf-abans { background: #f4f4f4; border-radius: 6px; padding: .6rem .8rem; font-size: .95rem; margin-bottom: 1rem !important; }
+    .lf-sub { font-weight: 700; font-size: 1.05rem; margin: 1.1rem 0 .35rem !important; }
+    .lf-idea { border: 2px solid #2b2b2f; border-radius: 8px; padding: .7rem .9rem; margin-top: 1.2rem; }
+    .lf-idea-cap, .glosari-cap { font-size: .72rem !important; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #6b7280; margin-bottom: .4rem !important; }
+    .glosari { border-left: 3px solid #e4d7f5; padding-left: 1rem; font-size: .9rem; line-height: 1.4; }
+    .glosari-curt { border-left: none; border-top: 1px solid #e6e6e6; padding: .7rem 0 0; margin-top: 1rem; font-size: .9rem; }
+    .glosari-curt p { margin: 0 0 .3rem; }
+    .glos { display: grid; grid-template-columns: 2.6rem 1fr; gap: .6rem; align-items: start; padding: .55rem 0; border-bottom: 1px solid #eee; }
+    .glos p { margin: 0 0 .1rem; }
+    .picto { width: 2.6rem; height: 2.6rem; border: 1.5px solid #2b2b2f; border-radius: 6px; padding: .2rem; background: #fff; }
+    .ar { font-size: 1.15rem; text-align: right; font-family: 'Noto Naskh Arabic', 'Segoe UI', Tahoma, serif; }
+    @media (max-width: 1000px) { .hojas { grid-template-columns: 1fr; } }
+    /* Hojas en pestañas (CSS puro): una hoja visible cada vez, siempre del mismo ancho y en orden.
+       Hasta 6 hojas: inputs #hj1..#hj6 y paneles .hp1..hp6. Al imprimir se ven todas. */
+    .hojas-tabs { margin: 1.4rem 0 1.6rem; }
+    .hojas-tabs > input { position: absolute; opacity: 0; pointer-events: none; }
+    .hojas-pestanas { display: grid; grid-template-columns: repeat(auto-fit, minmax(10.5rem, 1fr)); gap: .4rem; margin-bottom: 1rem; }
+    .hojas-pestanas label { cursor: pointer; border: 1px solid #e4d7f5; border-radius: 10px; padding: .55rem .8rem; background: #fff;
+      font-family: 'Space Grotesk', 'DM Sans', sans-serif; font-weight: 700; font-size: .88rem; color: #4c1d80; line-height: 1.25; }
+    .hojas-pestanas label small { display: block; font-family: 'DM Sans', Arial, sans-serif; font-weight: 400; font-size: .72rem; color: #6b7280; margin-top: .15rem; }
+    .hojas-pestanas label:hover { border-color: #c4b5d9; }
+    .hojas-paneles .hoja { display: none; }
+    .hojas-paneles .hoja-quien { display: none; }
+    #hj1:checked ~ .hojas-paneles .hp1 { display: block; }
+    #hj1:checked ~ .hojas-pestanas label[for="hj1"] { background: #7b2cbf; border-color: #7b2cbf; color: #fff; }
+    #hj1:checked ~ .hojas-pestanas label[for="hj1"] small { color: #fff; opacity: .85; }
+    #hj1:focus-visible ~ .hojas-pestanas label[for="hj1"] { outline: 2px solid #4c1d80; outline-offset: 2px; }
+    #hj2:checked ~ .hojas-paneles .hp2 { display: block; }
+    #hj2:checked ~ .hojas-pestanas label[for="hj2"] { background: #7b2cbf; border-color: #7b2cbf; color: #fff; }
+    #hj2:checked ~ .hojas-pestanas label[for="hj2"] small { color: #fff; opacity: .85; }
+    #hj2:focus-visible ~ .hojas-pestanas label[for="hj2"] { outline: 2px solid #4c1d80; outline-offset: 2px; }
+    #hj3:checked ~ .hojas-paneles .hp3 { display: block; }
+    #hj3:checked ~ .hojas-pestanas label[for="hj3"] { background: #7b2cbf; border-color: #7b2cbf; color: #fff; }
+    #hj3:checked ~ .hojas-pestanas label[for="hj3"] small { color: #fff; opacity: .85; }
+    #hj3:focus-visible ~ .hojas-pestanas label[for="hj3"] { outline: 2px solid #4c1d80; outline-offset: 2px; }
+    #hj4:checked ~ .hojas-paneles .hp4 { display: block; }
+    #hj4:checked ~ .hojas-pestanas label[for="hj4"] { background: #7b2cbf; border-color: #7b2cbf; color: #fff; }
+    #hj4:checked ~ .hojas-pestanas label[for="hj4"] small { color: #fff; opacity: .85; }
+    #hj4:focus-visible ~ .hojas-pestanas label[for="hj4"] { outline: 2px solid #4c1d80; outline-offset: 2px; }
+    #hj5:checked ~ .hojas-paneles .hp5 { display: block; }
+    #hj5:checked ~ .hojas-pestanas label[for="hj5"] { background: #7b2cbf; border-color: #7b2cbf; color: #fff; }
+    #hj5:checked ~ .hojas-pestanas label[for="hj5"] small { color: #fff; opacity: .85; }
+    #hj5:focus-visible ~ .hojas-pestanas label[for="hj5"] { outline: 2px solid #4c1d80; outline-offset: 2px; }
+    #hj6:checked ~ .hojas-paneles .hp6 { display: block; }
+    #hj6:checked ~ .hojas-pestanas label[for="hj6"] { background: #7b2cbf; border-color: #7b2cbf; color: #fff; }
+    #hj6:checked ~ .hojas-pestanas label[for="hj6"] small { color: #fff; opacity: .85; }
+    #hj6:focus-visible ~ .hojas-pestanas label[for="hj6"] { outline: 2px solid #4c1d80; outline-offset: 2px; }
+    @media print { .hojas-pestanas { display: none; } .hojas-paneles .hoja { display: block; margin-bottom: 1.2rem; } .hojas-paneles .hoja-quien { display: block; } }
+    @media (max-width: 640px) { .lf-cos { grid-template-columns: 1fr; } .glosari { order: -1; border-left: none; border-bottom: 3px solid #e4d7f5; padding: 0 0 .8rem; } .hoja-papel { padding: 1rem; } }
+    @media (max-width: 1000px) { .cmp-fila { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 560px) { .cmp-fila { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header class="site-header">
+      <div class="institution">
+        <div class="institution-name">SoftwareFactory: tu forma de construir, convertida en fábrica</div>
+        <div class="institution-sub">SoftwareFactory</div>
+      </div>
+      
+    </header>
+
+    <div class="report-header">
+      <div class="report-title">software-factory</div>
+    </div>
+
+    
+
+    <div class="report-body">
+      <div class="caso">
+<p class="caso-etiqueta">El caso · prólogo · LecturaFàcil</p>
+<p>LecturaFàcil ya tiene un sueño escrito: un documento de visión en el que una profesora de Filosofía da el mismo Kant a toda su clase. Yasmin lo recibe en Lectura Fácil, con glosario en árabe, y Pau, que tiene dislexia, con fondo crema y lectura en voz alta. No hay ni una línea de código. Será el <strong>proyecto piloto</strong> de la fábrica: el primero que se construye entero con el método. Hasta hoy, cada proyecto empezaba de cero, con sus propias reglas. Esta vez quieres otra cosa: <strong>¿cómo paso de este documento a una herramienta que funcione, sin perder nada por el camino, y que lo aprendido sirva al proyecto siguiente?</strong></p>
+</div>
+
+<details id="resumen-operativo" class="bloque bloque-1" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Resumen operativo</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<p>Para eso existe <strong>SoftwareFactory</strong>: tu forma de construir aplicaciones con Claude Code, convertida en método y herramientas que se reutilizan. LecturaFàcil no pasará de la visión al código de golpe. Primero tendrá una especificación del conjunto, con su interfaz, y una definición técnica. Después se construirá por devslices: incrementos pequeños y completos, que se preparan uno a uno.</p>
+<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
+<svg viewBox="0 0 560 520" width="100%" role="img" aria-label="Recorrido de LecturaFàcil por el método, de la visión al cierre" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<text x="14" y="24" font-size="15.5" font-weight="700" fill="#4c1d80">El recorrido de LecturaFàcil por la fábrica</text>
+<line x1="14" y1="38" x2="546" y2="38" stroke="#f8f5ff" stroke-width="2"/>
+<line x1="34" y1="64" x2="34" y2="482" stroke="#e4d7f5" stroke-width="2"/>
+<circle cx="34" cy="64" r="7" fill="#7b2cbf"/><text x="56" y="62" font-size="14.5" font-weight="700" fill="#4c1d80">Visión<tspan font-size="12.5" font-weight="700" fill="#7b2cbf">   ✓ escrita</tspan></text><text x="56" y="80" font-size="12.5" fill="#6b7280">el mismo Kant para Yasmin, Pau y su clase</text>
+<rect x="290" y="98" width="120" height="22" rx="11" fill="#7b2cbf"/><text x="350" y="113" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">estás aquí</text>
+<circle cx="34" cy="134" r="7" fill="#fff" stroke="#7b2cbf" stroke-width="2"/><text x="56" y="132" font-size="14.5" font-weight="700" fill="#4c1d80">Especificación funcional global</text><text x="56" y="150" font-size="12.5" fill="#6b7280">funcionalidades, interfaz, recorridos, estados, criterios</text>
+<circle cx="34" cy="194" r="7" fill="#fff" stroke="#7b2cbf" stroke-width="2"/><text x="56" y="192" font-size="14.5" font-weight="700" fill="#4c1d80">Definición técnica</text><text x="56" y="210" font-size="12.5" fill="#6b7280">escritorio: Python, Tkinter, SQLite y un agente</text>
+<circle cx="34" cy="254" r="7" fill="#fff" stroke="#7b2cbf" stroke-width="2"/><text x="56" y="252" font-size="14.5" font-weight="700" fill="#4c1d80">Devslices</text><text x="56" y="270" font-size="12.5" fill="#6b7280">pequeñas: una o dos sesiones cada una</text>
+<circle cx="34" cy="314" r="7" fill="#fff" stroke="#7b2cbf" stroke-width="2"/><text x="56" y="312" font-size="14.5" font-weight="700" fill="#4c1d80">Preparación</text><text x="56" y="330" font-size="12.5" fill="#6b7280">criterios, pruebas previstas y tareas</text>
+<circle cx="34" cy="374" r="7" fill="#fff" stroke="#7b2cbf" stroke-width="2"/><text x="56" y="372" font-size="14.5" font-weight="700" fill="#4c1d80">Desarrollo</text><text x="56" y="390" font-size="12.5" fill="#6b7280">pruebas, después lógica y datos, después interfaz</text>
+<circle cx="34" cy="434" r="7" fill="#fff" stroke="#7b2cbf" stroke-width="2"/><text x="56" y="432" font-size="14.5" font-weight="700" fill="#4c1d80">Cierre</text><text x="56" y="450" font-size="12.5" fill="#6b7280">criterios comprobados, informe y tarjeta terminada</text>
+<path d="M436,246 H448 V456 H436" fill="none" stroke="#7b2cbf" stroke-width="2"/>
+<text x="458" y="340" font-size="12.5" font-weight="700" fill="#7b2cbf">el tablero</text>
+<text x="458" y="357" font-size="12.5" fill="#6b7280">registra</text>
+<text x="458" y="374" font-size="12.5" fill="#6b7280">cada paso</text>
+<text x="34" y="508" font-size="12.5" font-style="italic" fill="#9ca3af">y si surge una mejora general, va a la fábrica, no a LecturaFàcil</text>
+</svg>
+<figcaption style="font-size:.82rem;color:#6b7280;text-align:center;font-style:italic;margin-top:.3rem;">El mismo recorrido sirve para cualquier proyecto. LecturaFàcil acaba de cerrar el primer paso.</figcaption>
+</figure>
+
+<p>Mientras se construye, el estado vive en tu tablero, JKanban. Claude lo consulta y no da nada por anotado hasta que el tablero lo confirma. Cuando falta información, pregunta en lugar de inventar. Las skills que usa salen de un único sitio, con su versión y su procedencia. Y como LecturaFàcil llevará un agente de IA dentro, la fábrica cuida que el Claude que desarrolla y el Claude que adapta textos nunca se mezclen.</p>
+<p>Cuando algo se puede hacer mejor, la fábrica lo propone, pero no cambia nada sin tu aprobación. El resto del documento sigue a LecturaFàcil capítulo a capítulo, desde la visión hasta sus primeras devslices cerradas. Es más largo de lo habitual a propósito: LecturaFàcil es el caso que ayuda a definir la propia fábrica.</p>
+<hr />
+</details><details id="por-que-una-fabrica" class="bloque bloque-2"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Por qué una fábrica</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 1 · Antes de empezar</p>
+<p>Antes de dar el siguiente paso, miras <code>D:\Projectes</code>. PoseTracker tiene su «doctrina», OncoCore sus propias instrucciones y JKanban guarda en su <code>CLAUDE.md</code> la lección de la función <code>jsq()</code> contra el XSS. Cada proyecto ha aprendido algo, y nada de eso ha llegado a los demás. ¿Con qué reglas empezará LecturaFàcil?</p>
+</div>
+
+<p>Hoy trabajas como un buen artesano: cada pieza sale bien, pero cada taller tiene sus herramientas y sus notas. Una fábrica no es menos cuidadosa; es un taller con <strong>recetario común</strong>. Los pasos son los mismos en cada proyecto, las herramientas están en un sitio conocido y lo que se aprende en uno pasa al siguiente.</p>
+<p>También el orden es común. Todos los proyectos guardan su documentación igual: la visión, la especificación funcional, la técnica y las devslices en <code>docs/specs/</code>, las referencias en <code>docs/referencias/</code> y las decisiones en <code>docs/decisiones/</code>. Quien abre un proyecto sabe dónde buscar, y Claude también.</p>
+<p>LecturaFàcil es el primero que nace así desde el principio. Por eso es el piloto: lo que funcione con él se queda en la fábrica, y lo que no, se corrige antes de publicar una versión estable.</p>
+<hr />
+</details><details id="como-empieza-un-proyecto" class="bloque bloque-3"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Cómo empieza un proyecto</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 2 · Un documento para empezar</p>
+<p>LecturaFàcil empezó como empiezan todos: con dos documentos de referencia y una idea. Antes de hablar de pantallas o de bases de datos, había que contar por qué merece la pena. ¿Cómo se cuenta una idea para que otros la entiendan y la quieran?</p>
+</div>
+
+<p>Todo proyecto empieza con un <strong>documento de visión</strong>, pensado para personas y no para programadores. Lo prepara tu skill <code>documento_vision</code> en una conversación de cuatro fases. Primero se valora la idea. Después se acuerdan la visión y las secciones. Luego se escribe y, al final, se afina sobre lo escrito. La visión es tuya: Claude propone y tú corriges.</p>
+<figure style="margin:1.6rem 0 1.2rem;">
+<div style="border:1px solid #e4d7f5;border-radius:8px;padding:1rem 1.2rem;background:#fff;">
+<p style="font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:#7b2cbf;margin:0 0 .5rem;font-weight:700;">Documento de visión de LecturaFàcil · prólogo</p>
+<p style="font-size:1.15rem;font-weight:700;color:#4c1d80;margin:0 0 .6rem;">LecturaFàcil: documento de visión</p>
+<p style="margin:0;font-style:italic;">«Mañana empieza "¿Qué es la Ilustración?", de Kant: […]. En su grupo está Yasmin, que llegó de Marruecos hace cuatro meses y se pierde en "minoria d'edat" y "enteniment". También está Pau, que tiene dislexia y llega cansado al "Sapere aude!". […] ¿Cómo puede dar el mismo Kant a toda la clase sin bajar la exigencia?»</p>
+</div>
+<figcaption style="font-size:.82rem;color:#6b7280;text-align:center;font-style:italic;margin-top:.3rem;">Un fragmento real de su documento de visión: un caso que se reconoce y una pregunta que hay que responder. La historia que cuenta es ficticia.</figcaption>
+</figure>
+
+<p>Esa pregunta es la brújula de todo lo que viene. Pero una brújula no es un plano: entre la visión y la primera línea de código hay mucho que definir.</p>
+<hr />
+</details><details id="que-se-define-antes-de-construir" class="bloque bloque-4"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Qué se define antes de construir</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 3 · Lo que la visión no dice</p>
+<p>La visión de LecturaFàcil emociona, pero deja muchas preguntas sin respuesta. ¿Qué ve el docente si la IA no consigue adaptar un texto? ¿Dónde se guarda cómo lee cada alumno, y quién puede verlo? ¿Qué datos salen del ordenador del docente? Nadie debería responderlas a mitad de una devslice.</p>
+</div>
+
+<p>Primero viene la <strong>especificación funcional global</strong>: el comportamiento del producto entero. Sus funcionalidades no salen solo de la visión. Salen también de las referencias, como la presentación de la Coordinadora Balear y los enunciados de Jaume Serra, y del estudio de mercado de la propia visión, con productos como Diffit o SUMM AI. Y de cualquier otra fuente de requisitos.</p>
+<p>Después llega la <strong>definición técnica</strong>: con qué y cómo se construye. El detalle no tiene que ser total: basta con entender el producto completo y las decisiones que lo sostienen.</p>
+<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
+<svg viewBox="0 0 560 604" width="100%" role="img" aria-label="Lo que se define en la especificación funcional y en la definición técnica de LecturaFàcil" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<text x="14" y="24" font-size="15" font-weight="700" fill="#4c1d80">Especificación funcional global</text>
+<text x="34" y="60" font-size="13.5" font-weight="700" fill="#4c1d80">Funcionalidades y reglas</text><text x="34" y="77" font-size="12" fill="#6b7280">perfiles de lector, dial, línea roja, ayudas</text>
+<text x="34" y="102" font-size="13.5" font-weight="700" fill="#4c1d80">Interfaz</text><text x="34" y="119" font-size="12" fill="#6b7280">pantallas y navegación, diseñadas antes de elegir la técnica</text>
+<text x="34" y="144" font-size="13.5" font-weight="700" fill="#4c1d80">Recorridos de usuario</text><text x="34" y="161" font-size="12" fill="#6b7280">pegar un texto, elegir el grupo, revisar, aprobar</text>
+<text x="34" y="186" font-size="13.5" font-weight="700" fill="#4c1d80">Estados</text><text x="34" y="203" font-size="12" fill="#6b7280">texto vacío, el agente falla, quién ve cada perfil</text>
+<text x="34" y="228" font-size="13.5" font-weight="700" fill="#4c1d80">Criterios comprobables</text><text x="34" y="245" font-size="12" fill="#6b7280">«los conceptos de la materia no cambian»</text>
+<text x="34" y="270" font-size="13.5" font-weight="700" fill="#4c1d80">Contratos</text><text x="34" y="287" font-size="12" fill="#6b7280">entre la aplicación y el agente: entradas, salidas, errores</text>
+<path d="M22,38 H16 V286 H22" fill="none" stroke="#7b2cbf" stroke-width="2"/>
+<text x="14" y="326" font-size="15" font-weight="700" fill="#4c1d80">Definición técnica y arquitectura</text>
+<text x="34" y="362" font-size="13.5" font-weight="700" fill="#4c1d80">Tecnologías y plataforma</text><text x="34" y="379" font-size="12" fill="#6b7280">escritorio, por ahora: Python, Tkinter y SQLite</text>
+<text x="34" y="404" font-size="13.5" font-weight="700" fill="#4c1d80">Arquitectura y datos</text><text x="34" y="421" font-size="12" fill="#6b7280">MVP, SQL nativo y migraciones versionadas</text>
+<text x="34" y="446" font-size="13.5" font-weight="700" fill="#4c1d80">El agente</text><text x="34" y="463" font-size="12" fill="#6b7280">Claude Code: contrato, permisos, límites y coste</text>
+<text x="34" y="488" font-size="13.5" font-weight="700" fill="#4c1d80">Integraciones y datos que salen</text><text x="34" y="505" font-size="12" fill="#6b7280">pictogramas; nada de nombres de alumnos</text>
+<text x="34" y="530" font-size="13.5" font-weight="700" fill="#4c1d80">Pruebas y distribución</text><text x="34" y="547" font-size="12" fill="#6b7280">cómo se comprueba y cómo llega al docente</text>
+<text x="34" y="572" font-size="13.5" font-weight="700" fill="#4c1d80">Decisiones</text><text x="34" y="589" font-size="12" fill="#6b7280">cada elección, con su razón por escrito</text>
+<path d="M22,340 H16 V588 H22" fill="none" stroke="#7b2cbf" stroke-width="2"/>
+</svg>
+<figcaption style="font-size:.82rem;color:#6b7280;text-align:center;font-style:italic;margin-top:.3rem;">El mapa de lo que se define antes de repartir el trabajo, con ejemplos de LecturaFàcil.</figcaption>
+</figure>
+
+<details id="la-interfaz-antes-que-la-tecnica" class="subseccion" open><summary class="subseccion-summary">La interfaz, antes que la técnica</summary>
+<p>Antes de elegir ninguna tecnología se <strong>crea la interfaz</strong>: pantallas, navegación y lo que ocurre en cada estado, como cargando, vacío, error o sin permiso. En LecturaFàcil, el corazón es la pantalla de revisión, donde el docente ve cada hoja, entiende cada cambio y decide.</p>
+<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
+<svg viewBox="0 0 560 492" width="100%" role="img" aria-label="Boceto de la pantalla de revisión de LecturaFàcil" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<rect x="14" y="8" width="532" height="474" rx="10" fill="#fff" stroke="#e4d7f5" stroke-width="1.5"/>
+<line x1="14" y1="40" x2="546" y2="40" stroke="#e4d7f5" stroke-width="1.5"/>
+<text x="30" y="30" font-size="13" font-weight="700" fill="#4c1d80">LecturaFàcil · Revisar versiones · 2.º B · Kant</text>
+<text x="30" y="68" font-size="12.5" fill="#9ca3af">Original</text>
+<text x="110" y="68" font-size="12.5" fill="#9ca3af">Pau · nivel 1</text>
+<text x="222" y="68" font-size="12.5" font-weight="700" fill="#7b2cbf">Yasmin · nivel 3</text>
+<line x1="222" y1="76" x2="330" y2="76" stroke="#7b2cbf" stroke-width="2.5"/>
+<rect x="30" y="92" width="500" height="148" rx="6" fill="#f7f7f7"/>
+<text x="46" y="116" font-size="13" font-weight="700" fill="#2b2b2f">Qui és Kant</text>
+<text x="46" y="138" font-size="12.5" fill="#2b2b2f">Kant és un filòsof.</text>
+<text x="46" y="158" font-size="12.5" fill="#2b2b2f">Kant va viure a Prússia fa més de 200 anys.</text>
+<rect x="46" y="172" width="250" height="8" rx="4" fill="#ddd"/><rect x="46" y="190" width="200" height="8" rx="4" fill="#ddd"/><rect x="46" y="208" width="230" height="8" rx="4" fill="#ddd"/>
+<rect x="340" y="104" width="176" height="122" rx="6" fill="#fff" stroke="#e4d7f5"/>
+<text x="352" y="124" font-size="11.5" font-weight="700" fill="#7b2cbf">Glosario</text>
+<text x="352" y="144" font-size="11.5" fill="#2b2b2f">enteniment · العقل</text>
+<text x="352" y="162" font-size="11.5" fill="#2b2b2f">menor d'edat · قاصر</text>
+<rect x="352" y="174" width="120" height="7" rx="3.5" fill="#ddd"/><rect x="352" y="190" width="100" height="7" rx="3.5" fill="#ddd"/>
+<text x="30" y="270" font-size="13.5" font-weight="700" fill="#4c1d80">Qué ha cambiado, y por qué</text>
+<text x="30" y="294" font-size="12.5" fill="#2b2b2f">La frase larga se parte</text><text x="530" y="294" text-anchor="end" font-size="12" fill="#9ca3af">frases cortas</text>
+<text x="30" y="316" font-size="12.5" fill="#2b2b2f">Primero el ejemplo, después el concepto</text><text x="530" y="316" text-anchor="end" font-size="12" fill="#9ca3af">concreto antes que abstracto</text>
+<text x="30" y="338" font-size="12.5" fill="#2b2b2f">Los conceptos se quedan</text><text x="530" y="338" text-anchor="end" font-size="12" font-weight="700" fill="#7b2cbf">línea roja ✓</text>
+<text x="30" y="360" font-size="12" fill="#9ca3af">+ 3 cambios más</text>
+<line x1="30" y1="378" x2="530" y2="378" stroke="#f8f5ff" stroke-width="2"/>
+<text x="30" y="402" font-size="12" fill="#9ca3af">Si el agente no puede adaptar: aviso, y el original queda intacto</text>
+<rect x="290" y="418" width="110" height="32" rx="16" fill="#fff" stroke="#7b2cbf" stroke-width="1.5"/><text x="345" y="439" text-anchor="middle" font-size="12.5" font-weight="700" fill="#7b2cbf">Ajustar regla</text>
+<rect x="410" y="418" width="120" height="32" rx="16" fill="#7b2cbf"/><text x="470" y="439" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">Aprobar</text>
+<text x="30" y="474" font-size="11.5" font-style="italic" fill="#9ca3af">nada llega a la clase sin el visto bueno del docente</text>
+</svg>
+<figcaption style="font-size:.82rem;color:#6b7280;text-align:center;font-style:italic;margin-top:.3rem;">Boceto ilustrativo de la pantalla de revisión, con la hoja de Yasmin y los cambios que recoge su documento de visión.</figcaption>
+</figure>
+
+<p>Diseñada antes, la interfaz marca lo que la técnica tiene que servir, y no al revés. Lo que se dibuja aquí se convierte después en criterios comprobables.</p>
+</details><details id="el-contexto-tecnologico" class="subseccion" open><summary class="subseccion-summary">El contexto tecnológico</summary>
+<p>La definición técnica empieza por el <strong>contexto</strong>: dónde vivirá el producto y con qué convive. LecturaFàcil será, de momento, una aplicación de escritorio: Python, Tkinter y SQLite, con Claude Code como agente que adapta los textos. Encaja con tus favoritas para el escritorio pequeño, así que no hay excepciones que justificar.</p>
+<p>El centro de su visión ya trabaja con Google Classroom y escucha textos con TextAid. Ese contexto no cambia la plataforma, pero pesa al decidir cómo llega cada hoja al alumno. Cada elección queda escrita con su razón, para que nadie tenga que volver a discutirla.</p>
+</details><details id="la-arquitectura" class="subseccion" open><summary class="subseccion-summary">La arquitectura</summary>
+<p>Falta decidir qué piezas tiene el producto y cómo se hablan. Para un escritorio pequeño, el método propone <strong>Modelo–Vista–Presentador</strong>. La vista muestra y recoge acciones, el presentador coordina, y el modelo guarda las reglas de la Lectura Fácil sin saber nada de Tkinter ni de SQL. La arquitectura se ajusta a la complejidad real: capas más elaboradas, como Clean, solo cuando se justifican, y sin carpetas vacías.</p>
+<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
+<svg viewBox="0 0 560 506" width="100%" role="img" aria-label="Arquitectura posible de LecturaFàcil: Modelo-Vista-Presentador con el agente detrás de un adaptador" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<defs><marker id="vc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4c1d80"/></marker></defs>
+<text x="280" y="22" text-anchor="middle" font-size="13" fill="#6b7280">el docente, en su ordenador</text>
+<line x1="280" y1="30" x2="280" y2="50" stroke="#4c1d80" stroke-width="2" marker-end="url(#vc)"/>
+<rect x="80" y="54" width="400" height="56" rx="8" fill="#fff" stroke="#7b2cbf" stroke-width="1.5"/>
+<text x="280" y="78" text-anchor="middle" font-size="14.5" font-weight="700" fill="#4c1d80">Vista · Tkinter</text>
+<text x="280" y="98" text-anchor="middle" font-size="12" fill="#6b7280">grupos, textos y la pantalla de revisión</text>
+<line x1="280" y1="112" x2="280" y2="132" stroke="#4c1d80" stroke-width="2" marker-end="url(#vc)"/>
+<rect x="80" y="136" width="400" height="56" rx="8" fill="#fff" stroke="#7b2cbf" stroke-width="1.5"/>
+<text x="280" y="160" text-anchor="middle" font-size="14.5" font-weight="700" fill="#4c1d80">Presentador</text>
+<text x="280" y="180" text-anchor="middle" font-size="12" fill="#6b7280">coordina cada acción y sus estados: cargando, error…</text>
+<line x1="280" y1="194" x2="280" y2="214" stroke="#4c1d80" stroke-width="2" marker-end="url(#vc)"/>
+<rect x="80" y="218" width="400" height="62" rx="8" fill="#7b2cbf"/>
+<text x="280" y="244" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">Modelo</text>
+<text x="280" y="266" text-anchor="middle" font-size="12" fill="#f8f5ff">perfiles, dial, reglas y línea roja · sin Tkinter ni SQL</text>
+<text x="280" y="306" text-anchor="middle" font-size="12" font-style="italic" fill="#9ca3af">lo externo, en el borde, detrás de un adaptador</text>
+<ellipse cx="62" cy="336" rx="22" ry="6" fill="#f8f5ff" stroke="#7b2cbf"/><path d="M40,336 V364 A22,6 0 0 0 84,364 V336" fill="#f8f5ff" stroke="#7b2cbf"/><ellipse cx="62" cy="336" rx="22" ry="6" fill="#f8f5ff" stroke="#7b2cbf"/>
+<text x="104" y="346" font-size="14" font-weight="700" fill="#4c1d80">Persistencia · SQLite</text><text x="104" y="364" font-size="12" fill="#6b7280">SQL nativo, sin ORM, y migraciones versionadas</text>
+<circle cx="62" cy="414" r="18" fill="#fff" stroke="#7b2cbf" stroke-width="1.5"/><text x="62" y="419" text-anchor="middle" font-size="13" font-weight="700" fill="#7b2cbf">IA</text>
+<text x="104" y="410" font-size="14" font-weight="700" fill="#4c1d80">El agente · Claude Code</text><text x="104" y="428" font-size="12" fill="#6b7280">agent-runtime/: instrucciones, skill y validadores</text>
+<rect x="44" y="460" width="36" height="28" rx="5" fill="#fff" stroke="#7b2cbf" stroke-width="1.5"/><text x="62" y="479" text-anchor="middle" font-size="11" font-weight="700" fill="#7b2cbf">ext</text>
+<text x="104" y="472" font-size="14" font-weight="700" fill="#4c1d80">Servicios externos</text><text x="104" y="490" font-size="12" fill="#6b7280">pictogramas de ARASAAC</text>
+</svg>
+<figcaption style="font-size:.82rem;color:#6b7280;text-align:center;font-style:italic;margin-top:.3rem;">Una arquitectura posible para LecturaFàcil: las reglas en el centro y lo externo en los bordes. Ilustrativa: se decide en la definición técnica.</figcaption>
+</figure>
+
+<p>Hay dos memorias más que considerar. La carpeta <code>docs/</code> de LecturaFàcil puede abrirse como vault de Obsidian: es su <strong>brain de desarrollo</strong>, sin copiar nada. Y lo que el producto aprende mientras funciona, como el pictograma que el docente pidió recordar para «Il·lustració» o las palabras que marca Yasmin, es <strong>conocimiento operativo</strong>. Hay que decidir si vive en tablas SQL o en una base de conocimiento del agente, y cuál manda si las dos describen lo mismo.</p>
+</details><details id="preguntar-no-inventar" class="subseccion" open><summary class="subseccion-summary">Preguntar, no inventar</summary>
+<p>Definir tanto deja huecos, y la tentación es rellenarlos con suposiciones. La fábrica tiene un acuerdo para eso.</p>
+<div class="escena" role="note" aria-label="Escena ilustrativa">
+<p class="escena-etiqueta">Escena ilustrativa · un hueco en la definición</p>
+<p class="escena-contexto">Claude prepara el contrato entre la aplicación y el agente.</p>
+<div class="turno"><p class="ponente">Claude<small>pregunta</small></p><p>La visión no dice qué datos de los alumnos pueden salir del ordenador. No quiero suponerlo. ¿Envío al agente solo el texto, la materia, los conceptos protegidos y el perfil de lectura, sin nombres?</p></div>
+<div class="turno"><p class="ponente">Tú<small>decide</small></p><p>Sin nombres, nunca. Y apúntalo.</p></div>
+<div class="turno"><p class="ponente">Claude<small>registra</small></p><p>Queda en <code>docs/decisiones/</code> con su razón. Mientras esperaba, he seguido con la interfaz, que no dependía de esto. Ahora continúo con el contrato.</p></div>
+<p class="escena-pie">Diálogo imaginado: muestra cómo se resuelve un hueco, no una conversación real.</p>
+</div>
+
+<p>Cuando falta información, Claude consulta lo que hay y después pregunta todo lo que necesita, de una vez. No inventa requisitos ni convierte supuestos en decisiones. Mientras espera, sigue con lo que no depende de la respuesta. Y cada decisión queda escrita con su porqué, para que nadie tenga que volver a preguntarla.</p>
+<hr />
+</details></details><details id="que-cambia-con-un-agente-dentro" class="bloque bloque-5"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Qué cambia con un agente dentro</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 4 · Dos Claude</p>
+<p>LecturaFàcil tendrá dos Claude. Uno la construye contigo. El otro vivirá dentro, adaptando textos para Yasmin y Pau. Se llaman igual, pero no deben conocerse. ¿Qué pasa si se mezclan?</p>
+</div>
+
+<p>La aplicación lanza a Claude Code con su SDK de Python. Por defecto, ese SDK carga la configuración del usuario y la del proyecto, y <a href="https://code.claude.com/docs/en/agent-sdk/skills.md">busca skills hasta la raíz del repositorio</a>. Sin cuidado, el agente que adapta textos cargaría las skills con las que desarrollas. Por eso trabaja en su propio directorio, fuera del repositorio y solo con su skill. Una prueba comprueba qué skills carga al arrancar.</p>
+<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
+<svg viewBox="0 0 560 400" width="100%" role="img" aria-label="El Claude que desarrolla y el agente dentro de LecturaFàcil, separados" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<rect x="14" y="8" width="532" height="150" rx="8" fill="#fff" stroke="#7b2cbf" stroke-width="1.5"/>
+<text x="34" y="36" font-size="15" font-weight="700" fill="#4c1d80">El Claude que desarrolla</text>
+<text x="34" y="62" font-size="12.5" fill="#2b2b2f">lo usas tú, con tu suscripción de Claude Code</text>
+<text x="34" y="84" font-size="12.5" fill="#2b2b2f">las skills de la SF: especificar, preparar, probar, cerrar</text>
+<text x="34" y="106" font-size="12.5" fill="#2b2b2f">trabaja en el repositorio de LecturaFàcil</text>
+<text x="34" y="128" font-size="12.5" fill="#2b2b2f">puede leer y escribir código, con tu permiso</text>
+<line x1="14" y1="182" x2="546" y2="182" stroke="#991b1b" stroke-width="1.6" stroke-dasharray="6 5"/>
+<text x="280" y="204" text-anchor="middle" font-size="12.5" font-style="italic" fill="#991b1b">nada pasa de uno a otro sin una versión</text>
+<rect x="14" y="222" width="532" height="170" rx="8" fill="#7b2cbf"/>
+<text x="34" y="250" font-size="15" font-weight="700" fill="#fff">El agente dentro de LecturaFàcil</text>
+<text x="34" y="276" font-size="12.5" fill="#f8f5ff">clave de API: cada llamada tiene un coste</text>
+<text x="34" y="298" font-size="12.5" fill="#f8f5ff">solo la skill de Lectura Fácil, sin herramientas que no necesita</text>
+<text x="34" y="320" font-size="12.5" fill="#f8f5ff">su propio directorio, fuera del repositorio</text>
+<text x="34" y="342" font-size="12.5" fill="#f8f5ff">cada respuesta pasa por los validadores</text>
+<text x="34" y="364" font-size="12.5" fill="#f8f5ff">lo usan los docentes, sin nombres de alumnos</text>
+</svg>
+<figcaption style="font-size:.82rem;color:#6b7280;text-align:center;font-style:italic;margin-top:.3rem;">Dos Claude con papeles, permisos y versiones distintos. Mejorar uno no cambia al otro sin querer.</figcaption>
+</figure>
+
+<p>Además, no se autentican igual. Tú desarrollas con tu suscripción. El producto necesita una clave de API, porque Anthropic <a href="https://code.claude.com/docs/en/agent-sdk/overview.md">no permite que un producto de terceros use el inicio de sesión de claude.ai</a>. Cada adaptación cuesta dinero, también en las pruebas. Por eso casi todas usan un agente falso, y las evaluaciones con el real se lanzan a propósito, con su coste en el informe.</p>
+<p>El agente tampoco responde dos veces igual. La garantía no está en comparar textos, sino en los <strong>validadores</strong>: la línea roja, la longitud de las frases y el formato de la respuesta, que el SDK puede exigir como JSON con un esquema. Cada informe anota el modelo y la versión de la skill.</p>
+<p>El resto son buenas costumbres que se diseñan desde el principio. La ventana no se congela mientras el agente piensa. El agente no tiene herramientas que no necesita. Sus versiones se fijan para que nada cambie sin querer. Y ningún nombre de alumno sale del ordenador.</p>
+<p>Todo esto se repetirá en cada aplicación con un agente dentro. Por eso LecturaFàcil no es solo un piloto: es el caso que enseñará a la fábrica cómo se construyen.</p>
+<hr />
+</details><details id="como-se-construye-devslice-a-devslice" class="bloque bloque-6"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Cómo se construye, devslice a devslice</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 5 · Repartir el trabajo</p>
+<p>La especificación y la definición técnica de LecturaFàcil ya están acordadas. Toca decidir cómo se construye. Lo tentador sería empezar por lo más vistoso: que la IA adapte a Kant. Pero sería la pieza más crítica, sin nada debajo para comprobarla. ¿Por dónde se empieza?</p>
+</div>
+
+<p>Las funcionalidades dicen <strong>qué</strong> hará LecturaFàcil. Las <strong>devslices</strong> dicen <strong>cómo se construye</strong>: incrementos pequeños y verticales, que atraviesan interfaz, lógica, datos y pruebas. Cada una cabe en <strong>una o dos sesiones de trabajo</strong>. Si al prepararla no cabe, se parte en dos.</p>
+<p>El orden sigue una regla sencilla: <strong>primero, lo que hace falta para comprobar que lo siguiente funciona</strong>. Por eso LecturaFàcil empieza por lo básico: docentes, grupos, perfiles y materias. El agente llega al final. Hasta entonces, un agente simulado devuelve versiones de ejemplo, como las de Kant de su visión, detrás del mismo adaptador. Cuando llegue Claude Code, la pantalla, la línea roja y los validadores ya estarán probados.</p>
+<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
+<svg viewBox="0 0 560 826" width="100%" role="img" aria-label="Plan de devslices de LecturaFàcil en cuatro fases, con el agente al final" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<text x="14" y="24" font-size="15.5" font-weight="700" fill="#4c1d80">Plan de devslices · LecturaFàcil</text>
+<text x="546" y="24" text-anchor="end" font-size="12" fill="#9ca3af">sesiones</text>
+<line x1="14" y1="36" x2="546" y2="36" stroke="#f8f5ff" stroke-width="2"/>
+<text x="14" y="64" font-size="14.5" font-weight="700" fill="#7b2cbf">La base<tspan font-size="12" font-weight="400" fill="#9ca3af">   lo que necesita todo lo demás</tspan></text>
+<text x="34" y="92" font-size="13.5" font-weight="700" fill="#4c1d80">Docentes</text><text x="34" y="109" font-size="12" fill="#6b7280">el armazón: ventana, MVP y SQLite con su migración</text><text x="546" y="92" text-anchor="end" font-size="12" fill="#7b2cbf">1–2</text>
+<text x="34" y="132" font-size="13.5" font-weight="700" fill="#4c1d80">Grupos y alumnos</text><text x="34" y="149" font-size="12" fill="#6b7280">datos mínimos: cómo lee cada uno, no su expediente</text><text x="546" y="132" text-anchor="end" font-size="12" fill="#7b2cbf">1–2</text>
+<text x="34" y="172" font-size="13.5" font-weight="700" fill="#4c1d80">Perfiles de lector y niveles</text><text x="34" y="189" font-size="12" fill="#6b7280">perfil, nivel del dial y lengua materna</text><text x="546" y="172" text-anchor="end" font-size="12" fill="#7b2cbf">1–2</text>
+<text x="34" y="212" font-size="13.5" font-weight="700" fill="#4c1d80">Materias y conceptos protegidos</text><text x="34" y="229" font-size="12" fill="#6b7280">lo que no se toca: «enteniment», «Sapere aude»…</text><text x="546" y="212" text-anchor="end" font-size="12" fill="#7b2cbf">1</text>
+<text x="14" y="262" font-size="14.5" font-weight="700" fill="#7b2cbf">El texto y su revisión<tspan font-size="12" font-weight="400" fill="#9ca3af">   con un agente simulado</tspan></text>
+<text x="34" y="290" font-size="13.5" font-weight="700" fill="#4c1d80">Guardar un texto</text><text x="34" y="307" font-size="12" fill="#6b7280">un texto de una materia, que sigue ahí al reabrir</text><text x="546" y="290" text-anchor="end" font-size="12" fill="#7b2cbf">1</text>
+<text x="34" y="330" font-size="13.5" font-weight="700" fill="#4c1d80">Original y versión, lado a lado</text><text x="34" y="347" font-size="12" fill="#6b7280">la pantalla de revisión y el contrato del agente</text><text x="546" y="330" text-anchor="end" font-size="12" fill="#7b2cbf">1–2</text>
+<rect x="26" y="354" width="524" height="42" rx="6" fill="none" stroke="#7b2cbf" stroke-width="1.2"/>
+<text x="34" y="370" font-size="13.5" font-weight="700" fill="#7b2cbf">La línea roja</text><text x="34" y="387" font-size="12" fill="#6b7280">el validador rechaza la versión sin un concepto protegido</text><text x="542" y="370" text-anchor="end" font-size="12" fill="#7b2cbf">1</text>
+<text x="34" y="420" font-size="13.5" font-weight="700" fill="#4c1d80">Comprobar las reglas</text><text x="34" y="437" font-size="12" fill="#6b7280">validadores medibles: largo de frase, un término por concepto</text><text x="546" y="420" text-anchor="end" font-size="12" fill="#7b2cbf">1–2</text>
+<text x="34" y="460" font-size="13.5" font-weight="700" fill="#4c1d80">Revisar y aprobar</text><text x="34" y="477" font-size="12" fill="#6b7280">cada cambio con su regla, y el visto bueno</text><text x="546" y="460" text-anchor="end" font-size="12" fill="#7b2cbf">1–2</text>
+<text x="14" y="510" font-size="14.5" font-weight="700" fill="#7b2cbf">El aula</text>
+<text x="34" y="538" font-size="13.5" font-weight="700" fill="#4c1d80">Una versión por lector</text><text x="34" y="555" font-size="12" fill="#6b7280">todo el grupo, a la vez</text><text x="546" y="538" text-anchor="end" font-size="12" fill="#7b2cbf">1–2</text>
+<text x="34" y="578" font-size="13.5" font-weight="700" fill="#4c1d80">Ajustar una regla en un perfil</text><text x="34" y="595" font-size="12" fill="#6b7280">el ajuste del docente se recuerda</text><text x="546" y="578" text-anchor="end" font-size="12" fill="#7b2cbf">1</text>
+<text x="34" y="618" font-size="13.5" font-weight="700" fill="#4c1d80">El glosario al lado del texto</text><text x="34" y="635" font-size="12" fill="#6b7280">con pictograma y lengua materna</text><text x="546" y="618" text-anchor="end" font-size="12" fill="#7b2cbf">1–2</text>
+<text x="34" y="658" font-size="13.5" font-weight="700" fill="#4c1d80">Retirar ayudas por grados</text><text x="34" y="675" font-size="12" fill="#6b7280">menos apoyo cuando el alumno avanza</text><text x="546" y="658" text-anchor="end" font-size="12" fill="#7b2cbf">1–2</text>
+<text x="14" y="708" font-size="14.5" font-weight="700" fill="#7b2cbf">El agente<tspan font-size="12" font-weight="400" fill="#9ca3af">   cuando todo lo demás ya se puede comprobar</tspan></text>
+<text x="34" y="736" font-size="13.5" font-weight="700" fill="#4c1d80">Conectar el agente</text><text x="34" y="753" font-size="12" fill="#6b7280">Claude Code sustituye al simulado: llamadas, registro, errores</text><text x="546" y="736" text-anchor="end" font-size="12" fill="#7b2cbf">2</text>
+<text x="34" y="776" font-size="13.5" font-weight="700" fill="#4c1d80">La skill de Lectura Fácil</text><text x="34" y="793" font-size="12" fill="#6b7280">las reglas, en tandas pequeñas y evaluadas</text><text x="546" y="776" text-anchor="end" font-size="12" fill="#7b2cbf">1–2 c/u</text>
+<text x="14" y="820" font-size="12" font-style="italic" fill="#9ca3af">primero, lo que permite comprobar lo siguiente</text>
+</svg>
+<figcaption style="font-size:.82rem;color:#6b7280;text-align:center;font-style:italic;margin-top:.3rem;">Cada devslice, de una o dos sesiones y con algo que se ve funcionar. Plan ilustrativo: se fija con la especificación y la definición técnica.</figcaption>
+</figure>
+
+<p>Cada devslice lleva un nombre que se entiende, como «La línea roja», nunca un código como <code>DS007</code>. Y una devslice planificada todavía no está preparada. Cuando le llega el turno a «La línea roja», hay que decidir qué cuenta como hecho.</p>
+<div class="escena" role="note" aria-label="Escena ilustrativa">
+<p class="escena-etiqueta">Escena ilustrativa · preparando «La línea roja»</p>
+<p class="escena-contexto">Tú y Claude afináis los criterios de aceptación.</p>
+<div class="turno"><p class="ponente">Claude<small>propone</small></p><p>Criterio: el validador rechaza una versión a la que le falte un concepto protegido de la materia. Prueba prevista: las cuatro hojas de Kant de la visión deben pasar, y una copia sin «Sapere aude» debe fallar.</p></div>
+<div class="turno"><p class="ponente">Tú<small>matiza</small></p><p>Mira la hoja de Yasmin: dice «menors d'edat», pero también «minoria d'edat». ¿Qué cuenta?</p></div>
+<div class="turno"><p class="ponente">Claude<small>pregunta</small></p><p>No lo decido yo. Propongo que el concepto aparezca al menos una vez en su forma original, y que las variantes cuenten como explicación. ¿Te vale?</p></div>
+<div class="turno"><p class="ponente">Tú<small>decide</small></p><p>Me vale. Que quede escrito en el criterio.</p></div>
+<p class="escena-pie">Diálogo imaginado. Las palabras de la hoja de Yasmin son reales, de la visión de LecturaFàcil.</p>
+</div>
+
+<p>Así avanza cada devslice: <strong>planificada en el plan y preparada antes de construirse</strong>, con alcance, criterios, pruebas previstas y tareas. Después se escriben las pruebas y se revisa que de verdad representan los criterios: una prueba que pasa no basta si no comprueba lo que se pidió. Luego se construyen la lógica y los datos, y la interfaz al final. Las pruebas siguen vivas cuando la devslice se cierra, porque pertenecen a LecturaFàcil.</p>
+<hr />
+</details><details id="que-muestra-el-tablero" class="bloque bloque-7"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Qué muestra el tablero</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 6 · El tablero responde</p>
+<p>Las tareas de «La línea roja» ya están en JKanban, dentro del proyecto LecturaFàcil. Claude empieza a trabajar y quiere mover la primera a «En desarrollo». ¿Y si algo falla?</p>
+</div>
+
+<div class="escena" role="note" aria-label="Escena ilustrativa">
+<p class="escena-etiqueta">Escena ilustrativa · una operación que no se confirma</p>
+<p class="escena-contexto">Claude intenta actualizar el tablero.</p>
+<div class="turno"><p class="ponente">Claude<small>pide</small></p><p>Mover «Escribir la prueba de la línea roja» a En desarrollo.</p></div>
+<div class="turno arnes"><p class="ponente">JKanban<small>responde</small></p><p>403 · UserNotInProject: el usuario no tiene acceso al proyecto.</p></div>
+<div class="turno"><p class="ponente">Claude<small>informa</small></p><p>No he podido mover la tarea: mi usuario no es miembro de LecturaFàcil. Sigue en Preparada. ¿Me añades al equipo?</p></div>
+<p class="escena-pie">Diálogo imaginado. El error y su código existen en JKanban; la situación es un ejemplo.</p>
+</div>
+
+<p>El tablero es tu <strong>ventana permanente</strong> al trabajo. Cada devslice tiene sus tareas, y cada tarea su estado, sus dependencias y sus bloqueos, con el motivo a la vista. Claude lo consulta para retomar después de una pausa y lo actualiza mientras trabaja. Hay una regla que no se negocia: nada está anotado hasta que JKanban lo confirma. Un error se ve; no se esconde.</p>
+<hr />
+</details><details id="como-se-cierra-una-devslice" class="bloque bloque-8"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Cómo se cierra una devslice</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 7 · Darla por terminada</p>
+<p>«La línea roja» ya funciona en la pantalla de Claude: la copia sin «Sapere aude» falla y las cuatro hojas de Kant pasan. Pero que funcione allí no es lo mismo que darla por terminada. ¿Qué hace falta para cerrarla?</p>
+</div>
+
+<p>Tres cosas que a menudo se confunden son distintas. El <strong>criterio</strong> es lo que se exige, y vive en la especificación de la devslice. Las <strong>pruebas</strong> son la forma de comprobarlo, y viven en el código. El <strong>resultado</strong> es lo que pasó al ejecutarlas sobre una versión concreta, y vive en un informe. Un criterio puede necesitar varias pruebas, y que pasen aporta evidencia, pero no cambia el criterio.</p>
+<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
+<svg viewBox="0 0 560 402" width="100%" role="img" aria-label="Cierre de la devslice La línea roja: criterio, pruebas, resultado, tablero y aprobación" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<line x1="34" y1="52" x2="34" y2="360" stroke="#e4d7f5" stroke-width="2"/>
+<circle cx="34" cy="52" r="7" fill="#fff" stroke="#7b2cbf" stroke-width="2"/>
+<text x="56" y="56" font-size="14.5" font-weight="700" fill="#4c1d80">Criterio<tspan font-size="12" font-weight="400" fill="#9ca3af">   en la especificación de la devslice</tspan></text>
+<text x="56" y="76" font-size="12.5" fill="#2b2b2f">«Rechazar una versión a la que le falte</text>
+<text x="56" y="93" font-size="12.5" fill="#2b2b2f">un concepto protegido de la materia»</text>
+<circle cx="34" cy="128" r="7" fill="#fff" stroke="#7b2cbf" stroke-width="2"/>
+<text x="56" y="132" font-size="14.5" font-weight="700" fill="#4c1d80">Pruebas<tspan font-size="12" font-weight="400" fill="#9ca3af">   en tests/</tspan></text>
+<text x="56" y="152" font-size="12.5" fill="#2b2b2f">unitaria: el validador, con y sin el concepto</text>
+<text x="56" y="170" font-size="12.5" fill="#2b2b2f">integración: los conceptos guardados en SQLite</text>
+<text x="56" y="188" font-size="12.5" fill="#2b2b2f">aceptación: las cuatro hojas de Kant</text>
+<circle cx="34" cy="222" r="7" fill="#fff" stroke="#7b2cbf" stroke-width="2"/>
+<text x="56" y="226" font-size="14.5" font-weight="700" fill="#4c1d80">Resultado<tspan font-size="12" font-weight="400" fill="#9ca3af">   en reports/tests/, sin sobrescribir</tspan></text>
+<text x="56" y="246" font-size="12.5" fill="#2b2b2f">qué pasó, con qué versión del código</text>
+<text x="56" y="264" font-size="12.5" fill="#2b2b2f">y con qué evidencias, en un informe legible</text>
+<circle cx="34" cy="298" r="7" fill="#fff" stroke="#7b2cbf" stroke-width="2"/>
+<text x="56" y="302" font-size="14.5" font-weight="700" fill="#4c1d80">Tablero</text>
+<text x="56" y="322" font-size="12.5" fill="#2b2b2f">la tarjeta pasa a Terminada y enlaza el informe</text>
+<circle cx="34" cy="360" r="7" fill="#7b2cbf"/>
+<text x="56" y="364" font-size="14.5" font-weight="700" fill="#7b2cbf">Tu aprobación</text>
+<text x="56" y="384" font-size="12.5" fill="#2b2b2f">nada se integra ni se publica sin ella</text>
+</svg>
+<figcaption style="font-size:.82rem;color:#6b7280;text-align:center;font-style:italic;margin-top:.3rem;">El cierre de «La línea roja», paso a paso. Ilustrativo.</figcaption>
+</figure>
+
+<p>Cada ejecución relevante deja un informe con fecha, alcance y versión del código, y no sobrescribe los anteriores. Se puede volver a ejecutar las pruebas, pero eso no reproduce la evidencia de entonces. Por eso el tablero enlaza el informe del cierre. Integrar o publicar sigue siendo tu decisión: el método no autoriza nada automático.</p>
+<hr />
+</details><details id="de-donde-salen-las-herramientas" class="bloque bloque-9"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">De dónde salen las herramientas</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 8 · La caja de herramientas</p>
+<p>Para preparar, construir y cerrar cada devslice, Claude necesita skills: preparar devslices, diseñar pruebas, operar el tablero. ¿Las de qué carpeta? ¿En qué versión?</p>
+</div>
+
+<p>Todas las skills de la fábrica, propias o de otros autores, viven en un solo sitio: la carpeta <code>skills/</code> de SoftwareFactory. Cada una lleva su procedencia, su licencia y su versión. Las externas se guardan enteras, aunque no se toquen, para que ninguna actualización ajena cambie nada sin que lo decidas.</p>
+<p>La fábrica tendrá <strong>una skill para cada paso del método</strong>. La de visión ya existe. Las demás cubrirán la especificación y el diseño de interfaz, la definición técnica, la planificación de devslices, su preparación, el diseño y la revisión de pruebas, el cierre y el manejo del tablero. Las acompañan plantillas de documentos y perfiles técnicos. Uno de ellos servirá para aplicaciones de escritorio con un agente dentro, y LecturaFàcil ayudará a definirlo.</p>
+<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
+<svg viewBox="0 0 560 345" width="100%" role="img" aria-label="De la carpeta skills a cada proyecto, con versión" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<defs><marker id="vb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#4c1d80"/></marker></defs>
+<ellipse cx="280" cy="26" rx="120" ry="14" fill="#f8f5ff" stroke="#7b2cbf" stroke-width="1.5"/>
+<path d="M160,26 V106 A120,14 0 0 0 400,106 V26" fill="#f8f5ff" stroke="#7b2cbf" stroke-width="1.5"/>
+<ellipse cx="280" cy="26" rx="120" ry="14" fill="#f8f5ff" stroke="#7b2cbf" stroke-width="1.5"/>
+<text x="280" y="58" text-anchor="middle" font-size="15" font-weight="700" fill="#4c1d80">skills/ de SoftwareFactory</text>
+<text x="280" y="78" text-anchor="middle" font-size="12" fill="#6b7280">propias y externas, con procedencia</text>
+<text x="280" y="95" text-anchor="middle" font-size="12" fill="#6b7280">plantillas y perfiles técnicos</text>
+<line x1="280" y1="124" x2="280" y2="152" stroke="#4c1d80" stroke-width="2" marker-end="url(#vb)"/>
+<rect x="150" y="156" width="260" height="44" rx="22" fill="#7b2cbf"/>
+<text x="280" y="176" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">una versión estable</text>
+<text x="280" y="192" text-anchor="middle" font-size="11.5" fill="#f8f5ff">evaluada antes de publicarse</text>
+<line x1="280" y1="202" x2="280" y2="230" stroke="#4c1d80" stroke-width="2" marker-end="url(#vb)"/>
+<text x="60" y="258" font-size="14.5" font-weight="700" fill="#4c1d80">LecturaFàcil</text><text x="250" y="258" font-size="12.5" fill="#6b7280">el piloto, sabe qué versión usa</text>
+<text x="60" y="290" font-size="14.5" font-weight="700" fill="#4c1d80">OncoCore</text><text x="250" y="290" font-size="12.5" fill="#6b7280">la misma u otra, a su ritmo</text>
+<text x="60" y="322" font-size="14.5" font-weight="700" fill="#4c1d80">El próximo proyecto</text><text x="250" y="322" font-size="12.5" fill="#6b7280">arranca con lo aprendido</text>
+<line x1="40" y1="242" x2="40" y2="330" stroke="#e4d7f5" stroke-width="2"/>
+<path d="M440,318 C548,318 548,60 404,60" fill="none" stroke="#7b2cbf" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#vb)"/>
+<text x="414" y="140" font-size="11.5" font-weight="700" fill="#7b2cbf">mejora</text>
+<text x="414" y="156" font-size="11.5" font-weight="700" fill="#7b2cbf">aprobada</text>
+</svg>
+<figcaption style="font-size:.82rem;color:#6b7280;text-align:center;font-style:italic;margin-top:.3rem;">Una sola fuente, versiones con nombre y un camino de vuelta para lo que se aprende.</figcaption>
+</figure>
+
+<p>Las skills aportan técnica; tu método y el perfil de cada proyecto deciden la tecnología. Así ninguna pieza impone una metodología ajena.</p>
+<hr />
+</details><details id="como-aprende-la-fabrica" class="bloque bloque-10"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Cómo aprende la fábrica</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 9 · Una lección que viaja</p>
+<p>El documento de visión de LecturaFàcil se generó con la paleta y el emblema de un instituto. Pero el script que lo convierte en página importa código de OncoCore y su hoja de estilos. Si OncoCore no estuviera en este ordenador, la skill no funcionaría. ¿Es un problema de LecturaFàcil o de la fábrica?</p>
+</div>
+
+<div class="escena" role="note" aria-label="Escena ilustrativa">
+<p class="escena-etiqueta">Escena ilustrativa · una propuesta de mejora</p>
+<div class="turno"><p class="ponente">Claude<small>propone</small></p><p>Mejora para SoftwareFactory: que la skill de visión funcione sin depender de OncoCore. Origen: LecturaFàcil, documento de visión. Evidencia: su script carga <code>md_to_html</code> desde la carpeta de OncoCore. La registro en el proyecto SoftwareFactory y espero tu aprobación.</p></div>
+<div class="turno"><p class="ponente">Tú<small>decide</small></p><p>Regístrala. La miramos antes de publicar la primera versión.</p></div>
+<p class="escena-pie">Diálogo imaginado. La dependencia es real y la propuesta está en el registro local de la fábrica, todavía sin tarjeta en el tablero.</p>
+</div>
+
+<p>La fábrica tiene una tarea que nunca se cierra: <strong>Mejorar la Software Factory</strong>. Mientras trabaja en cualquier proyecto, Claude observa fricciones, errores repetidos y pasos de más. Cada mejora general va al proyecto SoftwareFactory del tablero, con su origen y su evidencia. Lo que es propio de LecturaFàcil se queda en LecturaFàcil.</p>
+<p>Proponer no es cambiar. Ninguna mejora se aplica ni se distribuye sin tu aprobación expresa. La fábrica aprende rápido, pero el método sigue siendo tuyo.</p>
+<hr />
+</details><details id="en-que-se-diferencia-de-lo-que-ya-existe" class="bloque bloque-11"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">En qué se diferencia de lo que ya existe</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 10 · Mirar alrededor</p>
+<p>Con la visión de LecturaFàcil en la mano, te preguntas si no habría bastado con instalar algo ya hecho. Hay marcos de trabajo con cientos de miles de estrellas en GitHub. ¿Por qué construir el tuyo?</p>
+</div>
+
+<p>La idea de una fábrica de software personal se inspira en el vídeo de Eric Risco <em>Programar con agentes ya no basta: monta tu Software Factory</em>. Alrededor hay tres familias de propuestas, cada una con su propio método:</p>
+<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
+<svg viewBox="0 0 560 410" width="100%" role="img" aria-label="Familias de propuestas y SoftwareFactory" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<text x="14" y="30" font-size="14.5" font-weight="700" fill="#4c1d80">Kits de especificación<tspan font-size="12.5" font-weight="400" fill="#9ca3af">   Spec Kit, de GitHub</tspan></text>
+<text x="14" y="52" font-size="12.5" fill="#2b2b2f">especificar → planificar → tareas → implementar</text>
+<text x="14" y="70" font-size="12.5" fill="#9ca3af">su medida es la especificación de cada funcionalidad</text>
+<line x1="14" y1="88" x2="546" y2="88" stroke="#f8f5ff" stroke-width="2"/>
+<text x="14" y="118" font-size="14.5" font-weight="700" fill="#4c1d80">Bibliotecas de skills con método<tspan font-size="12.5" font-weight="400" fill="#9ca3af">   Superpowers</tspan></text>
+<text x="14" y="140" font-size="12.5" fill="#2b2b2f">planificar, pruebas primero, verificar antes de terminar</text>
+<text x="14" y="158" font-size="12.5" fill="#9ca3af">disciplina de trabajo con el método de su autor</text>
+<line x1="14" y1="176" x2="546" y2="176" stroke="#f8f5ff" stroke-width="2"/>
+<text x="14" y="206" font-size="14.5" font-weight="700" fill="#4c1d80">Equipos de agentes simulados<tspan font-size="12.5" font-weight="400" fill="#9ca3af">   BMAD</tspan></text>
+<text x="14" y="228" font-size="12.5" fill="#2b2b2f">analista, jefe de producto, arquitecto, desarrollador…</text>
+<text x="14" y="246" font-size="12.5" fill="#9ca3af">reparte el trabajo en papeles de un equipo ágil</text>
+<line x1="280" y1="266" x2="280" y2="290" stroke="#7b2cbf" stroke-width="2"/>
+<rect x="14" y="296" width="532" height="104" rx="8" fill="#7b2cbf"/>
+<text x="34" y="326" font-size="16" font-weight="700" fill="#fff">SoftwareFactory</text>
+<text x="34" y="348" font-size="12.5" fill="#f8f5ff">tu método: visión, devslices preparadas, backend primero</text>
+<text x="34" y="368" font-size="12.5" fill="#f8f5ff">tu tablero como ventana, tus preferencias como perfil</text>
+<text x="34" y="388" font-size="12.5" fill="#f8f5ff">piezas de otros, elegidas y guardadas con su procedencia</text>
+</svg>
+<figcaption style="font-size:.82rem;color:#6b7280;text-align:center;font-style:italic;margin-top:.3rem;">Tres maneras de ordenar el trabajo con agentes, y la tuya, que puede tomar piezas de todas.</figcaption>
+</figure>
+
+<p>Los productos del gráfico: <a href="https://github.github.com/spec-kit/">Spec Kit</a>, <a href="https://github.com/obra/superpowers">Superpowers</a> y <a href="https://github.com/bmad-code-org/BMAD-METHOD">BMAD</a>.</p>
+<p>Son buenas propuestas, y por eso no son rivales. Spec Kit <a href="https://github.github.com/spec-kit/history.html">cumplió un año en agosto de 2026 y publicó su versión 1.0.0</a>, con 38 agentes compatibles. Pero cada una trae su método, y tú ya tienes el tuyo, que empieza con un documento de visión para personas, como el de LecturaFàcil. SoftwareFactory <strong>toma las piezas que sirven a tu método</strong>, como dos skills de Superpowers que son candidatas, y las guarda con su procedencia.</p>
+<hr />
+</details><details id="de-vuelta-al-caso" class="bloque bloque-12"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">De vuelta al caso</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<div class="caso">
+<p class="caso-etiqueta">El caso · epílogo</p>
+<p>LecturaFàcil sigue teniendo la misma pregunta: cómo dar el mismo Kant a toda la clase sin bajar la exigencia. Lo que ha cambiado es el camino para responderla. Sabe qué hará, cómo se verá y con qué se construirá. Su trabajo está repartido en devslices pequeñas, que empiezan por lo básico. La línea roja protege a Kant antes de que el agente escriba una palabra, y cada cierre deja su informe enlazado en el tablero. Además, el piloto ya ha dejado su primera propuesta en el proyecto <strong>SoftwareFactory</strong>.</p>
+<p>Lo que la fábrica no decide es lo que te corresponde: quién paga cada adaptación, si una mejora se aplica, cuándo se integra una devslice y cuándo se publica una versión. <strong>La fábrica prepara, construye y propone; las decisiones son tuyas.</strong></p>
+</div>
+
+<hr />
+</details><details id="anexo-el-caso-lecturafacil" class="bloque bloque-13"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Anexo: el caso LecturaFàcil</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<details id="que-es-real" class="subseccion" open><summary class="subseccion-summary">Qué es real</summary>
+<p>LecturaFàcil está en <code>D:\Projectes\LecturaFacil</code>, en fase inicial de definición. Contiene su documento de visión (<code>doc/vision/documento-vision.md</code> y su <code>.html</code>) y dos referencias: la presentación de la Coordinadora Balear de Persones amb Discapacitat (21 de octubre de 2026) y los enunciados de Jaume Serra (2008). Todavía no tiene especificación funcional ni código. Es el proyecto piloto de SoftwareFactory por decisión del propietario.</p>
+<p>El propietario ha decidido su contexto tecnológico, de momento: escritorio con Python, Tkinter y SQLite, y Claude Code como agente de IA dentro del producto. Esta decisión todavía no consta en los documentos de LecturaFàcil.</p>
+<p>El fragmento citado sale de su documento de visión, cuya historia es ficticia; Yasmin y Pau son personajes inventados. Las palabras de la escena de la línea roja («minoria d'edat», «menors d'edat», «enteniment», «Sapere aude») están en las hojas de Kant de esa visión. El error <code>UserNotInProject</code> es una excepción real de JKanban (<code>docs/business-rules.md</code>). La dependencia de la skill de visión respecto a OncoCore consta en su script <code>doc_to_html.py</code>.</p>
+<p>Lo que se dice del SDK de Claude Code (carga de configuración y de skills, clave de API, salida JSON con esquema) sale de su documentación oficial.</p>
+</details><details id="que-es-ilustrativo" class="subseccion" open><summary class="subseccion-summary">Qué es ilustrativo</summary>
+<p>El plan de devslices, su orden, sus criterios y sus tareas son ejemplos sacados de la visión. También lo son los bocetos de la interfaz y de la arquitectura. Las escenas son imaginadas, incluida la decisión de no enviar nombres de alumnos al agente. Los proyectos LecturaFàcil y SoftwareFactory todavía no existen en JKanban, y la integración de Claude con el tablero aún no está construida. El perfil técnico para escritorio con agente es una idea por definir.</p>
+</details><details id="fuentes" class="subseccion" open><summary class="subseccion-summary">Fuentes</summary>
+<p>Consultadas el 25 de octubre de 2026:</p>
+<ul>
+<li>Eric Risco, <a href="https://www.youtube.com/watch?v=p6nnqerea7w"><em>Programar con agentes ya no basta: monta tu Software Factory</em></a>, YouTube.</li>
+<li><a href="https://github.github.com/spec-kit/">Spec Kit</a>, de GitHub, y <a href="https://github.github.com/spec-kit/history.html">su historia</a>. Licencia MIT.</li>
+<li><a href="https://github.com/obra/superpowers">Superpowers</a>, de Jesse Vincent. Licencia MIT.</li>
+<li><a href="https://github.com/bmad-code-org/BMAD-METHOD">BMAD Method</a>, de BMad Code.</li>
+<li>Claude Agent SDK: <a href="https://code.claude.com/docs/en/agent-sdk/overview.md">visión general y autenticación</a>, <a href="https://code.claude.com/docs/en/agent-sdk/python.md">SDK de Python</a> y <a href="https://code.claude.com/docs/en/agent-sdk/skills.md">skills</a>.</li>
+</ul>
+<hr />
+<p><em>Documento de visión de SoftwareFactory — 2026-10-25.</em></p></details></details>
+    </div>
+
+    <footer class="site-footer">
+      SoftwareFactory · Documento de visión
+    </footer>
+
+  </div>
+<script>
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest('.bloque-btn');
+  if (!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  var bloque = btn.closest('.bloque');
+  if (!bloque) return;
+  var open = btn.dataset.action === 'expand';
+  bloque.open = open;
+  bloque.querySelectorAll('.subseccion, .subsubseccion').forEach(function (s) { s.open = open; });
+});
+</script>
+</body>
+</html>

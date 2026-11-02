@@ -1,0 +1,8 @@
+# Un proyecto por sesión
+
+- **Origen:** SoftwareFactory, 2026-10-27. El propietario: «estoy pensando que la sf no debe dejar mezclar acciones de distintos proyectos en la misma sesión salvo pasar cosas aprendidas a la sf (si el proyecto es distinto a la sf). Esto me podría ordenar un poco». Evidencia: en la sesión de ese día, desde la SF se editaron archivos de JKanban (`.sf/`, `CLAUDE.md`, guías y enlaces) que quedaron sin commit y a cargo del propietario, y se mezclaron en el historial cambios de varios proyectos. Al revisar la propuesta: «las lecturas de oncocore son para realimentar la sf», y «sí, apruébala e impleméntala».
+- **Contexto:** con un ritmo de trabajo rápido, en una misma sesión se acumulaban cambios de varios proyectos, que quedaban sin commit o mezclados en el historial.
+- **Opciones:** solo una regla escrita; regla y control en el mod; prohibir también las lecturas.
+- **Decisión:** una sesión modifica solo el proyecto de su carpeta. Leer otros proyectos se permite, y desde la SF es realimentación. Desde un proyecto distinto de la SF, lo único que se hace en la SF es registrar lo aprendido (tarea del kanban o `docs/propuestas.md`), nunca aplicar el cambio. El mod bloquea con el motivo las escrituras de archivos en otro proyecto; las órdenes de terminal quedan bajo la regla escrita.
+- **Consecuencias:** las tareas que tocan dos proyectos se hacen en dos sesiones. El apartado «Software Factory» del `CLAUDE.md` de cada proyecto lleva la regla.
+- **Aplicada en:** metodología (2 y 11) y skill `sf:metodologia`; mod de estado (control de escritura); `CLAUDE.md` de la SF; `docs/como-funciona-la-software-factory.md`; plugin `sf` 0.8.0.

@@ -1,0 +1,5 @@
+{
+  "tipo": "Informe",
+  "descripcion": "Informe de una tarea deliberativa: tarjetas, columnas, fichas, preguntas con opciones y fuentes.",
+  "recursos": ["tarjetas", "columnas", "fichas", "preguntas", "fuentes"]
+}

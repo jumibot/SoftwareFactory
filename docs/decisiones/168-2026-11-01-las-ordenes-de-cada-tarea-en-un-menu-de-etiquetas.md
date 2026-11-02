@@ -1,0 +1,7 @@
+# Las órdenes de cada tarea, en un menú de etiquetas
+
+- **Origen:** SoftwareFactory, 2026-11-01, tarea «Las órdenes de cada tarea, en un menú de etiquetas al desplegarla» (247). El propietario: «Cada vez hay más letras que memorizar lo que hacen. Lo convertimos en un menú (de etiquetas) que posicionaremos en la primera row que se muestra al desplegar una tarea».
+- **Contexto:** cada tarea llevaba a la derecha letras-botón (T, C, S, E, D, R), y cada paso pendiente una E roja; varias pedían dos clics. Las letras reservaban ancho en todas las líneas.
+- **Decisión:** las órdenes de una tarea pasan a etiquetas con su nombre, con mayúscula inicial, en la primera fila de la tarea desplegada: primero las de la tarea (Activar rama, la antigua T; Cerrar, Separar, Redescribir, y al final Eliminar, Descartar o Revertir) y después las de sus pasos (Paso +). Todas con el mismo color de letra sobre el gris de las etiquetas, salvo las destructivas (Eliminar, Descartar, Revertir), en rojo. Las de dos clics confirman como RELEASE: «¿Cerrar? sí». La línea plegada no lleva ninguna orden, solo el ● del subagente. La E de los pasos pasa a «×», con «¿Quitar? sí»; el «?» se queda. En esta misma tarea se añaden etiquetas para órdenes que hoy solo son comandos, como Redescribir y Paso +.
+- **Consecuencias:** cerrar o probar pide desplegar antes la tarea; toda tarea con alguna orden se puede desplegar. Los títulos ganan ancho en la línea plegada.
+- **Aplicada en:** `plugins/sf/hooks/panel.tsx` y sus pruebas (247).

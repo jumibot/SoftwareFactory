@@ -1,0 +1,7 @@
+# Los avisos del panel, en la cabecera con fondo blanco
+
+- **Origen:** SoftwareFactory, 2026-11-01, tarea «Los avisos del panel, en la cabecera con fondo blanco» (244). El propietario, viendo el aviso de proyecto atrasado al final del panel: «estos mensajes se visualizarán en el área del header con un bg blanco».
+- **Contexto:** los avisos iban en amarillo al final de lo que hay bajo la cabecera y subían con el scroll; el de cola ilegible iba al principio de TAREAS. La caja sobre el prompt, cuando no hay panel, tiene sus propios avisos en amarillo.
+- **Decisión:** mientras hay avisos, se turnan con la cabecera en sus filas: la cabecera, con sus botones y la rama, 5 segundos; los avisos, 10 segundos, en un bloque de 2 filas con letra oscura. Con varios avisos, carrusel: cada turno muestra uno, y el fondo alterna entre blanco y gris para que se note el cambio. Un clic en el aviso lo quita hasta su siguiente turno. El de cola ilegible, también es aviso. Los avisos de la caja sobre el prompt, también en blanco; la caja no sale mientras el panel se ve. La línea naranja del modo prueba no es un aviso sino un botón, y se queda donde está: los botones no se mueven.
+- **Consecuencias:** los avisos se ven siempre, sin hacer scroll; no quitan filas al cuerpo del panel; los botones siguen al alcance, aunque solo la mitad del tiempo mientras haya avisos (se descartó que el aviso tapase los botones: el de proyecto atrasado dura hasta poner el proyecto al día).
+- **Aplicada en:** `plugins/sf/hooks/panel.tsx` y `estilo.ts`, con tests en `panel.test.tsx` (244).

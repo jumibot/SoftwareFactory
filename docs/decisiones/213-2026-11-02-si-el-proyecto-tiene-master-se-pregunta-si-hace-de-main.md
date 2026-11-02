@@ -1,0 +1,7 @@
+# Si el proyecto tiene master, se pregunta si hace de main
+
+- **Origen:** SoftwareFactory, 2026-11-02. En «Incorporar un proyecto sin cambiarlo: el plugin se adapta al proyecto» (222), se propuso que, si la rama principal del proyecto no se llama `main` (por ejemplo `master`), se creara `main` desde ella sin tocarla. El propietario: «si un proyecto tiene master nos adaptamos asumiendo que es nuestra main, si así lo decide el desarrollador del proyecto. Es decir, preguntamos».
+- **Contexto:** «El manejo del repositorio no se negocia: siempre develop» (205) fija el modelo de ramas de la SF (`develop`, ramas por tarea y `main` para publicar). «Incorporar un proyecto no mueve ni renombra nada» (201) impide renombrar `master`. Crear `main` al lado dejaba dos ramas principales.
+- **Decisión:** si el proyecto tiene `master` (u otra rama principal que no se llama `main`), la incorporación pregunta al desarrollador, con un menú, si esa rama hace de `main` para la SF. Si dice que sí, la SF publica en ella y no se crea `main`. Si dice que no, se crea `main` desde ella, sin tocar la suya.
+- **Consecuencias:** el nombre de la rama de publicación pasa a la configuración del proyecto (263) y lo leen `cola.py` y el mod al publicar. Matiza la 205: el modelo de ramas no se negocia, pero el nombre de la rama de publicación se adapta si el desarrollador lo decide. `develop` sigue siendo obligatoria.
+- **Aplicada en:** pendiente; en la 222 (la pregunta en `sf:incorporar_proyecto_a_sf`) y en la 263 y la 193 (el campo de configuración y su uso).

@@ -1,0 +1,8 @@
+# La configuración se cambia pidiéndoselo a Claude, con menús
+
+- **Origen:** SoftwareFactory, 2026-11-02. En «Configuración inicial: decidir el mínimo, los commits y la versión, y diseñar .sf/proyecto.json y las preguntas» (263) se preguntó cómo se cambia la configuración de un proyecto ya incorporado. El propietario eligió «Pidiéndoselo a Claude, con menús».
+- **Contexto:** la configuración se elige al incorporar («Incorporar un proyecto es una operación sin tarea, guiada por menús», 209), pero puede cambiar después: activar la metodología, elegir un kanban, cambiar el remoto. Se valoró además una orden de `cola.py` para valores sueltos, o editar el archivo a mano.
+- **Decisión:** la configuración de un proyecto se cambia pidiéndoselo a Claude. Es un caso más de `sf:incorporar_proyecto_a_sf`, «Configurar», sin tarea y guiado con menús, como incorporar y poner al día: Claude enseña lo que hay, pregunta qué cambiar, pide el OK y lo aplica en `develop` con su commit. También se ofrece al poner al día el proyecto.
+- **Consecuencias:** no hay orden de `cola.py` para cambiar la configuración. Lo mismo vale para el panel: no tiene botón de configuración, en línea con hacerlo todo desde el prompt.
+- **Corregida el mismo día:** el propietario decide: «Crearemos una skill y un slash para cambiar la configuración». En lugar de un caso «Configurar» dentro de `sf:incorporar_proyecto_a_sf`, cambiar la configuración tiene su propia skill y su orden de barra, que Claude guía con menús igual que arriba. Poner al día el proyecto sigue ofreciéndolo.
+- **Aplicada en:** pendiente; en «Skill y orden de barra para cambiar la configuración del proyecto».

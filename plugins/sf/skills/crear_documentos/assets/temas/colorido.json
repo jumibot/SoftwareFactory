@@ -1,0 +1,38 @@
+{
+  "nombre": "Colorido",
+  "descripcion": "Seis colores sin morados, con la misma luminosidad (OKLCH L 0.53, 90 % del croma máximo; método de oklch-skill): azul, naranja, turquesa, rojo, azul cielo y verde, uno por bloque y en ciclo. Alterna fríos y cálidos para que se distingan también con daltonismo: el validador de dataviz pasa la separación con daltonismo (ΔE 13,2) y con visión normal, también entre el último y el primero. Contraste de 4,6:1 o más sobre blanco y sobre el fondo de su bloque. Fondos generales en gris neutro. Acento frambuesa. Desenfadado: etiquetas de bloque en color al 40 % de opacidad con el título grande en el color oscuro del bloque, sin marcador, esquinas muy redondeadas. Títulos en Outfit.",
+  "colores": {
+    "primario": "#1d6fb6",
+    "acento": "#be185d",
+    "texto": "#1f2937",
+    "texto-suave": "#4b5563",
+    "texto-tenue": "#9ca3af",
+    "pagina": "#f8fafc",
+    "fondo": "#f1f5f9",
+    "borde": "#e2e8f0",
+    "linea": "#e2e8f0",
+    "fondo-medio": "#e2e8f0",
+    "fondo-suave": "#f8fafc"
+  },
+  "serie": [
+    "#1d6fb6",
+    "#a6501a",
+    "#1f7a7a",
+    "#c22335",
+    "#1e749e",
+    "#1f812d"
+  ],
+  "tipografias": {
+    "texto": "'DM Sans', Arial, sans-serif",
+    "titulos": "'Outfit', 'DM Sans', sans-serif",
+    "escena": "'Source Serif 4', Georgia, serif",
+    "url": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+  },
+  "estilo": {
+    "cabecera": "blanca",
+    "etiqueta": "solida",
+    "marcador": "ninguno",
+    "esquinas": 16,
+    "opacidad": 0.4
+  }
+}

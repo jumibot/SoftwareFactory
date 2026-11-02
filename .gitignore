@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+
+# Informes y salidas temporales
+reports/
+# Los informes de investigación son referencias y se versionan
+!docs/referencias/reports/
+
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Worktrees de los subagentes: cada uno es otro repositorio, no se añade al principal
+.claude/worktrees/
+
+# Cola de peticiones de la sesión (metodología, 2)
+.sf/peticiones.json
+.sf/prueba.json
+.sf/prueba.log
+.sf/registro.json
+# Lo que el panel sabe de los subagentes de cada sesión (tarea 277)
+.sf/subagentes.json
+# Historial de las tareas que salen, copias y bloqueo de la cola (skill sf:flujo_tareas)
+.sf/historial.jsonl
+.sf/copias/
+.sf/peticiones.lock
+.sf/peticiones.json.tmp
+
+# El índice de las decisiones en html: lo genera el panel al abrirlo (decisión 163)
+docs/decisiones/README.html

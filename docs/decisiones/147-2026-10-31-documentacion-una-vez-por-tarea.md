@@ -1,0 +1,7 @@
+# Documentación, una vez por tarea
+
+- **Origen:** SoftwareFactory, 2026-10-31, tarea «Mismo diseño de tarea en todas las secciones del panel» (210). Tras nueve ajustes visuales seguidos, cada uno con su paso en «Actualizar Cómo funciona el panel», Claude propuso un único paso por tarea y el propietario aceptó: «documentación una vez por tarea ok».
+- **Contexto:** «Una tarea por documento que actualizar» (142) pedía un paso por cambio. Con ajustes pequeños y seguidos, la tarea del documento acumulaba pasos casi iguales (19 en la de Cómo funciona el panel) y cada ajuste costaba un paso más que anotar.
+- **Decisión:** una tarea que cambia un documento compartido añade a la tarea de ese documento un solo paso, con su título: «Reflejar «<título de la tarea>» (NN)». Se añade al poner la tarea en curso o en cuanto se ve que afecta al documento, no por cada cambio. Quien actualiza el documento mira lo que hizo la tarea en su squash y su descripción.
+- **Consecuencias:** modifica «Una tarea por documento que actualizar» (142) en lo del paso por cambio; lo demás sigue: una tarea por documento, «Actualizar <documento>», y las del mismo documento se fusionan directamente. Las tareas de documentos que ya tienen varios pasos de una misma tarea se pueden agrupar al ponerlas en curso.
+- **Aplicada en:** plugins/sf/skills/flujo_tareas/SKILL.md. La metodología, la plantilla de reglas y el CLAUDE.md de la SF, en sus tareas de actualizar.

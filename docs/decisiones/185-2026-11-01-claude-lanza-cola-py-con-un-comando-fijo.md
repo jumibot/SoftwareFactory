@@ -1,0 +1,7 @@
+# Claude lanza cola.py con un comando fijo, la misma copia que el panel
+
+- **Origen:** SoftwareFactory, 2026-11-01, tarea «Claude usa la cola.py de la rama activa en vez de la instalada» (252). Ante el lanzador fijo propuesto, que depende de una variable de Claude Code no documentada, el propietario lo adopta.
+- **Contexto:** Claude lanzaba `plugins/sf/tools/cola.py` de la copia de trabajo, que cambia con la rama activa; una rama sin publicar reescribió la cola real y el panel cargado dejó de ofrecer Cerrar. El panel ya copiaba al cargar su cola.py a `~/.claude/sf/cola-<sesión>.py` (decisión 136).
+- **Decisión:** Claude lanza siempre cola.py con `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden> …`, igual en bash y PowerShell. Es un lanzador que el panel copia al cargar y que pasa la orden a la copia de la sesión, por `CLAUDE_CODE_SESSION_ID` (los subagentes heredan la del principal). Si falta la variable o la copia, se para avisando, sin tocar la cola. El comando va en las skills y en el encargo de los subagentes.
+- **Consecuencias:** Claude y el panel usan la misma cola.py, también en modo prueba. Depende de una variable no documentada de Claude Code; si desaparece, el lanzador lo dice. Fuera de Claude no sirve: se usa el `tools/cola.py` del plugin instalado. Amplía la 136.
+- **Aplicada en:** `plugins/sf/tools/cola_sesion.py`, `plugins/sf/hooks/cola.ts`, `sf:flujo_tareas`, `sf:orquestacion` y los avisos del panel (252).

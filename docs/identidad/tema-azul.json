@@ -1,0 +1,30 @@
+{
+  "nombre": "Colorido azul",
+  "descripcion": "Tema de SoftwareFactory: el tema «colorido» de la skill sin serie, con todos los bloques en su azul principal (#1d6fb6). Petición del propietario, 2026-10-25.",
+  "colores": {
+    "primario": "#1d6fb6",
+    "acento": "#be185d",
+    "texto": "#1f2937",
+    "texto-suave": "#4b5563",
+    "texto-tenue": "#9ca3af",
+    "pagina": "#f8fafc",
+    "fondo": "#f1f5f9",
+    "borde": "#e2e8f0",
+    "linea": "#e2e8f0",
+    "fondo-medio": "#e2e8f0",
+    "fondo-suave": "#f8fafc"
+  },
+  "tipografias": {
+    "texto": "'DM Sans', Arial, sans-serif",
+    "titulos": "'Outfit', 'DM Sans', sans-serif",
+    "escena": "'Source Serif 4', Georgia, serif",
+    "url": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+  },
+  "estilo": {
+    "cabecera": "blanca",
+    "etiqueta": "solida",
+    "marcador": "ninguno",
+    "esquinas": 16,
+    "opacidad": 0.4
+  }
+}

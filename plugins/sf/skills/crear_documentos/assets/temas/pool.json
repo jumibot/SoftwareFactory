@@ -1,0 +1,42 @@
+{
+  "nombre": "Pool",
+  "descripcion": "Técnico y limpio: azul marino y verde azulado con menta y acento dorado, sobre papel gris verdoso. Cabecera en franja azul marino, etiquetas suaves con marcador cuadrado, esquinas redondeadas; fuentes del sistema, sin descargas.",
+  "colores": {
+    "primario": "#08786f",
+    "oscuro": "#112f40",
+    "primario-vivo": "#1f9a8d",
+    "fondo": "#e3f2ec",
+    "borde": "#d5e1e3",
+    "linea": "#e6eeef",
+    "fondo-medio": "#ddf0e9",
+    "fondo-suave": "#edf6f2",
+    "tenue": "#a5bfb9",
+    "pagina": "#f3f6f5",
+    "texto": "#203743",
+    "texto-suave": "#526b78",
+    "texto-tenue": "#8a9fa9",
+    "acento": "#b36e1d",
+    "acento-fondo": "#fff2df",
+    "acento-borde": "#efd2a6"
+  },
+  "serie": [
+    "#08786f",
+    "#b36e1d",
+    "#2c6e9b",
+    "#b23a2a",
+    "#4f6f82",
+    "#7a9a54"
+  ],
+  "tipografias": {
+    "texto": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    "titulos": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    "escena": "Georgia, 'Times New Roman', serif",
+    "url": ""
+  },
+  "estilo": {
+    "cabecera": "oscuro",
+    "etiqueta": "tinte",
+    "marcador": "cuadrado",
+    "esquinas": 12
+  }
+}

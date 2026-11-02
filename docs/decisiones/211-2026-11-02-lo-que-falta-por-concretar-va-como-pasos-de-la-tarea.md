@@ -1,0 +1,7 @@
+# Lo que falta por concretar va como pasos de la tarea
+
+- **Origen:** SoftwareFactory, 2026-11-02. En sprite_animation, Claude dejó una petición fuera de la cola hasta que el propietario concretara qué cambiar («Cuando me digas qué quieres cambiar, lo anoto como tarea en curso»). Al anotarlo como «Una petición sin concretar se anota en la cola al llegar, no cuando se concreta» (295), el propietario añadió: «si falta concretar, deliberar, decidir o diseñar cómo hacer la tarea, se añaden como pasos».
+- **Contexto:** la orquestación manda anotar toda petición en cuanto llega, pero en «Poner en curso» dice «Si el enunciado no basta, preguntar». Leído así, Claude esperaba a tener el detalle para anotarla, y la petición quedaba en la conversación, donde se pierde.
+- **Decisión:** toda petición se anota en la cola al llegar, aunque esté sin concretar. Lo que falte para poder hacerla (concretar, deliberar, decidir o diseñar cómo hacerla) se añade como pasos de esa tarea, y se trabaja como el resto de los pasos: se pregunta al propietario dentro de la tarea, no antes de crearla.
+- **Consecuencias:** `sf:orquestacion` cambia «Si el enunciado no basta, preguntar» por anotar primero y poner lo que falte como pasos. Ninguna petición queda pendiente solo en la conversación.
+- **Aplicada en:** pendiente; en la 295.

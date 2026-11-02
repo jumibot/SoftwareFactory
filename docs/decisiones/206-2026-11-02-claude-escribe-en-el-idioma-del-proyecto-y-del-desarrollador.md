@@ -1,0 +1,7 @@
+# Claude escribe en el idioma del proyecto y del desarrollador
+
+- **Origen:** SoftwareFactory, 2026-11-02. En «Incorporar un proyecto sin cambiarlo: el plugin se adapta al proyecto» (222), tras fijar que el manejo del repositorio no se negocia (205), se preguntó si el formato de los commits también lo fija la SF. El propietario: «Nos adaptamos en el idioma y formato de los commits. En general nos adaptamos al idioma del proyecto y del desarrollador».
+- **Contexto:** la SF escribe en español y con «(N)» al final del título. JKanban tiene sus documentos en inglés; otros proyectos pueden exigir conventional commits. El colega que probará la SF puede no trabajar en español.
+- **Decisión:** el modelo de ramas es fijo (205), pero el idioma y el formato de los commits se adaptan a los del proyecto. En general, Claude escribe en el idioma del proyecto y del desarrollador: commits, tareas, pasos, informes y documentos que crea.
+- **Consecuencias:** la configuración del proyecto (263) guarda el idioma y el formato de commit, detectados al incorporar. La SF tiene que marcar el número de la tarea en el commit de una forma compatible con el formato del proyecto; cómo, está por decidir (un trailer `SF-Tarea: N` o `(N)` al final cuando el formato lo admita). Los textos fijos del plugin en español (avisos, panel, skills) quedan en el atasco de idioma de «Primeros cinco minutos de un usuario nuevo con la SF» (289).
+- **Aplicada en:** pendiente; en la 222, la 263 y la 193.

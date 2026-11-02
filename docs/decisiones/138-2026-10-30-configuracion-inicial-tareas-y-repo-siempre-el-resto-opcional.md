@@ -1,0 +1,8 @@
+# Configuración inicial: tareas y repo siempre, el resto opcional
+
+- **Origen:** SoftwareFactory, 2026-10-30, tareas 171 y 190. Al preparar el plugin para otros proyectos aparece el caso de un proyecto que no quiere seguir la metodología pero sí usar la cola y la gestión del repositorio. El propietario: «se tendría que entrar en un modo configuración inicial. Lo mínimo es que sf gestione las tareas y el repo. Esto siempre».
+- **Contexto:** la incorporación da todo o nada: identidad, estado por fases, reglas del método en el `CLAUDE.md`, `docs/decisiones/` y reorganización de `docs/`. El CLI de la cola y el flujo de ramas no dependen del método, pero el panel y las reglas importadas sí lo dan por hecho.
+- **Opciones:** solo método completo; dos modos fijos (completo y solo cola y repo); una configuración inicial con un mínimo fijo y el resto elegible.
+- **Decisión:** al incorporar un proyecto se entra en una configuración inicial. Lo mínimo, siempre, es que la SF gestione las tareas (la cola y su flujo) y el repositorio (ramas por tarea desde `develop`, squash al probar, publicación a `main` con tag). Lo demás se elige: la metodología (fases y documentos) y el registro de decisiones en `docs/decisiones/`, este desactivado por defecto cuando no se elige la metodología.
+- **Consecuencias:** `.sf/proyecto.json` dice qué se ha elegido y el panel enseña solo eso; las reglas que se importan al `CLAUDE.md` se separan en las de tareas y repo, siempre, y las de la metodología; la incorporación pregunta la configuración y permite ampliarla más tarde. Se prueba en PoseTracker (solo tareas y repo), Balls (existente con metodología), SmartColdBox (versión anterior) y una carpeta de prueba (nuevo).
+- **Aplicada en:** pendiente, tareas 171 y 190.

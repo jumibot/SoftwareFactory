@@ -1,0 +1,7 @@
+# cola.py recoge el subagente al dejar la tarea sin él
+
+- **Origen:** SoftwareFactory, 2026-11-01, tarea «Al cerrar una tarea, cola.py quita el worktree y la rama auxiliar de su subagente» (246). El propietario, tras recoger a mano el subagente de una tarea cerrada con la C: «¿no debería hacerse de oficio al cerrar una tarea?», y después: «investígalo y cubre todos los casos».
+- **Contexto:** cada subagente trabaja en un worktree propio con una rama auxiliar `sub-NN`, anotados en la cola. Al cerrar, el principal los quitaba a mano.
+- **Decisión:** cola.py quita el worktree y borra la rama auxiliar, sin forzar nunca, en toda orden que deja la tarea sin su subagente: cerrar (también la C), a-testing, probada, descartar, eliminar, revertir, limpiar, reabrir y, en las tareas absorbidas, fusionar; la que queda conserva el suyo. Un worktree con cambios sin commit, o una rama auxiliar con commits que no entraron, se quedan y se avisa. Al reabrir, en cambio, se limpia todo lo que quedara del subagente anterior, también con cambios sin commit, sin avisar: un worktree viejo no se reutiliza nunca y el nuevo sale limpio de la rama nueva (el propietario: «no avises, mejor limpia»). Claude solo detiene el subagente.
+- **Consecuencias:** el aviso del panel tras una C o un descarte pide solo detener el subagente. split y restaurar no recogen.
+- **Aplicada en:** `plugins/sf/tools/cola.py`, `plugins/sf/hooks/avisos.ts` y sus pruebas (246); `sf:flujo_tareas` y `sf:orquestacion`, en la misma tarea.

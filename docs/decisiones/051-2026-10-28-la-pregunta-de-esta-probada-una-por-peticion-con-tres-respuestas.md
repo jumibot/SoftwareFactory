@@ -1,0 +1,6 @@
+# La pregunta de «¿está probada?»: una por petición, con tres respuestas
+
+- **Origen:** SoftwareFactory, 2026-10-28. Ante un menú con «Las pruebo luego», «49, 50 y 52, probadas» y «Todas probadas», el propietario: «Este menu es confuso lo podemos tunear para la próxima?». A la propuesta de Claude: «No prefiero una lista con cada tarea y tres checks: probada, pendiente, probar ahora».
+- **Contexto:** el menú daba números sin decir qué era cada petición, mezclaba varias peticiones en una misma respuesta y sus descripciones se cortaban.
+- **Decisión:** la pregunta es una lista con una entrada por petición, con su número, su título y qué mirar, y tres respuestas en cada una: Probada (sale de Sin probar), Pendiente (queda en Sin probar) y Probar ahora (Claude dice qué mirar y espera el resultado, sin abrir otra petición ni preguntar por la siguiente; el propietario: «si te digo a una probar ahora, no me intentes abrir otra tarea...»). Con la herramienta de preguntas, es una pregunta por petición, cuatro como mucho en cada vez. Las respuestas van sin descripción, porque se explican solas (el propietario: «lo quiero compacto. Fuera explicaciones de cosas obvias...»).
+- **Aplicada en:** metodología (2) y skill `sf:metodologia`; plantilla `templates/claude-sf.md`; plugin `sf` 0.29.6.

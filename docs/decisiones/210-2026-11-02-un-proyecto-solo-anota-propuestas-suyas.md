@@ -1,0 +1,7 @@
+# Un proyecto solo anota propuestas suyas
+
+- **Origen:** SoftwareFactory, 2026-11-02. En una sesión de sprite_animation, el propietario corrigió cómo habla la SF y Claude lo anotó en `docs/propuestas.md` de sprite_animation, «porque la SF manda que toda mejora suya que se detecte en un proyecto vaya a docs/propuestas.md de ese proyecto». El propietario: «En los proyectos NO se proponen propuestas que no sean del proyecto de la sesión en curso».
+- **Contexto:** «Sin registro ni mejoras de la SF desde otros proyectos» (194) quitó el registro común y mandó convertir las mejoras de la SF detectadas en un proyecto en propuestas de ese proyecto. Así, las propuestas de cada proyecto se llenan de cosas que no son suyas, que repiten lo que el propietario ya lleva a la SF y que nadie del proyecto va a hacer.
+- **Decisión:** en un proyecto solo se anotan propuestas de ese proyecto. Lo que es de la SF (el plugin, sus skills, el panel, sus reglas o su forma de hablar) no se anota en el proyecto, ni en su cola ni en sus propuestas: Claude dice en una línea que es de la SF, y llevarlo a la SF es cosa del propietario, en una sesión de la SF.
+- **Consecuencias:** corrige el punto 2 de la 194. Hay que quitar de las skills (`sf:orquestacion`, regla 2 de «Con cada mensaje»; `sf:metodologia`; `sf:incorporar_proyecto_a_sf` y las demás), de la plantilla, del CLAUDE.md y de los documentos todo lo que mande o sugiera anotar en un proyecto mejoras de la SF. En la propia SF todo es del proyecto, así que allí no cambia nada.
+- **Aplicada en:** pendiente.

@@ -1,0 +1,8 @@
+# La carpeta `.sf/` identifica el proyecto y guarda su estado
+
+- **Origen:** SoftwareFactory, 2026-10-27. El propietario preguntó «qué opinas de que el estado de un proyecto esté en docs/sf.json», propuso «o en una carpeta de sf en la raíz del proyecto por si necesitamos guardar más» y aprobó: «sí, adelante con .sf/».
+- **Contexto:** `docs/sf.json` mezclaba la identidad del proyecto con su estado vivo, que también tendrá JKanban; dependía de que Claude lo actualizara, ensuciaba el historial de git y no es documentación. Seguía abierta la idea de una carpeta `sf-status`.
+- **Opciones:** dejar `docs/sf.json`; un archivo `.sf.json` en la raíz; una carpeta en la raíz con espacio para crecer.
+- **Decisión:** carpeta `.sf/` en la raíz de cada proyecto. `proyecto.json`, versionado, dice que el proyecto está bajo la SF (nombre, versión de la SF, proyecto en el kanban). `estado.json`, fuera de git, guarda el estado en el método. El estado tiene una sola fuente: hasta que JKanban esté incorporado, `estado.json`; después, el kanban, y `estado.json` queda como copia sin conexión. Sustituye en parte a «Estado del proyecto en `docs/sf.json` y mod de estado» y cierra la propuesta «Dónde vive el estado de cada proyecto».
+- **Consecuencias:** el mod lee `.sf/` y sigue leyendo `docs/sf.json` con un aviso para moverlo. La carpeta admite más archivos de la SF. Falta que el mod lea de JKanban cuando esté incorporado.
+- **Aplicada en:** metodología (2 y 6) y skill `sf:metodologia`; especificación (2); mod de estado y `plugins/sf/README.md` (plugin `sf` 0.7.0); `docs/como-funciona-la-software-factory.md`, que además gana los apartados «Mod de estado» y «Flujo de mejora de la SF» y títulos más formales; JKanban (`.sf/`, sin commit).

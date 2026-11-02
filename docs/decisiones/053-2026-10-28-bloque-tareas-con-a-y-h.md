@@ -1,0 +1,7 @@
+# Bloque TAREAS con A y H
+
+- **Sustituida en parte** por «La letra es el estado: A, H, T y C; Sin probar pasa a Testing» (2026-10-28): la letra ya no es solo el origen, y Sin probar se llama Testing.
+- **Origen:** SoftwareFactory, 2026-10-28. El propietario: «La clasificacion de sesión y proyecto no funciona muy bien para las tareas ya que las pendientes pasan entre sesiones. Propongo que en lugar de sesion sea TAREAS…». Al análisis de Claude: «H es de histórico, entonces en lugar de S mejor A de actual y si una H nunca cambiará a A. 2 ok. 3 ok».
+- **Contexto:** la cola vive en `.sf/peticiones.json` y pasa de una sesión a otra; el rótulo SESIÓN daba a entender lo contrario, y Sin probar, que también es una lista de tareas, quedaba en PROYECTO.
+- **Decisión:** el bloque SESIÓN pasa a llamarse TAREAS y reúne, en el orden del ciclo de una tarea, Pendientes (con las en curso arriba), Sin probar y Cerradas. Cada tarea lleva delante una letra atenuada: A (actual) si entró en la cola en esta sesión y H (histórico) si ya estaba al abrirla; una H nunca pasa a A. La letra va pegada al número con un guion, «A-57» (el propietario: «letra y guión despues»). Cerradas sigue listando lo cerrado en esta sesión, con su letra. PROYECTO queda con Fases, Pendientes del estado, Propuestas por decidir y Documentos; con JKanban, también Planificadas. Cómo pasa una planificada a la cola queda por hablar.
+- **Aplicada en:** mod de estado; especificación; `docs/como-funciona-la-software-factory.md`; plugin `sf` 0.29.9.

@@ -1,0 +1,28 @@
+{
+  "nombre": "Morado",
+  "descripcion": "Moderno y sereno: morado con acento ámbar; cabecera blanca, etiquetas de bloque suaves con marcador circular, esquinas redondeadas; DM Sans, Space Grotesk y Source Serif 4. Tema por defecto.",
+  "colores": {
+    "primario": "#7b2cbf",
+    "oscuro": "#4c1d80",
+    "primario-vivo": "#9d5ce0",
+    "fondo": "#f8f5ff",
+    "borde": "#e4d7f5",
+    "linea": "#ece4f7",
+    "fondo-medio": "#e6dcf4",
+    "fondo-suave": "#fbf9fe",
+    "tenue": "#c4b5d9",
+    "pagina": "#faf8fd",
+    "texto": "#2b2b2f",
+    "texto-suave": "#6b7280",
+    "texto-tenue": "#9ca3af",
+    "acento": "#b45309",
+    "acento-fondo": "#fff7ed",
+    "acento-borde": "#fcd9b6"
+  },
+  "tipografias": {
+    "texto": "'DM Sans', Arial, sans-serif",
+    "titulos": "'Space Grotesk', 'DM Sans', sans-serif",
+    "escena": "'Source Serif 4', Georgia, serif",
+    "url": "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap"
+  }
+}

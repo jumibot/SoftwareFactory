@@ -1,0 +1,899 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equipo de ejemplo 3D</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<!--
+  Plantilla genérica de infografía técnica (skill infografia_tecnica de la Software Factory).
+  El producto es un ejemplo neutro: sustituir CFG, MODES, PARTS, la geometría y los textos por los del proyecto.
+  Pruebas: ?test&mode=marcha&explode=60&cut=1&sel=placa&lang=en fija un estado y escribe una foto en body[data-snap].
+-->
+<style>
+:root{
+  --bg:#eef1f5; --ink:#1b2430; --muted:#5d6878;
+  --stage-a:#15243a; --stage-b:#060b14;
+  --hud:#6ff3ff; --hud-dim:rgba(111,243,255,.42); --hud-glass:rgba(8,26,40,.62); --hud-ink:#dafcff;
+  --body:"IBM Plex Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --barH:96px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0d1118;--ink:#e6edf5;--muted:#9aa6b6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1118;--ink:#e6edf5;--muted:#9aa6b6;color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body);padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));overflow:hidden}
+.wrap{height:100%;display:flex;flex-direction:column}
+/* El escenario es siempre oscuro, aunque la página esté en tema claro */
+#view{position:relative;flex:1;min-height:260px;border-radius:18px;overflow:hidden;touch-action:none;background:radial-gradient(120% 90% at 50% 35%,var(--stage-a),var(--stage-b))}
+#view canvas{display:block;width:100%;height:100%;outline:none}
+.grid{position:absolute;inset:0;pointer-events:none;z-index:1;background:
+  linear-gradient(rgba(111,243,255,.05) 1px,transparent 1px) 0 0/40px 40px,
+  linear-gradient(90deg,rgba(111,243,255,.05) 1px,transparent 1px) 0 0/40px 40px}
+.grid::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(111,243,255,.03) 0 1px,transparent 1px 3px)}
+.grid::before{content:"";position:absolute;left:0;right:0;height:120px;top:-120px;background:linear-gradient(transparent,rgba(111,243,255,.06),transparent);animation:scan 9s linear infinite}
+@keyframes scan{to{top:100%}}
+@media (prefers-reduced-motion:reduce){.grid::before{animation:none;display:none}}
+.hud{color:var(--hud-ink)}
+.glass{background:var(--hud-glass);border:1px solid var(--hud-dim);border-radius:10px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 0 18px rgba(111,243,255,.12)}
+
+/* Etiquetas y líneas guía: elementos fijos que solo se mueven con transformaciones */
+#leaders{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+#leaders polyline{fill:none;stroke:var(--hud);stroke-width:1;opacity:.75}
+#leaders circle{fill:var(--hud)}
+#tags{position:absolute;inset:0;pointer-events:none;z-index:3}
+.tag{position:absolute;left:0;top:0;pointer-events:auto;display:flex;align-items:center;gap:7px;border:0;background:none;padding:0;cursor:pointer;color:var(--hud-ink);font:500 10.5px/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;will-change:transform}
+.tag.l{flex-direction:row-reverse}
+.tag .no{width:22px;height:22px;flex:none;border-radius:50%;display:grid;place-items:center;background:rgba(8,26,40,.75);color:var(--hud);border:1.5px solid var(--hud);font:600 10px/1 var(--mono);box-shadow:0 0 10px rgba(111,243,255,.5)}
+.tag .nm{background:var(--hud-glass);border:1px solid var(--hud-dim);padding:5px 9px;border-radius:3px;white-space:nowrap;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.tag.on .no{background:var(--hud);color:#04121b;box-shadow:0 0 16px var(--hud)}
+.tag.on .nm{border-color:var(--hud);background:rgba(111,243,255,.16);color:#fff}
+.tag:focus-visible{outline:none}
+.tag:focus-visible .no{outline:2px solid #fff;outline-offset:2px}
+#view.phone .tag:not(.on) .nm{display:none}
+
+/* Título y estado, arriba a la izquierda */
+.scenetitle{position:absolute;left:16px;top:14px;z-index:4;max-width:min(380px,calc(100% - 240px));padding:12px 14px}
+.st-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.scenetitle h1{margin:0;font:600 19px/1.15 var(--body);letter-spacing:.01em;color:#fff}
+.st-mode{margin:6px 0 0;font:600 11px/1.3 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--hud)}
+.st-text{margin:4px 0 0;font-size:13px;line-height:1.45;color:var(--hud-ink);opacity:.9}
+.lang{display:flex;gap:6px}
+.lang button{width:24px;height:16px;padding:0;border:1px solid var(--hud-dim);border-radius:2px;background:none;cursor:pointer;opacity:.55;overflow:hidden}
+.lang button[aria-pressed="true"]{opacity:1;border-color:var(--hud)}
+.lang svg{display:block;width:100%;height:100%}
+@media (max-height:620px){.st-text{display:none}}
+#view.phone .st-text{display:none}
+
+/* Capas: columna de ojos bajo el título (el script fija su top) */
+.layers{position:absolute;z-index:4;top:150px;left:18px;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.ly{display:inline-flex;align-items:center;gap:7px;border:0;background:none;color:#fff;padding:0;cursor:pointer;font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;text-shadow:0 0 4px rgba(0,0,0,.95),0 0 12px rgba(111,243,255,.35)}
+.ly svg{width:30px;height:30px;padding:6px;border-radius:50%;border:1.5px solid var(--hud);background:rgba(111,243,255,.18);box-shadow:0 0 10px rgba(111,243,255,.3);fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ly .off{display:none}
+.ly[aria-pressed="false"]{color:var(--hud-dim);text-decoration:line-through}
+.ly[aria-pressed="false"] svg{border-color:var(--hud-dim);background:rgba(6,18,28,.55);stroke:var(--hud-dim);box-shadow:none}
+.ly[aria-pressed="false"] .on{display:none}
+.ly[aria-pressed="false"] .off{display:inline}
+.ly:hover svg{border-color:#fff}
+.ly:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#view.phone .layers{gap:5px}
+#view.phone .ly svg{width:26px;height:26px;padding:5px}
+
+/* Indicadores arriba a la derecha: batería y medidor de consumo calculado, con su explicación */
+.power{position:absolute;z-index:4;top:14px;right:18px;width:190px;color:var(--hud-ink);text-align:center;pointer-events:none;text-shadow:0 0 4px rgba(0,0,0,.95)}
+.pw-lbl{font:500 10px/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--hud-dim);margin-top:4px}
+.bat{margin:0 0 12px}
+.bat-row{display:flex;align-items:center;justify-content:center;gap:9px}
+.bat-cell{position:relative;width:104px;height:16px;border:1.5px solid var(--hud-dim);border-radius:4px;padding:2px}
+.bat-cell::after{content:"";position:absolute;right:-5px;top:3.5px;width:3px;height:6px;background:var(--hud-dim);border-radius:0 2px 2px 0}
+.bat-cell i{display:block;height:100%;width:0;border-radius:2px;background:var(--hud);box-shadow:0 0 8px var(--hud);transition:width .6s ease}
+.bat-row b{font:600 19px/1 var(--body);color:#fff;font-variant-numeric:tabular-nums;min-width:52px;text-align:left}
+.bat-wh{font:500 11px/1.3 var(--mono);color:var(--hud);margin-top:2px}
+.power svg{width:100%;height:auto;display:block;overflow:visible}
+.pw-track{fill:none;stroke:var(--hud-dim);stroke-width:7;stroke-linecap:round;opacity:.45}
+.pw-val{fill:none;stroke:var(--hud);stroke-width:7;stroke-linecap:round}
+.pw-tick{stroke:var(--hud-dim);stroke-width:1.2}
+.pw-tl{fill:var(--hud-dim);font:500 9px/1 var(--mono)}
+.pw-needle{stroke:#fff;stroke-width:2;stroke-linecap:round}
+.pw-num{font:600 26px/1 var(--body);color:#fff;margin-top:2px;font-variant-numeric:tabular-nums}
+.pw-num small{font:500 12px/1 var(--mono);color:var(--hud);margin-left:3px}
+.pw-auto{font:500 11px/1.3 var(--mono);color:var(--hud);margin-top:2px}
+.pw-info{position:absolute;bottom:22px;right:4px;width:24px;height:24px;border-radius:50%;border:1px solid var(--hud);background:rgba(6,18,30,.7);color:var(--hud);font:italic 700 13px/1 var(--body);cursor:pointer;pointer-events:auto;box-shadow:0 0 10px rgba(111,243,255,.35)}
+.pw-info:hover,.pw-info:focus-visible{background:var(--hud);color:#04121b;outline:none}
+#view.phone .power{width:130px;top:10px;right:10px}
+#view.phone .pw-num{font-size:19px;margin-top:0}
+#view.phone .bat{margin:0 0 6px}
+#view.phone .bat-cell{width:76px}
+#view.phone .bat-row b{font-size:15px;min-width:40px}
+#view.phone .pw-info{bottom:16px;right:0}
+
+/* Controles sueltos abajo: modos y despiece a la izquierda; interruptores en columna a la derecha */
+.hudbar{position:absolute;left:18px;right:18px;bottom:16px;z-index:4;display:flex;flex-wrap:nowrap;align-items:flex-end;justify-content:space-between;gap:18px;pointer-events:none;text-shadow:0 0 4px rgba(0,0,0,.95),0 0 12px rgba(111,243,255,.35)}
+.hudbar>*{pointer-events:auto}
+.ctl-left{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
+.ctl-right{display:flex;align-items:flex-end;gap:16px}
+/* Modos como trayecto con nodos y tramo iluminado */
+.journey{position:relative;display:flex;gap:30px;padding:0 4px}
+.j-line{position:absolute;left:38px;right:38px;top:11px;height:2px;background:var(--hud-dim)}
+.j-line i{display:block;height:100%;width:0;background:var(--hud);box-shadow:0 0 8px var(--hud);transition:width .6s ease}
+.journey button{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;border:0;background:none;padding:0;cursor:pointer;color:var(--hud-dim);font:500 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;min-width:76px}
+.j-node{width:22px;height:22px;border-radius:50%;border:2px solid var(--hud-dim);background:#06121c;transition:all .3s}
+.journey button.done .j-node{border-color:var(--hud);background:rgba(111,243,255,.35)}
+.journey button[aria-pressed="true"]{color:#fff}
+.journey button[aria-pressed="true"] .j-node{border-color:var(--hud);background:var(--hud);box-shadow:0 0 0 4px rgba(111,243,255,.18),0 0 14px var(--hud)}
+.journey button:hover{color:var(--hud-ink)}
+/* Despiece como medidor con marcas, rombo y porcentaje */
+.gauge{display:flex;align-items:center;gap:12px;font:500 12px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--hud-ink)}
+.gauge .g-lbl{min-width:120px}
+.gauge input[type=range]{-webkit-appearance:none;appearance:none;width:220px;height:18px;cursor:pointer;background:
+  repeating-linear-gradient(90deg,var(--hud-dim) 0 1px,transparent 1px 10%) 0 50%/100% 8px no-repeat,
+  linear-gradient(var(--hud-dim),var(--hud-dim)) 0 50%/100% 1px no-repeat}
+.gauge input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;background:var(--hud);transform:rotate(45deg);box-shadow:0 0 10px var(--hud);border:0}
+.gauge input[type=range]::-moz-range-thumb{width:12px;height:12px;background:var(--hud);transform:rotate(45deg);box-shadow:0 0 10px var(--hud);border:0;border-radius:0}
+.gauge output{font-size:13px;min-width:42px;color:var(--hud);font-variant-numeric:tabular-nums}
+/* Conmutadores como interruptores redondos con icono y piloto */
+.switches{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.sw{display:inline-flex;flex-direction:row-reverse;align-items:center;gap:10px;border:0;background:none;color:var(--hud-ink);padding:0;cursor:pointer;font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.sw svg{width:40px;height:40px;padding:9px;border-radius:50%;border:1.5px solid var(--hud-dim);background:rgba(6,18,28,.55);box-shadow:0 0 10px rgba(111,243,255,.25);fill:none;stroke:var(--hud-ink);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sw::after{content:"";order:-1;width:6px;height:6px;border-radius:50%;background:#20313d}
+.sw[aria-pressed="true"]{color:#fff}
+.sw[aria-pressed="true"] svg{background:var(--hud);stroke:#04121b;border-color:var(--hud)}
+.sw[aria-pressed="true"]::after{background:var(--hud);box-shadow:0 0 8px var(--hud)}
+.sw:hover svg{border-color:var(--hud)}
+.journey button:focus-visible,.sw:focus-visible,.gauge input:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#view.narrow .sw span{display:none}
+#view.phone .hudbar{left:12px;right:12px;bottom:12px;flex-direction:column;align-items:stretch;gap:10px}
+#view.phone .ctl-right{justify-content:flex-end}
+#view.phone .switches{flex-direction:row;gap:6px}
+#view.phone .sw svg{width:34px;height:34px;padding:7px}
+#view.phone .journey{gap:12px}
+#view.phone .journey button{min-width:56px;font-size:10.5px}
+#view.phone .gauge .g-lbl{min-width:88px}
+#view.phone .gauge input[type=range]{width:120px}
+#view.phone .scenetitle{left:10px;top:10px;max-width:calc(100% - 160px);padding:8px 10px}
+#view.phone .scenetitle h1{font-size:16px}
+
+/* Detalle de la pieza (y explicación del medidor) en un HUD central; el fondo se difumina */
+#view.veiled canvas,#view.veiled #tags,#view.veiled #leaders,#view.veiled .scenetitle,#view.veiled .layers,#view.veiled .power,#view.veiled .hudbar{filter:blur(3px) brightness(.6)}
+.infoveil{position:absolute;inset:0;z-index:6;display:grid;place-items:center;padding:16px}
+.info{position:relative;width:min(560px,100%);max-height:calc(100% - 16px);overflow-x:hidden;overflow-y:auto;padding:20px 22px;border-radius:16px;font-size:15.5px;line-height:1.55;color:var(--hud-ink);scrollbar-width:thin;scrollbar-color:var(--hud-dim) transparent}
+.info h2{margin:0 36px 2px 0;font:600 20px/1.2 var(--body);color:#fff}
+.info .kicker{font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--hud)}
+.info h3{margin:14px 0 3px;font:600 11px/1.2 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--hud)}
+.info p{margin:0}
+.info table{width:100%;border-collapse:collapse;font:400 13px/1.4 var(--mono);margin-top:6px}
+.info td,.info th{padding:5px 6px;border-bottom:1px solid rgba(111,243,255,.18);text-align:left;vertical-align:top}
+.info td.n{text-align:right;white-space:nowrap}
+.info .close{position:absolute;right:12px;top:12px;width:30px;height:30px;border-radius:50%;border:1px solid var(--hud-dim);background:none;color:#fff;font-size:18px;line-height:1;cursor:pointer}
+.err{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:7;max-width:min(440px,90%);padding:14px 16px;border-radius:10px;background:rgba(40,8,8,.85);border:1px solid #ff8a8a;color:#ffe1e1;font-size:14px;text-align:center}
+.err.wait{background:rgba(8,26,40,.85);border-color:var(--hud-dim);color:var(--hud-ink)}
+.toast{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-top:8px;padding-top:7px;border-top:1px solid var(--hud-dim);font:400 11.5px/1.3 var(--mono);color:#ffd9a0}
+.toast button{border:0;background:none;color:#fff;font-size:16px;line-height:1;cursor:pointer;padding:0 2px}
+</style>
+
+<div class="wrap">
+  <div id="view" data-mode="reposo" aria-label="Modelo 3D del equipo">
+    <div class="grid" aria-hidden="true"></div>
+    <noscript><div class="err">Esta vista previa no ejecuta JavaScript. Abre el archivo en Safari, Chrome u otro navegador para ver el modelo 3D.</div></noscript>
+    <svg id="leaders" aria-hidden="true"></svg>
+    <div id="tags"></div>
+
+    <div class="scenetitle glass hud" aria-live="polite">
+      <div class="st-head">
+        <h1 id="st-title">Equipo de ejemplo</h1>
+        <div class="lang" role="group" aria-label="Idioma">
+          <button type="button" data-lang="es" title="Español" aria-label="Español"><svg viewBox="0 0 3 2" aria-hidden="true"><rect width="3" height="2" fill="#c60b1e"/><rect y=".5" width="3" height="1" fill="#ffc400"/></svg></button>
+          <button type="button" data-lang="en" title="English" aria-label="English"><svg viewBox="0 0 60 30" aria-hidden="true"><rect width="60" height="30" fill="#012169"/><path d="M0 0L60 30M60 0L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0L60 30M60 0L0 30" stroke="#C8102E" stroke-width="2"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#C8102E" stroke-width="6"/></svg></button>
+        </div>
+      </div>
+      <p class="st-mode" id="st-mode">Reposo</p>
+      <p class="st-text" id="st-text"></p>
+      <div class="toast" id="toast" role="status" hidden><span>Automatic translation, not reviewed yet.</span><button type="button" aria-label="Close">×</button></div>
+    </div>
+    <div class="layers" id="layers" role="group" aria-label="Capas visibles"></div>
+
+    <div class="power" id="power" aria-live="polite">
+      <button type="button" class="pw-info" id="pw-info" aria-label="Cómo se calcula el consumo" title="Cómo se calcula el consumo">i</button>
+      <div class="bat">
+        <div class="bat-row"><span class="bat-cell"><i id="bat-fill"></i></span><b id="bat-pc"></b></div>
+        <div class="pw-lbl">Batería</div>
+        <div class="bat-wh" id="bat-wh"></div>
+      </div>
+      <svg viewBox="0 0 180 104" aria-hidden="true">
+        <path class="pw-track" d="M20 92 A70 70 0 0 1 160 92"/>
+        <path class="pw-val" id="pw-arc" d="M20 92 A70 70 0 0 1 160 92" pathLength="100" stroke-dasharray="0 100"/>
+        <g id="pw-ticks"></g>
+        <line class="pw-needle" id="pw-needle" x1="90" y1="92" x2="90" y2="34"/>
+        <circle cx="90" cy="92" r="4" fill="#fff"/>
+      </svg>
+      <div class="pw-num"><span id="pw-w">0</span><small id="pw-u">mW</small></div>
+      <div class="pw-lbl">Consumo</div>
+      <div class="pw-auto" id="pw-auto"></div>
+    </div>
+
+    <div class="hudbar hud" id="hudbar">
+      <div class="ctl-left">
+        <div class="journey" id="journey" role="group" aria-label="Modo de funcionamiento"><span class="j-line" aria-hidden="true"><i id="j-fill"></i></span></div>
+        <label class="gauge" for="explode"><span class="g-lbl">Despiece</span><input type="range" id="explode" min="0" max="100" step="1" value="0"><output id="explode-v" for="explode">0 %</output></label>
+      </div>
+      <div class="ctl-right">
+        <div class="switches">
+          <button type="button" class="sw" id="cut" aria-pressed="false" title="Corte"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="6" width="16" height="12" rx="2"/><path d="M12 3v18" stroke-dasharray="2 2"/></svg><span>Corte</span></button>
+          <button type="button" class="sw" id="labels" aria-pressed="true" title="Etiquetas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="2.5"/><path d="M8.5 12h6l3-4"/><circle cx="19" cy="7" r="1.5"/></svg><span>Etiquetas</span></button>
+        </div>
+      </div>
+    </div>
+
+    <div class="infoveil" id="infoveil" hidden>
+      <div class="info glass" id="info" role="dialog" aria-modal="true" aria-labelledby="info-h">
+        <button type="button" class="close" id="info-x" aria-label="Cerrar">×</button>
+        <div id="info-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// aviso visible si la escena 3D no arranca o falla (útil en móviles)
+(function(){
+  function show(msg, wait){ var v=document.getElementById('view'); if(!v||v.querySelector('.err:not(.wait)'))return; var old=v.querySelector('.err.wait'); if(old)old.remove(); var d=document.createElement('div'); d.className='err'+(wait?' wait':''); d.textContent=msg; v.appendChild(d); }
+  window.__sceneError = show;
+  window.addEventListener('error', function(e){ show('No se ha podido mostrar el modelo 3D: ' + (e.message || 'error al cargar')); });
+  window.addEventListener('unhandledrejection', function(e){ show('No se ha podido mostrar el modelo 3D: ' + ((e.reason && e.reason.message) || 'error al cargar')); });
+  setTimeout(function(){ if(!window.__sceneReady) show('Cargando el modelo 3D… si no aparece, comprueba la conexión y recarga la página.', true); }, 15000);
+})();
+</script>
+<!-- respaldo para Safari < 16.4 y otros navegadores sin import maps -->
+<script async src="https://cdn.jsdelivr.net/npm/es-module-shims@1.10.0/dist/es-module-shims.js"></script>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+import {RoomEnvironment} from 'three/addons/environments/RoomEnvironment.js';
+import {RoundedBoxGeometry} from 'three/addons/geometries/RoundedBoxGeometry.js';
+import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
+import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
+import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
+import {OutlinePass} from 'three/addons/postprocessing/OutlinePass.js';
+import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
+
+// ---------- idioma: diccionario (texto original → traducción), tr(), deepTr() y trDom() ----------
+const Q = new URLSearchParams(location.search);
+const TEST = Q.has('test');
+const LANGS = ['es', 'en'];
+const LANG = (() => {
+  const h = (location.hash.match(/lang=(\w+)/) || [])[1] || Q.get('lang');
+  let s = null; try { s = localStorage.getItem('infografia.lang'); } catch (e) {}
+  const l = h || s || 'es'; return LANGS.includes(l) ? l : 'es';
+})();
+const EN = {
+  "Equipo de ejemplo": "Example device", "Equipo de ejemplo 3D": "Example device 3D", "Modelo 3D del equipo": "3D model of the device",
+  "Idioma": "Language", "Capas visibles": "Visible layers", "Modo de funcionamiento": "Operating mode",
+  "Despiece": "Exploded view", "Consumo": "Power draw", "Cómo se calcula el consumo": "How the power draw is calculated",
+  "Corte": "Section", "Etiquetas": "Labels", "Cerrar": "Close",
+  "Reposo": "Standby", "En marcha": "Running",
+  "La placa duerme y el ventilador está parado: solo se mantiene el reloj.": "The board sleeps and the fan is stopped: only the clock keeps running.",
+  "La placa trabaja y el ventilador lleva el aire de la rejilla de entrada a la salida.": "The board is working and the fan moves air from the intake grille to the outlet.",
+  "Tapa": "Lid", "Interior": "Interior", "Carcasa": "Housing", "Base": "Base",
+  "Pantalla": "Display", "Placa principal": "Main board", "Batería": "Battery", "Ventilador": "Fan",
+  "Entrada de aire": "Air intake", "Salida de aire": "Air outlet", "Conector USB-C": "USB-C connector",
+  "Qué hace": "What it does", "Datos técnicos": "Technical data", "Cómo encaja en el sistema": "How it fits the system", "Pendiente de validar": "To be validated",
+  "Pieza": "Part",
+  "Cierra la carcasa por arriba y sostiene la pantalla.": "Closes the housing from above and holds the display.",
+  "PETG impreso, 162 × 102 × 6 mm.": "Printed PETG, 162 × 102 × 6 mm.",
+  "Apoya en el borde de la carcasa y se fija con cuatro tornillos M3.": "Rests on the housing rim and is fixed with four M3 screws.",
+  "Material y fijación definitivos.": "Final material and fastening.",
+  "Muestra el modo, la temperatura interior y el giro del ventilador.": "Shows the mode, the internal temperature and the fan speed.",
+  "de": "of", "batería para": "battery for",
+  "OLED de 1,3 pulgadas, 128 × 64 píxeles.": "1.3-inch OLED, 128 × 64 pixels.",
+  "La placa principal la alimenta y le manda los datos por I²C.": "The main board powers it and sends it data over I²C.",
+  "Legibilidad con luz solar.": "Readability in sunlight.",
+  "Controla el equipo: lee la batería, decide el modo y gobierna el ventilador.": "Controls the device: reads the battery, sets the mode and drives the fan.",
+  "Placa de 122 × 80 mm con microcontrolador y regulador.": "122 × 80 mm board with microcontroller and regulator.",
+  "Va sobre cuatro separadores de 6 mm atornillados a la carcasa.": "Sits on four 6 mm standoffs screwed to the housing.",
+  "Consumo real de la placa en marcha.": "Actual board power draw while running.",
+  "Guarda la energía para trabajar sin cable.": "Stores the energy to work without a cable.",
+  "Li-ion 2S, 50 Wh (ejemplo).": "Li-ion 2S, 50 Wh (example).",
+  "Se carga por el conector USB-C a través de la placa principal.": "Charged through the USB-C connector via the main board.",
+  "Capacidad útil y temperatura de trabajo.": "Usable capacity and operating temperature.",
+  "Hace pasar el aire por el interior para sacar el calor de la placa.": "Moves air through the interior to remove heat from the board.",
+  "Ventilador 4010 de 5 V, 40 × 40 × 10 mm.": "5 V 4010 fan, 40 × 40 × 10 mm.",
+  "Va detrás de la entrada de aire; la placa lo enciende en marcha.": "Sits behind the air intake; the board switches it on while running.",
+  "Ruido a plena velocidad.": "Noise at full speed.",
+  "Deja entrar el aire frío hacia el ventilador.": "Lets cool air in towards the fan.",
+  "Lamas en la pared derecha, con 3 mm de paso.": "Slats on the right wall, 3 mm pitch.",
+  "Frente al ventilador, a su misma altura.": "In front of the fan, at the same height.",
+  "Filtro contra el polvo.": "Dust filter.",
+  "Deja salir el aire caliente.": "Lets the warm air out.",
+  "Enrejado fijo en la pared izquierda.": "Fixed grid on the left wall.",
+  "En el lado opuesto a la entrada, para que el aire cruce toda la placa.": "On the side opposite the intake, so the air crosses the whole board.",
+  "Que no entre agua por arriba.": "No water ingress from above.",
+  "Protege el interior y sostiene las rejillas y el conector.": "Protects the interior and holds the grilles and the connector.",
+  "PETG impreso, 160 × 100 × 58 mm, paredes de 4 mm.": "Printed PETG, 160 × 100 × 58 mm, 4 mm walls.",
+  "Se atornilla a la base; la tapa cierra por arriba.": "Screwed to the base; the lid closes it from above.",
+  "Resistencia a caídas.": "Drop resistance.",
+  "Carga la batería y conecta el equipo a un ordenador.": "Charges the battery and connects the device to a computer.",
+  "USB-C hembra, 5 V y 3 A.": "Female USB-C, 5 V and 3 A.",
+  "Soldado a la placa principal, asoma por el frontal.": "Soldered to the main board, it shows through the front.",
+  "Hermeticidad del hueco.": "Sealing of the opening.",
+  "Cierra el equipo por abajo y le da estabilidad.": "Closes the device from below and gives it stability.",
+  "Placa de 160 × 100 × 10 mm con cuatro patas de goma.": "160 × 100 × 10 mm plate with four rubber feet.",
+  "La carcasa se atornilla sobre ella.": "The housing is screwed onto it.",
+  "Peso final del conjunto.": "Final weight of the assembly.",
+  "Balance de consumo": "Power budget", "Componente": "Component", "Estado": "Status", "Total ahora": "Total now",
+  "objetivo": "target", "hipótesis": "assumption", "ilustrativo": "illustrative",
+  "Reposo de la placa": "Board standby", "Placa en marcha": "Board running",
+  "Energía disponible": "Available energy", "Autonomía con este consumo": "Runtime at this draw",
+  "La autonomía es la energía disponible dividida entre el consumo de este momento.": "Runtime is the available energy divided by the current power draw.",
+  "con": "with", "Modelo 3D. Arrastra para girar.": "3D model. Drag to rotate.",
+  "Automatic translation, not reviewed yet.": "Automatic translation, not reviewed yet.",
+};
+const tr = s => LANG === 'en' && typeof s === 'string' ? (EN[s] ?? s) : s;
+function deepTr(o) { if (LANG === 'es' || !o) return o; for (const k in o) { const v = o[k]; if (k === 'id' || k === 'g') continue; if (typeof v === 'string') o[k] = tr(v); else if (v && typeof v === 'object') deepTr(v); } return o; }
+function trDom(root) {
+  if (LANG === 'es') return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), ns = [];
+  while (w.nextNode()) ns.push(w.currentNode);
+  for (const n of ns) { const t = n.nodeValue.trim(); if (t && EN[t]) n.nodeValue = n.nodeValue.replace(t, EN[t]); }
+  root.querySelectorAll('[aria-label],[title]').forEach(e => { for (const a of ['aria-label', 'title']) { const v = e.getAttribute(a); if (v && EN[v]) e.setAttribute(a, EN[v]); } });
+  document.documentElement.lang = LANG; document.title = tr(document.title);
+}
+
+// ---------- configuración: cifras del proyecto, con su estado ----------
+const CFG = {
+  envolvente: {estado: 'ilustrativo', largo: 160, fondo: 100, alto: 58, pared: 4},
+  bateria:    {estado: 'hipótesis', wh: 50, carga: 0.82},
+  energia:    {estado: 'hipótesis', reposo: 0.12, placa: 2.4, ventilador: 1.1},   // W
+  ventilador: {estado: 'objetivo', rpm: 6000},
+  temperatura: {estado: 'ilustrativo', reposo: 24, marcha: 36},   // °C en el interior
+  flujo:      {segundos: 14, flechas: 96},   // cada flecha tarda 14 s en recorrer su camino
+};
+const MODES = deepTr({
+  reposo: {n: 'Reposo', t: 'La placa duerme y el ventilador está parado: solo se mantiene el reloj.', run: 0, fan: 0, luz: {c: 0xd6e4ff, i: 2.3, exp: 0.9}},
+  marcha: {n: 'En marcha', t: 'La placa trabaja y el ventilador lleva el aire de la rejilla de entrada a la salida.', run: 1, fan: 1, luz: {c: 0xfff0dc, i: 2.7, exp: 0.98}},
+});
+// Cada pieza física, su propio hotspot: f qué hace, d dato técnico, e cómo encaja, p pendiente de validar
+const PARTS = deepTr([
+  {id: 'tapa',  g: 'lid',  n: 'Tapa', f: 'Cierra la carcasa por arriba y sostiene la pantalla.', d: 'PETG impreso, 162 × 102 × 6 mm.', e: 'Apoya en el borde de la carcasa y se fija con cuatro tornillos M3.', p: 'Material y fijación definitivos.'},
+  {id: 'pant',  g: 'lid',  n: 'Pantalla', f: 'Muestra el modo, la temperatura interior y el giro del ventilador.', d: 'OLED de 1,3 pulgadas, 128 × 64 píxeles.', e: 'La placa principal la alimenta y le manda los datos por I²C.', p: 'Legibilidad con luz solar.'},
+  {id: 'placa', g: 'int',  n: 'Placa principal', f: 'Controla el equipo: lee la batería, decide el modo y gobierna el ventilador.', d: 'Placa de 122 × 80 mm con microcontrolador y regulador.', e: 'Va sobre cuatro separadores de 6 mm atornillados a la carcasa.', p: 'Consumo real de la placa en marcha.'},
+  {id: 'bat',   g: 'int',  n: 'Batería', f: 'Guarda la energía para trabajar sin cable.', d: 'Li-ion 2S, 50 Wh (ejemplo).', e: 'Se carga por el conector USB-C a través de la placa principal.', p: 'Capacidad útil y temperatura de trabajo.'},
+  {id: 'vent',  g: 'int',  n: 'Ventilador', f: 'Hace pasar el aire por el interior para sacar el calor de la placa.', d: 'Ventilador 4010 de 5 V, 40 × 40 × 10 mm.', e: 'Va detrás de la entrada de aire; la placa lo enciende en marcha.', p: 'Ruido a plena velocidad.'},
+  {id: 'ent',   g: 'body', n: 'Entrada de aire', f: 'Deja entrar el aire frío hacia el ventilador.', d: 'Lamas en la pared derecha, con 3 mm de paso.', e: 'Frente al ventilador, a su misma altura.', p: 'Filtro contra el polvo.'},
+  {id: 'sal',   g: 'body', n: 'Salida de aire', f: 'Deja salir el aire caliente.', d: 'Enrejado fijo en la pared izquierda.', e: 'En el lado opuesto a la entrada, para que el aire cruce toda la placa.', p: 'Que no entre agua por arriba.'},
+  {id: 'car',   g: 'body', n: 'Carcasa', f: 'Protege el interior y sostiene las rejillas y el conector.', d: 'PETG impreso, 160 × 100 × 58 mm, paredes de 4 mm.', e: 'Se atornilla a la base; la tapa cierra por arriba.', p: 'Resistencia a caídas.'},
+  {id: 'usb',   g: 'body', n: 'Conector USB-C', f: 'Carga la batería y conecta el equipo a un ordenador.', d: 'USB-C hembra, 5 V y 3 A.', e: 'Soldado a la placa principal, asoma por el frontal.', p: 'Hermeticidad del hueco.'},
+  {id: 'base',  g: 'base', n: 'Base', f: 'Cierra el equipo por abajo y le da estabilidad.', d: 'Placa de 160 × 100 × 10 mm con cuatro patas de goma.', e: 'La carcasa se atornilla sobre ella.', p: 'Peso final del conjunto.'},
+]);
+const LAYERS = deepTr([{g: 'lid', n: 'Tapa'}, {g: 'int', n: 'Interior'}, {g: 'body', n: 'Carcasa'}, {g: 'base', n: 'Base'}]);
+
+// ---------- renderer, cámara y luz ----------
+const view = document.getElementById('view');
+trDom(document.body);
+const LITE = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent)) || Math.min(screen.width, screen.height) < 600;
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({stencil: true, antialias: !LITE, powerPreference: LITE ? 'low-power' : 'high-performance'});
+} catch (e) {
+  view.insertAdjacentHTML('beforeend', '<div class="err">Este navegador no puede mostrar el modelo 3D (WebGL no disponible).</div>');
+  throw e;
+}
+renderer.setPixelRatio(Math.min(devicePixelRatio, LITE ? 1.5 : 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.NeutralToneMapping;
+renderer.toneMappingExposure = 0.95;
+renderer.shadowMap.enabled = !LITE;
+renderer.shadowMap.type = THREE.PCFShadowMap;   // r182+: el PCF ya es suave
+renderer.localClippingEnabled = true;
+view.prepend(renderer.domElement);
+renderer.domElement.addEventListener('webglcontextlost', e => { e.preventDefault(); window.__sceneError && window.__sceneError('El dispositivo se ha quedado sin memoria gráfica. Recarga la página.'); });
+renderer.domElement.setAttribute('tabindex', '0');
+renderer.domElement.setAttribute('aria-label', tr('Modelo 3D. Arrastra para girar.'));
+
+const scene = new THREE.Scene();
+scene.background = null;
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.55;
+
+const camera = new THREE.PerspectiveCamera(30, 1, 1, 6000);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.minDistance = 260; controls.maxDistance = 1400;
+controls.target.set(0, 28, 0);
+controls.autoRotate = !reduce; controls.autoRotateSpeed = 0.15;
+let userView = false;   // hasta que el usuario mueve la cámara, el encuadre se ajusta solo
+controls.addEventListener('start', () => { controls.autoRotate = false; userView = true; });
+
+const key = new THREE.DirectionalLight(0xffffff, 2.5);
+key.position.set(200, 380, 240); key.castShadow = !LITE;
+key.shadow.mapSize.set(2048, 2048);
+Object.assign(key.shadow.camera, {left: -300, right: 300, top: 300, bottom: -300, near: 50, far: 1200});
+key.shadow.radius = 6; key.shadow.bias = -0.0004;
+scene.add(key);
+const hemi = new THREE.HemisphereLight(0xffffff, 0xcfd6e4, 0.45); scene.add(hemi);
+
+// sombra: mapa de sombras en escritorio; en móviles, una sombra de contacto falsa
+const ground = LITE
+  ? new THREE.Mesh(new THREE.PlaneGeometry(340, 260), new THREE.MeshBasicMaterial({transparent: true, depthWrite: false, map: (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); const r = g.createRadialGradient(64, 64, 8, 64, 64, 64); r.addColorStop(0, 'rgba(0,0,0,.55)'); r.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = r; g.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })()}))
+  : new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), new THREE.ShadowMaterial({opacity: 0.35}));
+ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+
+// ---------- texturas procedurales ----------
+const MAXANI = renderer.capabilities.getMaxAnisotropy();
+function canvasTex(w, h, draw, rx = 1, ry = 1, color = true) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx, ry); t.anisotropy = MAXANI;
+  if (color) t.colorSpace = THREE.SRGBColorSpace;   // las de relieve y rugosidad se quedan como datos
+  return t;
+}
+// capas de impresión 3D: líneas horizontales de ~0,8 mm (las UV del extruido van en mm)
+const texLayers = canvasTex(64, 64, (g, w, h) => { g.fillStyle = '#808080'; g.fillRect(0, 0, w, h); for (let y = 0; y < h; y += 4) { g.fillStyle = '#9a9a9a'; g.fillRect(0, y, w, 2); } }, 1 / 3.2, 1 / 3.2, false);
+const texPcb = canvasTex(256, 256, (g, w, h) => {
+  g.fillStyle = '#1d6b46'; g.fillRect(0, 0, w, h); g.strokeStyle = '#c9a54a'; g.lineWidth = 2;
+  for (let i = 0; i < 26; i++) { const x = (i * 53) % w, y = (i * 97) % h; g.beginPath(); g.moveTo(x, y); g.lineTo(x + 40, y); g.lineTo(x + 40, y + 30); g.stroke(); }
+  g.fillStyle = '#e8e8e8'; g.font = '600 14px monospace'; g.fillText('MAIN · REV A', 14, h - 14);
+});
+const texBattery = canvasTex(512, 256, (g, w, h) => {
+  g.fillStyle = '#2b62a8'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; g.font = '700 54px sans-serif'; g.fillText('Li-ion 2S', 30, 100);
+  g.font = '500 32px sans-serif'; g.fillText('7,4 V · 50 Wh', 30, 160); g.fillStyle = '#ffd34d'; g.fillRect(0, h - 26, w, 10);
+});
+
+// ---------- materiales ----------
+const cutPlane = new THREE.Plane(new THREE.Vector3(0, 0, -1), 0);   // el corte quita la mitad delantera (z > 0)
+const M = o => new THREE.MeshPhysicalMaterial({roughness: 0.6, metalness: 0, ...o});
+const housing = M({color: 0xa3abb5, roughness: 0.78, bumpMap: texLayers, bumpScale: 0.6});   // gris claro, no blanco
+const lidMat = M({color: 0xb3bac3, roughness: 0.74, bumpMap: texLayers, bumpScale: 0.6});
+const baseMat = M({color: 0x33373d, roughness: 0.7});
+const slatMat = M({color: 0x4a5059, roughness: 0.6});          // lamas de entrada: gris oscuro
+const outletMat = M({color: 0x8c3d2f, roughness: 0.55});       // salida fija: enrejado rojizo, distinta de la entrada
+const pcbMat = M({color: 0xffffff, map: texPcb, roughness: 0.5});
+const chipMat = M({color: 0x17191c, roughness: 0.4});
+const metal = M({color: 0xa7b0ba, metalness: 0.85, roughness: 0.32});
+const batMat = M({color: 0xffffff, map: texBattery, roughness: 0.45});
+const fanFrame = M({color: 0x202327, roughness: 0.55});
+const fanBlade = M({color: 0x3fc882, roughness: 0.45});        // se ve a través de las lamas
+const rubber = M({color: 0x15171a, roughness: 0.9});
+const dispCanvas = document.createElement('canvas'); dispCanvas.width = 256; dispCanvas.height = 128;
+const dispTex = new THREE.CanvasTexture(dispCanvas); dispTex.colorSpace = THREE.SRGBColorSpace; dispTex.anisotropy = MAXANI;
+const dispMat = new THREE.MeshStandardMaterial({color: 0x000000, emissive: 0xffffff, emissiveMap: dispTex, emissiveIntensity: 1.1, roughness: 0.25});
+const airMat = new THREE.MeshBasicMaterial({color: 0xffffff, transparent: true, opacity: 0.9});
+
+// ---------- geometría (mm) ----------
+const root = new THREE.Group(); scene.add(root);
+const G = {lid: new THREE.Group(), int: new THREE.Group(), body: new THREE.Group(), base: new THREE.Group()};
+for (const k in G) root.add(G[k]);
+const partMeshes = {};   // id → mallas de la pieza (contorno y oclusión)
+const add = (parent, geo, mat, part, x = 0, y = 0, z = 0) => {
+  const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = m.receiveShadow = true;
+  m.userData.part = part; (partMeshes[part] ||= []).push(m); parent.add(m); return m;
+};
+const anchors = {};   // id → puntos de la pieza: se usa el primero visible
+const anchor = (id, group, x, y, z) => { const o = new THREE.Object3D(); o.position.set(x, y, z); group.add(o); (anchors[id] ||= []).push(o); };
+function rr(w, h, r, cls = THREE.Shape) {
+  const s = new cls(), x = -w / 2, y = -h / 2;
+  s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.quadraticCurveTo(x + w, y, x + w, y + r); s.lineTo(x + w, y + h - r); s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  s.lineTo(x + r, y + h); s.quadraticCurveTo(x, y + h, x, y + h - r); s.lineTo(x, y + r); s.quadraticCurveTo(x, y, x + r, y); return s;
+}
+const L = CFG.envolvente.largo, F = CFG.envolvente.fondo, H = CFG.envolvente.alto, W = CFG.envolvente.pared;
+
+// base
+add(G.base, new RoundedBoxGeometry(L, 10, F, 3, 3), baseMat, 'base', 0, -5, 0);
+for (const [x, z] of [[-66, -38], [66, -38], [-66, 38], [66, 38]]) add(G.base, new THREE.CylinderGeometry(6, 6, 3, 24), rubber, 'base', x, -11.5, z);
+anchor('base', G.base, 0, -5, F / 2); anchor('base', G.base, 0, -5, -F / 2);
+
+// carcasa: anillo extruido (piel con hueco), de 0 a H
+{
+  const s = rr(L, F, 6); s.holes.push(rr(L - 2 * W, F - 2 * W, 3, THREE.Path));
+  const geo = new THREE.ExtrudeGeometry(s, {depth: H, bevelEnabled: false, curveSegments: 6}); geo.rotateX(-Math.PI / 2);
+  add(G.body, geo, housing, 'car');
+  anchor('car', G.body, -40, 44, F / 2); anchor('car', G.body, 40, 44, -F / 2);
+  // entrada de aire: lamas en la pared derecha
+  // piezas repetidas del mismo material, en una sola geometría: una llamada de dibujo
+  add(G.body, mergeGeometries(Array.from({length: 9}, (_, i) => new THREE.BoxGeometry(1.6, 2, 44).translate(L / 2 + 0.6, 12 + i * 3.4, 0))), slatMat, 'ent');
+  anchor('ent', G.body, L / 2 + 1, 26, 0);
+  // salida de aire: enrejado fijo en la pared izquierda
+  add(G.body, mergeGeometries([
+    ...Array.from({length: 6}, (_, i) => new THREE.BoxGeometry(1.4, 1.4, 44).translate(-L / 2 - 0.5, 14 + i * 5.6, 0)),
+    ...Array.from({length: 7}, (_, j) => new THREE.BoxGeometry(1.4, 30, 1.4).translate(-L / 2 - 0.5, 28, -21 + j * 7))]), outletMat, 'sal');
+  anchor('sal', G.body, -L / 2 - 1, 28, 0);
+  // conector USB-C, asomando por el frontal
+  add(G.body, new RoundedBoxGeometry(9, 3.4, 4, 2, 1.4), metal, 'usb', 30, 12, F / 2 + 0.2);
+  add(G.body, new THREE.BoxGeometry(6.6, 1.2, 1), chipMat, 'usb', 30, 12, F / 2 + 2.3);
+  anchor('usb', G.body, 30, 12, F / 2 + 2);
+}
+
+// interior: placa, batería y ventilador
+{
+  add(G.int, new THREE.BoxGeometry(122, 1.6, 80), pcbMat, 'placa', -12, 7, 0);
+  for (const [x, z] of [[-66, -34], [42, -34], [-66, 34], [42, 34]]) add(G.int, new THREE.CylinderGeometry(2.5, 2.5, 6, 12), metal, 'placa', x, 3, z);
+  add(G.int, new THREE.BoxGeometry(14, 1.4, 14), chipMat, 'placa', 14, 8.5, 18);
+  add(G.int, new THREE.BoxGeometry(8, 3, 6), chipMat, 'placa', -6, 9.3, 26);
+  anchor('placa', G.int, 14, 9, 30); anchor('placa', G.int, 14, 9, -30);
+  add(G.int, new RoundedBoxGeometry(70, 20, 36, 2, 2), batMat, 'bat', -30, 17.8, -14);
+  anchor('bat', G.int, -30, 18, 4); anchor('bat', G.int, -30, 28, -14);
+  // ventilador 4010 con su eje en x, detrás de la entrada
+  const fan = new THREE.Group(); fan.position.set(L / 2 - W - 6, 26, 0); fan.rotation.y = Math.PI / 2; G.int.add(fan);
+  { const s = rr(40, 40, 3); const h = new THREE.Path(); h.absarc(0, 0, 19, 0, Math.PI * 2, true); s.holes.push(h);
+    const geo = new THREE.ExtrudeGeometry(s, {depth: 10, bevelEnabled: false, curveSegments: 24}); geo.translate(0, 0, -5); add(fan, geo, fanFrame, 'vent'); }
+  const rotor = new THREE.Group(); fan.add(rotor);
+  add(rotor, new THREE.CylinderGeometry(7, 7, 8, 24).rotateX(Math.PI / 2), fanFrame, 'vent');
+  for (let i = 0; i < 7; i++) { const b = add(rotor, new THREE.BoxGeometry(11, 1.2, 6), fanBlade, 'vent'); const a = i / 7 * Math.PI * 2; b.position.set(Math.cos(a) * 12.5, Math.sin(a) * 12.5, 0); b.rotation.set(0.5, 0, a); }
+  G.int.userData.rotor = rotor;
+  anchor('vent', G.int, L / 2 - W - 12, 46, 0);
+}
+
+// tapa con pantalla
+{
+  add(G.lid, new RoundedBoxGeometry(L + 2, 6, F + 2, 3, 2.5), lidMat, 'tapa', 0, H + 3, 0);
+  anchor('tapa', G.lid, -50, H + 6, 20); anchor('tapa', G.lid, 50, H + 6, -20);
+  add(G.lid, new RoundedBoxGeometry(62, 1.6, 36, 2, 0.7), chipMat, 'pant', 30, H + 6.6, 12);
+  const d = add(G.lid, new THREE.PlaneGeometry(56, 28), dispMat, 'pant', 30, H + 7.45, 12); d.rotation.x = -Math.PI / 2; d.castShadow = false;
+  anchor('pant', G.lid, 30, H + 8, 12);
+}
+
+// ---------- flujo de aire: vectores en un InstancedMesh sobre curvas ----------
+const arrowGeo = mergeGeometries([
+  new THREE.CylinderGeometry(0.6, 0.6, 7, 6).translate(0, -2, 0),
+  new THREE.ConeGeometry(1.8, 4, 10).translate(0, 3.5, 0),
+]).rotateX(Math.PI / 2);   // apunta a +z, como espera lookAt
+const AIR = LITE ? CFG.flujo.flechas / 2 : CFG.flujo.flechas;
+const air = new THREE.InstancedMesh(arrowGeo, airMat, AIR);
+air.frustumCulled = false; scene.add(air);   // de la escena, no de una capa: sigue visible aunque se oculte la pieza que lo contiene
+// entra por las lamas, cruza la placa por los pasillos libres y sale por el enrejado subiendo
+const LANES = [-26, -8, 8, 26];
+const airCurves = LANES.map(z => new THREE.CatmullRomCurve3([[190, 26], [120, 26], [L / 2 + 1, 26], [62, 26], [30, 22], [-20, 32], [-60, 30], [-L / 2 - 1, 30], [-118, 44], [-150, 88]].map(([x, y]) => new THREE.Vector3(x, y, z))));
+const airP = Array.from({length: AIR}, (_, i) => ({lane: i % LANES.length, t: (i / AIR * 7.3) % 1}));
+const COLD = new THREE.Color(0x49b6ff), WARM = new THREE.Color(0xff8a3d), cTmp = new THREE.Color();
+const dummy = new THREE.Object3D(), pNext = new THREE.Vector3();
+for (let i = 0; i < AIR; i++) air.setColorAt(i, COLD);
+
+// ---------- pantalla del modelo y estado: una única fuente de datos ----------
+const live = {};
+let mode = 'reposo';
+const state = {run: 0, fan: 0}, target = {run: 0, fan: 0};
+function drawDisplay() {
+  const g = dispCanvas.getContext('2d'), w = 256, h = 128;
+  g.fillStyle = '#000'; g.fillRect(0, 0, w, h); g.fillStyle = '#9ff6ff'; g.font = '600 20px monospace';
+  g.fillText(MODES[mode].n.toUpperCase(), 14, 32);
+  g.font = '600 40px monospace'; g.fillText(live.temp + ' °C', 14, 84);
+  g.font = '500 18px monospace'; g.fillText(live.rpm + ' rpm', 14, 114);
+  dispTex.needsUpdate = true;
+}
+const pwW = document.getElementById('pw-w'), pwU = document.getElementById('pw-u'), pwArc = document.getElementById('pw-arc'), pwAuto = document.getElementById('pw-auto'), pwNeedle = document.getElementById('pw-needle');
+const batFill = document.getElementById('bat-fill'), batPc = document.getElementById('bat-pc'), batWh = document.getElementById('bat-wh');
+// color continuo de frío a cálido según la posición en la escala, sin saltos de umbral
+const STOPS = [[0, new THREE.Color(0x6ff3ff)], [0.55, new THREE.Color(0x6ff3ff)], [0.72, new THREE.Color(0xffd65c)], [0.86, new THREE.Color(0xff8a3d)], [1, new THREE.Color(0xff4848)]];
+function heat(f) {
+  for (let i = 1; i < STOPS.length; i++) if (f <= STOPS[i][0]) return cTmp.copy(STOPS[i - 1][1]).lerp(STOPS[i][1], (f - STOPS[i - 1][0]) / (STOPS[i][0] - STOPS[i - 1][0])).getStyle();
+  return STOPS.at(-1)[1].getStyle();
+}
+const PW_MIN = 0.01, PW_MAX = 16;   // W
+const pwFrac = w => w <= PW_MIN ? 0 : Math.log10(Math.min(w, PW_MAX) / PW_MIN) / Math.log10(PW_MAX / PW_MIN);   // escala logarítmica: de mW a W
+{
+  let h = '';
+  for (const w of [0.01, 0.1, 1, 10]) {
+    const a = Math.PI * (1 - pwFrac(w)), c = Math.cos(a), s2 = Math.sin(a);
+    h += `<line class="pw-tick" x1="${(90 + c * 60).toFixed(1)}" y1="${(92 - s2 * 60).toFixed(1)}" x2="${(90 + c * 66).toFixed(1)}" y2="${(92 - s2 * 66).toFixed(1)}"/>`;
+    h += `<text class="pw-tl" x="${(90 + c * 82).toFixed(1)}" y="${(95 - s2 * 80).toFixed(1)}" text-anchor="middle">${w < 1 ? Math.round(w * 1000) + 'm' : w}</text>`;
+  }
+  document.getElementById('pw-ticks').innerHTML = h;
+}
+const nf = (v, d = 1) => v.toLocaleString(LANG === 'en' ? 'en-GB' : 'es-ES', {maximumFractionDigits: d, minimumFractionDigits: d});
+let lastDisp = '', pwShown = PW_MIN;
+function updateStatus() {
+  const E = CFG.energia, T = CFG.temperatura;
+  live.parts = [[tr('Reposo de la placa'), E.reposo], [tr('Placa en marcha'), state.run * E.placa], [tr('Ventilador'), state.fan * E.ventilador]];
+  live.P = live.parts.reduce((a, r) => a + r[1], 0);
+  live.wh = CFG.bateria.wh * CFG.bateria.carga;
+  live.h = live.wh / live.P;
+  live.pc = Math.round(CFG.bateria.carga * 100);
+  live.rpm = Math.round(state.fan * CFG.ventilador.rpm / 100) * 100;
+  live.temp = Math.round(T.reposo + state.run * (T.marcha - T.reposo));
+  const s = `${mode}|${live.temp}|${live.rpm}`;
+  if (s !== lastDisp) { lastDisp = s; drawDisplay(); }
+  batFill.style.width = live.pc + '%'; batPc.textContent = live.pc + ' %'; batWh.textContent = `${nf(live.wh, 0)} ${tr('de')} ${CFG.bateria.wh} Wh`;
+  pwShown = Math.exp(Math.log(pwShown) + (Math.log(Math.max(live.P, PW_MIN)) - Math.log(pwShown)) * 0.5);   // la aguja llega con suavidad
+  const f = pwFrac(pwShown), a = Math.PI * (1 - f), col = heat(f);
+  pwArc.setAttribute('stroke-dasharray', `${(f * 100).toFixed(1)} 100`); pwArc.style.stroke = col; pwArc.style.filter = `drop-shadow(0 0 6px ${col})`;
+  pwNeedle.setAttribute('x2', (90 + Math.cos(a) * 56).toFixed(1)); pwNeedle.setAttribute('y2', (92 - Math.sin(a) * 56).toFixed(1));
+  const mw = pwShown < 0.95;
+  pwW.textContent = mw ? Math.round(pwShown * 1000) : nf(pwShown); pwU.textContent = mw ? 'mW' : 'W';
+  pwW.style.color = pwAuto.style.color = f > 0.6 ? col : '';
+  pwAuto.textContent = `${tr('batería para')} ≈ ${nf(live.h, 0)} h`;   // se comprueba: energía restante ÷ consumo
+}
+document.getElementById('st-text').textContent = MODES.reposo.t;
+
+// ---------- selección y HUD central ----------
+const infoVeil = document.getElementById('infoveil'), infoBody = document.getElementById('info-body'), infoX = document.getElementById('info-x');
+let selected = null, infoBack = null;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'}[c]));
+function openInfo(html, back) {
+  infoBody.innerHTML = html; infoVeil.hidden = false; view.classList.add('veiled'); infoBack = back; infoX.focus();
+}
+function hideInfo() {
+  if (infoVeil.hidden) return; infoVeil.hidden = true; view.classList.remove('veiled');
+  const b = infoBack; infoBack = null; if (b) b.focus();
+}
+function showPart(p) {
+  const i = PARTS.indexOf(p) + 1;
+  openInfo(`<div class="kicker">${tr('Pieza')} ${i}</div><h2 id="info-h">${esc(p.n)}</h2>
+    <h3>${tr('Qué hace')}</h3><p>${esc(p.f)}</p><h3>${tr('Datos técnicos')}</h3><p>${esc(p.d)}</p>
+    <h3>${tr('Cómo encaja en el sistema')}</h3><p>${esc(p.e)}</p><h3>${tr('Pendiente de validar')}</h3><p>${esc(p.p)}</p>`, tagEls[p.id]);
+}
+function showEnergy() {
+  updateStatus();
+  const rows = live.parts.map(([n, w]) => `<tr><td>${esc(n)}</td><td class="n">${nf(w, 2)} W</td><td>${tr(CFG.energia.estado)}</td></tr>`).join('');
+  openInfo(`<div class="kicker">${tr('Consumo')}</div><h2 id="info-h">${tr('Balance de consumo')}</h2>
+    <table><tr><th>${tr('Componente')}</th><th class="n">W</th><th>${tr('Estado')}</th></tr>${rows}
+    <tr><td><b>${tr('Total ahora')}</b></td><td class="n"><b>${nf(live.P, 2)} W</b></td><td></td></tr>
+    <tr><td>${tr('Energía disponible')}</td><td class="n">${nf(live.wh, 1)} Wh</td><td>${tr(CFG.bateria.estado)}</td></tr>
+    <tr><td>${tr('Autonomía con este consumo')}</td><td class="n">${nf(live.h, 1)} h</td><td></td></tr></table>
+    <h3>${tr('Cómo encaja en el sistema')}</h3><p>${tr('La autonomía es la energía disponible dividida entre el consumo de este momento.')}</p>`, document.getElementById('pw-info'));
+}
+document.getElementById('pw-info').addEventListener('click', showEnergy);
+infoX.addEventListener('click', hideInfo);
+infoVeil.addEventListener('click', e => { if (e.target === infoVeil) hideInfo(); });
+function deselect() { if (!selected) return; tagEls[selected].classList.remove('on'); selected = null; setOutline(); hideInfo(); }
+function select(id) {
+  if (selected === id) { deselect(); return; }   // pulsar otra vez el tag seleccionado lo deselecciona
+  if (selected) tagEls[selected].classList.remove('on');
+  selected = id; tagEls[id].classList.add('on'); setOutline(); showPart(PARTS.find(p => p.id === id));
+}
+addEventListener('keydown', e => { if (e.key === 'Escape') { if (!infoVeil.hidden) hideInfo(); else deselect(); } });
+let downAt = null;   // clic en el fondo, sin arrastrar: deselecciona
+renderer.domElement.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', e => { if (downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) < 5) deselect(); downAt = null; });
+
+// ---------- etiquetas y líneas guía: se crean una vez ----------
+const tagsEl = document.getElementById('tags'), leadersEl = document.getElementById('leaders');
+const SVGNS = 'http://www.w3.org/2000/svg';
+const tagEls = {}, lineEls = {}, dotEls = {};
+PARTS.forEach((p, i) => {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'tag'; b.dataset.id = p.id;
+  b.innerHTML = `<span class="no">${i + 1}</span><span class="nm">${esc(p.n)}</span>`; b.setAttribute('aria-label', p.n);
+  b.addEventListener('click', e => { e.stopPropagation(); select(p.id); }); b.hidden = true;
+  tagsEl.append(b); tagEls[p.id] = b;
+  const l = document.createElementNS(SVGNS, 'polyline'); const c = document.createElementNS(SVGNS, 'circle'); c.setAttribute('r', '2.2');
+  leadersEl.append(l, c); lineEls[p.id] = l; dotEls[p.id] = c;
+});
+
+// ---------- capas, modos, despiece, corte y etiquetas ----------
+const layerOn = {};
+const layersEl = document.getElementById('layers');
+const EYE = '<svg viewBox="0 0 24 24" aria-hidden="true"><g class="on"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></g><g class="off"><path d="M3 3l18 18"/><path d="M10.6 6.1A10 10 0 0 1 12 6c6.4 0 10 6 10 6a17 17 0 0 1-3 3.6M6.6 6.6A17 17 0 0 0 2 12s3.6 6 10 6a9.6 9.6 0 0 0 4.4-1"/></g></svg>';
+for (const ly of LAYERS) {
+  layerOn[ly.g] = true;
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'ly'; b.setAttribute('aria-pressed', 'true'); b.innerHTML = EYE + `<span>${esc(ly.n)}</span>`;
+  b.addEventListener('click', () => { layerOn[ly.g] = !layerOn[ly.g]; G[ly.g].visible = layerOn[ly.g]; b.setAttribute('aria-pressed', layerOn[ly.g]); if (!layerOn[ly.g] && selected && PARTS.find(p => p.id === selected).g === ly.g) deselect(); });
+  layersEl.append(b);
+}
+const journeyEl = document.getElementById('journey');
+Object.entries(MODES).forEach(([k, m], i) => {
+  const b = document.createElement('button'); b.type = 'button'; b.dataset.m = k; b.innerHTML = `<span class="j-node"></span><span class="j-lbl">${esc(m.n)}</span>`;
+  b.addEventListener('click', () => setMode(k)); journeyEl.append(b);
+});
+function setMode(m) {
+  mode = m; view.dataset.mode = m; target.run = MODES[m].run; target.fan = MODES[m].fan;
+  const keys = Object.keys(MODES), idx = keys.indexOf(m);
+  journeyEl.querySelectorAll('button').forEach(b => { const j = keys.indexOf(b.dataset.m); b.setAttribute('aria-pressed', j === idx); b.classList.toggle('done', j < idx); });
+  document.getElementById('j-fill').style.width = (keys.length > 1 ? idx / (keys.length - 1) * 100 : 0) + '%';
+  document.getElementById('st-mode').textContent = MODES[m].n; document.getElementById('st-text').textContent = MODES[m].t;
+  updateStatus();
+}
+const explodeEl = document.getElementById('explode'), explodeOut = document.getElementById('explode-v');
+explodeEl.addEventListener('input', () => { explodeOut.textContent = explodeEl.value + ' %'; });
+// despiece escalonado: los grupos salen uno tras otro, en orden inverso al de montaje, cada uno con aceleración y frenado
+const EXPLODE = [{g: 'lid', y: 120, at: 0}, {g: 'int', y: 62, at: 0.25}, {g: 'base', y: -70, at: 0.5}];
+const ease = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;   // power2.inOut
+let cut = false;
+const cutHides = p => cut && p.z > 0.5;   // único sitio que decide qué quita el corte
+const cutBtn = document.getElementById('cut');
+const sideOrig = new Map();
+function applyCut() {
+  const mats = new Set([airMat]); root.traverse(o => { if (o.material) mats.add(o.material); });
+  for (const m of mats) {   // un único plano que corta todas las piezas, flechas incluidas
+    if (!sideOrig.has(m)) sideOrig.set(m, m.side);
+    m.clippingPlanes = cut ? [cutPlane] : null; m.side = cut ? THREE.DoubleSide : sideOrig.get(m); m.needsUpdate = true;
+  }
+}
+cutBtn.addEventListener('click', () => { cut = !cut; cutBtn.setAttribute('aria-pressed', cut); applyCut(); });
+let labelsOn = true;
+const labelsBtn = document.getElementById('labels');
+labelsBtn.addEventListener('click', () => { labelsOn = !labelsOn; labelsBtn.setAttribute('aria-pressed', labelsOn); });
+
+// ---------- contorno de la pieza seleccionada (no en el perfil ligero) ----------
+let composer = null, outline = null;
+if (!LITE) {
+  const rt = new THREE.WebGLRenderTarget(1, 1, {type: THREE.HalfFloatType, samples: 4});
+  composer = new EffectComposer(renderer, rt);
+  composer.addPass(new RenderPass(scene, camera));
+  outline = new OutlinePass(new THREE.Vector2(1, 1), scene, camera);
+  Object.assign(outline, {edgeStrength: 4, edgeThickness: 1.4, edgeGlow: 0.2});
+  outline.visibleEdgeColor.set(0x6ff3ff); outline.hiddenEdgeColor.set(0x1d6f80);
+  composer.addPass(outline); composer.addPass(new OutputPass());
+}
+function setOutline() { if (outline) outline.selectedObjects = selected ? partMeshes[selected] : []; }
+
+// ---------- tamaño, encuadre y centrado ----------
+const hudBarEl = document.getElementById('hudbar'), titleEl = document.querySelector('.scenetitle'), powerEl = document.getElementById('power');
+function layoutHud() { layersEl.style.top = (titleBox().b + 10) + 'px'; }   // capas justo debajo del título
+let centerFix = 0, centerFixY = 0;
+function resize() {
+  const w = view.clientWidth, h = view.clientHeight;
+  view.classList.toggle('narrow', w < 980); view.classList.toggle('phone', w < 600);
+  view.style.setProperty('--barH', hudBarEl.offsetHeight + 'px');
+  renderer.setSize(w, h, false); camera.aspect = w / h;
+  camera.setViewOffset(w, h, centerFix, centerFixY, w, h); camera.updateProjectionMatrix();
+  if (composer) { composer.setPixelRatio(renderer.getPixelRatio()); composer.setSize(w, h); }
+}
+new ResizeObserver(resize).observe(view);
+new ResizeObserver(layoutHud).observe(titleEl);
+resize();
+{ const dist = 560 * Math.max(1, 1.3 / camera.aspect); const dir = new THREE.Vector3(0.6, 0.5, 0.78).normalize(); camera.position.copy(controls.target).addScaledVector(dir, dist); }
+
+const v3 = new THREE.Vector3(), bb = new THREE.Box3();
+const shown = o => { for (; o; o = o.parent) if (!o.visible) return false; return true; };   // el raycaster no mira visible
+const toScreen = (p, w, h) => { v3.copy(p).project(camera); return {x: (v3.x + 1) / 2 * w, y: (1 - v3.y) / 2 * h, z: v3.z}; };
+let sil = null;   // silueta en pantalla, medida pieza a pieza
+function measureSilhouette(w, h) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  root.traverse(o => {
+    if (!o.isMesh || !shown(o)) return;
+    bb.setFromObject(o); if (cut) { if (bb.min.z > 0.5) return; bb.max.z = Math.min(bb.max.z, 0); }   // descartar lo recortado
+    for (let i = 0; i < 8; i++) {
+      v3.set(i & 1 ? bb.max.x : bb.min.x, i & 2 ? bb.max.y : bb.min.y, i & 4 ? bb.max.z : bb.min.z).project(camera);
+      const x = (v3.x + 1) / 2 * w, y = (1 - v3.y) / 2 * h; x0 = Math.min(x0, x); x1 = Math.max(x1, x); y0 = Math.min(y0, y); y1 = Math.max(y1, y);
+    }
+  });
+  return x0 < Infinity ? {x0, y0, x1, y1, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2} : null;
+}
+function recenter() {
+  const w = view.clientWidth, h = view.clientHeight; sil = measureSilhouette(w, h); if (!sil) return;
+  // centrado en horizontal y en todo el alto del visor; pasos pequeños y limitados, sin mover el punto de giro
+  const cl = (v, a) => Math.max(-a, Math.min(a, v));
+  centerFix = cl(centerFix + cl((sil.cx - w / 2) * 0.3, 10), w / 4); centerFixY = cl(centerFixY + cl((sil.cy - h / 2) * 0.3, 10), h / 4);
+  camera.setViewOffset(w, h, centerFix, centerFixY, w, h); camera.updateProjectionMatrix();
+  // encuadre automático: mientras el usuario no mueva la cámara, alejar si la silueta no cabe con margen (≈ 40 px arriba y abajo, sitio para etiquetas a los lados)
+  const hit = o => sil.x0 < o.r && sil.x1 > o.l && sil.y0 < o.b && sil.y1 > o.t;
+  const underTitle = !view.classList.contains('phone') && [titleBox(), boxOf(layersEl), boxOf(powerEl)].some(hit);   // título, capas e indicadores también son obstáculos
+  if (!userView && (sil.y1 - sil.y0 > h - 80 - hudBarEl.offsetHeight * 0.5 || sil.x1 - sil.x0 > w * 0.56 || underTitle)) {
+    const d = camera.position.distanceTo(controls.target); if (d < controls.maxDistance) camera.position.sub(controls.target).multiplyScalar(1.015).add(controls.target);
+  }
+}
+
+// ---------- oclusión de etiquetas ----------
+const ray = new THREE.Raycaster(), camPos = new THREE.Vector3(), dirV = new THREE.Vector3();
+const seeThrough = new Set([airMat]);
+function occluded(id, wp) {
+  camera.getWorldPosition(camPos); dirV.subVectors(wp, camPos); const dist = dirV.length(); dirV.normalize();
+  ray.set(camPos, dirV); ray.far = dist + 2;
+  for (const hit of ray.intersectObject(root, true)) {
+    if (!shown(hit.object) || seeThrough.has(hit.object.material) || cutHides(hit.point)) continue;
+    if (hit.distance >= dist - 4) return false;
+    return hit.object.userData.part !== id;   // lo primero que toca es otra pieza: oculta
+  }
+  return false;
+}
+
+// ---------- etiquetas en anillos 3D, uno por capa ----------
+const RING_X = L / 2 + 60, RING_Z = F / 2 + 60;
+const wp = new THREE.Vector3(), cw = new THREE.Vector3(), rp = new THREE.Vector3();
+const occCache = {};
+function boxOf(el) { const v = view.getBoundingClientRect(), r = el.getBoundingClientRect(); return {l: r.left - v.left, r: r.right - v.left, t: r.top - v.top, b: r.bottom - v.top}; }
+function titleBox() { return boxOf(titleEl); }
+function placeLabels(doOcc) {
+  const w = view.clientWidth, h = view.clientHeight, tb = titleBox(), vTop = view.getBoundingClientRect().top;
+  const barTop = hudBarEl.getBoundingClientRect().top - vTop, obs = [tb, boxOf(layersEl), boxOf(powerEl)];
+  const midX = sil ? sil.cx : w / 2, items = [];
+  for (const p of PARTS) {
+    const el = tagEls[p.id], ln = lineEls[p.id], dt = dotEls[p.id];
+    let pick = null;
+    if (labelsOn && shown(G[p.g])) for (const a of anchors[p.id]) {
+      a.getWorldPosition(wp); if (cutHides(wp)) continue;
+      const k = p.id + a.id; if (doOcc || occCache[k] === undefined) occCache[k] = occluded(p.id, wp);
+      if (!occCache[k]) { pick = wp.clone(); break; }
+    }
+    const s = pick && toScreen(pick, w, h);
+    if (!s || s.z > 1) { el.hidden = true; ln.setAttribute('points', ''); dt.setAttribute('r', '0'); continue; }
+    G[p.g].getWorldPosition(cw); cw.y = pick.y;
+    const dx = pick.x - cw.x, dz = pick.z - cw.z, a = Math.atan2(dz / RING_Z, dx / RING_X);
+    rp.set(cw.x + RING_X * Math.cos(a), pick.y, cw.z + RING_Z * Math.sin(a));
+    const r = toScreen(rp, w, h);
+    el.hidden = false;
+    items.push({p, el, ln, dt, ax: s.x, ay: s.y, x: r.x, y: r.y, side: r.x < midX ? 'l' : 'r'});
+  }
+  for (const it of items) { it.w = it.el.offsetWidth; it.h = it.el.offsetHeight; }   // todas las lecturas juntas
+  const top = 12, bot = barTop - 8;
+  for (const side of ['l', 'r']) {
+    const col = items.filter(i => i.side === side).sort((a, b) => a.y - b.y);
+    for (const it of col) {
+      it.left = side === 'l' ? it.x - 14 - it.w : it.x + 14;
+      if (sil) it.left = side === 'l' ? Math.min(it.left, sil.x0 - 10 - it.w) : Math.max(it.left, sil.x1 + 10);   // nunca sobre el modelo: fuera de su silueta
+      it.left = Math.max(8, Math.min(w - 8 - it.w, it.left));
+    }
+    for (let i = 1; i < col.length; i++) { const a = col[i - 1], b = col[i], min = a.y + (a.h + b.h) / 2 + 6; if (b.y < min) b.y = min; }   // ninguna encima de otra
+    const over = col.length ? col.at(-1).y + col.at(-1).h / 2 - bot : 0;
+    if (over > 0) { col.at(-1).y -= over; for (let i = col.length - 2; i >= 0; i--) { const a = col[i], b = col[i + 1], max = b.y - (a.h + b.h) / 2 - 6; if (a.y > max) a.y = max; } }
+    for (const it of col) it.y = Math.max(top + it.h / 2, it.y);
+    // ningún panel HUD encima (título, capas, indicadores): se aparta en horizontal, con su borde real
+    for (const it of col) for (const o of obs) if (it.left < o.r + 6 && it.left + it.w > o.l - 6 && it.y + it.h / 2 > o.t - 4 && it.y - it.h / 2 < o.b + 4) it.left = (o.l + o.r) / 2 < w / 2 ? o.r + 8 : o.l - 8 - it.w;
+  }
+  for (const it of items) {
+    it.el.classList.toggle('l', it.side === 'l');
+    it.el.style.transform = `translate(${it.left.toFixed(1)}px,${(it.y - it.h / 2).toFixed(1)}px)`;
+    const ex = it.side === 'l' ? it.left + it.w : it.left;   // la línea sale del número, hacia el objeto
+    it.ln.setAttribute('points', `${ex.toFixed(1)},${it.y.toFixed(1)} ${it.ax.toFixed(1)},${it.ay.toFixed(1)}`);
+    it.dt.setAttribute('cx', it.ax.toFixed(1)); it.dt.setAttribute('cy', it.ay.toFixed(1)); it.dt.setAttribute('r', '2.2');
+  }
+  return items.length;
+}
+
+// ---------- bucle ----------
+renderer.info.autoReset = false;   // el compositor dibuja la escena varias veces por fotograma
+const timer = new THREE.Timer(); timer.connect(document);   // Clock obsoleto desde r183
+let fc = 0, t0 = 0, stT = 0, nTags = 0;
+const LOOK = {}; for (const k in MODES) LOOK[k] = MODES[k].luz;
+const lookC = new THREE.Color(LOOK.reposo.c);
+function frame() {
+  renderer.info.reset(); timer.update(); const dt = Math.min(timer.getDelta(), 0.05); t0 += dt; stT += dt; fc++;
+  const k = 1 - Math.pow(0.002, dt);   // estados continuos: interpolación hacia el objetivo
+  for (const key in state) state[key] += (target[key] - state[key]) * k;
+  const e = +explodeEl.value / 100;
+  for (const x of EXPLODE) G[x.g].position.y = x.y * ease(Math.min(1, Math.max(0, (e - x.at) / 0.5)));
+  ground.position.y = -13.2 + G.base.position.y;   // la sombra baja con la base
+  G.int.userData.rotor.rotation.z += dt * state.fan * (reduce ? 4 : 30);
+  // luz por modo, interpolada
+  const lk = LOOK[mode]; lookC.lerp(cTmp.set(lk.c), k * 0.5); key.color.copy(lookC);
+  key.intensity += (lk.i - key.intensity) * k * 0.5; renderer.toneMappingExposure += (lk.exp - renderer.toneMappingExposure) * k * 0.5;
+  // flujo: solo cuando existe, con fuerza para verse, lento (≈ 14 s por recorrido)
+  air.visible = state.fan > 0.03;
+  if (air.visible) {
+    const sp = reduce ? 0 : dt / CFG.flujo.segundos;
+    for (let i = 0; i < AIR; i++) {
+      const q = airP[i]; q.t = (q.t + sp) % 1; const c = airCurves[q.lane];
+      c.getPointAt(q.t, dummy.position); c.getPointAt(Math.min(1, q.t + 0.01), pNext); dummy.lookAt(pNext);
+      dummy.scale.setScalar(state.fan); dummy.updateMatrix(); air.setMatrixAt(i, dummy.matrix);
+      air.setColorAt(i, cTmp.copy(COLD).lerp(WARM, Math.min(1, Math.max(0, (q.t - 0.45) / 0.25))));   // se calienta al cruzar la placa
+    }
+    air.instanceMatrix.needsUpdate = true; air.instanceColor.needsUpdate = true;
+  }
+  controls.update();
+  if (fc % 6 === 1) recenter();
+  nTags = placeLabels(fc % 4 === 1);
+  if (stT > 0.2) { stT = 0; updateStatus(); }
+  if (composer) composer.render(); else renderer.render(scene, camera);
+  if (TEST && fc % 20 === 0) snap();
+}
+function snap() {   // foto del estado para las pruebas
+  document.body.dataset.snap = JSON.stringify({fc, mode, explode: +explodeEl.value, cut, selected, lang: LANG,
+    tags: PARTS.filter(p => !tagEls[p.id].hidden).map(p => p.id), P: +live.P.toFixed(3), h: +live.h.toFixed(1), info: !infoVeil.hidden,
+    calls: renderer.info.render.calls, offset: [+centerFix.toFixed(1), +centerFixY.toFixed(1)]});
+}
+
+// ---------- idioma y arranque ----------
+document.querySelectorAll('.lang button').forEach(b => {
+  b.setAttribute('aria-pressed', b.dataset.lang === LANG);
+  b.addEventListener('click', () => { try { localStorage.setItem('infografia.lang', b.dataset.lang); } catch (e) {} location.hash = 'lang=' + b.dataset.lang; location.reload(); });
+});
+const toast = document.getElementById('toast');
+if (LANG !== 'es') { toast.hidden = false; toast.querySelector('button').addEventListener('click', () => { toast.hidden = true; }); }
+setMode('reposo');
+if (TEST) {   // ?test&mode=marcha&explode=60&cut=1&sel=placa
+  if (Q.get('mode') in MODES) setMode(Q.get('mode'));
+  if (Q.has('explode')) { explodeEl.value = Q.get('explode'); explodeEl.dispatchEvent(new Event('input')); }
+  if (Q.get('cut') === '1') cutBtn.click();
+  if (Q.get('labels') === '0') labelsBtn.click();
+  for (const k in state) state[k] = target[k];
+  controls.autoRotate = false;
+  if (Q.has('sel')) setTimeout(() => select(Q.get('sel')), 300);
+}
+renderer.setAnimationLoop(frame);
+window.__sceneReady = true;
+document.querySelectorAll('#view .err.wait').forEach(e => e.remove());
+</script>

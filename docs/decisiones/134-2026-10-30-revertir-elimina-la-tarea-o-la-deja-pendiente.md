@@ -1,0 +1,10 @@
+# Revertir elimina la tarea o la deja pendiente
+
+- **Origen:** SoftwareFactory, 2026-10-30, tarea 175. El propietario probó la R: «al revertirla lo lógico sería que volviese a pendientes»; preguntado, eligió «eliminar o dejar pendiente» y aceptó la forma de los dos botones.
+- **Contexto:** con la decisión 107, una tarea revertida salía de la cola y quedaba en Cerradas con R hasta limpiarla. Pero una tarea revertida no está hecha: o se abandona o hay que rehacerla.
+- **Decisión:** el primer clic de la R la cambia por dos botones, «R eliminar» y «R pendiente». El segundo clic, en uno de ellos, hace el revert y deja la tarea en ese destino. A los 5 s, o con un clic en otro sitio del panel, vuelve a ser la R. Vale para la R de Cerradas y para la de Testing.
+  - **Eliminar:** tras el revert, la tarea sale de la cola sin rastro, como con la E: no entra en Cerradas y su número no se reutiliza. En `.sf/historial.jsonl` sale con estado `eliminada`, con los eventos `revertida` y `eliminada` en su historial. `restaurar` la devuelve en cola y reabierta.
+  - **Dejar pendiente:** tras el revert, vuelve a Pendientes, en cola, reabierta con su número (`reabierta: true`, letra H) y sin rama, con los eventos `revertida` y `reabierta`.
+  - En ningún caso se queda en Cerradas con R. El CLI pide el destino: `cola.py revertir N --eliminar | --pendiente`, sin valor por omisión. Con choques, como antes: `git revert --abort` y la cola sin tocar.
+- **Consecuencias:** matiza la 107: la R ya no deja la tarea en Cerradas con R. La letra R y el estado de salida `revertida` quedan solo para las tareas revertidas antes de esta decisión. Una tarea dejada pendiente sale en Cerradas como cualquier reabierta, en rojo con su H, hasta volver a cerrarse; el propietario lo confirmó: «Me parece bien que también salga en cerradas».
+- **Aplicada en:** `plugins/sf/tools/cola.py`, `plugins/sf/hooks/panel.tsx`, `plugins/sf/hooks/cola.ts` y sus pruebas; `plugins/sf/skills/flujo_tareas/references/estados.md` (26, 30) y `SKILL.md`.

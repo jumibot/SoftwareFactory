@@ -1,0 +1,5 @@
+# Panel: código en color y subrayado en lugar de led y ▸/▾
+
+- **Origen:** SoftwareFactory, 2026-10-28, mejora cosmética del panel. El propietario: «los "led" de las tares cerradas dejan de existir como tal y se convierten en foreground del codigo de tarea cerrada. Verde si cerrada y rojo si reabierta en el testing»; «También quiero quitar los indicadores de desplegable y substituirlos por un bg negro en el código de tarea»; «sí, las propuestas también con fondo negro»; y, al probarlo: «un poco agresivo el bg negro para los items desplegables. Probemos con un subrayado». Antes había pedido que una tarea reabierta al corregirla en pruebas mantuviera su número, en Cerradas y con el led rojo.
+- **Decisión:** en Cerradas no hay led: el código de la tarea va en verde si está cerrada (T o C) y en rojo si se ha reabierto en Testing para corregirla, con el mismo número. Las filas de tareas y de propuestas no llevan «▸/▾»: su código va subrayado si se despliegan. Las cabeceras de sección conservan «▸/▾».
+- **Aplicada en:** mod de estado; especificación; `docs/como-funciona-la-software-factory.md`; plugin `sf` 0.30.2.

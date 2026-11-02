@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Copiar piezas sueltas, construir la cartera propia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <style>
+/* Hoja de estilos base de los documentos de visión (skill documento_vision).
+ * Carcasa: cabecera, resumen, bloques y subsecciones plegables, tablas y pie.
+ * Los colores y las tipografías son variables CSS (var(--rol), var(--fuente-…)) que define el tema
+ * elegido (assets/temas/*.json); en las URI de datos SVG, los marcadores {{rol}} los rellena el script.
+ * Lo propio de cada proyecto va en su CSS, indicado en identidad.json. Origen: ver ORIGIN.md. */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--fuente-texto);
+  background: var(--pagina);
+  color: var(--texto);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(0,0,0,.08);
+  min-height: 100vh;
+}
+
+/* ── Cabecera ── */
+.site-header {
+  background: var(--primario);
+  padding: 0 2.5rem;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+.institution {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem 0;
+}
+.institution-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: .02em;
+  line-height: 1.2;
+}
+.institution-sub {
+  font-size: .73rem;
+  font-weight: 300;
+  color: rgba(255,255,255,.75);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-top: .15rem;
+}
+/* ── Subheader página ── */
+.report-header {
+  background: var(--fondo);
+  border-bottom: 2px solid var(--borde);
+  padding: 1rem 2.5rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.report-title { font-size: 1rem; font-weight: 600; color: var(--oscuro); }
+/* ── Bloques colapsables (uno por H2) ── */
+/* Sin recuadros: summary tipo encabezado con chevron SVG a la derecha que rota al abrir. Sin padding ni
+   borde lateral en el contenido — el cuerpo fluye como texto normal. */
+.bloque {
+  margin: 1.6rem 0 0;
+  border: none;
+  background: transparent;
+}
+.bloque-summary {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--oscuro);
+  padding: .25rem 0 .2rem;
+  margin-bottom: .6rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  user-select: none;
+  outline: none;
+  transition: color .15s ease;
+}
+.bloque-summary:hover { color: var(--primario); }
+.bloque-summary::-webkit-details-marker { display: none; }
+.bloque-summary::marker { content: ''; }
+.bloque-summary::before {
+  content: '';
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  background: var(--primario);
+  border-radius: 50%;
+  margin-right: .6rem;
+}
+.bloque-chip {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  background: var(--fondo);
+  border-radius: 999px;
+  padding: .25rem .9rem .25rem .9rem;
+  gap: .45rem;
+}
+.bloque-title {
+  flex: 1 1 auto;
+  padding: .1rem 0;
+}
+.bloque-btn {
+  font-family: inherit;
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--oscuro);
+  background: transparent;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  padding: .15rem .65rem;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+/* Sin JavaScript (visores que no ejecutan scripts) los botones no harían nada: se ocultan
+   y el bloque se pliega tocando su título. */
+html:not(.js) .bloque-btn { display: none; }
+.bloque-btn:hover {
+  background: var(--primario);
+  border-color: var(--primario);
+  color: #fff;
+}
+.bloque-summary::after {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d6fb6' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+  transition: transform .2s ease;
+  transform-origin: center;
+  flex-shrink: 0;
+  margin-left: .6rem;
+}
+.bloque[open] > .bloque-summary::after { transform: rotate(180deg); }
+
+/* Indentar el contenido del bloque para alinearlo con el literal del título
+   dentro del chip: bullet (1rem) + margin-right (.6rem) + padding-left del
+   chip (.9rem) = 2.5rem. Aplica a todo hijo directo del bloque que no sea
+   su propio summary. */
+.bloque > *:not(.bloque-summary) { padding-left: 2.5rem; }
+/* Las tablas hijas DIRECTAS del bloque heredan ese
+   padding-left, pero con box-sizing:border-box + width:100% el padding queda DENTRO
+   del ancho → el borde izquierdo arranca en x=0, a la izquierda del chip (la tabla
+   "sobresale"). Para tablas, el indent debe ser margin-left (empuja el borde) y el
+   ancho se recorta para no rebasar el margen derecho. Así el grid se alinea con el chip. */
+.bloque > table { padding-left: 0; margin-left: 2.5rem; width: calc(100% - 2.5rem); }
+
+/* ── Subsecciones colapsables (1.1, 1.2, 2.1, 2.2…) ── */
+.subseccion {
+  margin: 1rem 0 0;
+  border: none;
+  background: transparent;
+}
+.subseccion-summary {
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--primario);
+  padding: .15rem 0;
+  margin: .8rem 0 .3rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  user-select: none;
+  outline: none;
+  transition: color .15s ease;
+}
+.subseccion-summary:hover { color: var(--oscuro); }
+.subseccion-summary::-webkit-details-marker { display: none; }
+.subseccion-summary::marker { content: ''; }
+.subseccion-summary::after {
+  content: '';
+  display: inline-block;
+  margin-left: auto;
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235693c8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+  transition: transform .2s ease;
+  transform-origin: center;
+  flex-shrink: 0;
+  opacity: .7;
+}
+.subseccion[open] > .subseccion-summary::after { transform: rotate(180deg); }
+
+/* ── Sub-subsecciones colapsables (H4) ── */
+.subsubseccion {
+  margin: .55rem 0 0;
+  border: none;
+  background: transparent;
+}
+.subsubseccion-summary {
+  font-size: .87rem;
+  font-weight: 600;
+  color: var(--oscuro);
+  padding: .1rem 0;
+  margin: .45rem 0 .2rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  user-select: none;
+  outline: none;
+  transition: color .15s ease;
+}
+.subsubseccion-summary:hover { color: var(--primario); }
+.subsubseccion-summary::-webkit-details-marker { display: none; }
+.subsubseccion-summary::marker { content: ''; }
+.subsubseccion-summary::after {
+  content: '';
+  display: inline-block;
+  margin-left: auto;
+  width: 12px;
+  height: 12px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23124571' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px 10px;
+  transition: transform .2s ease;
+  transform-origin: center;
+  flex-shrink: 0;
+  opacity: .55;
+}
+.subsubseccion[open] > .subsubseccion-summary::after { transform: rotate(180deg); }
+
+/* ── Cuerpo ── */
+.report-body { padding: 1.8rem 2.5rem 3rem; }
+h1 {
+  font-size: 1.3rem; font-weight: 700;
+  color: var(--oscuro);
+  border-bottom: 2px solid var(--primario);
+  padding-bottom: .4rem; margin: 1.6rem 0 .8rem;
+}
+h2 {
+  font-size: 1.05rem; font-weight: 600;
+  color: var(--oscuro);
+  border-bottom: 1px solid var(--borde);
+  padding-bottom: .2rem; margin: 2rem 0 .6rem;
+}
+h3 { font-size: .95rem; font-weight: 600; color: var(--primario); margin: 1.2rem 0 .4rem; }
+p  { margin: .55rem 0; }
+ul, ol { padding-left: 1.5rem; margin: .4rem 0; }
+li { margin: .2rem 0; }
+
+/* ── Tablas generales ── */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.1rem 0;
+  font-size: .875rem;
+}
+th {
+  background: var(--primario);
+  color: #fff;
+  padding: .45rem .8rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: .82rem;
+  /* Romper texto largo dentro de la celda
+     en vez de forzar scroll horizontal / desbordar el margen derecho. */
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+td {
+  padding: .38rem .8rem;
+  border-bottom: 1px solid var(--linea);
+  vertical-align: top;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+tr:hover td { background: var(--fondo); }
+
+/* ── Resto ── */
+blockquote {
+  border-left: 3px solid var(--primario);
+  margin: .8rem 0;
+  padding: .5rem 1.2rem;
+  background: var(--fondo);
+  color: #333;
+  font-style: italic;
+}
+code {
+  background: #f0f0f0;
+  padding: .1rem .3rem;
+  border-radius: 3px;
+  font-family: 'Consolas', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: .83rem;
+}
+pre  {
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  padding: 1rem;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: .83rem;
+  line-height: 1.55;
+}
+hr   { border: none; border-top: 1px solid var(--borde); margin: 1.8rem 0; }
+em   { color: #444; }
+strong { font-weight: 600; }
+
+/* ── Footer ── */
+.site-footer {
+  background: var(--oscuro);
+  color: rgba(255,255,255,.55);
+  font-size: .72rem;
+  text-align: center;
+  padding: .9rem 2rem;
+  letter-spacing: .04em;
+}
+.site-footer a { color: rgba(255,255,255,.8); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }
+
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+  <style>
+    :root { --primario: #1d6fb6; --oscuro: #124571; --primario-vivo: #5693c8; --fondo: #f1f5f9; --borde: #e2e8f0; --linea: #e2e8f0; --fondo-medio: #e2e8f0; --fondo-suave: #f8fafc; --tenue: #99bede; --pagina: #f8fafc; --texto: #1f2937; --texto-suave: #4b5563; --texto-tenue: #9ca3af; --acento: #be185d; --acento-fondo: #fbf1f5; --acento-borde: #edbed2; --primario-rgb: 29, 111, 182; --fuente-texto: 'DM Sans', Arial, sans-serif; --fuente-titulos: 'Outfit', 'DM Sans', sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; }
+    /* Tres niveles de lectura:
+       1. narración y explicación: tipografía de texto del tema;
+       2. escenas dialogadas: tipografía de escena, con etiqueta, margen lateral y fondo suave;
+       3. datos del caso, fuentes y evidencias: tipografía de texto compacta, cifras tabulares, etiqueta en versalitas. */
+    .escena { font-family: var(--fuente-escena); background: var(--fondo-suave); border-left: 3px solid var(--tenue);
+              border-radius: 0 12px 12px 0; padding: 1rem 1.4rem .9rem; margin: 1.8rem 0; max-width: none; }
+    .escena p { margin: 0; }
+    .escena-etiqueta { font-family: var(--fuente-texto); font-size: .7rem; font-weight: 700; letter-spacing: .09em;
+                       text-transform: uppercase; color: var(--primario); margin-bottom: .35rem !important; }
+    .escena-contexto { font-size: .95rem; color: var(--texto-suave); line-height: 1.5; margin-bottom: .6rem !important; }
+    .turno { display: grid; grid-template-columns: 9.5rem 1fr; gap: .15rem 1.1rem; padding: .6rem 0; border-top: 1px solid var(--linea); }
+    .ponente { font-family: var(--fuente-texto); font-size: .8rem; font-weight: 700; color: var(--oscuro); line-height: 1.35; padding-top: .2rem; }
+    .ponente small { display: block; font-weight: 400; color: var(--texto-tenue); font-size: .74rem; }
+    .turno > p:last-child { font-size: 1.04rem; line-height: 1.6; color: var(--texto); }
+    .turno.sistema .ponente { color: var(--texto-suave); }
+    .turno.sistema > p:last-child { font-family: var(--fuente-texto); font-size: .9rem; color: #4b5563; font-variant-numeric: tabular-nums; }
+    .escena-pie { font-family: var(--fuente-texto); font-size: .74rem; color: var(--texto-tenue); border-top: 1px solid var(--linea); padding-top: .5rem; margin-top: .1rem !important; }
+    /* Hilo conductor: la narración del caso va en cursiva dentro de un recuadro gris claro, con la etiqueta
+       «El caso», al abrir, en cada capítulo, cada vez que se revela un dato y al cerrar. */
+    .caso, .expediente { background: #f7f7f8; border: 1px solid #e5e7eb; border-radius: 10px;
+                         padding: .9rem 1.3rem 1rem; margin: 1.4rem 0 1.6rem; max-width: none; }
+    .caso-etiqueta, .expediente b:first-child { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .09em;
+                                                text-transform: uppercase; color: var(--oscuro); margin: 0 0 .35rem; font-style: normal; }
+    /* Aviso de ficción: al principio del documento, antes del prólogo. */
+    .aviso-ficcion { border-left: 4px solid #b91c1c; background: #fef2f2; border-radius: 0 8px 8px 0;
+                     padding: .7rem 1.1rem; margin: .4rem 0 1.4rem; font-size: .92rem; line-height: 1.55; color: #3b0d0d; max-width: none; }
+    .aviso-ficcion p { margin: 0; }
+    .aviso-ficcion p + p { margin-top: .4rem; }
+    .caso p { margin: 0; }
+    .caso p + p { margin-top: .6rem; }
+    .caso > p:not(.caso-etiqueta) { font-size: 1.08rem; line-height: 1.65; color: var(--texto); font-style: italic; }
+    .expediente { font-size: .92rem; font-variant-numeric: tabular-nums; color: var(--texto); padding: .6rem 1.3rem .7rem; }
+    .ficha { border: 1px solid var(--borde); border-radius: 12px; padding: .9rem 1.2rem; margin: 1.6rem 0; max-width: none; font-size: .92rem; }
+    .ficha-titulo { font-family: var(--fuente-titulos); font-weight: 600; color: var(--oscuro); font-size: 1.02rem; margin: 0 0 .5rem; }
+    .ficha dl { display: grid; grid-template-columns: 11rem 1fr; margin: 0; }
+    .ficha dt, .ficha dd { margin: 0; padding: .42rem 0; border-top: 1px solid #f1ebfa; }
+    .ficha dt { font-size: .7rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--texto-suave); padding-top: .55rem; }
+    .ficha dt.acordado, .ficha dd.acordado { border-top: 2px solid var(--primario); }
+    .ficha dt.acordado { color: var(--primario); }
+    .ficha dt.evidencia { color: var(--acento); }
+    @media (max-width: 720px) {
+      .escena { padding: .9rem 1rem .8rem; }
+      .turno { grid-template-columns: 1fr; }
+      .ficha dl { grid-template-columns: 1fr; }
+      .ficha dd { border-top: none; padding-top: 0; }
+    }
+    h1, h2, h3, .institution-name, .bloque-title, .subseccion-summary { font-family: var(--fuente-titulos); }
+    .site-header { background: #fff; border-bottom: 1px solid rgba(var(--primario-rgb),.15); justify-content: flex-start; gap: 1rem; align-items: center; }
+    .site-header .brand-logo { height: 52px; width: auto; }
+    .institution-name { color: var(--texto); font-weight: 600; }
+    .institution-sub { color: var(--primario); }
+
+    /* Ancho completo de pantalla, con márgenes que escalan */
+    .page { max-width: none; box-shadow: none; }
+    .site-header, .report-header { padding-left: clamp(1rem, 4vw, 3.5rem); padding-right: clamp(1rem, 4vw, 3.5rem); }
+    .report-body { padding: 1.8rem clamp(1rem, 4vw, 3.5rem) 3rem; }
+    @media (min-width: 1400px) { body { font-size: 1.06rem; } }
+
+    /* Gráficos: no crecen sin límite en pantallas anchas */
+    figure svg { max-width: 1100px; margin: 0 auto; }
+    /* Diagramas verticales: estrechos en escritorio y a todo el ancho en móvil, sin desplazamiento */
+    figure.vertical svg { max-width: 560px; }
+    @media (max-width: 720px) {
+      figure.vertical { overflow-x: visible; }
+      figure.vertical svg { min-width: 0 !important; }
+      figure.vertical::before { content: none !important; display: none !important; }
+    }
+
+    /* Móvil y tableta estrecha */
+    /* Aviso de desplazamiento solo cuando el gráfico (mín. 680px) no cabe */
+    @media (max-width: 700px) {
+      figure::before { content: 'Desliza para ver el gráfico completo →'; display: block; font-size: .72rem; color: var(--texto-tenue); text-align: right; margin-bottom: .3rem; }
+    }
+    @media (max-width: 720px) {
+      body { line-height: 1.6; }
+      .site-header .brand-logo { height: 38px; }
+      .institution-name { font-size: .98rem; }
+      .institution-sub { font-size: .66rem; }
+      .report-header { padding-top: .7rem; padding-bottom: .7rem; }
+      .bloque > *:not(.bloque-summary) { padding-left: 0; }
+      .bloque > table { margin-left: 0; width: 100%; }
+      .bloque-summary::before { width: .7rem; height: .7rem; margin-right: .45rem; }
+      .bloque-chip { padding: .3rem .75rem; }
+      .bloque-title { font-size: .98rem; line-height: 1.3; }
+      .bloque-btn { display: none; }
+      blockquote { padding: .5rem .9rem; }
+      /* Los gráficos conservan un tamaño legible y se desplazan en horizontal */
+      figure { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-left: 0 !important; margin-right: 0 !important; }
+      figure svg { min-width: 680px; }
+      figcaption { position: sticky; left: 0; max-width: calc(100vw - 2rem); text-align: left !important; }
+      /* Tablas en fichas apiladas: cada fila es una tarjeta con sus etiquetas */
+      table, tbody, tr, td { display: block; width: 100%; }
+      thead { display: none; }
+      tr { border: 1px solid rgba(var(--primario-rgb),.15); border-radius: 10px; margin: 0 0 .8rem; padding: .55rem .85rem; background: #fff; }
+      tr:hover td { background: transparent; }
+      td { border: none; padding: .18rem 0; word-break: normal; overflow-wrap: anywhere; hyphens: auto; }
+      td:first-child { font-family: var(--fuente-titulos); font-weight: 600; color: var(--oscuro); font-size: 1rem; padding-bottom: .3rem; }
+      td[data-label]:not(:first-child)::before { content: attr(data-label); display: block; font-size: .7rem; letter-spacing: .05em; text-transform: uppercase; color: var(--texto-tenue); }
+    }
+
+    /* Comparativa de versiones en tarjetas: una tarjeta por idea y, dentro, una subtarjeta por versión
+       con su nombre (data-version), el texto y el comentario de lo que ha cambiado y por qué.
+       Las subtarjetas van en 4 columnas (o --cols) en escritorio, 2 en tableta y 1 en móvil. */
+    .comparativa { margin: 1.6rem 0 1.4rem; font-size: .9rem; }
+    .cmp-cab { display: none; }
+    .cmp-fila { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: .7rem;
+      background: #fff; border: 1px solid var(--linea); border-radius: 12px; padding: 1rem 1.05rem 1.05rem;
+      margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(var(--primario-rgb),.06); }
+    .cmp-idea { grid-column: 1 / -1; margin: 0 0 .1rem; font-family: var(--fuente-titulos);
+      font-size: .8rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--primario); }
+    .cmp-celda { background: var(--fondo); border-radius: 8px; padding: .7rem .8rem .75rem; min-width: 0; }
+    .cmp-celda[data-version^="Original"] { background: #fff; border: 1px dashed var(--tenue); }
+    .cmp-celda::before { content: attr(data-version); display: block; font-size: .7rem; font-weight: 700;
+      color: var(--oscuro); margin-bottom: .35rem; letter-spacing: .02em; }
+    .cmp-celda p { margin: 0; }
+    .cmp-texto { font-size: .9rem; line-height: 1.5; color: var(--texto); }
+    .cmp-texto + .cmp-texto { margin-top: .2rem !important; }
+    .cmp-nota { margin-top: .6rem !important; padding-top: .5rem; border-top: 1px solid var(--linea);
+      font-size: .78rem; line-height: 1.45; color: var(--texto-suave); }
+    .cmp-vacia .cmp-texto { color: var(--texto-tenue); font-style: italic; }
+    .cmp-pie { background: var(--fondo); }
+    .cmp-pie .cmp-celda { background: #fff; }
+    .cmp-pie .cmp-texto { font-variant-numeric: tabular-nums; font-weight: 700; font-size: .95rem; }
+    .report-body li, .report-body p { overflow-wrap: anywhere; }
+    @media (max-width: 1000px) { .cmp-fila { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 560px) { .cmp-fila { grid-template-columns: 1fr; } }
+      .bloque-chip { background: rgba(var(--primario-rgb), 0.4); } .bloque-summary, .bloque-summary:hover { color: var(--oscuro); } .bloque-summary { font-size: 1.17rem; font-weight: 700; } .bloque-btn { color: var(--oscuro); background: rgba(255,255,255,.92); border-color: transparent; } .bloque-btn:hover { background: #fff; color: var(--oscuro); } .bloque-summary::before { display: none; } :root { --esquinas: 16px; } .caso, .expediente, .ficha, .cmp-fila, .aviso-ficcion { border-radius: 16px; } .escena { border-radius: 0 16px 16px 0; } .bloque-chip, .bloque-btn { border-radius: 16px; }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <header class="site-header">
+      <div class="institution">
+        <div class="institution-name">Copiar piezas sueltas, construir la cartera propia</div>
+        <div class="institution-sub">SoftwareFactory</div>
+      </div>
+    </header>
+
+    <div class="report-header">
+      <div class="report-title">Recursos para la SoftwareFactory</div>
+    </div>
+
+    <div class="report-body">
+      <p>Lo que existe en octubre de 2026 basta para cubrir la <strong>ejecución de cada devslice</strong> y buena parte de los trabajos de <strong>aprender</strong> y <strong>enseñar</strong>, pero no la <strong>cartera de muchos proyectos vista desde una sola persona</strong>, que sigue siendo el hueco central que la SF tiene que construir. Las piezas de más valor son de bajo riesgo porque son texto: los flujos publicados por ingenieros con experiencia (Reed, Beck, Willison, Ronacher, Huntley y la guía oficial de Anthropic), las skills oficiales de Anthropic (<code>skill-creator</code>, <code>mcp-builder</code>, <code>learning-output-style</code>, <code>discernment-nudge</code>, <code>frontend-design</code>) y dos colecciones comunitarias con licencia MIT, Superpowers y mattpocock/skills. Para el MCP de JKanban no hay ningún servidor maduro sobre SQLite que encaje; Backlog.md, beads y claude-code-kanban sirven como fuente de ideas, y eso coincide con la decisión ya tomada de construirlo a medida. En vibe design, Claude Design es ya una función de Claude y de Claude Code (<code>/design</code>), y <strong>el sitio independiente claude.ai/design cierra el 14-12-2026</strong>: cualquier flujo que dependa de <code>/design-sync</code> necesita un plan antes de esa fecha. Para el agente dentro de un producto, la documentación oficial es tajante: <strong>los productos deben usar clave de API, no la suscripción del desarrollador</strong>, y el Agent SDK permite aislar la configuración de desarrollo con <code>setting_sources=[]</code> y otros ajustes. El riesgo transversal es la cadena de suministro. Una auditoría de 2026 encontró problemas críticos en el 13,4 % de las skills de registros abiertos, y el propio marketplace de Anthropic advierte de que no garantiza el contenido, así que la política de copiar y fijar en <code>skills/</code> con ORIGIN.md está justificada. Huecos que nadie cubre: la cartera con límite de trabajo en curso, el punto de reanudación por proyecto, enseñar a programar con IA en un contexto de formación real, Tkinter, migraciones con SQL nativo y gemelos digitales para una persona.</p>
+<blockquote>
+<p><strong>Cómo leer este informe.</strong> <strong>[V]</strong> indica un dato comprobado en la fuente primaria (documentación oficial, README o API de GitHub, leídos el 26-10-2026). <strong>[S]</strong> indica un dato secundario: prensa, agregadores, fragmentos de buscador, fuentes de proveedores sobre terceros u opiniones. Algunos datos de las notas no se comprobaron en esta investigación; se marcan <strong>[S, no comprobado]</strong>. Las estrellas de GitHub miden popularidad, no calidad. <strong>Nada se ha instalado ni probado</strong>: todo lo que aparece es candidato, no recomendación aprobada. Las citas literales se dejan en inglés.</p>
+<p><strong>Decisiones del propietario que el informe da por tomadas.</strong> (1) El MCP de JKanban se construye a medida: de otros proyectos solo se toman ideas. (2) Las skills externas son candidatas a copiar y fijar en <code>skills/</code> con su ORIGIN.md; nunca se instalan marketplaces que se actualizan solos. (3) La herramienta de vibe design es Claude Design.</p>
+<p><strong>Criterios de conflicto que se aplican a cada candidato.</strong> Aprobación humana antes de integrar (y antes de cualquier actividad desatendida); JKanban como memoria entre sesiones y proyectos; nombres descriptivos; visión primero; vibe design al principio de la interfaz; política de datos (brain de desarrollo separado de la KB operativa y sin datos personales en herramientas de terceros).</p>
+</blockquote>
+<details id="los-testimonios-dicen-que-el-cuello-de-botella-es-terminar-y-no-dispersarse" class="bloque bloque-1" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Los testimonios dicen que el cuello de botella es terminar y no dispersarse</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<p>El problema manifiesto más repetido no es empezar, sino acabar. En el hilo de Hacker News «Is AI the final nail in the coffin for solo developers?» (febrero de 2026), unos celebran que la IA les ha hecho retomar «personal project ideas I've let just sit for years», y otros responden que «the vast majority of it is unabashed shovelware» y que la distribución se ha saturado <strong>[S, opinión]</strong> (<a href="https://news.ycombinator.com/item?id=47059223">HN 47059223</a>). No apareció ningún estudio que cuantifique cuántos proyectos de indies con IA llegan a publicarse. Lo que sí está medido es la versión de cada tarea: el <strong>66 %</strong> de los encuestados por Stack Overflow en 2025 sufre soluciones «almost right, but not quite», y el 45,2 % dice que depurar código generado lleva más tiempo <strong>[V]</strong> (<a href="https://survey.stackoverflow.co/2025/ai">Stack Overflow 2025</a>). Para el hombre orquesta el riesgo es la dispersión, y los remedios que se citan (un proyecto principal, alcance pequeño y una definición previa de «terminado») son los que ya defienden las devslices y los criterios de aceptación de la SF. El informe anterior llegó a la misma conclusión: los testimonios sitúan el techo en <strong>dos a cuatro frentes simultáneos</strong>.</p>
+<p>La segunda fricción es el coste de estar al día. Siddhant Khare (8-02-2026) cuenta fines de semana perdidos evaluando herramientas: «Each migration cost me a weekend and gave me maybe a 5% improvement that I couldn't even measure properly». Su receta es «one primary coding assistant and know it deeply» y evaluar herramientas «when they've proven themselves over months, not days» <strong>[V]</strong> (<a href="https://siddhantkhare.com/writing/ai-fatigue-is-real">siddhantkhare.com</a>). Karpathy escribió en diciembre de 2025 «I've never felt this much behind as a programmer» <strong>[S]</strong> (<a href="https://x.com/karpathy/status/2004607146781278521">x.com/karpathy</a>). Las cifras de gasto mensual y de «demasiadas herramientas» que circulan en blogs no tienen fuente primaria y no deben usarse. La consecuencia para la SF es una vigilancia tecnológica <strong>por lotes y no reactiva</strong>, y este mismo informe debería leerse con ese filtro: casi todo lo que contiene es para evaluar despacio, no para adoptar.</p>
+<p>Los otros problemas manifiestos tienen datos sólidos. El primero es la <strong>atrofia y el aprendizaje</strong>. En el ensayo de Anthropic (29-01-2026), 52 ingenieros que aprendían Trio con IA sacaron un 50 % en el cuestionario frente al 67 % del grupo sin IA (d=0,738; p=0,01), sin una mejora de velocidad significativa. Pedir explicaciones o hacer preguntas conceptuales conservó el aprendizaje (65-86 %), mientras que delegar la generación lo hundió por debajo del 40 % <strong>[V]</strong> (<a href="https://www.anthropic.com/research/AI-assistance-coding-skills">Anthropic</a>; <a href="https://arxiv.org/abs/2601.20245">arXiv 2601.20245</a>). El segundo es la <strong>docencia</strong>. En Yale, un profesor estima que el 70 % o más de los estudiantes usa IA; según él, entre el 95 y el 99 % no supo responder en el examen sobre una técnica que aparecía en sus entregas, y ha pasado a valorar los deberes con un 0 % y los exámenes escritos con un 90 % <strong>[V]</strong> (<a href="https://thenewjournalatyale.com/2025/10/inside-yales-quiet-reckoning-with-ai/">The New Journal at Yale</a>). El tercero es el <strong>paso de prototipo a producción</strong>. Escape.tech escaneó de forma pasiva más de 5.600 apps de plataformas de vibe coding y encontró más de 2.000 vulnerabilidades, más de 400 secretos expuestos y 175 casos de datos personales, casi siempre accesibles sin autenticación <strong>[V]</strong> (<a href="https://escape.tech/blog/methodology-how-we-discovered-vulnerabilities-apps-built-with-vibe-coding/">Escape.tech</a>). El cuarto es el <strong>firmware</strong>, donde la fricción documentada son las funciones de librería y las configuraciones de registros alucinadas <strong>[V, resultados de los autores]</strong> (<a href="https://ieeexplore.ieee.org/abstract/document/11694922/">IEEE Xplore</a>). En cambio, la incertidumbre sobre la arquitectura de un agente de producto tras prototiparlo con Claude Code es real según el propietario, pero <strong>no aparece en testimonios verificables</strong>.</p>
+</details><details id="la-regla-de-adopcion-la-dicta-la-cadena-de-suministro" class="bloque bloque-2"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">La regla de adopción la dicta la cadena de suministro</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<p>Antes de entrar en los candidatos, conviene fijar cómo se adoptan, porque eso condiciona todo lo demás. Snyk analizó 3.984 skills de ClawHub y skills.sh en febrero de 2026: el <strong>13,4 %</strong> tenía al menos un problema crítico (malware, inyección de prompts o secretos expuestos) y el 36,8 %, algún fallo de cualquier gravedad <strong>[S, resumen de búsqueda]</strong> (<a href="https://snyk.io/blog/toxicskills-malicious-ai-agent-skills-clawhub">Snyk</a>). El README del marketplace oficial avisa de que Anthropic no controla los servidores MCP ni el software que incluyen los plugins, y de que la revisión de los externos no garantiza su contenido <strong>[V]</strong> (<a href="https://github.com/anthropics/claude-plugins-official">claude-plugins-official</a>). Hay además dos vectores menos visibles. ccstatusline tuvo que corregir comandos Git controlados por el repositorio porque las status lines se ejecutan en cada repintado <strong>[V]</strong> (<a href="https://github.com/sirmalloc/ccstatusline">ccstatusline</a>). Y varios instaladores (claude-mem, beads, ccusage vía <code>npx</code>) usan <code>npx</code> o <code>curl | bash</code> e instalan hooks por su cuenta <strong>[V]</strong> (<a href="https://github.com/thedotmack/claude-mem">claude-mem</a>; <a href="https://github.com/gastownhall/beads">beads</a>).</p>
+<p>La decisión del propietario de copiar y fijar en <code>skills/</code> con ORIGIN.md es, por tanto, la correcta, y hay que extenderla con tres matices. El primero es un <strong>escalado de la revisión según lo que ejecuta la pieza</strong>: las skills que son solo texto requieren leerlas enteras; los hooks, las status lines y los servidores MCP requieren leer su código y fijar la versión; y los instaladores que modifican <code>AGENTS.md</code>, <code>settings.json</code> o arrancan servicios residentes no se ejecutan nunca. El segundo es <strong>renombrar al copiar</strong>. Muchas skills tienen nombres de marca o de broma (<code>superpowers</code>, <code>ralph-loop</code>, <code>wayfinder</code>, <code>grill-me</code>, <code>wait-what</code>), que chocan con la regla de nombres descriptivos. La copia debería llevar un nombre como los que ya usa la SF (<code>documento_vision</code>, <code>diseno_interfaz</code>), y su ORIGIN.md debería conservar el nombre, el commit y la licencia originales. El tercero es la <strong>licencia como filtro previo</strong>. Sin licencia no se puede copiar (codebase-to-course y los proyectos de disler). Las licencias CC BY-NC-ND (la lista awesome-claude-code) y <em>source-available</em> (las document skills de Anthropic) impiden redistribuir con la SF. Las AGPL y GPL (basic-memory, claude-squad, opcode, claudecodeui, anotifier y agent-notifications) se pueden usar como herramienta sin modificar, pero no se pueden incorporar al código propio. La Commons Clause de task-master prohíbe venderlo.</p>
+</details><details id="desarrollar-el-metodo-ya-esta-escrito-y-cabe-en-la-devslice" class="bloque bloque-3"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Desarrollar: el método ya está escrito y cabe en la devslice</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<details id="seis-flujos-personales-confirman-la-sf-y-le-a-aden-cinco-piezas" class="subseccion" open><summary class="subseccion-summary">Seis flujos personales confirman la SF y le añaden cinco piezas</summary>
+<p>Los flujos maduros comparten la misma secuencia que la SF: afinar la idea con una entrevista, escribir la spec, planificar en pasos pequeños con tests, ejecutar con una comprobación ejecutable y revisar con una persona. Lo aprovechable es lo que cada autor añade, y casi todo se puede copiar como texto de método sin instalar nada.</p>
+<table>
+<thead>
+<tr>
+<th>Fuente</th>
+<th>Qué tomar</th>
+<th>Conflicto con la SF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Fuente">Harper Reed, 16-02-2025 <strong>[V]</strong> (<a href="https://harper.blog/2025/02/16/my-llm-codegen-workflow-atm/">harper.blog</a>)</td>
+<td data-label="Qué tomar">Entrevista de <strong>una pregunta cada vez</strong>; un checklist <code>todo.md</code> que el agente marca <strong>para conservar el estado entre sesiones</strong>; fijar el stack antes de generar, porque Claude tiende a React; planificar <strong>por tarea</strong> en brownfield</td>
+<td data-label="Conflicto con la SF">Planifica todo el greenfield de una vez, mientras la SF detalla solo lo que ya está claro; sin kanban ni aprobación formal. El autor lo llama un flujo «de un solo jugador»</td>
+</tr>
+<tr>
+<td data-label="Fuente">Kent Beck, 25-06-2025 <strong>[V]</strong> (<a href="https://newsletter.kentbeck.com/p/augmented-coding-beyond-the-vibes">newsletter.kentbeck.com</a>)</td>
+<td data-label="Qué tomar"><strong>Tres señales de desvío</strong>: bucles, funcionalidad no pedida e indicios de trampa (desactivar o borrar tests); separar los commits estructurales de los de comportamiento (<em>Tidy First</em>); con «go», siguiente test sin marcar en <code>plan.md</code></td>
+<td data-label="Conflicto con la SF">Ninguno grave; no documenta el formato de <code>plan.md</code></td>
+</tr>
+<tr>
+<td data-label="Fuente">Simon Willison, 07-10-2025 <strong>[V]</strong> (<a href="https://simonwillison.net/2025/Oct/7/vibe-engineering/">simonwillison.net</a>)</td>
+<td data-label="Qué tomar">Lista de «vibe engineering» como autoevaluación de la SF; faltan <strong>entornos de previsualización</strong> y un criterio explícito de <strong>qué no delegar</strong></td>
+<td data-label="Conflicto con la SF">Ninguno</td>
+</tr>
+<tr>
+<td data-label="Fuente">Armin Ronacher, 12-06-2025 <strong>[V]</strong> (<a href="https://lucumr.pocoo.org/2025/6/12/agentic-coding/">lucumr.pocoo.org</a>)</td>
+<td data-label="Qué tomar"><strong>Entorno observable por el agente</strong>: logs en archivo que el agente lee, <code>make dev</code>, pidfile para no duplicar servicios, emails en stdout en modo debug; <strong>SQL plano que coincide con los logs</strong>; permisos visibles y locales; refactorizar cuando el código supera lo que abarca el agente</td>
+<td data-label="Conflicto con la SF">Ejecuta sin permisos (lo contiene en Docker), lo que choca con la aprobación humana; su preferencia por Go es personal</td>
+</tr>
+<tr>
+<td data-label="Fuente">Geoffrey Huntley, 14-07-2025 <strong>[V]</strong> (<a href="https://ghuntley.com/ralph/">ghuntley.com/ralph</a>)</td>
+<td data-label="Qué tomar"><strong>Un elemento por vuelta</strong>; documentar por qué existe cada test; «buscar antes de suponer» que algo no existe; un <code>AGENT.md</code> breve</td>
+<td data-label="Conflicto con la SF">El bucle autónomo nocturno choca con la aprobación humana y con no programar actividad en segundo plano. El propio autor lo desaconseja en código existente. Como mucho, en un spike desechable</td>
+</tr>
+<tr>
+<td data-label="Fuente">Anthropic, «Best practices» (documentación viva) <strong>[V]</strong> (<a href="https://code.claude.com/docs/en/best-practices">code.claude.com</a>)</td>
+<td data-label="Qué tomar">Dar al agente una <strong>comprobación ejecutable</strong> («la diferencia entre una sesión que vigilas y una de la que te puedes ir»); pedir <strong>evidencias</strong>; una spec que diga qué queda fuera de alcance y acabe en una verificación de extremo a extremo; <strong>sesión nueva tras escribir la spec</strong>; <strong>revisor adversarial en contexto limpio</strong> que solo informe de huecos de corrección</td>
+<td data-label="Conflicto con la SF">Los modos auto o desatendidos deben pasar por el propietario</td>
+</tr>
+</tbody>
+</table>
+<p>Juntas, estas fuentes dan una propuesta concreta para la plantilla de devslice. Dentro de la slice, la memoria la lleva un <strong>checklist que marca el agente</strong>, enlazado a la tarea de JKanban; entre slices y entre proyectos, la lleva el kanban. El informe de cierre tendría un apartado fijo que responda a las tres preguntas de Beck («¿hubo bucles, alcance extra o tests tocados?») con evidencia ejecutable. La definición técnica añadiría el requisito de entorno observable por el agente de Ronacher, que encaja con la preferencia por backend primero y SQL nativo.</p>
+</details><details id="superpowers-y-mattpocock-skills-son-la-fuente-comunitaria-con-mas-se-al" class="subseccion" open><summary class="subseccion-summary">Superpowers y mattpocock/skills son la fuente comunitaria con más señal</summary>
+<p>Las dos colecciones tienen licencia MIT, actividad en octubre de 2026 y entrada en el marketplace oficial <strong>[V]</strong> (<a href="https://github.com/obra/superpowers">obra/superpowers</a>; <a href="https://github.com/mattpocock/skills">mattpocock/skills</a>). Superpowers aporta <code>writing-plans</code>, <code>executing-plans</code>, <code>test-driven-development</code>, <code>systematic-debugging</code>, <code>verification-before-completion</code> y <code>requesting-/receiving-code-review</code>. mattpocock aporta <code>to-spec</code>, <code>to-tickets</code> (trocea un plan en tickets <em>tracer-bullet</em> con dependencias y los publica en el tracker configurado), <code>wayfinder</code> (un trabajo mayor que una sesión como mapa de tickets de decisión), <code>retro</code>, <code>handoff</code> y <code>grill-me</code> <strong>[V]</strong> (<a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/to-tickets/SKILL.md">to-tickets</a>; <a href="https://github.com/mattpocock/skills/blob/main/skills/engineering/wayfinder/SKILL.md">wayfinder</a>).</p>
+<p>Lo que conviene tomar son piezas sueltas, no el sistema entero. <code>to-tickets</code> y <code>wayfinder</code> son la plantilla más cercana a «preparar devslices y tareas antes del desarrollo». Si su tracker admite un destino propio, podrían escribir en JKanban, pero eso no está comprobado. <code>verification-before-completion</code> y el par de revisión de Superpowers casan con el informe de cierre con evidencias. El conflicto es de alcance. Las dos colecciones arrancan de una idea o de un plan, no de una visión ni de un vibe design, y sus skills de <em>brainstorming</em> y <em>prototype</em> compiten con <code>documento_vision</code> y <code>diseno_interfaz</code>. Adoptar Superpowers entero, con su skill <code>using-superpowers</code> que se impone al resto, sería adoptar una metodología completa, algo que CLAUDE.md prohíbe hacer por haber leído un listado. Las cifras de unas 300.000 estrellas, leídas en la API de GitHub <strong>[V]</strong>, son excepcionalmente altas y no se ha descartado que estén infladas.</p>
+<p>En el marketplace oficial de Anthropic (Apache-2.0 en el repositorio, aunque cada plugin tiene su propia LICENSE), los plugins internos útiles para desarrollar son <code>feature-dev</code> (siete fases con agentes), <code>code-review</code> (varios agentes con puntuación de confianza para filtrar falsos positivos), <code>pr-review-toolkit</code>, <code>security-guidance</code> y <code>claude-security</code> <strong>[V]</strong> (<a href="https://github.com/anthropics/claude-plugins-official/tree/main/plugins">plugins</a>). <code>security-guidance</code> y <code>claude-security</code> responden directamente a los datos de Escape.tech: deberían formar parte de una <strong>puerta de prototipo a producción</strong> que revise autorización, secretos y datos personales. TDD Guard (MIT, 2.367★) bloquea con hooks los cambios que violan el TDD <strong>[V]</strong> (<a href="https://github.com/nizos/tdd-guard">nizos/tdd-guard</a>). Es atractivo para las pruebas anticipadas, pero, como cualquier hook, ejecuta código y requiere revisión del código.</p>
+</details></details><details id="cartera-kanban-y-memoria-aqui-la-sf-construye-y-los-demas-solo-inspiran" class="bloque bloque-4"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Cartera, kanban y memoria: aquí la SF construye y los demás solo inspiran</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<details id="el-mcp-de-jkanban-puede-tomar-ideas-de-cuatro-proyectos-sin-depender-de-ninguno" class="subseccion" open><summary class="subseccion-summary">El MCP de JKanban puede tomar ideas de cuatro proyectos sin depender de ninguno</summary>
+<p>No hay ningún servidor MCP de kanban sobre SQLite en Python que esté maduro. Lo útil son patrones de diseño, y eso confirma la decisión de construirlo a medida.</p>
+<table>
+<thead>
+<tr>
+<th>Candidato</th>
+<th>Qué tomar como idea</th>
+<th>Conflicto o riesgo</th>
+<th>Licencia y estado <strong>[V]</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Candidato"><strong>Backlog.md</strong> (<a href="https://github.com/MrLesk/Backlog.md">repo</a>)</td>
+<td data-label="Qué tomar como idea">Superficie de herramientas de lectura (<code>task list/view</code>, <code>decision list</code>, <code>search</code>) con <strong>JSON estable y versionado</strong> (<code>--json</code>); entidades <strong>«decision»</strong> y «draft» (el formato de la decisión conviene estudiarlo antes de diseñar la bandeja de decisiones); regla «una tarea por sesión de agente, un PR por tarea»; local-first y sin telemetría</td>
+<td data-label="Conflicto o riesgo">Las tareas viven como Markdown en git, no en SQLite; competiría con JKanban como fuente de verdad</td>
+<td data-label="Licencia y estado [V]">MIT, push 25-10-2026, 7.150★</td>
+</tr>
+<tr>
+<td data-label="Candidato"><strong>beads</strong> (<a href="https://github.com/gastownhall/beads">repo</a>)</td>
+<td data-label="Qué tomar como idea">Patrón <strong><code>prime</code>/<code>remember</code></strong>: guardar una idea del proyecto e inyectarla al arrancar la sesión, exactamente lo que JKanban haría con SessionStart; IDs con hash para evitar colisiones</td>
+<td data-label="Conflicto o riesgo"><code>bd init</code> modifica <code>AGENTS.md</code> e instala integraciones por defecto; instalación por <code>curl \| bash</code></td>
+<td data-label="Licencia y estado [V]">MIT, push 26-10-2026</td>
+</tr>
+<tr>
+<td data-label="Candidato"><strong>claude-code-kanban</strong> (<a href="https://github.com/NikiforovAll/claude-code-kanban">repo</a>)</td>
+<td data-label="Qué tomar como idea">Leer las tareas y transcripciones que Claude Code ya escribe; responder permisos desde el tablero; <code>dispatch</code> de una tarea a una sesión nueva</td>
+<td data-label="Conflicto o riesgo">La documentación oficial desaconseja analizar los JSONL, cuyo formato cambia entre versiones</td>
+<td data-label="Licencia y estado [V]">MIT, push 24-10-2026, 80★</td>
+</tr>
+<tr>
+<td data-label="Candidato"><strong>claude-task-master</strong> (<a href="https://github.com/eyaltoledano/claude-task-master/blob/main/LICENSE">LICENSE</a>)</td>
+<td data-label="Qué tomar como idea">Descomposición de PRD en tareas</td>
+<td data-label="Conflicto o riesgo"><strong>Commons Clause</strong> (prohíbe vender, incluido el hosting o la consultoría); exige claves de API propias, lo que choca con la política de credenciales de la SF; ~6 meses sin push</td>
+<td data-label="Licencia y estado [V]">MIT + Commons Clause, push 28-04-2026</td>
+</tr>
+<tr>
+<td data-label="Candidato"><strong>vibe-kanban</strong> (<a href="https://www.vibekanban.com/blog/shutdown">anuncio</a>)</td>
+<td data-label="Qué tomar como idea">Tablero para orquestar agentes en worktrees</td>
+<td data-label="Conflicto o riesgo"><strong>En cierre</strong> desde el 10-04-2026; ahora en manos de la comunidad</td>
+<td data-label="Licencia y estado [V]">Apache-2.0</td>
+</tr>
+</tbody>
+</table>
+<p>Para construirlo, la referencia oficial más directa son las skills <code>mcp-builder</code> (FastMCP en Python o Node/TypeScript) y el plugin <code>mcp-server-dev</code> (modelos de despliegue y diseño de herramientas), ambos de Anthropic <strong>[V]</strong> (<a href="https://github.com/anthropics/skills/tree/main/skills/mcp-builder">mcp-builder</a>; <a href="https://github.com/anthropics/claude-plugins-official/tree/main/plugins/mcp-server-dev">mcp-server-dev</a>). Encajan con el stack FastAPI + SQLite del kanban. Lo prudente es copiarlas en <code>skills/</code> con ORIGIN.md, como cualquier skill externa. El informe anterior ya describió los puntos de enganche: hooks de ámbito de usuario de tipo <code>http</code> hacia un endpoint de JKanban, <code>additionalContext</code> en SessionStart para inyectar el estado del proyecto y Stop/SessionEnd para el informe de cierre (<a href="https://code.claude.com/docs/en/hooks.md">Hooks</a>).</p>
+</details><details id="la-memoria-entre-sesiones-no-necesita-vectores-necesita-un-punto-de-reanudacion" class="subseccion" open><summary class="subseccion-summary">La memoria entre sesiones no necesita vectores, necesita un punto de reanudación</summary>
+<p>El Memory Bank de Cline separa lo estable de lo vivo: <code>projectbrief</code>, <code>productContext</code>, <code>systemPatterns</code> y <code>techContext</code> frente a <code>activeContext</code> (foco actual y siguientes pasos) y <code>progress</code> (qué funciona y qué falta) <strong>[V]</strong> (<a href="https://docs.cline.bot/prompting/cline-memory-bank">docs.cline.bot</a>). La correspondencia con la SF es casi exacta. Lo estable son la visión, la spec funcional, la definición técnica y los ADR. Lo vivo son el kanban y el último informe de cierre. Lo que falta es un <strong>punto de reanudación breve por proyecto</strong>: foco, siguiente devslice, bloqueos y comando para arrancar. Con muchos proyectos aparcados, es la pieza de más valor. El Memory Bank invita a releer seis archivos en cada sesión, lo que va contra el contexto mínimo que recomienda Anthropic; conviene cargarlo bajo demanda. AGENTS.md, ahora en la Agentic AI Foundation, es el «README para agentes» que adoptan Codex, Cursor, Amp y otros <strong>[V]</strong> (<a href="https://agents.md/">agents.md</a>). Publicarlo junto al CLAUDE.md haría portables los proyectos consumidores, pero es una opción, no una necesidad.</p>
+<p>Las memorias automáticas confirman el patrón y no sirven para adoptarlas. claude-mem (Apache-2.0, 103.222★) captura observaciones, las resume y las inyecta en sesiones futuras. Pero su instalador <strong>pide iniciar sesión en su servicio</strong> para aprovisionar una clave de memoria, salvo que se desactive expresamente, y deja un worker residente <strong>[V]</strong> (<a href="https://github.com/thedotmack/claude-mem">claude-mem</a>). Eso choca con la política de datos y con la separación entre brain y KB. <code>remember</code>, del marketplace oficial, escribe registros diarios por niveles, y su licencia figura como NOASSERTION <strong>[V]</strong> (<a href="https://github.com/Digital-Process-Tools/claude-remember">claude-remember</a>). Hay además un hecho con fecha que obliga a la SF a persistir sus propios resúmenes: según el README de claude-code-karma, <strong>Claude Code solo conserva los datos de sesión unos 30 días</strong> <strong>[S, afirmación de tercero]</strong> (<a href="https://github.com/JayantDevkar/claude-code-karma">claude-code-karma</a>).</p>
+</details><details id="shape-up-aporta-el-freno-que-la-cartera-necesita" class="subseccion" open><summary class="subseccion-summary">Shape Up aporta el freno que la cartera necesita</summary>
+<p>De Shape Up se pueden tomar dos conceptos para una persona con proyectos de riesgo. El <strong>appetite</strong> es el tiempo que se está dispuesto a gastar, fijado antes de empezar, con el alcance flexible. El <strong>circuit breaker</strong> cancela por defecto lo que no se entrega en su ciclo, en lugar de prorrogarlo <strong>[V]</strong> (<a href="https://basecamp.com/shapeup/2.1-chapter-07">basecamp.com/shapeup</a>). Su regla «sin backlogs» choca con JKanban como memoria. La adaptación razonable es conservar el backlog como <strong>archivo de ideas sin compromiso</strong>, nunca como cola obligatoria. Combinado con un <strong>spike</strong> tipificado en el kanban (appetite fijo, vibe coding permitido, código desechable por defecto y un informe que responde a una pregunta), da a la SF lo que ninguna herramienta ofrece: una revisión periódica de cartera con un límite de trabajo en curso pensado para la persona. Es una propuesta derivada, no una práctica documentada para este perfil.</p>
+</details></details><details id="atencion-y-observabilidad-medir-el-coste-es-facil-medir-a-la-persona-no" class="bloque bloque-5"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Atención y observabilidad: medir el coste es fácil, medir a la persona no</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<p>Las herramientas de coste y de sesión están maduras y son de solo lectura, lo que reduce su riesgo. ccusage (MIT aunque GitHub marque NOASSERTION, reescrito en Rust) genera informes diarios, semanales y por sesión de Claude Code y de otros CLI de agentes <strong>[V]</strong> (<a href="https://github.com/ccusage/ccusage">ccusage</a>). Codeburn (MIT) desglosa el gasto por proyecto, rama y tarea <strong>[V]</strong> (<a href="https://github.com/getagentseal/codeburn">codeburn</a>). claude-code-log (MIT) convierte todo <code>~/.claude/projects/</code> en HTML o Markdown, con un formato compacto pensado para «devolver conversaciones pasadas a un LLM» <strong>[V]</strong> (<a href="https://github.com/daaain/claude-code-log">claude-code-log</a>). claude-code-karma (Apache-2.0) y claude-session-dashboard (MIT) son paneles locales sin nube ni telemetría <strong>[V]</strong> (<a href="https://github.com/JayantDevkar/claude-code-karma">karma</a>; <a href="https://github.com/dlupiak/claude-session-dashboard">session-dashboard</a>). Del marketplace oficial, <code>session-report</code>, <code>receipts</code> (impacto por proyecto a partir de las transcripciones) y <code>project-artifact</code> (página de estado viva de un proyecto con su franja de «siguientes pasos») cubren parte del daily y del cierre <strong>[V]</strong> (<a href="https://github.com/anthropics/claude-plugins-official/tree/main/plugins">plugins</a>). Ninguno integra un kanban. Lo que se puede tomar de ellos es el formato del informe; la fuente de datos sería JKanban.</p>
+<p>La arquitectura de referencia para la telemetría por hooks es la de disler: hooks → HTTP POST → servidor → SQLite → WebSocket → interfaz <strong>[V]</strong> (<a href="https://github.com/disler/claude-code-hooks-multi-agent-observability">disler</a>). Es exactamente lo que haría JKanban con hooks <code>http</code>, pero el proyecto <strong>no tiene LICENSE</strong>: solo se puede tomar la idea, no el código. En notificaciones, la combinación más simple y controlable es un hook Notification/Stop de ámbito de usuario → endpoint de JKanban → ntfy autoalojado (Apache-2.0) <strong>[V]</strong> (<a href="https://github.com/binwiederhier/ntfy">ntfy</a>). Así el aviso queda registrado en la bandeja de decisiones. agent-notifications es GPL-3.0, funciona en Windows e instala además un MCP y una skill <strong>[V]</strong> (<a href="https://github.com/777genius/agent-notifications">agent-notifications</a>); anotifier es AGPL-3.0. Los aprobadores remotos de permisos por ntfy.sh público (claude-push, claude-remote-approver) son de riesgo alto: quien adivine el tópico podría aprobar comandos. Casi todos los monitores de barra de menú son solo para macOS, y el propietario trabaja en Windows.</p>
+<p>El hueco se mantiene respecto al informe anterior: <strong>ningún plugin mide tiempo o atención humana</strong>. Todos miden tokens, coste o estado del agente. Codeburn por proyecto y tarea y <code>receipts</code> por proyecto son los indicadores indirectos más cercanos. El resto lo tendrá que inferir el backend a partir de la secuencia de <code>cwd</code> y <code>session_id</code>.</p>
+</details><details id="crear-proyectos-visiones-e-interfaces-claude-design-ya-vive-dentro-de-claude-code" class="bloque bloque-6"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Crear proyectos, visiones e interfaces: Claude Design ya vive dentro de Claude Code</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<details id="que-es-oficialmente-y-que-caduca" class="subseccion" open><summary class="subseccion-summary">Qué es oficialmente y qué caduca</summary>
+<p>Claude Design se lanzó el 17-04-2026 como research preview de Anthropic Labs. Genera diseños, prototipos y slides, construye design systems a partir del código y exporta un «handoff bundle that you can pass to Claude Code with a single instruction» <strong>[V]</strong> (<a href="https://www.anthropic.com/news/claude-design-anthropic-labs">Anthropic</a>). Hoy funciona en cualquier conversación, en la pestaña Artifacts y en Claude Code, y <strong>claude.ai/design cierra el 14-12-2026</strong>: los proyectos migran a Claude y los design systems deben migrarse antes <strong>[V]</strong> (<a href="https://support.claude.com/en/articles/14604416-get-started-with-claude-design">Claude Help Center</a>). En Claude Code, <code>/design [brief]</code> dibuja artboards en un lienzo publicado como artifact, exportables a PNG o PDF. Requiere <strong>Claude Code ≥ v2.1.265</strong> y no está disponible en Bedrock, Google Cloud, Foundry ni Claude Platform on AWS <strong>[V]</strong> (<a href="https://code.claude.com/docs/en/commands">Commands</a>). <code>/design-sync</code> convierte el design system <strong>React</strong> del repo y lo sube a Claude Design para que use los componentes reales. La primera sincronización puede tardar horas, y <strong>sube al sitio independiente que cierra el 14-12-2026</strong> <strong>[V]</strong> (<a href="https://code.claude.com/docs/en/commands">Commands</a>). No se ha leído el artículo de migración, así que no se sabe qué destino tendrá <code>/design-sync</code> después.</p>
+<p>Hay cuatro limitaciones documentadas que afectan a la SF <strong>[V]</strong> (<a href="https://support.claude.com/en/articles/14604416-get-started-with-claude-design">Help Center</a>): <strong>no hay historial de versiones integrado</strong>, los comentarios pueden desaparecer, hay lag con codebases muy grandes y «Design system import quality depends on the source». La guía de administración indica que no hay audit logs <strong>[S, no leída completa]</strong>. Versionar en el repo los HTML exportados por pantalla y su manifiesto, como ya hace el propietario, cubre un hueco real del producto. El formato interno del bundle de handoff <strong>no está documentado</strong>. Un análisis externo advierte de que el lienzo puede hacer que las omisiones (estados vacíos, errores) parezcan intencionadas y de que el bundle «lands in a vacuum» si el repo no tiene skills ni CLAUDE.md <strong>[S]</strong> (<a href="https://readysolutions.ai/blog/2026-04-24-claude-design-handoff-not-canvas/">Ready Solutions</a>).</p>
+</details><details id="que-tomar-de-las-practicas-y-que-sobra" class="subseccion" open><summary class="subseccion-summary">Qué tomar de las prácticas, y qué sobra</summary>
+<p>El tutorial oficial de Claude Academy es la práctica más directamente aprovechable para la skill <code>diseno_interfaz</code> <strong>[V]</strong> (<a href="https://academy.claude.com/tutorials/using-claude-design-for-prototypes-and-ux">Claude Academy</a>). Recomienda pedir pantallas clicables, alternativas en artboards separados y los estados vacío, error y carga con pocos y muchos datos. También pide <strong>nombrar bien artboards y componentes porque Claude Code lee esos nombres</strong>, lo que refuerza la regla de nombres descriptivos, y anotar en notas del artboard las decisiones y sus razones. Advierte de que Claude puede inventar datos que no tiene y de que, sin los componentes reales, «dibuja su propia versión». NN/g describe la <strong>«fidelity trap»</strong>: un prototipo pulido hace suponer que está listo. Recomienda decidir antes qué se quiere aprender y usar datos reales saneados o sintéticos, <strong>nunca datos personales</strong>, revisando cómo usa los datos el proveedor <strong>[V]</strong> (<a href="https://nngroup.com/articles/test-earlier-with-ai">NN/g, 11-09-2026</a>). La práctica del propietario, que genera los datos de pantalla con scripts desde el contrato real, cumple las dos condiciones y además evita la deriva del contrato. No se encontró ninguna fuente que describa esa automatización.</p>
+<p>Respecto a la política de datos, <code>/design-sync</code> sube los componentes del repo a un servicio de Anthropic. Para proyectos con datos sensibles conviene decidir qué se sincroniza. La alternativa es trabajar con <code>/design</code> en la sesión del repo, que según el tutorial es la otra vía soportada.</p>
+<p>Las alternativas no hacen falta mientras Claude Design sea la herramienta, pero hay una excepción. Figma MCP es la única otra integración documentada oficialmente con Claude Code (lectura y escritura del lienzo, Code Connect) <strong>[V]</strong> (<a href="https://developers.figma.com/docs/figma-mcp-server/">Figma</a>), y Stitch requiere autenticación de Google mediante un envoltorio de terceros <strong>[S]</strong> (<a href="https://www.mindstudio.ai/blog/google-stitch-mcp-coding-agents/">MindStudio</a>). La excepción es el <strong>escritorio</strong>. <code>/design-sync</code> solo admite React, y ninguna herramienta exporta a Tkinter salvo Tkinter Designer, que parte de Figma <strong>[S]</strong>. Para productos de escritorio, lo transferible del prototipo web son los <strong>tokens</strong> (color, tipografía, espaciado), la jerarquía, los estados y los textos, extraídos a un archivo neutro. No se reutiliza HTML ni CSS, que es lo que hace Figma to Qt con su módulo QML de tokens <strong>[V]</strong> (<a href="https://doc-snapshots.qt.io/figmatoqt/figmatoqt-how-to-variables.html">Qt Docs</a>). Como apoyo dentro de Claude Code, la skill oficial <code>frontend-design</code> (Apache-2.0, ya presente en este entorno) y el plugin <code>playground</code> (HTML de un solo fichero con controles y vista previa) son candidatos de bajo riesgo <strong>[V]</strong> (<a href="https://github.com/anthropics/skills/tree/main/skills/frontend-design">frontend-design</a>; <a href="https://github.com/anthropics/claude-plugins-official/tree/main/plugins/playground">playground</a>).</p>
+</details></details><details id="investigar-estar-al-dia-ense-ar-y-aprender-el-modo-de-uso-importa-mas-que-la-herramienta" class="bloque bloque-7"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Investigar, estar al día, enseñar y aprender: el modo de uso importa más que la herramienta</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<details id="investigar-y-estar-al-dia-por-lotes" class="subseccion" open><summary class="subseccion-summary">Investigar y estar al día por lotes</summary>
+<p>Para investigar hay piezas sólidas, y para «estar al día» casi nada aprovechable. La skill <code>research</code> de mattpocock investiga contra fuentes primarias en un agente de fondo y guarda el resultado en Markdown en el repo <strong>[V]</strong> (<a href="https://github.com/mattpocock/skills">mattpocock/skills</a>). Es el mismo patrón que siguen los informes de <code>docs/referencias/</code>. Las entradas <code>exa</code>, <code>tavily</code> y <code>context7</code> del marketplace oficial dan búsqueda y documentación de librerías <strong>[V]</strong> (<a href="https://github.com/anthropics/claude-plugins-official/blob/main/.claude-plugin/marketplace.json">marketplace.json</a>), pero son MCP de terceros, con lo que exigen revisión y en algunos casos cuenta de servicio. Para vigilar novedades, lo que existe es frágil o no encaja. claude-daily-digest resume el changelog de Claude Code por correo, pero solo funciona en macOS y tiene 5★ <strong>[V]</strong> (<a href="https://github.com/NicoSuave17/claude-daily-digest">repo</a>). claude-code-docs es un espejo de la documentación con búsqueda de texto completo <strong>[V]</strong> (<a href="https://github.com/costiash/claude-code-docs">repo</a>). daily.dev es una plataforma AGPL entera <strong>[V]</strong>. Lo razonable es construir una <strong>vigilancia tecnológica propia por lotes</strong>, con el criterio de Khare (evaluar lo probado durante meses) y salida al registro de mejora continua para que el propietario apruebe. Como no puede programarse en segundo plano sin autorización, quedaría como tarea manual periódica hasta que el propietario decida otra cosa.</p>
+</details><details id="ense-ar-y-aprender-explicar-si-delegar-no" class="subseccion" open><summary class="subseccion-summary">Enseñar y aprender: explicar sí, delegar no</summary>
+<p>La evidencia apunta en una dirección. Usar la IA para explicar y preguntar conserva el aprendizaje, y delegar la generación lo destruye, sobre todo en depuración (ensayo de Anthropic, más arriba). Con instrucción formal, los estudiantes la usan para entender conceptos <strong>[V, resumen]</strong> (<a href="https://sigcse2025.sigcse.org/details/sigcse-ts-2025-Papers/35/Unlocking-Potential-with-Generative-AI-Instruction-Investigating-Mid-level-Software-">SIGCSE TS 2025</a>), y una evaluación de tipo defensa neutralizó el efecto de ChatGPT en 182 estudiantes de primer curso <strong>[V, resumen]</strong> (<a href="https://www.mdpi.com/2227-7390/12/5/629">MDPI</a>). Addy Osmani concreta prácticas trasladables al aula y al propio aprendizaje: intentar primero de 15 a 30 minutos, explicar con tus palabras la solución de la IA, un diario de aprendizaje convertido luego en ejercicios sin IA y días sin IA <strong>[V]</strong> (<a href="https://addyo.substack.com/p/avoiding-skill-atrophy-in-the-age">addyo.substack.com</a>). Su biografía actual lo sitúa en Anthropic, según comprobó el informe anterior.</p>
+<p>Los candidatos para estos dos trabajos son sobre todo oficiales, y por eso los más fiables:</p>
+<table>
+<thead>
+<tr>
+<th>Candidato</th>
+<th>Trabajo</th>
+<th>Qué tomar</th>
+<th>Conflicto, licencia y riesgo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Candidato"><code>learning-output-style</code> (oficial) <strong>[V]</strong> (<a href="https://github.com/anthropics/claude-plugins-official/tree/main/plugins/learning-output-style">plugin</a>)</td>
+<td data-label="Trabajo">Enseñar y aprender</td>
+<td data-label="Qué tomar">Pide al usuario que escriba código en los puntos de decisión; recrea el estilo «Learning» con un hook SessionStart</td>
+<td data-label="Conflicto, licencia y riesgo">Es un hook: revisar el código. Encaja con un «perfil docente» de la SF</td>
+</tr>
+<tr>
+<td data-label="Candidato"><code>explanatory-output-style</code> (oficial) <strong>[V]</strong> (<a href="https://github.com/anthropics/claude-plugins-official/tree/main/plugins/explanatory-output-style">plugin</a>)</td>
+<td data-label="Trabajo">Aprender</td>
+<td data-label="Qué tomar">Explica las decisiones de implementación</td>
+<td data-label="Conflicto, licencia y riesgo">El propio README avisa del coste en tokens</td>
+</tr>
+<tr>
+<td data-label="Candidato"><code>discernment-nudge</code> (oficial, 17-08-2026) <strong>[V]</strong> (<a href="https://github.com/anthropics/skills/tree/main/skills/discernment-nudge">SKILL.md</a>)</td>
+<td data-label="Trabajo">Aprender, delegar con criterio</td>
+<td data-label="Qué tomar">Añade 2-3 preguntas para comprobar datos y supuestos tras planes o análisis, como mucho una vez por conversación</td>
+<td data-label="Conflicto, licencia y riesgo">Solo texto; compararla con las salvaguardas propias de la SF</td>
+</tr>
+<tr>
+<td data-label="Candidato"><code>academy-guide</code> (oficial, 18-08-2026) <strong>[V]</strong> (<a href="https://github.com/anthropics/skills/tree/main/skills/academy-guide">SKILL.md</a>)</td>
+<td data-label="Trabajo">Enseñar</td>
+<td data-label="Qué tomar">Recomienda cursos de Claude Academy y material de <em>onboarding</em> para una clase</td>
+<td data-label="Conflicto, licencia y riesgo">Orientada al producto de Anthropic, no a programar</td>
+</tr>
+<tr>
+<td data-label="Candidato">mattpocock <code>teach</code> y <code>scaffold-exercises</code> <strong>[V]</strong> (<a href="https://github.com/mattpocock/skills/blob/main/skills/productivity/teach/SKILL.md">teach</a>; <a href="https://github.com/mattpocock/skills/blob/main/skills/misc/scaffold-exercises/SKILL.md">scaffold-exercises</a>)</td>
+<td data-label="Trabajo">Enseñar</td>
+<td data-label="Qué tomar">Ejercicios con secciones, problemas, soluciones y explicaciones</td>
+<td data-label="Conflicto, licencia y riesgo">MIT; renombrar al copiar</td>
+</tr>
+<tr>
+<td data-label="Candidato">Bloom, learn-faster-kit, examprep <strong>[V]</strong> (<a href="https://github.com/Li-Evan/Bloom">Bloom</a>; <a href="https://github.com/hluaguo/learn-faster-kit">learn-faster-kit</a>)</td>
+<td data-label="Trabajo">Aprender</td>
+<td data-label="Qué tomar">Tutoría al estilo «2 sigma» de Bloom; método FASTER</td>
+<td data-label="Conflicto, licencia y riesgo">MIT; pocos cientos de estrellas; contenido no leído</td>
+</tr>
+<tr>
+<td data-label="Candidato">codebase-to-course <strong>[V]</strong> (<a href="https://github.com/zarazhangrui/codebase-to-course">repo</a>)</td>
+<td data-label="Trabajo">Enseñar</td>
+<td data-label="Qué tomar">Convierte un repositorio en un curso HTML interactivo</td>
+<td data-label="Conflicto, licencia y riesgo"><strong>Sin licencia</strong>: solo se puede estudiar</td>
+</tr>
+<tr>
+<td data-label="Candidato">CS50 Duck (Harvard) <strong>[S, no comprobado]</strong> (<a href="https://cs50.ai/">cs50.ai</a>)</td>
+<td data-label="Trabajo">Enseñar</td>
+<td data-label="Qué tomar">Tutor con barreras para que guíe sin dar soluciones</td>
+<td data-label="Conflicto, licencia y riesgo">Referencia de diseño, no reutilizable</td>
+</tr>
+</tbody>
+</table>
+<p>Ninguno resuelve el caso del propietario, que es formar a programadores nuevos con un método profesional como el de la SF. La propuesta derivada es un <strong>perfil docente de la misma SF</strong>. El alumno escribe la visión y la spec. La IA entrevista, explica y revisa, pero no genera el núcleo. La evaluación incluye una defensa en vivo. El informe de cierre añade «explica con tus palabras». Para el aprendizaje del propio propietario, cuando el objetivo de una devslice sea aprender una tecnología, la devslice se marcaría como «modo aprendizaje».</p>
+</details></details><details id="agentes-dentro-de-productos-y-gemelo-digital-estabilizar-las-fronteras-no-el-runtime" class="bloque bloque-8"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Agentes dentro de productos y gemelo digital: estabilizar las fronteras, no el runtime</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<details id="el-agent-sdk-aisla-la-configuracion-y-la-politica-de-credenciales-es-inequivoca" class="subseccion" open><summary class="subseccion-summary">El Agent SDK aísla la configuración, y la política de credenciales es inequívoca</summary>
+<p>El Claude Agent SDK es la forma oficial de incrustar el bucle de Claude Code en una aplicación Python o TypeScript: «a library that runs the Claude Code binary», con herramientas, permisos, sesiones, hooks, subagentes, MCP y skills <strong>[V]</strong> (<a href="https://code.claude.com/docs/en/agent-sdk/overview">Agent SDK overview</a>). Para separar el Claude Code de desarrollo del Claude Code como componente, la documentación da la receta. Si se omite <code>setting_sources</code>, el SDK carga lo mismo que la CLI (<code>~/.claude/</code>, CLAUDE.md, skills y hooks). Con <code>setting_sources=[]</code> se limita a lo que se configura por programa. Aun así se leen siempre las políticas gestionadas y <code>~/.claude.json</code>, que se puede reubicar con <code>CLAUDE_CONFIG_DIR</code>. También se lee la memoria automática, que se desactiva con <code>CLAUDE_CODE_DISABLE_AUTO_MEMORY=1</code>, y los conectores MCP de claude.ai, que se desactivan con <code>strictMcpConfig</code>. El aviso oficial es claro: «Do not rely on default <code>query()</code> options for multi-tenant isolation». Las skills solo se registran como archivos <code>.claude/skills/&lt;name&gt;/SKILL.md</code> <strong>[V]</strong> (<a href="https://code.claude.com/docs/en/agent-sdk/claude-code-features.md">Claude Code features in the SDK</a>). Esto encaja con LecturaFàcil, pero está por probar en la práctica.</p>
+<p>La política de credenciales para productos, verificada en la documentación oficial, dice literalmente: «Developers building products or services that interact with Claude's capabilities, including those using the Agent SDK, should use API key authentication through Claude Console or a supported cloud provider. Anthropic does not permit third-party developers to offer Claude.ai login into their own applications, or to route requests through Free, Pro, or Max plan credentials on behalf of their users. Moreover, developers may not collect, store, or intermediate Claude.ai credentials or session tokens.» Los límites de Pro y Max «assume ordinary, individual usage of Claude Code and the Agent SDK», y Anthropic puede actuar «without prior notice» <strong>[V]</strong> (<a href="https://code.claude.com/docs/en/legal-and-compliance">Legal and compliance</a>). Hay una excepción. Si el producto ejecuta el binario de Claude Code sin modificar, cada usuario final puede autenticarse con su propia clave o su propia suscripción, pero «Customers may not pay for, resell, or intermediate Claude usage on their end users' behalf» <strong>[V]</strong> (<a href="https://code.claude.com/docs/en/legal-and-compliance">misma página</a>). En cuanto al nombre, se permite «{TuAgente} Powered by Claude», pero no «Claude Code» <strong>[V]</strong> (<a href="https://code.claude.com/docs/en/agent-sdk/overview">Agent SDK overview</a>).</p>
+<p>En la práctica, LecturaFàcil necesita clave de API, sea del propietario para uso propio o de cada usuario si se distribuye. Prototipar con la propia suscripción entra en el uso individual ordinario mientras lo use solo el desarrollador. La fecha en que empezó a aplicarse la restricción a terceros varía entre fuentes (9-01, 19-02 o 4-04-2026) <strong>[S]</strong> (<a href="https://winbuzzer.com/2026/02/19/anthropic-bans-claude-subscription-oauth-in-third-party-apps-xcxwbn/">WinBuzzer</a>).</p>
+<p>Para que el agente de producto siga siendo intercambiable mientras el propietario espera a «una solución más asentada», las fronteras más estables son tres. La primera es el <strong>contrato de salida en JSON Schema draft-07</strong>, que el SDK valida y reintenta; si se agotan los reintentos, devuelve <code>error_max_structured_output_retries</code>, y desde la v2.1.205 un esquema inválido falla al arrancar <strong>[V]</strong> (<a href="https://code.claude.com/docs/en/agent-sdk/structured-outputs.md">Structured outputs</a>). La segunda es exponer las herramientas de dominio como <strong>servidores MCP</strong>, un protocolo que desde el 9-12-2025 gobierna la Agentic AI Foundation de la Linux Foundation <strong>[V]</strong> (<a href="https://anthropic.com/news/donating-the-model-context-protocol-and-establishing-of-the-agentic-ai-foundation">Anthropic</a>). La tercera es una <strong>interfaz propia del producto</strong> con una implementación simulada para pruebas. Detrás de ella pueden cambiar el Agent SDK, Managed Agents (beta pública desde el 8-04-2026, con 0,08 USD por hora de sesión además de los tokens) <strong>[V]</strong> (<a href="https://claude.com/blog/claude-managed-agents">blog</a>), LangGraph 1.0 <strong>[V]</strong> (<a href="https://blog.langchain.com/langchain-langgraph-1dot0">LangChain</a>) o Pydantic AI <strong>[V]</strong> (<a href="https://pydantic.dev/articles/pydantic-ai-v1">Pydantic</a>). Para evaluar el agente, la guía de Anthropic recomienda empezar con <strong>20-50 tareas sacadas de fallos reales</strong>, graders deterministas cuando sea posible, separar las evals de capacidad de las de regresión y medir pass^k en agentes de cara al cliente: un 75 % por intento equivale a unos 42 % en pass^3 <strong>[V]</strong> (<a href="https://anthropic.com/engineering/demystifying-evals-for-ai-agents">Anthropic Engineering</a>).</p>
+</details><details id="el-gemelo-digital-tiene-simuladores-con-ci-y-un-mcp-experimental-pero-no-practica-para-una-persona" class="subseccion" open><summary class="subseccion-summary">El gemelo digital tiene simuladores con CI y un MCP experimental, pero no práctica para una persona</summary>
+<p>Para SmartColdBox, la progresión plausible es esta: gemelo en Python con contratos JSON Schema → firmware real en simulador contra la planta simulada → hardware en bucle (HIL) → banco con hardware real. Las herramientas existen. Renode tiene una GitHub Action que ejecuta tests de Robot Framework en CI <strong>[V]</strong> (<a href="https://antmicro.com/blog/2024/10/renode-github-action-for-automated-testing-in-simulation">Antmicro</a>), con casos reales en ChromeOS <strong>[V]</strong> (<a href="https://opensource.googleblog.com/2023/08/chromeos-ec-testing-suite-renode-for-consumer-products.html?m=0">Google</a>). Wokwi CLI incluye un <strong>servidor MCP experimental</strong> que lista Claude Code entre sus clientes y permite ejecutar simulaciones, leer la consola serie e interactuar con el hardware virtual; la propia documentación avisa de que «the API may change» <strong>[V]</strong> (<a href="https://docs.wokwi.com/wokwi-ci/mcp-support">Wokwi</a>). Requiere un token, lo que implica cuenta de servicio y revisar qué datos salen.</p>
+<p>Para firmware, los candidatos comunitarios son pequeños: el plugin <code>arm-cortex-microcontrollers</code> de wshobson (MIT) y platformio-mcp (MIT, 54★) <strong>[V]</strong> (<a href="https://github.com/wshobson/agents/tree/main/plugins">wshobson/agents</a>; <a href="https://github.com/jl-codes/platformio-mcp">platformio-mcp</a>). Del marketplace oficial sirven <code>clangd-lsp</code> y <code>cwc-makers</code> <strong>[V]</strong>. La mitigación de las alucinaciones, que tiene mejor base que cualquier herramienta, es de método: extraer primero de la hoja de datos el mapa de registros, los campos de bits, los tiempos y la secuencia de inicialización, y generar a partir de esos datos estructurados <strong>[S]</strong> (<a href="https://hubble.com/community/guides/how-firmware-engineers-get-the-most-out-of-claude/">Hubble</a>). Exigir además la verificación en el simulador o el dispositivo como criterio de aceptación. Las hojas de datos estructuradas encajan como fuente del brain de cada proyecto con hardware. <strong>No se encontraron fuentes sobre prácticas de gemelo digital para startups pequeñas</strong> ni guías de progresión de la simulación al HIL; ese método tendrá que escribirlo la SF.</p>
+</details></details><details id="lo-que-caduca-lo-que-se-evalua-primero-y-lo-que-hay-que-construir" class="bloque bloque-9"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Lo que caduca, lo que se evalúa primero y lo que hay que construir</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<details id="hechos-con-fecha" class="subseccion" open><summary class="subseccion-summary">Hechos con fecha</summary>
+<table>
+<thead>
+<tr>
+<th>Hecho</th>
+<th>Fecha o condición</th>
+<th>Consecuencia para la SF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Hecho">Cierre de <strong>claude.ai/design</strong>; los design systems deben migrarse antes <strong>[V]</strong> (<a href="https://support.claude.com/en/articles/14604416-get-started-with-claude-design">Help Center</a>)</td>
+<td data-label="Fecha o condición"><strong>14-12-2026</strong></td>
+<td data-label="Consecuencia para la SF">Migrar los design systems; no basar ningún flujo en <code>/design-sync</code> ni <code>/design-login</code> hasta conocer su destino</td>
+</tr>
+<tr>
+<td data-label="Hecho"><code>/design</code> requiere Claude Code ≥ v2.1.265 <strong>[V]</strong> (<a href="https://code.claude.com/docs/en/commands">Commands</a>)</td>
+<td data-label="Fecha o condición">Versión mínima</td>
+<td data-label="Consecuencia para la SF">Comprobar la versión antes de documentarlo en la skill de interfaz</td>
+</tr>
+<tr>
+<td data-label="Hecho">Claude Design activado por defecto en Enterprise <strong>[V]</strong></td>
+<td data-label="Fecha o condición">15-10-2026</td>
+<td data-label="Consecuencia para la SF">Contexto; no afecta a un plan individual</td>
+</tr>
+<tr>
+<td data-label="Hecho">vibe-kanban en cierre <strong>[V]</strong> (<a href="https://www.vibekanban.com/blog/shutdown">anuncio</a>)</td>
+<td data-label="Fecha o condición">Anunciado el 10-04-2026</td>
+<td data-label="Consecuencia para la SF">Descartado como dependencia</td>
+</tr>
+<tr>
+<td data-label="Hecho">task-master sin push <strong>[V]</strong></td>
+<td data-label="Fecha o condición">Desde el 28-04-2026</td>
+<td data-label="Consecuencia para la SF">Señal de abandono; además, Commons Clause</td>
+</tr>
+<tr>
+<td data-label="Hecho">Retención de sesiones de Claude Code <strong>[S]</strong> (<a href="https://github.com/JayantDevkar/claude-code-karma">karma</a>)</td>
+<td data-label="Fecha o condición">~30 días</td>
+<td data-label="Consecuencia para la SF">JKanban debe persistir los resúmenes antes de la purga</td>
+</tr>
+<tr>
+<td data-label="Hecho">Managed Agents en beta pública <strong>[V]</strong></td>
+<td data-label="Fecha o condición">Desde el 8-04-2026</td>
+<td data-label="Consecuencia para la SF">No depender de él sin la interfaz propia delante</td>
+</tr>
+<tr>
+<td data-label="Hecho">Esquemas inválidos del Agent SDK fallan al arrancar <strong>[V]</strong></td>
+<td data-label="Fecha o condición">Desde la v2.1.205</td>
+<td data-label="Consecuencia para la SF">Validar los contratos en tests</td>
+</tr>
+<tr>
+<td data-label="Hecho">MCP de Wokwi experimental <strong>[V]</strong></td>
+<td data-label="Fecha o condición">«the API may change»</td>
+<td data-label="Consecuencia para la SF">Solo en un spike</td>
+</tr>
+<tr>
+<td data-label="Hecho">Licencia de los servidores de referencia MCP <strong>[V]</strong> (<a href="https://github.com/modelcontextprotocol/servers/blob/main/LICENSE">LICENSE</a>)</td>
+<td data-label="Fecha o condición">En transición de MIT a Apache-2.0</td>
+<td data-label="Consecuencia para la SF">Revisar antes de copiar código</td>
+</tr>
+</tbody>
+</table>
+</details><details id="lista-corta-priorizada-para-evaluar" class="subseccion" open><summary class="subseccion-summary">Lista corta priorizada para evaluar</summary>
+<table>
+<thead>
+<tr>
+<th>Prioridad</th>
+<th>Qué evaluar</th>
+<th>Para qué necesidad</th>
+<th>Por qué primero</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Prioridad">1</td>
+<td data-label="Qué evaluar">Migración de Claude Design y destino de <code>/design-sync</code> (artículo de migración del Help Center)</td>
+<td data-label="Para qué necesidad">Vibe design</td>
+<td data-label="Por qué primero">Tiene fecha límite: 14-12-2026</td>
+</tr>
+<tr>
+<td data-label="Prioridad">2</td>
+<td data-label="Qué evaluar"><code>mcp-builder</code> + <code>mcp-server-dev</code>, junto con la superficie de Backlog.md (JSON versionado, «decision») y el patrón <code>prime</code>/<code>remember</code> de beads</td>
+<td data-label="Para qué necesidad">MCP de JKanban</td>
+<td data-label="Por qué primero">Desbloquea la memoria y la cartera; licencias limpias</td>
+</tr>
+<tr>
+<td data-label="Prioridad">3</td>
+<td data-label="Qué evaluar">Plantilla de devslice con checklist marcado por el agente, tres señales de Beck, evidencias y revisor adversarial (Reed, Beck, Anthropic)</td>
+<td data-label="Para qué necesidad">Desarrollar</td>
+<td data-label="Por qué primero">Es solo texto, aplicable sin instalar nada</td>
+</tr>
+<tr>
+<td data-label="Prioridad">4</td>
+<td data-label="Qué evaluar"><code>to-tickets</code> y <code>wayfinder</code> (mattpocock), <code>verification-before-completion</code> (Superpowers)</td>
+<td data-label="Para qué necesidad">Preparar devslices y cerrar</td>
+<td data-label="Por qué primero">MIT, alta señal; copiar con nombre descriptivo</td>
+</tr>
+<tr>
+<td data-label="Prioridad">5</td>
+<td data-label="Qué evaluar">Receta de aislamiento del Agent SDK (<code>setting_sources=[]</code> y el resto) en LecturaFàcil, con clave de API</td>
+<td data-label="Para qué necesidad">Agente en producto</td>
+<td data-label="Por qué primero">Política de credenciales obligatoria; prueba barata</td>
+</tr>
+<tr>
+<td data-label="Prioridad">6</td>
+<td data-label="Qué evaluar"><code>learning-output-style</code>, <code>discernment-nudge</code>, <code>teach</code> y <code>scaffold-exercises</code></td>
+<td data-label="Para qué necesidad">Enseñar y aprender</td>
+<td data-label="Por qué primero">Oficiales o MIT; base del perfil docente</td>
+</tr>
+<tr>
+<td data-label="Prioridad">7</td>
+<td data-label="Qué evaluar">claude-code-log y ccusage como fuentes de solo lectura para el daily</td>
+<td data-label="Para qué necesidad">Cartera y daily</td>
+<td data-label="Por qué primero">Solo lectura, MIT</td>
+</tr>
+<tr>
+<td data-label="Prioridad">8</td>
+<td data-label="Qué evaluar"><code>security-guidance</code> y <code>claude-security</code> como puerta de prototipo a producción</td>
+<td data-label="Para qué necesidad">Desarrollar</td>
+<td data-label="Por qué primero">Respuesta directa al dato de Escape.tech</td>
+</tr>
+<tr>
+<td data-label="Prioridad">9</td>
+<td data-label="Qué evaluar">Wokwi MCP o Renode en un spike, según el MCU de SmartColdBox</td>
+<td data-label="Para qué necesidad">Gemelo digital</td>
+<td data-label="Por qué primero">Depende de una decisión de hardware pendiente</td>
+</tr>
+</tbody>
+</table>
+</details><details id="huecos-que-la-sf-tiene-que-construir-ella-misma" class="subseccion" open><summary class="subseccion-summary">Huecos que la SF tiene que construir ella misma</summary>
+<p>Nadie ofrece la <strong>capa de cartera</strong>: límite de trabajo en curso para la persona, appetite y circuit breaker por proyecto, y revisión periódica de qué cerrar. Tampoco existe el <strong>punto de reanudación</strong> breve por proyecto inyectado al arrancar ni la <strong>bandeja de decisiones</strong> multiproyecto alimentada por hooks. Falta un <strong>informe de cierre estándar</strong> contra los criterios de aceptación, con evidencias y las señales de Beck. No hay <strong>medida del tiempo y de la atención humana</strong>, que hay que inferir de <code>cwd</code> y <code>session_id</code>, ni una <strong>vigilancia tecnológica por lotes</strong> con salida al registro de mejora. Tampoco hay un <strong>perfil docente</strong> pensado para formación real; los candidatos son piezas sueltas. Por último, no hay nada para <strong>Tkinter</strong> ni para la traducción de prototipo web a escritorio mediante tokens, ni para <strong>migraciones con SQL nativo</strong> sin ORM ni proveedor (lo que existe está ligado a Prisma, Supabase, Neon o PlanetScale), ni un <strong>método de gemelo digital y progresión al HIL</strong> para una persona.</p>
+</details><details id="lo-que-hay-que-volver-a-verificar-antes-de-citarlo-en-documentos-de-la-sf" class="subseccion" open><summary class="subseccion-summary">Lo que hay que volver a verificar antes de citarlo en documentos de la SF</summary>
+<table>
+<thead>
+<tr>
+<th>Dato</th>
+<th>Problema</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Dato">Unas 300.000 estrellas de Superpowers, mattpocock y ECC</td>
+<td data-label="Problema">Leídas en la API, pero anómalas; no se ha descartado inflación</td>
+</tr>
+<tr>
+<td data-label="Dato">Si <code>to-tickets</code> y <code>wayfinder</code> admiten un tracker propio vía MCP</td>
+<td data-label="Problema">No comprobado</td>
+</tr>
+<tr>
+<td data-label="Dato">Lista concreta de herramientas MCP de Backlog.md y beads</td>
+<td data-label="Problema">Solo se leyó el README de nivel superior</td>
+</tr>
+<tr>
+<td data-label="Dato">Si ccusage en Rust conserva la salida <code>--json</code></td>
+<td data-label="Problema">No comprobado</td>
+</tr>
+<tr>
+<td data-label="Dato">Retención de ~30 días de las sesiones de Claude Code</td>
+<td data-label="Problema">Afirmación de tercero; comprobar en la documentación oficial si es configurable</td>
+</tr>
+<tr>
+<td data-label="Dato">Formato del handoff bundle de Claude Design, existencia de un MCP de Claude Design y futuro de <code>/design-sync</code></td>
+<td data-label="Problema">No documentados públicamente; artículo de migración sin leer</td>
+</tr>
+<tr>
+<td data-label="Dato"><code>/design-sync</code> solo para React y su sincronización bidireccional (17-06-2026)</td>
+<td data-label="Problema">Secundario; no confirmado en documentación oficial</td>
+</tr>
+<tr>
+<td data-label="Dato">LICENSE de cada plugin interno del marketplace oficial</td>
+<td data-label="Problema">El README dice que varía; no se leyeron una a una</td>
+</tr>
+<tr>
+<td data-label="Dato">Snyk ToxicSkills (13,4 % y 36,8 %) y Veracode (~45 % con OWASP Top 10)</td>
+<td data-label="Problema">Resúmenes secundarios</td>
+</tr>
+<tr>
+<td data-label="Dato">Karpathy y el «agentic engineering» (febrero de 2026)</td>
+<td data-label="Problema">Sin post primario localizado</td>
+</tr>
+<tr>
+<td data-label="Dato">CS50 Duck, estilos de salida «Learning» en la documentación oficial, Personal Kanban, hill charts</td>
+<td data-label="Problema">URL sin consultar en esta investigación</td>
+</tr>
+<tr>
+<td data-label="Dato">Charrette → <code>Ovich/swarmstorm</code> y claude-codepro → <code>maxritter/qualitylayer</code></td>
+<td data-label="Problema">Renombrados; no se confirmó que el contenido sea el mismo</td>
+</tr>
+<tr>
+<td data-label="Dato">Licencia de fpm (Apache-2.0 frente a PolyForm Noncommercial)</td>
+<td data-label="Problema">Contradicción sin resolver</td>
+</tr>
+<tr>
+<td data-label="Dato">Qué monitores y paneles funcionan en Windows</td>
+<td data-label="Problema">No comprobado</td>
+</tr>
+<tr>
+<td data-label="Dato">Fechas de aplicación de la restricción de OAuth a terceros</td>
+<td data-label="Problema">Las fuentes discrepan</td>
+</tr>
+<tr>
+<td data-label="Dato">Pydantic AI v2.0.0 (23-06-2026)</td>
+<td data-label="Problema">Solo visto en un fragmento</td>
+</tr>
+</tbody>
+</table>
+</details></details><details id="conclusion" class="bloque bloque-10"><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Conclusión</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
+<p>La búsqueda cambia la pregunta de partida. Ya no se trata de qué adoptar, porque casi todo lo valioso que existe es <strong>texto de método</strong> (flujos, checklists, skills) que se copia, se renombra y se fija en un commit. Se trata de dónde empieza lo propio, y la frontera es clara. Lo que ocurre dentro de una sesión y de una devslice está resuelto por otros y se puede tomar casi sin riesgo. Lo que ocurre entre sesiones, entre proyectos y dentro de la cabeza de la persona (qué retomar, qué cerrar, qué decidir, cuánto atender) no lo resuelve nadie, y es justo lo que JKanban y sus hooks pueden hacer. Esto da prioridad al MCP de JKanban sobre cualquier skill externa: sin él, cada pieza copiada vuelve a ser una herramienta de un solo proyecto.</p>
+<p>Hay una segunda implicación. Los dos trabajos peor servidos por el mercado, <strong>enseñar</strong> y <strong>estar al día</strong>, son los que más dependen de <em>cómo</em> se usa la IA y no de <em>qué</em> herramienta se usa. El ensayo de Anthropic y la experiencia de Yale muestran que la misma herramienta enseña o atrofia según se le pida explicar o generar, y el testimonio de Khare muestra que estar al día se sostiene con menos herramientas, no con más. Para la SF eso significa que su ventaja frente a las colecciones de 300.000 estrellas no está en tener más skills, sino en <strong>modos de uso explícitos</strong> (devslice normal, spike, modo aprendizaje, perfil docente) que decidan cuánta autonomía tiene el agente en cada contexto. Como nadie ha estudiado a una persona sola con muchos proyectos, la SF debería medir con sus propios datos si esos modos funcionan.</p></details>
+    </div>
+
+    <footer class="site-footer">
+      SoftwareFactory · Informe de investigación
+    </footer>
+
+  </div>
+<script>
+document.documentElement.classList.add('js');
+document.addEventListener('click', function (e) {
+  var btn = e.target.closest('.bloque-btn');
+  if (!btn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  var bloque = btn.closest('.bloque');
+  if (!bloque) return;
+  var open = btn.dataset.action === 'expand';
+  bloque.open = open;
+  bloque.querySelectorAll('.subseccion, .subsubseccion').forEach(function (s) { s.open = open; });
+});
+</script>
+</body>
+</html>

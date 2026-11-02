@@ -1,0 +1,6 @@
+# Preguntar antes de cerrar una petición; lo nuevo, a la cola
+
+- **Origen:** SoftwareFactory, 2026-10-28. El propietario: «Antes de cerrar una tarea pregunta si puedes. En el caso de la skill la has considerado cerrada sin mi permiso». Y: «Cuando te hago una pregunta sobre una tarea pendiente conviertela en una tarea actual». Y: «Norma: Perfecto lo que te pido pasa a la cola a no ser que ya hayamos dado el primer paso».
+- **Contexto:** Claude terminó la skill de incorporación, hizo su commit, la publicó y la pasó a `sin-probar` sin preguntar. Y las preguntas sobre una petición en cola no cambiaban su estado, aunque se empezara a trabajar en ella.
+- **Decisión:** al terminar una petición, Claude enseña lo hecho y pregunta antes de cerrarla; el commit, la publicación y el paso a `sin-probar` esperan el OK. Si el propietario pregunta por una petición pendiente, pasa a `en-curso`. Cada petición nueva entra `en-cola`, salvo que ya se haya dado el primer paso en ella, que entonces entra `en-curso`. Lo probado sale de la cola sin pedir confirmación («Lo probado sale de Sin probar», ajustada después por «Sin probar hasta el OK del propietario»).
+- **Aplicada en:** metodología (2) y skill `sf:metodologia`; plantilla `templates/claude-sf.md`; `CLAUDE.md` de la SF; plugin `sf` 0.29.3.

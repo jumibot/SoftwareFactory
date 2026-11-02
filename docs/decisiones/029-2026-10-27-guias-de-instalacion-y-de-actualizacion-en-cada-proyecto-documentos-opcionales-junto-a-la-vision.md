@@ -1,0 +1,7 @@
+# Guías de instalación y de actualización en cada proyecto; documentos opcionales junto a la visión
+
+- **Origen:** SoftwareFactory, 2026-10-27. El propietario: «en cada proyecto tiene que haber una guia de instalación desde 0 y otra de upgradeo. Esto lo pondremos a prueba enseguida con jkanban», y «para todos los proyecto añade como opcionales junto a los docs de visión todos los tipos de docs en los que estamos trabajando».
+- **Contexto:** ningún proyecto explicaba cómo instalarse en un equipo nuevo ni cómo pasar de una versión a otra; la SF tampoco (propuesta «Procedimiento de instalación del plugin»). Además de la visión y el fundacional, la SF ya produce otros documentos (visiones desde otra perspectiva, infografías, «Cómo funciona») que no figuraban en la metodología.
+- **Decisión:** todo proyecto bajo la SF tiene `docs/guias/instalacion.md` (instalación desde cero) y `docs/guias/actualizacion.md` (actualización), como procedimientos que se siguen paso a paso y terminan con una comprobación. Junto a la visión, son opcionales: visiones desde otras perspectivas, infografías técnicas y «Cómo funciona».
+- **Consecuencias:** el panel `/sf` muestra las dos guías entre los documentos y los opcionales marcados como tales. JKanban será el primer proyecto en probarlas. La SF necesita las suyas: la propuesta del procedimiento de instalación pasa a ser escribir esas dos guías.
+- **Aplicada en:** metodología (2, 3.1 y 6) y skill `sf:metodologia`; mod de estado; `docs/como-funciona-la-software-factory.md`; plugin `sf` 0.7.6.

@@ -1,0 +1,13 @@
+# Skill para incorporar un proyecto; el `CLAUDE.md` del proyecto no se reescribe
+
+- **Origen:** SoftwareFactory, 2026-10-28. El propietario: «necesito una skill para el plugin que me permita ajustar los directorios, la identidad, ... para que un proyecto se pueda usar con sf». Sobre el `CLAUDE.md`: «el claude preexistente de un proyecto, como oncocore, tiene una información valiosa que no se puede perder». A la propuesta: «sí, adelante con la propuesta y lo del kanban. Añado que en casos como oncocore con un claude.md complejo este apartado se trataria como una tarea de una sesión entera, estudiando detalladamente cada cambio a realizar».
+- **Contexto:** la incorporación se hacía a mano, siguiendo «Cómo funciona», y escribía un apartado «Software Factory» dentro del `CLAUDE.md` del proyecto (JKanban). Un `CLAUDE.md` como el de OncoCore (553 líneas de reglas propias) no admite que se reescriba ni que se mezclen en él las reglas de la SF, que cambian con cada versión.
+- **Opciones:** escribir las reglas en un apartado del `CLAUDE.md` (como hasta ahora), con marcas para regenerarlo, o en un archivo aparte que el `CLAUDE.md` importe.
+- **Decisión:**
+  1. La skill `incorporar_proyecto_a_sf` cubre cuatro casos: proyecto nuevo, existente, actualizar uno ya incorporado y diagnosticar sin cambiar nada.
+  2. `docs/` se reorganiza proponiendo el plan y aplicándolo con `git mv` tras el OK del propietario.
+  3. La identidad en `.sf/proyecto.json` son el nombre, el color y una descripción breve (nuevo campo `descripcion`). El proyecto de JKanban se pregunta y se anota, sin crearlo mientras no esté conectado.
+  4. Las reglas de la SF van en `.sf/claude-sf.md`, que sale de la plantilla del plugin, y el `CLAUDE.md` solo añade `@.sf/claude-sf.md`. Al cambiar de versión se regenera ese archivo y el `CLAUDE.md` no se toca. Así lo del proyecto queda separado de lo de la SF, y actualizar no arriesga lo del proyecto.
+  5. Lo que choca con la SF se presenta al propietario, que decide, y se anota en las decisiones del proyecto; mientras tanto mandan las reglas del proyecto. Con un `CLAUDE.md` complejo, esa revisión es una tarea de una sesión entera, un cambio cada vez y estudiado en detalle.
+- **Consecuencias:** JKanban, al actualizarse, cambiará su apartado escrito por la importación. OncoCore queda pendiente de incorporarse en una sesión propia. Sustituye al paso 4 de la incorporación de «Cómo funciona» (apartado escrito dentro del `CLAUDE.md`).
+- **Aplicada en:** skill `sf:incorporar_proyecto_a_sf`; plantilla `templates/claude-sf.md`; metodología (2 y 6) y skill `sf:metodologia`; especificación; `docs/como-funciona-la-software-factory.md`; README del plugin y panel (proyecto sin SF); plugin `sf` 0.29.0.

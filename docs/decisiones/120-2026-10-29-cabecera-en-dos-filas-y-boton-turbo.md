@@ -1,0 +1,7 @@
+# Cabecera en dos filas y botón TURBO
+
+- **Origen:** SoftwareFactory, 2026-10-29, tarea 156. El propietario pide «Reorganización cabecera panel y botón de turbo… Sirve para buscar tareas en la cola que se pueden realizar sin interacción con el developer».
+- **Contexto:** la primera fila de la cabecera juntaba los prompts, la duración de la sesión, la etiqueta del modo prueba y el nombre; la segunda, solo la rama. Lanzar con subagentes las tareas que no necesitan al propietario se pedía a mano, escribiéndolo.
+- **Decisión:** fila 1, los prompts a la izquierda y, a la derecha, TURBO, la etiqueta del modo prueba y el nombre del proyecto; fila 2, la duración a la izquierda y la rama alineada a la derecha, con los colores de antes. TURBO es una etiqueta con fondo neutro y letra cian en negrita; sale en la SF y en los proyectos con SF, donde hay cola. Al pulsarlo, avisa con un toast y pasa a Claude, desde un temporizador, «TURBO: revisa la cola y pon en curso las tareas que se pueden hacer sin interacción con el propietario; lánzalas con subagentes y avísame de cuáles».
+- **Consecuencias:** precisa la cabecera fija del panel; la rama se recorta con el ancho que deja la duración. TURBO pasa por Claude: decidir qué tareas no necesitan al propietario es inferencia, no un comando.
+- **Aplicada en:** plugins/sf/hooks/panel.tsx, plugins/sf/hooks/cola.ts, plugins/sf/hooks/estilo.ts y sus pruebas.

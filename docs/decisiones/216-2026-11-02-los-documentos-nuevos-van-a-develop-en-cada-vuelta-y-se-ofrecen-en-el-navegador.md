@@ -1,0 +1,12 @@
+# Los documentos nuevos van a develop en cada vuelta y se ofrecen en el navegador
+
+- **Origen:** SoftwareFactory, 2026-11-02. El propietario: «crear un documento nuevo es fácil de revertir borrando el doc si no se quiere. Creo que no hace falta una rama para ello». Aceptó que solo valga para documentos nuevos y matizó: «si se itera sobre el documento se puede crear una rama, pero se integra automáticamente después de la iteración para que el usuario pueda abrir el doc en develop». Valorado, lo aprobó y añadió: «en las tareas de documentos, siempre ofrecer abrir el doc en el navegador».
+- **Contexto:** una tarea que crea un documento pasaba por rama, squash y observación como una de código, aunque un documento nuevo no rompe nada y se deshace borrándolo. Mientras se iteraba, el propietario tenía que ir al worktree del subagente para leerlo (como pasó con el informe de la 222).
+- **Decisión:**
+  - Una tarea que crea documentos nuevos no necesita rama para ellos. Si el subagente itera en su rama, al terminar cada vuelta el documento se copia a `develop` con un commit, mediante una orden que lo hace sin cambiar la rama activa (como `cola.py decision`). Solo entra el documento, nada más de la rama.
+  - El propietario siempre lo lee en `develop`. Si al final no lo quiere, se borra con un commit.
+  - Cambiar documentos que ya existen sigue con rama y cierre normal.
+  - En toda tarea de documentos, Claude ofrece abrir el documento en el navegador (su HTML) cada vez que hay una versión nueva.
+  - Una tarea de documentos solo toca su documento. No se le añaden pasos de implementación ni otros que cambien activos distintos del propio documento (código, skills, otros documentos); eso va a otra tarea (matiz del propietario: «no se pueden añadir pasos de implementación u otros que afecten a activos que no son el propio documento en una tarea de documento»). Así, lo que entra en `develop` en cada vuelta es siempre solo el documento.
+- **Consecuencias:** hace falta la orden que copia un documento a `develop` y su prueba; `sf:orquestacion` y `sf:flujo_tareas` lo recogen, y las skills que generan documentos (visión, fundacional, informes) ofrecen abrir el HTML. El historial de `develop` guarda una versión por vuelta. Encaja con «Tareas deliberativas: registrar decisiones y dilemas abiertos» (274), que propone cerrar las tareas de documentos con la aprobación del propietario en lugar de una prueba.
+- **Aplicada en:** pendiente.

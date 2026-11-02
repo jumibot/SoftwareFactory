@@ -1,0 +1,6 @@
+# La cabecera, en etiquetas: rama y duración de la sesión
+
+- **Origen:** SoftwareFactory, 2026-10-29, tarea 95, al probarla. El propietario: «todo en etiquetas lo de la cabecera», «pasa la rama activa a una segunda row de cabecera», «crea una etiqueta en la primera row de la cabecera con la duración de la sesión en horas y minutos» y «la etiqueta de la branch mismo estilo que la del número de prompts».
+- **Contexto:** con la tarea en su rama, hace falta ver en qué rama está la carpeta; en la primera fila, la rama partía en líneas el marcador.
+- **Decisión:** todo lo de la cabecera va en etiquetas. Primera fila: los prompts y la duración de la sesión (horas y minutos desde que se abrió; `/reload-plugins` no la reinicia), en etiquetas de fondo neutro; la de prueba y el nombre del proyecto, como estaban. Segunda fila: la rama activa, con el estilo de la de los prompts; su letra, en el amarillo de la tarea si es la rama de una tarea en curso o en Testing, y si no, atenuada; en una cabeza separada, el commit corto. Al desplegar una tarea con rama, «rama: …», con « (no existe)» si ya no está. Precisa «El panel, sin horas…»: la duración es de la sesión, no de cada tarea.
+- **Aplicada en:** `plugins/sf/hooks/panel.tsx`, `register.tsx`, `lectura.ts` y sus pruebas; `docs/como-funciona-el-panel.md`.

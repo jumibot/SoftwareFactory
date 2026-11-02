@@ -1,0 +1,8 @@
+# Sin remoto en GitHub no hay SF: se valida al incorporar y, si falta, se crea
+
+- **Origen:** SoftwareFactory, 2026-11-02. Tras diseñar la configuración inicial («Configuración inicial: decidir el mínimo, los commits y la versión, y diseñar .sf/proyecto.json y las preguntas», 263), el propietario: «al meter un proyecto hay que validar que tiene repo remoto en github... sino se crea uno o sino no hay sf».
+- **Contexto:** el diseño de la 263 dejaba el remoto opcional: `remoto` valía `origin` por defecto y `null` era trabajar sin push. El panel ya avisa cuando falta subir `develop` al remoto.
+- **Decisión:** un proyecto con la SF tiene siempre un repositorio remoto en GitHub. Al incorporarlo, la SF lo comprueba. Si no lo tiene, ofrece crearlo; si el desarrollador no quiere, no hay SF: se explica y se pide reconfirmar, como con `develop` («Sin develop no hay SF, y las decisiones mezcladas se sacan con enlace», 214).
+- **Consecuencias:** el remoto entra en el manejo del repositorio, que no se negocia («El manejo del repositorio no se negocia: siempre develop», 205). En `.sf/proyecto.json` desaparece el valor `null` (sin push) del campo `remoto`. La incorporación y la puesta al día comprueban el remoto, y crearlo pide el OK del desarrollador (con `gh`, que debe estar instalado y con la sesión iniciada).
+- **Precisada el mismo día:** un remoto en otro servicio (GitLab u otro) no cuenta y no se crea uno de GitHub a su lado: fuera de GitHub no hay SF, y hay que pasar el proyecto a GitHub. El propietario: «son limitaciones iniciales... más adelante nos replanteamos abrir el abanico. Por ahora KISS».
+- **Aplicada en:** pendiente; en la 263 (el informe) y en «Implementar la configuración inicial» (193).

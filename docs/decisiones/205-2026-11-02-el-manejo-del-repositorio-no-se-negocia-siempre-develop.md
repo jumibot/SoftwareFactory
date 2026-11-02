@@ -1,0 +1,7 @@
+# El manejo del repositorio no se negocia: siempre develop
+
+- **Origen:** SoftwareFactory, 2026-11-02. En «Incorporar un proyecto sin cambiarlo: el plugin se adapta al proyecto» (222), a la pregunta de si la SF trabaja sobre la rama de integración que ya tenga el proyecto, el propietario respondió: «Propone crear siempre develop. El manejo del repo no es negociable».
+- **Contexto:** hay proyectos con otro modelo de ramas: SmartColdBox solo tiene `main`, PoseTracker solo `develop`. Se valoró integrar en la rama que ya tuvieran, publicando en ella o solo con tag, y soportar PR desde ya.
+- **Decisión:** la SF propone siempre crear `develop` al incorporar un proyecto que no la tenga, y trabaja con su modelo de ramas: se desarrolla en `develop`, cada tarea en su rama `feature/NN-nombre`, que entra en `develop` por squash al cerrarla, y publicar es pasar `develop` a `main` con su tag. El manejo del repositorio forma parte del mecanismo que la SF fija.
+- **Consecuencias:** corrige «La SF fija el mecanismo y se adapta a las convenciones del proyecto» (202): las ramas y la rama de integración dejan de ser adaptables. El remoto, los documentos, el idioma y el formato del commit siguen adaptándose. La decisión 199 («en `develop` del proyecto») se lee tal cual. Crear `develop` (y `main` si falta) es lo mínimo que la incorporación añade al repositorio, con el OK del propietario.
+- **Aplicada en:** pendiente; en la 222 y en la incorporación (`sf:incorporar_proyecto_a_sf`).

@@ -1,0 +1,7 @@
+# Origen de la skill `informe_deliberativa`
+
+- **Creada:** 2026-11-02, en la SF, en la tarea «Informes de las deliberativas iguales y legibles sin maquetarlos a mano: skill propia» (301), por la decisión 231 («Una skill propia para los informes de las deliberativas, ligera sobre el diseño común»). Absorbe la tarea 300 («Informes de las deliberativas más fáciles de maquetar»).
+- **Por qué:** cada informe de las deliberaciones del 2026-11-02 (222, 263, 274) se maquetó distinto, con HTML a mano para las tarjetas, las fichas de preguntas y lo abierto partido en bloques. Al rediseñar «Tipos de tarea» (274) faltaron recursos.
+- **Ligera:** usa el generador y los recursos de `crear_documentos` y solo añade lo suyo: la estructura fija, cómo se escriben las preguntas y el ciclo de cada vuelta. El recurso «pregunta con opciones» (`::: preguntas`) está en el catálogo de `crear_documentos`, porque sirve también a otros documentos; esta skill lo elige en su `perfil.json`.
+- **Decisiones que aplica:** 216 (documentos nuevos a `develop` en cada vuelta), 217 (respaldo en `_respaldo/`), 218 (una deliberativa da un informe y las tareas que salgan; los dilemas viven en el informe), 220 (cada cambio del `.md` regenera su HTML), 221 (lo ajeno se propone separar), 223 (tres familias) y 203 (`sf/informes/`).
+- **Modelo:** `docs/referencias/reports/Tipos de tarea.md`, pasado al formato de esta skill en la misma tarea (versión 2.6; la 2.5, en `_respaldo/`).

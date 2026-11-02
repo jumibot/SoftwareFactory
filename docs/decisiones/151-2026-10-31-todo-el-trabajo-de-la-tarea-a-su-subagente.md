@@ -1,0 +1,7 @@
+# Todo el trabajo de la tarea, a su subagente
+
+- **Origen:** SoftwareFactory, 2026-10-31, tarea «Las normas guardadas en la memoria de la SF, también en los demás proyectos» (211). El propietario: «Dijimos de dejar el agente principal para orquestar salvo instrucción mía expresa».
+- **Contexto:** la skill decía que se lanzaba subagente para las tareas en curso «que no necesitan al propietario». En la 211, una tarea de diseño que esperaba decisiones suyas, el principal hizo él mismo la clasificación de las memorias y el análisis de la incorporación.
+- **Decisión:** toda tarea en curso tiene su subagente desde que se pone en curso, también las de diseño o deliberación. Todo el trabajo de la tarea lo hace él: los cambios, y también leer, clasificar, analizar, investigar y proponer. Si un paso espera al propietario, el subagente queda vivo esperando. El principal solo orquesta: lleva al propietario lo que el subagente devuelve para decidir, escribe la cola y registra las decisiones; el resto lo hace solo con instrucción expresa del propietario. Precisa «Orquestación con un subagente vivo por tarea» (149).
+- **Consecuencias:** el principal queda libre también durante las tareas de diseño. La metodología, la plantilla `claude-sf.md` y el CLAUDE.md de la SF se ajustan en su tarea de actualizar.
+- **Aplicada en:** plugins/sf/skills/orquestacion/SKILL.md y plugins/sf/skills/orquestacion/references/porque.md.

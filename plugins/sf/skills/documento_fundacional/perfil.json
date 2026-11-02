@@ -1,0 +1,5 @@
+{
+  "tipo": "Documento fundacional",
+  "descripcion": "Presentación formal del proyecto o de un producto: tarjetas, columnas, fichas con buscador y fuentes.",
+  "recursos": ["tarjetas", "columnas", "fichas", "fuentes"]
+}

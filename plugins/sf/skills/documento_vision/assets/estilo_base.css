@@ -1,0 +1,377 @@
+/* Hoja de estilos base de los documentos de visión (skill documento_vision).
+ * Carcasa: cabecera, resumen, bloques y subsecciones plegables, tablas y pie.
+ * Los colores y las tipografías son variables CSS (var(--rol), var(--fuente-…)) que define el tema
+ * elegido (assets/temas/*.json); en las URI de datos SVG, los marcadores {{rol}} los rellena el script.
+ * Lo propio de cada proyecto va en su CSS, indicado en identidad.json. Origen: docs/referencias/procedencia/ del repositorio de la SF. */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--fuente-texto);
+  background: var(--pagina);
+  color: var(--texto);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  background: #fff;
+  box-shadow: 0 2px 16px rgba(0,0,0,.08);
+  min-height: 100vh;
+}
+
+/* ── Cabecera ── */
+.site-header {
+  background: var(--primario);
+  padding: 0 2.5rem;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+}
+.institution {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1rem 0;
+}
+.institution-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: .02em;
+  line-height: 1.2;
+}
+.institution-sub {
+  font-size: .73rem;
+  font-weight: 300;
+  color: rgba(255,255,255,.75);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  margin-top: .15rem;
+}
+/* ── Subheader página ── */
+.report-header {
+  background: var(--fondo);
+  border-bottom: 2px solid var(--borde);
+  padding: 1rem 2.5rem;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+.report-title { font-size: 1rem; font-weight: 600; color: var(--oscuro); }
+/* Estado del documento en la barra («**Estado:** …» del .md) */
+.report-estado { font-weight: 400; color: var(--texto); line-height: 1.5; }
+.report-estado strong { font-weight: 700; color: var(--oscuro); }
+/* ── Bloques colapsables (uno por H2) ── */
+/* Sin recuadros: summary tipo encabezado con chevron SVG a la derecha que rota al abrir. Sin padding ni
+   borde lateral en el contenido — el cuerpo fluye como texto normal. */
+.bloque {
+  margin: 1.6rem 0 0;
+  border: none;
+  background: transparent;
+}
+.bloque-summary {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--oscuro);
+  padding: .25rem 0 .2rem;
+  margin-bottom: .6rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  user-select: none;
+  outline: none;
+  transition: color .15s ease;
+}
+.bloque-summary:hover { color: var(--primario); }
+.bloque-summary::-webkit-details-marker { display: none; }
+.bloque-summary::marker { content: ''; }
+.bloque-summary::before {
+  content: '';
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  background: var(--primario);
+  border-radius: 50%;
+  margin-right: .6rem;
+}
+.bloque-chip {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  background: var(--fondo);
+  border-radius: 999px;
+  padding: .25rem .9rem .25rem var(--chip-izq);
+  gap: .45rem;
+}
+.bloque-title {
+  flex: 1 1 auto;
+  padding: .1rem 0;
+}
+.bloque-btn {
+  font-family: inherit;
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .04em;
+  color: var(--oscuro);
+  background: transparent;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  padding: .15rem .65rem;
+  cursor: pointer;
+  transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+}
+/* Sin JavaScript (visores que no ejecutan scripts) los botones no harían nada: se ocultan
+   y el bloque se pliega tocando su título. */
+html:not(.js) .bloque-btn { display: none; }
+.bloque-btn:hover {
+  background: var(--primario);
+  border-color: var(--primario);
+  color: #fff;
+}
+.bloque-summary::after {
+  content: '';
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='{{primario}}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 16px 16px;
+  transition: transform .2s ease;
+  transform-origin: center;
+  flex-shrink: 0;
+  margin-left: .6rem;
+}
+.bloque-summary::after { transform: rotate(-90deg); }
+.bloque[open] > .bloque-summary::after { transform: none; }
+
+/* Un solo margen izquierdo para todo el contenido del bloque, alineado con el texto del título: el ancho del
+   marcador (--marca: círculo de 1rem + .6rem de separación; 0 si el tema no lleva marcador) más el relleno
+   izquierdo del título (--chip-izq). La sangría va en el propio bloque y el título la recupera con un margen
+   negativo, así que párrafos, listas, tablas, código, recuadros y figuras empiezan donde empieza el texto del
+   título, sin reglas por tipo de elemento. Las viñetas de una lista quedan dentro de ese margen. */
+:root { --marca: 1.6rem; --chip-izq: .9rem; }
+.bloque { padding-left: calc(var(--marca) + var(--chip-izq)); }
+.bloque > .bloque-summary { margin-left: calc(-1 * (var(--marca) + var(--chip-izq))); }
+
+/* ── Subsecciones colapsables (1.1, 1.2, 2.1, 2.2…) ── */
+.subseccion {
+  margin: 1rem 0 0;
+  border: none;
+  background: transparent;
+}
+.subseccion-summary {
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--primario);
+  padding: .15rem 0;
+  margin: .8rem 0 .3rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+  user-select: none;
+  outline: none;
+  transition: color .15s ease;
+}
+.subseccion-summary:hover { color: var(--oscuro); }
+.subseccion-summary::-webkit-details-marker { display: none; }
+.subseccion-summary::marker { content: ''; }
+.subseccion-summary::after {
+  content: '';
+  display: inline-block;
+  margin-left: auto;
+  width: 14px;
+  height: 14px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='{{primario-vivo}}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 12px 12px;
+  transition: transform .2s ease;
+  transform-origin: center;
+  flex-shrink: 0;
+  opacity: .7;
+}
+.subseccion-summary::after { transform: rotate(-90deg); }
+.subseccion[open] > .subseccion-summary::after { transform: none; }
+
+/* ── Sub-subsecciones colapsables (H4) ── */
+.subsubseccion {
+  margin: .55rem 0 0;
+  border: none;
+  background: transparent;
+}
+.subsubseccion-summary {
+  font-size: .87rem;
+  font-weight: 600;
+  color: var(--oscuro);
+  padding: .1rem 0;
+  margin: .45rem 0 .2rem;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  user-select: none;
+  outline: none;
+  transition: color .15s ease;
+}
+.subsubseccion-summary:hover { color: var(--primario); }
+.subsubseccion-summary::-webkit-details-marker { display: none; }
+.subsubseccion-summary::marker { content: ''; }
+.subsubseccion-summary::after {
+  content: '';
+  display: inline-block;
+  margin-left: auto;
+  width: 12px;
+  height: 12px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='{{oscuro}}' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 10px 10px;
+  transition: transform .2s ease;
+  transform-origin: center;
+  flex-shrink: 0;
+  opacity: .55;
+}
+.subsubseccion-summary::after { transform: rotate(-90deg); }
+.subsubseccion[open] > .subsubseccion-summary::after { transform: none; }
+
+/* Una sola convención en todo el documento (como en las herramientas): ▸ plegado, ▾ abierto. Foco visible. */
+.bloque-summary:focus-visible, .subseccion-summary:focus-visible, .subsubseccion-summary:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; border-radius: 4px; }
+.bloque-title, .subseccion-summary, .subsubseccion-summary, h1, h2, h3, h4 { text-wrap: balance; }
+p, li { text-wrap: pretty; }
+@media (prefers-reduced-motion: reduce) { .bloque-summary::after, .subseccion-summary::after, .subsubseccion-summary::after { transition: none; } }
+/* Impresión: todo abierto (lo abre también herramientas.js con beforeprint), sin botones ni sombras. */
+@media print {
+  body { background: #fff; }
+  .page { box-shadow: none; max-width: none; }
+  .bloque-btn, .bloque-summary::after, .subseccion-summary::after, .subsubseccion-summary::after { display: none !important; }
+  details > summary { break-after: avoid; }
+  figure, svg, table, .escena { break-inside: avoid; }
+  a[href^="http"]::after { content: none; }
+}
+
+/* ── Cuerpo ── */
+.report-body { padding: 1.8rem 2.5rem 3rem; }
+h1 {
+  font-size: 1.3rem; font-weight: 700;
+  color: var(--oscuro);
+  border-bottom: 2px solid var(--primario);
+  padding-bottom: .4rem; margin: 1.6rem 0 .8rem;
+}
+h2 {
+  font-size: 1.05rem; font-weight: 600;
+  color: var(--oscuro);
+  border-bottom: 1px solid var(--borde);
+  padding-bottom: .2rem; margin: 2rem 0 .6rem;
+}
+h3 { font-size: .95rem; font-weight: 600; color: var(--primario); margin: 1.2rem 0 .4rem; }
+p  { margin: .55rem 0; }
+ul, ol { padding-left: 1.5rem; margin: .4rem 0; }
+li { margin: .2rem 0; }
+
+/* ── Preguntas frecuentes: <dl class="faq"> con <dt> (pregunta) y <dd> (respuesta). Para índices de consulta
+   y FAQ, en lugar de una tabla de dos columnas: sin cabecera ni franjas. ── */
+dl.faq { margin: .6rem 0 1.2rem; }
+dl.faq dt { font-weight: 600; color: var(--oscuro); margin: 1rem 0 .15rem; }
+dl.faq dt:first-child { margin-top: 0; }
+dl.faq dd { margin: 0; color: var(--texto); }
+
+/* ── Tablas generales ── */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.1rem 0;
+  font-size: .875rem;
+}
+th {
+  background: var(--primario);
+  color: #fff;
+  padding: .45rem .8rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: .82rem;
+  /* Romper solo la palabra que no cabe entera (una ruta larga), sin partir las demás: con
+     «word-break: break-word» la columna se estrechaba hasta partir cualquier palabra. */
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+td {
+  padding: .38rem .8rem;
+  border-bottom: 1px solid var(--linea);
+  vertical-align: top;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+tr:hover td { background: var(--fondo); }
+
+/* ── Resto ── */
+blockquote {
+  border-left: 3px solid var(--primario);
+  margin: .8rem 0;
+  padding: .5rem 1.2rem;
+  background: var(--fondo);
+  color: #333;
+  font-style: italic;
+}
+code {
+  background: #f0f0f0;
+  padding: .1rem .3rem;
+  border-radius: 3px;
+  font-family: 'Consolas', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: .83rem;
+}
+pre  {
+  background: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  padding: 1rem;
+  border-radius: 5px;
+  overflow-x: auto;
+  font-family: 'Consolas', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: .83rem;
+  line-height: 1.55;
+}
+/* Dentro de un bloque de código, el código no lleva su propio fondo ni relleno: si no, la primera línea
+   queda desplazada respecto a las demás. */
+/* Ejemplo narrado: un caso real contado en prosa, en un recuadro gris como el del código. */
+.ejemplo { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 5px; padding: 1rem 1.2rem; margin: 1rem 0 1.4rem; }
+.ejemplo p { margin: 0 0 .6rem; }
+.ejemplo p:last-child { margin-bottom: 0; }
+pre code { background: none; padding: 0; border-radius: 0; font-size: inherit; }
+/* Coloreado de sintaxis (scripts/resaltar_codigo.py). Cada color dice qué es: claves en el color del tema,
+   cadenas en verde, números y literales en naranja, palabras clave en el acento, órdenes y etiquetas en turquesa.
+   Un tema puede cambiarlos con las variables --sx-…. */
+:root { --sx-clave: var(--primario); --sx-cadena: #1f812d; --sx-numero: #a6501a; --sx-palabra: var(--acento);
+        --sx-funcion: #1f7a7a; --sx-atributo: #a6501a; --sx-comentario: var(--texto-tenue); }
+pre code .sx-p { color: var(--sx-clave); }
+pre code .sx-s { color: var(--sx-cadena); }
+pre code .sx-n { color: var(--sx-numero); }
+pre code .sx-k { color: var(--sx-palabra); font-weight: 600; }
+pre code .sx-f, pre code .sx-t { color: var(--sx-funcion); }
+pre code .sx-a { color: var(--sx-atributo); }
+pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
+hr   { border: none; border-top: 1px solid var(--borde); margin: 1.8rem 0; }
+em   { color: #444; }
+strong { font-weight: 600; }
+
+/* ── Footer ── */
+.site-footer {
+  background: var(--oscuro);
+  color: rgba(255,255,255,.55);
+  font-size: .72rem;
+  text-align: center;
+  padding: .9rem 2rem;
+  letter-spacing: .04em;
+}
+.site-footer a { color: rgba(255,255,255,.8); text-decoration: none; }
+.site-footer a:hover { text-decoration: underline; }

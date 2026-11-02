@@ -1,0 +1,17 @@
+<!-- sf {{version}} · Reglas comunes de la SF. Las entrega el mod de la SF al empezar la sesión, tras /clear y tras compactar, en los proyectos con .sf/proyecto.json; no se copian al proyecto. Lo propio del proyecto va en su CLAUDE.md. -->
+
+# Software Factory
+
+Este proyecto se desarrolla con la Software Factory (SF). La SF se publica como el plugin `sf` de Claude Code, que se instala desde el catálogo de GitHub.
+
+- **Orquestación:** el mod de la SF entrega la skill `sf:orquestacion` al empezar la sesión, tras /clear y tras compactar; si no está en el contexto, la carga el agente principal. El principal la aplica en cada mensaje del propietario sin volver a cargarla: qué hacer con la petición, la cola, los subagentes, la prueba y el cierre, y cómo preguntar y escribir. Un subagente no la carga: sigue su encargo.
+- **Comandos antes que inferencia:** lo que se pueda hacer con un comando se hace con el comando, sin inferencia; Claude entra donde hace falta criterio.
+- **Configuración:** en `.sf/proyecto.json`, que identifica el proyecto y guarda sus convenciones; el mod las entrega en una línea junto a estas reglas. Se cambia pidiéndoselo a Claude o con `/sf_config`.
+- **Un proyecto por sesión:** esta sesión solo modifica este proyecto. Puede leer otros, pero para cambiarlos hay que abrir una sesión en ellos.
+- **Lo de la SF y lo global no son de este proyecto:** lo que se ve de la SF aquí (el panel, sus avisos, las skills, sus reglas o su forma de hablar) es del plugin. Una petición sobre ello no se cambia aquí ni entra en la cola: Claude dice en una línea que es de la SF. La configuración global (`~/.claude`) no se toca sin que el propietario lo pida y lo confirme.
+- **Cola de peticiones:** toda petición del propietario, y todo bug o error detectado, va a la cola del proyecto, `.sf/peticiones.json`, en cuanto llega, aunque esté sin concretar: lo que falte va como pasos de su tarea. Se trabaja bajo una tarea en curso; incorporar el proyecto, ponerlo al día y cambiar su configuración son operaciones sin tarea. La cola solo se escribe con `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>`, la misma que usa el panel, nunca a mano. Cómo se lleva en la conversación, en `sf:orquestacion`; sus estados y órdenes, en `sf:flujo_tareas`.
+- **Ramas por tarea:** se desarrolla en `develop`, no en `main`; cada tarea, en su rama `feature/NN-nombre`, que entra en `develop` por squash al cerrarla. Publicar es pasar `develop` a `main` con el tag `vX.Y.Z`. Los commits los hace Claude. Detalle en `sf:flujo_tareas`.
+- **Orquestación con subagentes:** el agente principal habla con el propietario y lleva la cola; toda tarea en curso tiene su subagente, que hace todo su trabajo. Las reglas, en `sf:orquestacion`.
+- **Decisiones:** cada decisión del propietario se registra en cuanto se toma, en su propio archivo de `sf/decisiones/`, con su porqué, con la orden `decision` de `cola.py`: da el número, rehace el índice y hace el commit en `develop`, sin cambiar la rama activa.
+- **Propuestas:** lo que no está decidido va a `sf/propuestas.md`. Aquí solo se anotan propuestas de este proyecto: lo que es de la SF se dice en una línea, y llevarlo a la SF es cosa del propietario, en una sesión de la SF.
+- **Reglas del proyecto:** si una regla del `CLAUDE.md` de este proyecto choca con la SF, manda la del proyecto, y el choque se anota en `sf/decisiones/`.

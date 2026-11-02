@@ -1,0 +1,7 @@
+# ACTUALIZAR y REFRESCAR: dos botones para dos casos
+
+- **Origen:** SoftwareFactory, 2026-11-01, tarea «El panel avisa cuando la sesión usa un plugin más viejo que el instalado» (229). En SpriteAnimation, con la 1.2.10 instalada y la sesión en la 1.2.7, el propietario no veía el botón, tapado por un aviso, y esperaba un aviso; después: «además eso sería refrescar más que actualizar».
+- **Contexto:** el botón ACTUALIZAR (decisión 124) servía para dos casos: hay una versión publicada sin instalar (se actualiza e instala) y ya está instalada pero la sesión corre una más vieja (basta con recargar el plugin). Con un aviso activo, la cabecera se turna con él y el botón queda tapado buena parte del tiempo (decisión 164).
+- **Decisión:** el botón dice ACTUALIZAR cuando hay una versión publicada nueva sin instalar, y REFRESCAR cuando la instalada es más nueva que la que corre la sesión; REFRESCAR recarga el plugin (instalando antes las dependencias que falten, decisión 176). En el caso de REFRESCAR sale también un aviso: «Esta sesión usa la SF X y está instalada la Y: pulsa REFRESCAR».
+- **Consecuencias:** el propietario sabe qué hará cada botón; el aviso evita que un refresco pendiente pase desapercibido aunque la cabecera esté tapada.
+- **Aplicada en:** `plugins/sf/hooks/cola.ts` (REFRESCAR y su aviso), `plugins/sf/hooks/panel.tsx` (botón y aviso en el carrusel de la cabecera), sus pruebas y la especificación, 2.

@@ -1,0 +1,8 @@
+# La firma del commit de cierre es configurable; sin configurar, sin línea
+
+- **Origen:** SoftwareFactory, 2026-11-02. En «Primeros cinco minutos de un usuario nuevo con la SF» (289), el diagnóstico de lo que atasca a un usuario nuevo dejó decisiones para el propietario, que eligió la opción recomendada. También resuelve la parte de `coautor` de «Decidir el nombre de la orden y si coautor entra en el esquema» (311).
+- **Contexto:** el squash del cierre firma siempre con una línea fija «Co-Authored-By: Claude Opus…». cola.py encargo ya lee un campo `coautor` de .sf/proyecto.json que no está en el esquema de la configuración.
+- **Decisión:** la línea de coautoría de los commits de la SF es configurable: el campo `coautor` de .sf/proyecto.json o `cerrar --coautor`. Sin ninguno de los dos, los commits van sin línea de coautoría.
+- **Consecuencias:** `coautor` entra en el esquema plano de la configuración («Todo proyecto.json es configuración», 227), se pregunta o detecta al incorporar y se cambia con /sf_config. En la SF se configura con la línea que usa hoy.
+- **Precisada el mismo día:** al incorporar, el menú recomienda la línea de coautoría de Claude con el modelo de la sesión, porque los commits los hace Claude («Los commits los lleva siempre Claude», 225). Lo que no se configura sigue sin línea (propietario, en «Que la SF arranque a la primera en un Mac», 314).
+- **Aplicada en:** pendiente; en la 289 (cola.py, encargo, incorporación y sf:configurar_proyecto).

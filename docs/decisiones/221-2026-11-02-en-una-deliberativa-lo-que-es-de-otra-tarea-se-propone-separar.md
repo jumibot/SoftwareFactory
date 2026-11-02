@@ -1,0 +1,8 @@
+# En una deliberativa, lo que es de otra tarea se propone separar
+
+- **Origen:** SoftwareFactory, 2026-11-02. Al repasar «Tareas deliberativas: registrar decisiones y dilemas abiertos» (274), el propietario: «las deliberativas pueden ser tareas de brainstorming donde surjan cosas de otras tareas o deliberaciones; aquí hay que sugerir splitting».
+- **Contexto:** en las deliberaciones de hoy surgieron temas que no eran suyos: la 222 acabó decidiendo la carpeta `sf/`, el manejo del repositorio y el idioma; la 274 pasó de los tipos de tarea a todo el ciclo de los documentos. Todo se quedaba en la misma tarea, que crecía y perdía el foco.
+- **Decisión:** una tarea deliberativa puede ser una lluvia de ideas, y en ella surgen temas de otras tareas o deliberaciones. Cuando aparece uno, Claude propone sacarlo: con `/sf_split` si ya hay pasos suyos, como paso de una tarea existente si encaja en ella, o como tarea nueva (deliberativa, documental o de implementación, como dice «Una tarea deliberativa da un informe y las tareas que salgan», 218). Lo propone en una línea, con la orden lista, y lo hace con el OK del propietario.
+  Si la tarea se quiere cerrar con temas aún abiertos, esos temas se proponen como separaciones: cada uno sale a su propia tarea y la deliberativa se cierra con lo decidido (matiz del propietario: «los temas abiertos, si la tarea se quiere cerrar, se proponen como splits»). Ningún dilema abierto se pierde al cerrar.
+- **Consecuencias:** cada deliberativa conserva su foco y su informe trata lo suyo. `sf:orquestacion` («Fusionar, separar y redescribir») y el encargo del subagente de una deliberativa recogen que hay que señalar los temas ajenos en su informe para proponerlos como separación.
+- **Aplicada en:** pendiente; en la 274.

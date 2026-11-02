@@ -1,0 +1,7 @@
+# El número de la tarea en el commit, según el formato del proyecto
+
+- **Origen:** SoftwareFactory, 2026-11-02. En «Incorporar un proyecto sin cambiarlo: el plugin se adapta al proyecto» (222), tras decidir que Claude se adapta al idioma y al formato de commit del proyecto (206), quedaba cómo marcar el número de la tarea. El propietario aprobó la recomendación: «me parece bien, regístralo».
+- **Contexto:** hoy el número va como «(N)» al final del título, en los commits del subagente y en el del cierre por squash. `cola.py revertir` no lo usa: revierte por el hash que el cierre anota en el historial de la tarea. El número sirve a las personas, para ver en `git log` a qué tarea pertenece cada commit. Un «(N)» al final rompe formatos estrictos como conventional commits.
+- **Decisión:** en los proyectos sin formato de commit propio, el número sigue como «(N)» al final del título. En los que tienen uno estricto (conventional commits u otro), va en un trailer al pie: `SF-Tarea: N`. La forma la guarda la configuración del proyecto (263) y la detecta la incorporación.
+- **Consecuencias:** `cola.py` (el mensaje del squash y el encargo de los subagentes) escribe el número según la configuración, y lo que lee commits para encontrar los de una tarea acepta las dos formas. Revertir no cambia, porque va por hash.
+- **Aplicada en:** pendiente; en la 263 (el campo de configuración) y la 193 (`cola.py`).

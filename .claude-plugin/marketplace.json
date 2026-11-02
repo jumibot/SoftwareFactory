@@ -1,0 +1,68 @@
+{
+  "name": "softwarefactory",
+  "owner": {
+    "name": "jumibot"
+  },
+  "description": "Plugins de la Software Factory",
+  "plugins": [
+    {
+      "name": "sf",
+      "source": "./plugins/sf",
+      "description": "Software Factory para Claude Code: skills, kit de documentos y mod de estado. Si no carga tras actualizar desde la 1.2.10 o antes, instala sus dependencias, una orden cada una: claude plugin install threejs-skills@softwarefactory; claude plugin install oklch-skill@softwarefactory; claude plugin install gsap-skills@softwarefactory"
+    },
+    {
+      "name": "gsap-skills",
+      "description": "Skills oficiales de GSAP de GreenSock (MIT), dependencia de sf: cinco skills de apoyo de las infografías, fijadas a un commit",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/greensock/gsap-skills.git",
+        "path": "skills",
+        "sha": "aed9cfd3277740755f6bfc1155c7aa645403b760"
+      },
+      "strict": false,
+      "license": "MIT",
+      "skills": [
+        "./gsap-core",
+        "./gsap-timeline",
+        "./gsap-plugins",
+        "./gsap-utils",
+        "./gsap-performance"
+      ]
+    },
+    {
+      "name": "threejs-skills",
+      "description": "Skills de three.js de CloudAI-X (MIT), dependencia de sf: diez skills de apoyo de las infografías, fijadas a un commit",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/CloudAI-X/threejs-skills.git",
+        "path": "skills",
+        "sha": "0e181866f095b5f06d005133876e926515390d95"
+      },
+      "strict": false,
+      "license": "MIT",
+      "skills": [
+        "./threejs-fundamentals",
+        "./threejs-geometry",
+        "./threejs-materials",
+        "./threejs-lighting",
+        "./threejs-textures",
+        "./threejs-animation",
+        "./threejs-interaction",
+        "./threejs-shaders",
+        "./threejs-postprocessing",
+        "./threejs-performance"
+      ]
+    },
+    {
+      "name": "oklch-skill",
+      "description": "Skill de color OKLCH de Jakub Krehel (MIT), dependencia de sf: paletas de los temas de documento_vision, fijada a un commit",
+      "source": {
+        "source": "github",
+        "repo": "jakubkrehel/oklch-skill",
+        "sha": "0e81f040e16d48fcc61d3e1b7ea548542371321f"
+      },
+      "strict": false,
+      "license": "MIT"
+    }
+  ]
+}

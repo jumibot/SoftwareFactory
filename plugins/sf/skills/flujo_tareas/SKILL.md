@@ -1,0 +1,58 @@
+---
+name: flujo_tareas
+description: Ciclo de vida de las tareas de un proyecto bajo la Software Factory (SF) y su cola, .sf/peticiones.json — estados (en cola, en curso, en observación, descartada), pasos, ramas feature/NN-nombre, subagentes, prueba y cierre por squash en develop, descarte, reversión, reapertura, eliminación, fusión y separación, historial por tarea y copias de la cola — con el CLI tools/cola.py. Úsala siempre que haya que tocar la cola — anotar una petición o un bug, poner una tarea en curso o dejarla en cola, crear su rama, añadir o marcar pasos, lanzar o recoger un subagente, dejarla lista para probar, cerrarla, pasarla a observación o devolverla a ella, cerrarla o revertirla en observación, descartarla, reabrirla, eliminarla, fusionar o separar tareas, o recuperar una cola rota.
+---
+
+# Flujo de tareas
+
+La regla de cada cambio de estado está en [references/estados.md](references/estados.md): una tarjeta por cambio, con cuándo, quién, qué autorización pide, qué hace en el repositorio y su orden. Este archivo dice cómo usarla.
+
+## Cómo se cambia la cola
+
+**Toda escritura de la cola pasa por el CLI**, nunca a mano:
+
+```
+python -I -X utf8 "$HOME/.claude/sf/cola.py" [--raiz RUTA] [--quien propietario|principal] [--via cli|panel] [--json] <orden> …
+```
+
+- Siempre esa orden, igual en bash, zsh y PowerShell, en cualquier proyecto; también los subagentes. Si el mod dice al empezar la sesión que en esta máquina Python se lanza con otro nombre (en macOS, `python3`), con ese en lugar de `python`, aquí y en toda orden de Python de la SF («La orden de Python sale del intérprete que se detecta», 236); el encargo de `cola.py encargo` lo dice también. Nunca el `tools/cola.py` de una carpeta (en la SF, `plugins/sf/tools/cola.py` cambia con la rama activa): el que manda es el del plugin cargado. Al cargar, el panel copia su `cola.py` a `~/.claude/sf/cola-<sesión>.py` y lo lanza («El panel ejecuta una copia de cola.py hecha al cargar», 136); `~/.claude/sf/cola.py` es un lanzador que pasa la orden a esa copia, por `CLAUDE_CODE_SESSION_ID`: Claude y el panel usan el mismo (tarea 252). Sin la copia sale con 2 y lo dice: `/reload-plugins` la rehace.
+- `--raiz`: la carpeta del proyecto, por omisión la actual. Para probar, la ruta de una copia de la cola.
+- `--quien`: `principal` por omisión; `propietario` cuando el cambio es una decisión suya (su OK a cerrar).
+- Sale con 0 si hace el cambio, 1 si no lo hace (dice por qué y no toca nada) y 2 si la orden está mal escrita; `choques`, que solo consulta, con 3 si hay choques. `cola.py <orden> -h` da el uso de cada una.
+
+Lo que hace el CLI en cada escritura: bloquea la cola (`.sf/peticiones.lock`), guarda antes una copia en `.sf/copias/` (las últimas 50), anota el cambio en el `historial` de la tarea y, si la tarea sale de la cola, la pasa con su historial a `.sf/historial.jsonl`. Los números no se reutilizan.
+
+## Reglas que no hace el CLI
+
+El CLI aplica las condiciones de cada cambio (estado de partida, rama, pasos, git). Cuándo y cómo usarlo en la conversación (el menú al anotar, poner en curso, lanzar y recoger subagentes, proponer probar y cerrar, sugerir fusiones y redescribir, las tareas de documentos, qué hacer libre) está en la skill `sf:orquestacion`. Aquí queda lo que toca a la cola misma:
+
+- **Solo el principal escribe la cola.** Un subagente no ejecuta órdenes que escriben; lo dice en su informe y el principal las ejecuta.
+- **Toda petición se hace bajo una tarea en curso**; sin ella, no se empieza a trabajar. Reorganizar la cola (fusionar, separar, redescribir, añadir pasos, cambiar tipos) no la necesita («Orquestación con un subagente vivo por tarea», 149).
+- **El OK del propietario**: `cerrar`, `a-observacion`, `reobservar` y `descartar` lo esperan; `en-cola` de una en curso también, solo sin trabajo: con commits propios en su rama (o en la auxiliar de su subagente) no vuelve a la cola; se cierra, se pasa a observación o se descarta («Una tarea en curso con rama no vuelve a la cola», 170). Con la rama vacía o ya borrada, `en-cola` la borra y recoge el subagente vacío (275).
+- **Tipo al crear** (`crear --tipo`): deliberar, documentar, diseñar, implementar, especificar, corregir o investigar; si cambia, `tipo N T`.
+- **Choques antes de `en-curso`**: `choques N`, con `--archivos` y los previstos, deducidos de la descripción, si aún no tiene rama. No al lanzar subagentes de tareas ya en curso («Prever choques al poner una tarea en curso», 130).
+- **Rama antes del primer activo** (`rama`), avisando. Para un subagente, el principal la crea sin activar y la anota antes de lanzarlo (`rama --sin-activar`, `subagente`); el subagente trabaja en una rama auxiliar desde ella y el principal la trae con `git merge --ff-only`. El subagente nunca activa la rama de la tarea en su worktree: así la T y la C funcionan con el worktree puesto («Orquestación con un subagente vivo por tarea», 149).
+- **Recogida del subagente**: la hace el CLI, con los worktrees y ramas anotados con `subagente` (`--worktree` admite ruta relativa al proyecto), en toda orden que deja la tarea sin él: `cerrar`, `a-observacion`, `descartar`, `eliminar`, `a-propuesta`, `revertir`, `limpiar`, `reabrir` y, en las absorbidas, `fusionar` (solo si su auxiliar ya está en la rama que queda; la que queda conserva el suyo). Sin forzar: un worktree con cambios sin commit, una auxiliar con commits que no entraron en `develop` o una sin integrar al fusionar se quedan, y se avisa. `descartar` y `limpiar`, en cambio, quitan todo, también la auxiliar con commits que no entraron y el worktree con cambios sin commit: el descarte descarta todo (189). `cerrar` y `a-observacion` se niegan antes si una auxiliar tiene commits sin traer a la rama de la tarea, y dicen cómo traerlos. `reabrir`, en cambio, limpia todo, también con cambios sin commit y sin avisar: un worktree viejo no se reutiliza nunca. Historial: `recogida` o `recogida-con-avisos`. El principal solo detiene el subagente y atiende los avisos («cola.py recoge el subagente al dejar la tarea sin él», 169).
+- **La firma de los commits** («La firma del commit de cierre es configurable; sin configurar, sin línea», 238): el squash de `cerrar` y `a-observacion`, el commit de `decision` y el de la versión de RELEASE llevan la línea de `coautor` de `.sf/proyecto.json` (en la propia SF, que no tiene ese archivo, la suya: `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`). `cerrar`, `a-observacion`, `decision` y `encargo` aceptan `--coautor "…"`, que manda sobre la configurada. Sin ninguna, los commits van sin línea de coautoría, y el encargo lo dice así al subagente.
+- **Decisiones del propietario**: `decision "Título" --archivo RUTA|--texto T [--numero NNN] [--coautor "Co-Authored-By: …"] [--push]` no toca la cola. Da el siguiente número de `docs/decisiones/` en `develop` y el nombre `NNN-AAAA-MM-DD-titulo.md` (con `--numero`, reescribe esa sin cambiarle el nombre); escribe el archivo (el texto, con `# Título` delante si no lo lleva; si lo lleva, ha de coincidir), rehace el `README.md` y hace el commit «Decisión NNN: Título» en `develop`, también con otra rama activa, sin cambiarla ni tocar su copia de trabajo, como `a-propuesta` (tarea 273). No lo hace si `develop` está en otro worktree o, siendo la activa, `docs/decisiones/` tiene cambios sin commit. Con `develop` activa rehace también `README.html`. `--push` sube `develop`; dice el número y el hash. Sin git o sin `develop`, solo escribe los archivos y lo avisa (tarea 283).
+- **Fusionar y separar** las escribe el propietario (`/sf_fusionar`, `/sf_split` en el panel); el principal, con `fusionar`, solo dos tareas de actualizar el mismo documento («Una tarea por documento que actualizar», 142).
+
+## Órdenes por momento
+
+| Momento | Órdenes |
+| --- | --- |
+| Alta y arranque | `crear`, `choques`, `en-curso`, `en-cola`, `rama` |
+| Durante el trabajo | `paso añadir`, `paso marcar`, `paso quitar`, `renombrar`, `tipo`, `subagente`, `informe` |
+| Prueba | `listo`, `comprobado`, `probar` |
+| Cierre | `cerrar`, `a-observacion` |
+| En observación | `observando`, `seguir`, `cerrar`, `reobservar` y, si va mal, `revertir` |
+| Deshacer | `descartar`, `limpiar`, `revertir`, `reabrir`, `eliminar`, `restaurar`, `a-propuesta` |
+| Juntar y separar | `fusionar`, `split` |
+| Consulta y copias | `lista`, `ver`, `copias`, `recuperar` |
+| Fuera de la cola | `decision` |
+
+**Todo cierre** (`cerrar`, `a-observacion`), con rama o sin ella, también una propuesta, pide el paso «Cerrar la tarea» y ningún otro pendiente salvo «Activar rama para poder probar». Los dos pasos de cierre los pone cola.py al entrar la tarea en curso (`crear --en-curso`, `en-curso`, `reabrir`, `probar` desde la cola, `restaurar`, `fusionar`), una vez y al final, y no se quitan ni cambian de texto; una tarea en curso que no los tenga los recibe al cargar la cola. Un paso de trabajo nuevo deja otra vez pendiente «Activar rama para poder probar», si estaba hecho: hay que probar otra vez. Las ayudas de prueba (`paso añadir N "texto" --prueba`) van entre los dos pasos de cierre, no las exige ningún cierre, que las deja como estén, y añadirlas no devuelve «Activar rama» a pendiente («Ayudas de prueba: tras activar la rama y no obligatorias para cerrar», 184). `listo` solo guarda qué probar («Los pasos de cierre, desde que la tarea entra en curso», 174). `probar` integra `develop` en la rama (merge; con choques, lo deshace y no activa; con commits de la `sub-NN` sin traer, ni integra ni activa), la activa, o la deja si ya lo está, y marca hecho «Activar rama para poder probar», y `cerrar` también: el OK del propietario es cerrar (172, 121). Los pasos se numeran desde 1, como el `n` de cada uno en `ver`. Lo que sale de la cola lleva en `.sf/historial.jsonl` el estado con que salió (`cerrada`, `eliminada`, `absorbida`, `descartada` y, de antes de que revertir eliminara o dejara pendiente (134), `revertida`), y `ver` lo muestra.
+
+**Revertir** pide el destino: `revertir N --eliminar` la saca de la cola sin rastro, como la E; `revertir N --pendiente` la devuelve a Pendientes, en cola y reabierta, sin rama. Nunca queda en Cerradas con R («Revertir elimina la tarea o la deja pendiente», 134). Si el propietario no lo dice, preguntarle cuál.
+
+Cuando una orden falla por git (choques en el squash o en el revert, cambios sin commit, la rama en otro worktree), el CLI lo deshace y dice qué pasa; el principal lo resuelve y repite la orden. Un push fallido no impide el cierre: queda en el historial (`push-fallido`) y se repite el push a mano.

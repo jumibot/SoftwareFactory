@@ -1,0 +1,7 @@
+# Las mejoras de la SF pasan a tarea solo desde la SF
+
+- **Origen:** SoftwareFactory, 2026-10-30, tarea 195. El propietario pidió que el «→» del registro de uso (SF ENHANCE), que convierte una mejora en tarea, salga solo en la SF, porque las mejoras de la SF se gestionan en el proyecto SoftwareFactory, y un «→» en Mejoras para lo mismo con las propuestas.
+- **Contexto:** el «→» del registro creaba la tarea en la cola del proyecto de la sesión, así que en un proyecto consumidor una mejora de la SF acababa en la cola de ese proyecto. Las propuestas de `docs/propuestas.md`, en Mejoras, no tenían forma de pasar a tarea sin Claude.
+- **Decisión:** una mejora de la SF pasa a tarea solo en una sesión de la SF y va a su cola. El «→» del registro solo sale en la SF. En Mejoras, cada propuesta por decidir tiene su «→», también solo en la SF, que crea la tarea en cola con su título y su resumen y marca la propuesta en `docs/propuestas.md` como «pasada a la tarea N de la cola el <fecha>».
+- **Consecuencias:** en los proyectos consumidores las mejoras se anotan en el registro y se convierten después, en una sesión de la SF (un proyecto por sesión). Una propuesta pasada a tarea deja de salir en Mejoras y no se convierte dos veces; su seguimiento sigue en la cola.
+- **Aplicada en:** plugins/sf/hooks/panel.tsx y plugins/sf/hooks/cola.ts; docs/propuestas.md (estado «pasada a la tarea N de la cola»).
