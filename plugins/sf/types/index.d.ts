@@ -111,6 +111,6 @@ export type AvisosSubagentes = { claves: string[]; nueva: boolean; sesion?: stri
 
 declare module 'claude-code' {
   interface PluginState {
-    'sf': { estado: Shaped<Estado | null>; nuevasEnSf: number; prompts: number; avisadoPanel: number; inicioSesion: number; minuto: number; sesion: Sesion; panelCerrado: boolean; plegado: Record<string, boolean>; desplazamiento: number; turnoAvisos: number; identidadPuesta: { color: string | null; nombre: string | null }; colorSesion: string | null; prueba: Prueba; porConfirmar: string | null; fuenteRelease: FuenteVersion | null; actualizacion: Actualizacion | null; publicadaConocida: string | null; comprobadaEn: number | null; subagentesVistos: Record<string, SubagenteVisto>; pantallaOfrecida: boolean; reglasDadas: boolean; incorporarOfrecido: boolean; avisosSubagentes: AvisosSubagentes }
+    'sf': { estado: Shaped<Estado | null>; nuevasEnSf: number; prompts: number; avisadoPanel: number; inicioSesion: number; minuto: number; sesion: Sesion; panelCerrado: boolean; plegado: Record<string, boolean>; desplazamiento: number; turnoAvisos: number; identidadPuesta: { color: string | null; nombre: string | null }; prueba: Prueba; porConfirmar: string | null; fuenteRelease: FuenteVersion | null; actualizacion: Actualizacion | null; publicadaConocida: string | null; comprobadaEn: number | null; subagentesVistos: Record<string, SubagenteVisto>; pantallaOfrecida: boolean; reglasDadas: boolean; incorporarOfrecido: boolean; avisosSubagentes: AvisosSubagentes }
   }
 }

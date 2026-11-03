@@ -87,6 +87,7 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 ## Escribir
 
 - **Textos compactos** (040): el panel es estrecho; «de la SF» no aporta.
+- **Título con el resultado buscado** (251): «El panel de la SF muestra la versión publicada, no una antigua» se leía como lo que ya pasaba.
 - **Sin referencias por número que no se vean en pantalla** (150): «los humanos no tenemos un json fácil de consultar».
 - **Descripciones sin origen** (098): «me enredan la descripción». **Cada idea en su párrafo** (125).
 - **Tareas internas legibles** (186): las que mejoran el trabajo de Claude se titulaban con su mecánica y el propietario no sabía para qué servían («¿qué hace en realidad esta tarea?»).

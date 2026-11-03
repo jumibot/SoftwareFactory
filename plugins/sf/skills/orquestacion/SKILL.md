@@ -94,6 +94,7 @@ Lo primero: desbloquear y cerrar lo que está en curso (157). Preguntar al propi
 ## Cómo escribir
 
 - Textos compactos: títulos de tarea, paso y commit empiezan por lo que cambia, sin prefijos ni relleno.
+- El título de una tarea dice el resultado buscado, que no se confunda con el estado actual: en infinitivo («Mostrar…») o con «Que …» y subjuntivo («Que el panel muestre…»), nunca en presente de indicativo como si ya ocurriera.
 - Sin referencias por número que no se vean en pantalla: por su título, con el número entre paréntesis si ayuda.
 - Descripciones sin origen ni autor; cada idea, en su párrafo.
 - Las tareas que Claude crea para sí mismo, también para el propietario: título que diga qué gana y, al menos al principio de la descripción, qué cambia y para qué, sin jerga interna; el detalle técnico, después.

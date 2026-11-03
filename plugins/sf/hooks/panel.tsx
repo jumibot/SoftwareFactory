@@ -3,7 +3,7 @@ import type { Register, RenderChildren } from 'claude-code'
 import type { Actualizacion, Cerrada, Estado, FuenteVersion, Paso, Peticion, Prueba, Sesion } from '../types'
 import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, eliminable, eliminarTarea, enCursoOObservando, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
 import { CLAVE_PLEGADO, COLORES, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO, RGB } from './constantes'
-import { LETRA_MARCA, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, colorMarca, logoSvg, sangriaOrden } from './bienvenida'
+import { COLOR_MARCA, DESPUES, LEMA, LETRA_MARCA, LOGO, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, logoSvg, sangriaOrden } from './bienvenida'
 import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, COLOR_TURBO, COLOR_TAREA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, colorLetra, colorLetraApagada, hueco, puntosDe } from './estilo'
 import { atrasada, commitsDe, creadaEn, cuentaPasos, texto, ultimoCierre } from './lectura'
 import { AVISO_PANTALLA, anotarPantalla, sinPantallaCompleta } from './pantalla'
@@ -27,16 +27,6 @@ const minuto = atom({ plugin: 'sf', key: 'minuto' } as const, 0)
 // La hora de la última comprobación del latido en la red (la del latido, /sf o RELEASE; al empezar, la del arranque): la escriben register.tsx y cola.ts, y la lee
 // el panel para decir, al pulsar la etiqueta de la versión, cuánto falta para la próxima (tarea 238).
 const comprobadaEn = atom({ plugin: 'sf', key: 'comprobadaEn' } as const, null as number | null)
-// El color de la sesión, el último puesto con /color en ella (decisión 249): el motor no deja leerlo, así que el mod lo
-// apunta al pasar el comando, el del propietario o el que lanza el propio mod con la identidad. null: sin color (o
-// /color default). Pinta la marca de la bienvenida; sin él, naranja.
-const colorSesion = atom({ plugin: 'sf', key: 'colorSesion' } as const, null as string | null)
-// Lo que /color deja: uno de COLORES, o sin color con default; cualquier otra cosa (sin argumento, el selector) no cambia nada.
-export const colorDeOrden = (args: string): string | null | undefined => {
-  const a = args.trim().toLowerCase()
-  if (a === 'default' || a === 'reset' || a === 'none') return null
-  return COLORES.find(c => c === a)
-}
 // disponible: el catálogo local está registrado en este proyecto; pedido: los ajustes piden la copia de trabajo.
 const prueba = atom({ plugin: 'sf', key: 'prueba' } as const, { disponible: false, pedido: false } as Prueba)
 const sesion = atom({ plugin: 'sf', key: 'sesion' } as const, { limpiadas: {} } as Sesion)
@@ -154,17 +144,7 @@ export function lineaEstado(e: Estado): string {
   return partes.join(' · ')
 }
 
-// El RGB de un color de /color, o null.
-const rgbSesion = (c: string | null) => (c && (COLORES as readonly string[]).includes(c) ? RGB[c as (typeof COLORES)[number]] : null)
-
 export function registrarPanel(on: Parameters<Register>[0]): void {
-  // /color: se apunta el color que deja, tras ejecutarlo (decisión 249).
-  on('command.run', { command: 'color' }, async ($, e, next) => {
-    const r = await next(e)
-    const c = colorDeOrden(e.args)
-    if (c !== undefined) await update($, colorSesion, () => c).catch(() => undefined)
-    return r
-  })
   // Centro de control: en pantalla completa, el panel lateral (se abre solo); si no hay panel (pantalla normal,
   // terminal estrecho o panel cerrado a mano), una caja pequeña sobre el prompt con el estado y la cola.
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
@@ -200,8 +180,28 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const avisos = [sinPantallaCompleta(e) && !sinSf ? AVISO_PANTALLA : null, est.error || est.aviso || est.avisosConfiguracion?.length ? 'revisar .sf/' : null, est.errorPeticiones ? 'revisar .sf/peticiones.json' : null]
       .filter((x): x is string => x !== null)
 
+    // Sin SF, un mini splash a la izquierda (tarea 323): el logo de la bienvenida, en el color de la SF; en una
+    // superficie gráfica, en SVG pequeño (los bloques se descuadran en su fuente); en el terminal, en texto, a su lado
+    // el contenido, sin hacer la caja más alta.
+    const tabla = $.ui.resolve(e)
+    const Svg = e.surface !== 'terminal' && 'Svg' in tabla ? tabla.Svg : null
+    const miniLogo = !sinSf ? null : Svg ? (
+      <Box flexShrink={0} marginRight={2}>
+        <Svg source={logoSvg(COLOR_MARCA, 5)} alt="SF" />
+      </Box>
+    ) : (
+      <Box flexDirection="column" flexShrink={0} marginRight={2}>
+        {LOGO.map((fila, i) => (
+          <Text key={`mini-logo:${String(i)}`} color={COLOR_MARCA}>
+            {fila}
+          </Text>
+        ))}
+      </Box>
+    )
     return (
-      <Box flexDirection="column" alignSelf="flex-end" borderStyle="round" borderDimColor paddingX={1}>
+      <Box flexDirection="row" alignSelf="flex-end" borderStyle="round" borderDimColor paddingX={1}>
+      {miniLogo}
+      <Box flexDirection="column" flexShrink={1}>
         <Text weight="bold">{lineaEstado(est)}</Text>
         {curso.map(p => (
           <Text>▶ {recortar(p.texto, 56)}</Text>
@@ -217,18 +217,22 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         )}
         {sinSf && (
           <Box flexDirection="column">
+            {/* Qué es la SF y qué pasa al incorporar, como en la bienvenida del panel (tarea 323). */}
+            <Text>{LEMA}</Text>
             <Text>{PARA_EMPEZAR}</Text>
             {/* Un botón, como en el panel: la pasa a Claude (decisión 248). */}
             <Box flexDirection="row">
               <Button key="incorporar-caja" plain onPress={() => pedirIncorporar($, ORDEN_EMPEZAR)}>
-                <Text backgroundColor={colorMarca(rgbSesion(await read($, colorSesion)))} color={LETRA_MARCA} weight="bold">
+                <Text backgroundColor={COLOR_MARCA} color={LETRA_MARCA} weight="bold">
                   {` ${ORDEN_EMPEZAR} `}
                 </Text>
               </Button>
             </Box>
+            <Text dimColor>{DESPUES}</Text>
           </Box>
         )}
         <Text dimColor>/sf abre el panel</Text>
+      </Box>
       </Box>
     )
   })
@@ -1515,8 +1519,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // sin las secciones (vacías) y sin el aviso de la pantalla completa: aquí no hay botones que pulsar.
     if (est.tipo === 'sin-sf') {
       const lineas = bienvenida(ancho)
-      // La marca, en el color de la sesión, el de /color (decisión 249); sin él, el naranja.
-      const marca = colorMarca(rgbSesion(await read($, colorSesion)))
+      // La marca, siempre en el color de la SF, el morado (COLOR_MARCA), sin depender de la sesión (decisión 249, corregida).
+      const marca = COLOR_MARCA
       // En una superficie gráfica, el logo va en SVG, centrado (los bloques ▄█▀ se descuadran en su fuente), y la orden, en
       // un solo botón centrado; en el terminal, como texto centrado con espacios (tarea 323).
       const tabla = $.ui.resolve(e)
@@ -1560,7 +1564,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                 ) : (
                   <Text
                     key={`bienvenida:${String(i)}`}
-                    color={x.estilo === 'logo' ? marca : undefined}
+                    color={x.estilo === 'logo' || x.estilo === 'nombre' ? marca : undefined}
                     weight={x.estilo === 'nombre' || x.estilo === 'normal' ? 'bold' : undefined}
                     dimColor={x.estilo === 'tenue'}
                     wrap="truncate-end"

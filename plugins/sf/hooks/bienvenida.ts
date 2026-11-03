@@ -1,3 +1,4 @@
+import { COLOR_SF, RGB } from './constantes'
 import { centrar } from './estilo'
 
 // ── La bienvenida, en un proyecto sin SF (tarea 289) ──
@@ -6,11 +7,10 @@ import { centrar } from './estilo'
 // va centrado a mano, con espacios, porque el panel no centra solo; las líneas son de texto puro, para que se lea
 // igual en un terminal sin color.
 
-// El naranja de la marca, el de la etiqueta de la sesión (RGB.orange en constantes.ts), con la letra negra encima.
-export const COLOR_MARCA = '#ea580c'
+// El color de la marca en la bienvenida: el de la SF, el morado de su sesión (COLOR_SF, #827dbd), fijo (decisión 249).
+// La letra negra encima: contraste 5,6:1 (con blanca, 3,8:1).
+export const COLOR_MARCA = RGB[COLOR_SF]
 export const LETRA_MARCA = '#000000'
-// El color de la marca en la bienvenida: el de la sesión, el de /color, ya en RGB (decisión 249); sin él, el naranja.
-export const colorMarca = (rgb: string | null | undefined) => rgb ?? COLOR_MARCA
 
 // «SF» en letra de bloques, cinco filas de 13 columnas.
 export const LOGO = [
@@ -63,7 +63,7 @@ export function equilibrar(texto: string, w: number): string[] {
   return partir(texto, mejor)
 }
 
-// Lo que pinta la bienvenida en w columnas: cada línea ya centrada y su estilo. La orden, en una pastilla naranja con
+// Lo que pinta la bienvenida en w columnas: cada línea ya centrada y su estilo. La orden, en una pastilla del color de la SF con
 // un espacio a cada lado; si no cabe, partida en varias del mismo ancho.
 export type LineaBienvenida = { texto: string; estilo: 'logo' | 'nombre' | 'lema' | 'normal' | 'orden' | 'tenue' | 'hueco' }
 export function bienvenida(w: number): LineaBienvenida[] {

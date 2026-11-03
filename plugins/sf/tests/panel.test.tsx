@@ -4,7 +4,7 @@ import { abreviarRutas, duracionEmergente, pareceError, textoEmergente } from '.
 import { avisoComprobacion, avisoDependencias, proximaComprobacion, subirManifiesto } from '../hooks/cola'
 import { tareasEnDevelop } from '../hooks/lectura'
 import { PRUEBA_PYTHON } from '../hooks/python'
-import { LOGO, NOMBRE, NOMBRE_ANCHO, bienvenida, colorMarca, logoSvg, partir } from '../hooks/bienvenida'
+import { LOGO, NOMBRE, NOMBRE_ANCHO, bienvenida, logoSvg, partir } from '../hooks/bienvenida'
 
 // Un repositorio de la SF de mentira: la marca del plugin, documentos y una cola de peticiones.
 // Cada caso parte de su propia copia, para que un fallo señale un solo comportamiento.
@@ -5975,7 +5975,7 @@ test('Bienvenida: sin SF, la marca y qué escribir, sin JSON ni secciones', asyn
 })
 
 // La pastilla de la orden es un botón que la pasa a Claude (decisión 248); en el escritorio, el logo va en SVG y la orden,
-// en un solo botón centrado; en el terminal, como texto (tarea 323). Sin color de proyecto, el naranja.
+// en un solo botón centrado; en el terminal, como texto (tarea 323). En el morado de la SF.
 for (const surface of ['terminal', 'desktop'] as const) {
   test(`${surface}: Bienvenida: la orden es un botón que la pasa a Claude; el logo, en SVG solo en el escritorio`, async (...m) => {
     const { prompts, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: GIT('ref: refs/heads/develop\n') })
@@ -5984,7 +5984,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
     expect(await hay(ui, { type: 'Text', text: /▄█████/ })).toBe(surface === 'terminal')
     const clave = surface === 'desktop' ? 'incorporar' : (((await ui.findAll({ type: 'Button' })) as { key?: string }[]).find(b => b.key?.startsWith('incorporar:'))?.key ?? '')
     expect(clave.startsWith('incorporar')).toBe(true)
-    expect(JSON.stringify(await ui.drawn()).includes('#ea580c')).toBe(true)
+    expect(JSON.stringify(await ui.drawn()).includes('#827dbd')).toBe(true)
     await ui.press({ key: clave })
     await reloj!.advance(100)
     expect(prompts).toEqual(['incorpora este proyecto a la SF'])
@@ -5992,30 +5992,47 @@ for (const surface of ['terminal', 'desktop'] as const) {
   })
 }
 
-// La marca de la bienvenida, del color de la sesión: el último /color (decisión 249); con default, otra vez naranja.
-test('Bienvenida: la marca toma el color de /color de la sesión y vuelve al naranja con default', async (...m) => {
+// La marca de la bienvenida, siempre en el morado de la SF, aunque la sesión tenga color (decisión 249, corregida).
+test('Bienvenida: la marca va en el morado de la SF aunque la sesión tenga otro color', async (...m) => {
   await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
-  const pintado = async () => {
-    const ui = await m[0].ui.mount({ ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface: 'desktop' })
-    const t = JSON.stringify(await ui.drawn())
+  await m[0].command.run({ command: 'color', args: 'green' })
+  const ui = await m[0].ui.mount({ ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface: 'desktop' })
+  const pintado = JSON.stringify(await ui.drawn())
+  expect(pintado.includes('#827dbd')).toBe(true)
+  expect(pintado.includes('#16a34a')).toBe(false)
+  await ui.unmount()
+})
+
+// El rótulo bajo el logo, «S O F T W A R E   F A C T O R Y», en el morado de la SF, como el logo (tarea 334).
+for (const surface of ['terminal', 'desktop'] as const) {
+  test(`${surface}: Bienvenida: el nombre bajo el logo va en el morado de la SF`, async (...m) => {
+    await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+    const ui = await m[0].ui.mount({ ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface })
+    expect(((await ui.find({ type: 'Text', text: /S O F T W A R E {3}F A C T O R Y/ })) as ConProps).props.color).toBe('#827dbd')
     await ui.unmount()
-    return t
-  }
-  expect((await pintado()).includes('#ea580c')).toBe(true)
-  await m[0].command.run({ command: 'color', args: 'purple' })
-  const morado = await pintado()
-  expect(morado.includes('#ea580c')).toBe(false)
-  expect(morado.includes('#827dbd')).toBe(true)
-  await m[0].command.run({ command: 'color', args: 'default' })
-  expect((await pintado()).includes('#ea580c')).toBe(true)
+  })
+}
+
+// La caja sobre el prompt sin SF: qué es la SF, la orden como botón y qué pasa al incorporar (tarea 323).
+test('Caja: sin SF, qué es la SF, la orden y qué pasa al incorporar', async (...m) => {
+  await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  const ui = await m[0].ui.mount(CAJA)
+  for (const t of [/^Tu fábrica de software sobre Claude Code/, /^Para empezar, pulsa o escríbelo/, /no cambia nada sin tu OK/, /\/sf abre el panel/])
+    expect(await hay(ui, { type: 'Text', text: t })).toBe(true)
+  expect(await hay(ui, { type: 'Button', key: 'incorporar-caja' })).toBe(true)
+  // El mini splash: en el terminal, el logo en texto; en el escritorio, en SVG.
+  expect(await hay(ui, { type: 'Text', text: /^▄█████ ██████$/ })).toBe(true)
+  await ui.unmount()
+  const esc = await m[0].ui.mount({ ...CAJA, surface: 'desktop' })
+  expect(await hay(esc, { type: 'Svg' })).toBe(true)
+  expect(await hay(esc, { type: 'Text', text: /▄█████/ })).toBe(false)
+  await esc.unmount()
 })
 
 test('Bienvenida: el logo en SVG, con el color que se le da', () => {
   const svg = logoSvg('#9333ea')
   expect(svg.startsWith('<svg')).toBe(true)
   expect(svg).toContain('fill="#9333ea"')
-  expect(colorMarca(null)).toBe('#ea580c')
-  expect(colorMarca('#9333ea')).toBe('#9333ea')
 })
 
 test('Bienvenida: en ancho, el logo y el nombre espaciado; en estrecho, sin partir nada fuera del ancho', () => {
@@ -6141,3 +6158,45 @@ for (const surface of ['terminal', 'desktop'] as const) {
     await ui.unmount()
   })
 }
+
+// Sin SF, la línea del prompt sugiere la orden de incorporar (tarea 323): al empezar, no en la SF ni en un proyecto
+// incorporado, ni donde se dijo «no vuelvas a preguntar» (decisión 246).
+const sugerencias = (on: Motor[1]) => {
+  const vistas: string[] = []
+  on('prompt.suggest', (_, e) => {
+    vistas.push(e.text)
+    return { isShown: true }
+  })
+  return vistas
+}
+test('Sugerencia: sin SF, el prompt sugiere «incorpora este proyecto a la SF» al empezar', async (...m) => {
+  const vistas = sugerencias(m[1])
+  const { reloj } = await preparar(m, { sinMarca: true, reloj: true })
+  await reloj!.advance(600)
+  expect(vistas).toEqual(['incorpora este proyecto a la SF'])
+})
+test('Sugerencia: en la SF, nada', async (...m) => {
+  const vistas = sugerencias(m[1])
+  const { reloj } = await preparar(m, { reloj: true })
+  await reloj!.advance(600)
+  expect(vistas).toEqual([])
+})
+test('Sugerencia: donde se dijo que no se vuelva a preguntar, nada', async (...m) => {
+  const vistas = sugerencias(m[1])
+  const { guardado, reloj } = await preparar(m, { sinMarca: true, reloj: true, sinArranque: true })
+  guardado.noIncorporar = { '/sf': true }
+  await m[0].session.start({ cwd: RAIZ, surface: 'terminal', isInteractive: true })
+  await reloj!.advance(600)
+  expect(vistas).toEqual([])
+})
+test('Sugerencia: tras /sf vuelve; tras un turno de Claude, no', async (...m) => {
+  const vistas = sugerencias(m[1])
+  const { reloj } = await preparar(m, { sinMarca: true, reloj: true })
+  await reloj!.advance(600)
+  await m[0].command.run({ command: 'sf' })
+  await reloj!.advance(600)
+  expect(vistas).toEqual(['incorpora este proyecto a la SF', 'incorpora este proyecto a la SF'])
+  await escribe(m, 'hola')
+  await reloj!.advance(600)
+  expect(vistas.length).toBe(2)
+})

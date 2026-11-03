@@ -6,6 +6,7 @@ import { normal } from './control'
 import { importaCopia, leerJson, raizSesion } from './lectura'
 import type { $ } from './lectura'
 import { detectarPython, lineaPython } from './python'
+import { ORDEN_EMPEZAR } from './bienvenida'
 
 // ── Lo que pinta la SF y lo global no son del proyecto (decisión 167) ──
 // En los proyectos incorporados a la SF (con .sf/proyecto.json), nunca en la propia SF, el mod añade al final del prompt de sistema una regla corta: lo que el plugin pinta en el proyecto
@@ -132,6 +133,14 @@ export async function ofrecerIncorporar($: $): Promise<string | null> {
   if ((await carpetasSinPreguntar($))[(await raizSesion($)).toLowerCase()]) return null
   await update($, incorporarOfrecido, () => true)
   return TEXTO_INCORPORAR
+}
+// Sin SF, la línea del prompt sugiere la orden de incorporar, en gris, Tab para tomarla (tarea 323): al empezar la
+// sesión y tras /clear, mientras la carpeta no esté incorporada ni se haya dicho «no vuelvas a preguntar» (decisión 246).
+// La sugerencia se va en cuanto se escribe algo o corre un turno; el motor la sustituye por la suya tras un turno.
+export async function sugerirIncorporar($: $): Promise<boolean> {
+  if (!(await sinSf($))) return false
+  if ((await carpetasSinPreguntar($))[(await raizSesion($)).toLowerCase()]) return false
+  return (await $.prompt.suggest({ text: ORDEN_EMPEZAR })).isShown
 }
 // La respuesta de un menú del principal: si eligió no volver a preguntar, se guarda la carpeta (decisión 246).
 export async function anotarRespuestaIncorporar($: $, respuestas: unknown): Promise<void> {

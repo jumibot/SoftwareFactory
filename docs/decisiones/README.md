@@ -19,6 +19,8 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 252 | 2026-11-03 | [La SF se trabaja en el repositorio público, con revisión antes de publicar](252-2026-11-03-la-sf-se-trabaja-en-el-repositorio-publico-con-revision-antes-de-publicar.md) |
+| 251 | 2026-11-03 | [El título de una tarea dice el resultado buscado, sin ambigüedad](251-2026-11-03-el-titulo-de-una-tarea-dice-el-resultado-buscado-sin-ambiguedad.md) |
 | 250 | 2026-11-03 | [No interrumpir mientras se prueba o se está en otra tarea](250-2026-11-03-no-interrumpir-mientras-se-prueba-o-se-esta-en-otra-tarea.md) |
 | 249 | 2026-11-03 | [El logo de bienvenida va del color de la sesión](249-2026-11-03-el-logo-de-bienvenida-va-del-color-de-la-sesion.md) |
 | 248 | 2026-11-03 | [La pastilla de incorporar es un botón](248-2026-11-03-la-pastilla-de-incorporar-es-un-boton.md) |

@@ -5,7 +5,7 @@ import { CADA_COMPROBACION, arrancar, comprobarActualizacion, copiarCola, elegir
 import { CLAVE_PLEGADO, PANEL, migrarPlegado } from './constantes'
 import { escribir } from './control'
 import { cargarAvisosPanel, encargarAClaude, tomarAvisoPanel } from './avisos'
-import { anadirRegla, anotarRespuestaIncorporar, contextoInicial, contextoPython, ofrecerIncorporar, reglasAlIncorporar, reiniciarIncorporar } from './contexto'
+import { anadirRegla, anotarRespuestaIncorporar, contextoInicial, contextoPython, ofrecerIncorporar, reglasAlIncorporar, reiniciarIncorporar, sugerirIncorporar } from './contexto'
 import { detectarPython } from './python'
 import { marcarSubagente } from './lectura'
 import type { $ } from './lectura'
@@ -104,6 +104,9 @@ async function cargar($: $, nueva = false): Promise<number> {
   return ahora
 }
 
+// Las órdenes del mod que no pasan nada a Claude: tras ellas no hay turno ni sugerencia del motor (tarea 323).
+const ORDENES_LOCALES = new Set(['sf', 'sf_paso', 'sf_split', 'sf_fusionar', 'sf_prueba'])
+
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
     await $.command.register({
@@ -166,6 +169,8 @@ export const register: Register = on => {
     // La última comprobación, en un atom para que el panel diga cuánto falta para la siguiente (tarea 238); la del
     // arranque cuenta desde el inicio, y las del latido, /sf y RELEASE la anotan en comprobarActualizacion.
     await update($, comprobadaEn, () => ahora)
+    // Sin SF, la orden de incorporar como sugerencia del prompt (tarea 323).
+    $.clock.after(500, () => void sugerirIncorporar($).catch(() => undefined))
     $.clock.after(1000, () => void comprobarActualizacion($, { anotar: false }).catch(() => undefined))
     // Si el reloj no avanza (un reloj simulado), el latido se para: sin esto, se repetiría sin fin. Un fallo en un
     // latido no lo para: el siguiente se programa siempre (tarea 229, reabierta).
@@ -199,7 +204,11 @@ export const register: Register = on => {
   // como contexto (decisión 187). Si falla, la sesión sigue sin ellas.
   on('classic.SessionStart', async ($, e, next) => {
     const r = await next(e)
-    if (e.source === 'clear') await cargar($, true).catch(err => $.ui.log(`tras /clear: ${String(err)}`, { to: 'debug' }))
+    if (e.source === 'clear') {
+      await cargar($, true).catch(err => $.ui.log(`tras /clear: ${String(err)}`, { to: 'debug' }))
+      // Sin SF, otra vez la sugerencia de incorporar (tarea 323).
+      $.clock.after(500, () => void sugerirIncorporar($).catch(() => undefined))
+    }
     // Tras compactar, Claude ya no tiene los avisos de subagentes dados: lo pendiente se vuelve a avisar (tarea 249).
     if (e.source === 'compact') await rearmarAvisosSubagentes($).catch(() => undefined)
     const textos = [
@@ -318,6 +327,15 @@ export const register: Register = on => {
     return r
   })
 
+
+  // Tras una orden local del mod (no un turno de Claude, que deja su propia sugerencia), sin SF, vuelve la sugerencia de
+  // incorporar: el prompt la pierde al escribir la orden (tarea 323). Va antes que las de cada orden, que contestan sin
+  // next: así las envuelve.
+  on('command.run', async ($, e, next) => {
+    const r = await next(e)
+    if (ORDENES_LOCALES.has(e.command)) $.clock.after(300, () => void sugerirIncorporar($).catch(() => undefined))
+    return r
+  })
 
   // /sf_paso texto: lo escribe en una tarea en curso de .sf/peticiones.json, como pendiente (decisión del
   // propietario, 2026-10-28). Con una sola en curso, va a esa; con varias, pregunta a cuál, salvo que el texto
