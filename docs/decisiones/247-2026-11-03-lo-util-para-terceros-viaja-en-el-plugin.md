@@ -1,0 +1,7 @@
+# Lo útil para terceros viaja en el plugin, no en la memoria ni en CLAUDE.md
+
+- **Origen:** SoftwareFactory, 2026-11-03. Al pedir que, al proponer descartar una tarea, Claude dé contexto, Claude lo guardó en su memoria. El propietario: «todas tus propuestas para la sf que sean de utilidad para terceros no las guardes en memoria ni en claude.md sino en alguna parte en la que viajen con el plugin».
+- **Contexto:** la memoria de Claude (`~/.claude/projects/…/memory/`) y el `CLAUDE.md` de la SF solo los ve quien trabaja en esta carpeta, en esta máquina. Lo que se guarda ahí no llega a los usuarios que instalan el plugin `sf`.
+- **Decisión:** toda regla, preferencia o mejora de la SF que sirva a terceros se guarda en una pieza que viaja con el plugin (una skill como `sf:orquestacion`, la plantilla `claude-sf.md`, la metodología, un hook o una herramienta), no en la memoria de Claude ni en el `CLAUDE.md` de la SF. La memoria queda para lo propio del propietario o de esta sesión, y el `CLAUDE.md`, para lo que solo vale al trabajar en la fuente de la SF.
+- **Consecuencias:** la regla de proponer descartes con contexto va a `sf:orquestacion` («Proponer descartes con contexto…», 324) y su memoria se borra al aplicarla. Se analiza qué hay hoy fuera del plugin que debería viajar en él («Analizar qué hay útil para terceros en la SF que no viaja en el plugin», 325).
+- **Aplicada en:** pendiente; en la 324 y la 325.

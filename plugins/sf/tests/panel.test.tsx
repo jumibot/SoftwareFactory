@@ -4,7 +4,7 @@ import { abreviarRutas, duracionEmergente, pareceError, textoEmergente } from '.
 import { avisoComprobacion, avisoDependencias, proximaComprobacion, subirManifiesto } from '../hooks/cola'
 import { tareasEnDevelop } from '../hooks/lectura'
 import { PRUEBA_PYTHON } from '../hooks/python'
-import { LOGO, NOMBRE, NOMBRE_ANCHO, bienvenida, partir } from '../hooks/bienvenida'
+import { LOGO, NOMBRE, NOMBRE_ANCHO, bienvenida, colorMarca, logoSvg, partir } from '../hooks/bienvenida'
 
 // Un repositorio de la SF de mentira: la marca del plugin, documentos y una cola de peticiones.
 // Cada caso parte de su propia copia, para que un fallo señale un solo comportamiento.
@@ -1088,19 +1088,24 @@ test('/sf_paso en la tarea que se prueba (en observación) lo pide a cola.py y e
 // y lanza siempre la copia, aunque el del disco cambie (la C, la R o Activar rama cambian de rama la carpeta del plugin).
 const EN_CURSO: Pet = { id: 5, texto: 'En curso', estado: 'en-curso' }
 const cliDe = (linea: string[]) => linea[4]!.replace(/\\/g, '/').replace(/^[A-Za-z]:/, '')
+// La copia lleva en su primera línea la raíz del plugin, donde busca sus módulos (tarea 322).
+const copiaDe = (cola: string) => (texto: string | undefined) => {
+  const [primera, ...resto] = (texto ?? '').split('\n')
+  return primera!.startsWith('# sf-plugin: ') && primera!.length > 13 && resto.join('\n') === cola
+}
 
 test('cola.py: al cargar se copia y el panel lanza la copia, aunque el del disco cambie después', async (...m) => {
   const { archivos, lineasCola, toasts } = await preparar(m, { cola: [EN_CURSO] })
-  expect(archivos[COPIA_COLA]).toBe('# cola.py v1')
+  expect(copiaDe('# cola.py v1')(archivos[COPIA_COLA])).toBe(true)
   // La C cambia de rama la carpeta: el cola.py del disco ya es otro.
   archivos[CLI_PLUGIN] = '# cola.py de develop'
   await m[0].command.run({ command: 'sf_paso', args: 'Uno' })
   expect(lineasCola.map(cliDe)).toEqual([COPIA_COLA])
-  expect(archivos[COPIA_COLA]).toBe('# cola.py v1')
+  expect(copiaDe('# cola.py v1')(archivos[COPIA_COLA])).toBe(true)
   expect(toasts.some(t => t.includes('no se pudo copiar cola.py'))).toBe(false)
   // /reload-plugins carga el panel de nuevo: copia el cola.py que hay ahora.
   await m[0].session.start({ cwd: RAIZ, surface: 'terminal', isInteractive: true })
-  expect(archivos[COPIA_COLA]).toBe('# cola.py de develop')
+  expect(copiaDe('# cola.py de develop')(archivos[COPIA_COLA])).toBe(true)
 })
 
 test('cola.py: al cargar se copia el lanzador de Claude a ~/.claude/sf/cola.py, y solo si ha cambiado', async (...m) => {
@@ -2117,7 +2122,7 @@ test('Propuestas: con sf/propuestas.md y docs/propuestas.md, las de sf/', async 
 test('CLAUDE_CONFIG_DIR: las copias de cola.py van a su carpeta, nada al ~/.claude real', async (...m) => {
   const { archivos, lineasCola } = await preparar(m, { cola: [EN_CURSO], entorno: { CLAUDE_CONFIG_DIR: 'C:\\config\\' } })
   expect(archivos['/config/sf/fuente.json']).toBe(undefined)
-  expect(archivos['/config/sf/cola-sesion-1.py']).toBe('# cola.py v1')
+  expect(copiaDe('# cola.py v1')(archivos['/config/sf/cola-sesion-1.py'])).toBe(true)
   expect(archivos['/config/sf/cola.py']).toBe('# lanzador v1')
   expect(Object.keys(archivos).filter(k => k.startsWith('/home/'))).toEqual([])
   await m[0].command.run({ command: 'sf_paso', args: 'Uno' })
@@ -5969,6 +5974,50 @@ test('Bienvenida: sin SF, la marca y qué escribir, sin JSON ni secciones', asyn
   await ui.unmount()
 })
 
+// La pastilla de la orden es un botón que la pasa a Claude (decisión 248); en el escritorio, el logo va en SVG y la orden,
+// en un solo botón centrado; en el terminal, como texto (tarea 323). Sin color de proyecto, el naranja.
+for (const surface of ['terminal', 'desktop'] as const) {
+  test(`${surface}: Bienvenida: la orden es un botón que la pasa a Claude; el logo, en SVG solo en el escritorio`, async (...m) => {
+    const { prompts, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: GIT('ref: refs/heads/develop\n') })
+    const ui = await m[0].ui.mount({ ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface })
+    expect(await hay(ui, { type: 'Svg' })).toBe(surface === 'desktop')
+    expect(await hay(ui, { type: 'Text', text: /▄█████/ })).toBe(surface === 'terminal')
+    const clave = surface === 'desktop' ? 'incorporar' : (((await ui.findAll({ type: 'Button' })) as { key?: string }[]).find(b => b.key?.startsWith('incorporar:'))?.key ?? '')
+    expect(clave.startsWith('incorporar')).toBe(true)
+    expect(JSON.stringify(await ui.drawn()).includes('#ea580c')).toBe(true)
+    await ui.press({ key: clave })
+    await reloj!.advance(100)
+    expect(prompts).toEqual(['incorpora este proyecto a la SF'])
+    await ui.unmount()
+  })
+}
+
+// La marca de la bienvenida, del color de la sesión: el último /color (decisión 249); con default, otra vez naranja.
+test('Bienvenida: la marca toma el color de /color de la sesión y vuelve al naranja con default', async (...m) => {
+  await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  const pintado = async () => {
+    const ui = await m[0].ui.mount({ ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface: 'desktop' })
+    const t = JSON.stringify(await ui.drawn())
+    await ui.unmount()
+    return t
+  }
+  expect((await pintado()).includes('#ea580c')).toBe(true)
+  await m[0].command.run({ command: 'color', args: 'purple' })
+  const morado = await pintado()
+  expect(morado.includes('#ea580c')).toBe(false)
+  expect(morado.includes('#827dbd')).toBe(true)
+  await m[0].command.run({ command: 'color', args: 'default' })
+  expect((await pintado()).includes('#ea580c')).toBe(true)
+})
+
+test('Bienvenida: el logo en SVG, con el color que se le da', () => {
+  const svg = logoSvg('#9333ea')
+  expect(svg.startsWith('<svg')).toBe(true)
+  expect(svg).toContain('fill="#9333ea"')
+  expect(colorMarca(null)).toBe('#ea580c')
+  expect(colorMarca('#9333ea')).toBe('#9333ea')
+})
+
 test('Bienvenida: en ancho, el logo y el nombre espaciado; en estrecho, sin partir nada fuera del ancho', () => {
   const ancha = bienvenida(60)
   expect(ancha.filter(x => x.estilo === 'logo').length).toBe(LOGO.length)
@@ -6073,3 +6122,22 @@ test('Incorporar: con «Ahora no», nada guardado: tras /clear se vuelve a pregu
   await escribe(m, 'de nuevo')
   expect(contextos.at(-1)?.some(c => /no está incorporada a la SF/.test(c))).toBe(true)
 })
+
+// En la app de escritorio (fuente proporcional y botones nativos), sin anchos fijos en columnas en la cabecera ni en
+// el número, y el título plegado se corta con puntos suspensivos; desplegado, se parte. El terminal, como estaba (tarea 323).
+for (const surface of ['terminal', 'desktop'] as const) {
+  test(`${surface}: cabecera y números sin ancho fijo en el escritorio; títulos cortados al plegar y partidos al desplegar`, async (...m) => {
+    type Caja = { props: Record<string, unknown> }
+    await preparar(m, { cola: [...INICIAL, { id: 236, texto: 'Un título de tarea muy largo que no cabe en el panel lateral estrecho', estado: 'en-cola', descripcion: 'detalle' }] })
+    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const conFondo = ((await ui.findAll({ type: 'Box' })) as Caja[]).filter(x => x.props.backgroundColor === '#3f3f46')
+    expect(conFondo.length > 0).toBe(true)
+    expect(conFondo.every(x => (surface === 'desktop' ? x.props.width === undefined : typeof x.props.width === 'number'))).toBe(true)
+    const envolturas = async () =>
+      ((await ui.findAll({ type: 'Text', text: /Un título de tarea muy largo/ })) as Caja[]).map(x => x.props.wrap).filter(w => w !== undefined)
+    expect(await envolturas()).toEqual(surface === 'desktop' ? ['truncate-end'] : [])
+    await ui.press({ key: 'pet:cola:236' })
+    expect(await envolturas()).toEqual(surface === 'desktop' ? ['wrap'] : [])
+    await ui.unmount()
+  })
+}

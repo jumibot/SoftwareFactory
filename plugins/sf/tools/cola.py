@@ -13,6 +13,7 @@ Uso:
 Órdenes (la tabla de cambios está en skills/flujo_tareas/references/estados.md):
   lista | ver N | copias
   crear "texto" [--descripcion D] [--tipo T] [--en-curso]   en-curso N | en-cola N
+           (--descripcion, obligatoria cuando crea Claude: --quien principal, el de omisión, salvo --via panel)
   rama N nombre [--sin-activar | --anotar]           paso añadir N "texto" [--prueba] | paso marcar N P estado [--texto T]
   paso quitar N P                                    renombrar N "texto" | tipo N T
   subagente N --worktree RUTA [--rama AUX]           informe N --terminado|--interrumpido ["texto"]
@@ -24,6 +25,7 @@ Uso:
   eliminar N | restaurar N                           fusionar N M … | split N 2,3
   a-propuesta N                                      (en cola, sin rama) vuelve a su propuesta o crea una
   de-propuesta "título" [--numero P] [--descripcion D] [--tipo T]   la propuesta por decidir, a tarea en cola
+           (--descripcion, obligatoria como en crear)
   recuperar n|archivo                                choques N [--archivos a b …]
   encargo N [--coautor "Co-Authored-By: …"]          la parte fija del encargo de su subagente
   decision "Título" --archivo RUTA|--texto T [--numero NNN] [--coautor "Co-Authored-By: …"] [--push]
@@ -893,13 +895,22 @@ def o_ver(cola: Cola, a) -> str:
     return json.dumps(t, ensure_ascii=False, indent=2)
 
 
+def exigir_descripcion(cola: Cola, a, orden: str) -> None:
+    """La tarea que crea Claude lleva descripción: es lo que el panel enseña al desplegarla (tarea 326). La que crea
+    el propietario, o llega por el panel, puede ir sin ella."""
+    if cola.quien == 'principal' and cola.via != 'panel' and not (a.descripcion or '').strip():
+        raise Rechazo(f'La tarea que crea Claude necesita descripción: qué se pide y por qué, en una o dos frases. '
+                      f'Pásala con --descripcion: {orden} "{a.texto.strip()}" --descripcion "…".')
+
+
 def o_crear(cola: Cola, a) -> str:
     id_ = cola.siguiente()
     t = {'id': id_, 'texto': a.texto.strip(), 'estado': 'en-curso' if a.en_curso else 'en-cola'}
     if not t['texto']:
         raise Rechazo('La tarea necesita un texto.')
-    if a.descripcion:
-        t['descripcion'] = a.descripcion
+    exigir_descripcion(cola, a, 'crear')
+    if (a.descripcion or '').strip():
+        t['descripcion'] = a.descripcion.strip()
     if a.tipo:
         t['tipo'] = a.tipo
     if a.en_curso:
@@ -1815,6 +1826,7 @@ def marcar_pasada(md: str, encabezado: str, id_: int, fecha: str) -> str:
 
 
 def o_de_propuesta(cola: Cola, a) -> str:
+    exigir_descripcion(cola, a, 'de-propuesta')
     original, donde, rel = leer_propuestas(cola.repo)
     id_ = cola.siguiente()
     texto = a.texto.strip()
@@ -1839,10 +1851,32 @@ DECISIONES = 'sf/decisiones'
 DECISIONES_ANTES = 'docs/decisiones'
 
 
+# La primera línea de la copia que hace el panel de este archivo en ~/.claude/sf/cola-<sesión>.py (decisión 136):
+# «# sf-plugin: <raíz del plugin>». Sin ella, este archivo está en el tools/ de su plugin (tarea 322).
+MARCA_PLUGIN = '# sf-plugin: '
+
+
+def carpeta_tools() -> Path:
+    """El tools/ del plugin: junto a este archivo o, en la copia del panel, el de la raíz que lleva su primera línea."""
+    aqui = Path(__file__).resolve()
+    if (aqui.parent / 'indice_decisiones.py').is_file():
+        return aqui.parent
+    try:
+        with open(aqui, encoding='utf-8') as f:
+            primera = f.readline().rstrip('\r\n')
+    except OSError:
+        primera = ''
+    if primera.startswith(MARCA_PLUGIN):
+        return Path(primera[len(MARCA_PLUGIN):].strip()) / 'tools'
+    return aqui.parent
+
+
 def indice_decisiones():
-    """El módulo indice_decisiones.py, junto a este: tools/ viaja entero en el plugin."""
+    """El módulo indice_decisiones.py del tools/ del plugin, que viaja entero en él (carpeta_tools)."""
     import importlib.util
-    ruta = Path(__file__).resolve().parent / 'indice_decisiones.py'
+    ruta = carpeta_tools() / 'indice_decisiones.py'
+    if not ruta.is_file():
+        raise Rechazo(f'No está {ruta}, que necesita «decision». Con el plugin sf activo, /reload-plugins rehace la copia de cola.py.')
     spec = importlib.util.spec_from_file_location('indice_decisiones', ruta)
     modulo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(modulo)
@@ -2366,7 +2400,7 @@ def analizador() -> argparse.ArgumentParser:
     orden('lista', o_lista, 'las tareas de la cola')
     orden('ver', o_ver, 'una tarea, de la cola o del historial', 'n')
     s = orden('crear', o_crear, 'tarea nueva, en cola', 'texto')
-    s.add_argument('--descripcion')
+    s.add_argument('--descripcion', help='qué se pide y por qué; obligatoria cuando crea Claude (tarea 326)')
     s.add_argument('--tipo', choices=TIPOS, help='deliberar, documentar, diseñar, implementar, especificar, corregir o investigar')
     s.add_argument('--en-curso', action='store_true')
     orden('en-curso', o_en_curso, 'de en cola a en curso', 'n')

@@ -2,13 +2,15 @@ import { centrar } from './estilo'
 
 // ── La bienvenida, en un proyecto sin SF (tarea 289) ──
 // La primera vez que alguien abre el panel en una carpeta sin .sf/proyecto.json, lo único que necesita saber es qué
-// escribir para empezar: la marca, qué es la SF en una frase y la orden, sin JSON, rutas, skills ni contadores. Todo
+// pulsar o escribir para empezar: la marca, qué es la SF en una frase y la orden, sin JSON, rutas, skills ni contadores. Todo
 // va centrado a mano, con espacios, porque el panel no centra solo; las líneas son de texto puro, para que se lea
 // igual en un terminal sin color.
 
 // El naranja de la marca, el de la etiqueta de la sesión (RGB.orange en constantes.ts), con la letra negra encima.
 export const COLOR_MARCA = '#ea580c'
 export const LETRA_MARCA = '#000000'
+// El color de la marca en la bienvenida: el de la sesión, el de /color, ya en RGB (decisión 249); sin él, el naranja.
+export const colorMarca = (rgb: string | null | undefined) => rgb ?? COLOR_MARCA
 
 // «SF» en letra de bloques, cinco filas de 13 columnas.
 export const LOGO = [
@@ -18,10 +20,25 @@ export const LOGO = [
   '    ██ ██    ',
   '█████▀ ██    ',
 ]
+// El logo como SVG, para las superficies gráficas (la app de escritorio, VS Code, el móvil): allí los bloques ▄█▀ van
+// en una fuente que no los dibuja a una celda y el logo se descuadra (tarea 323). Cada carácter, una celda de 1×2:
+// █ entera, ▄ la mitad de abajo, ▀ la de arriba.
+export function logoSvg(color: string, celda = 9): string {
+  const rects: string[] = []
+  LOGO.forEach((fila, y) =>
+    [...fila].forEach((c, x) => {
+      const [dy, alto] = c === '█' ? [0, 2] : c === '▄' ? [1, 1] : c === '▀' ? [0, 1] : [0, 0]
+      if (alto > 0) rects.push(`<rect x="${x}" y="${y * 2 + dy}" width="1.04" height="${alto + 0.04}"/>`)
+    }),
+  )
+  const w = LOGO[0]!.length
+  const h = LOGO.length * 2
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w * celda}" height="${h * celda}" fill="${color}" shape-rendering="crispEdges">${rects.join('')}</svg>`
+}
 export const NOMBRE_ANCHO = 'S O F T W A R E   F A C T O R Y'
 export const NOMBRE = 'SOFTWARE FACTORY'
 export const LEMA = 'Tu fábrica de software sobre Claude Code: de la idea al código, tarea a tarea.'
-export const PARA_EMPEZAR = 'Para empezar, escribe en el chat:'
+export const PARA_EMPEZAR = 'Para empezar, pulsa o escríbelo en el chat:'
 export const ORDEN_EMPEZAR = 'incorpora este proyecto a la SF'
 export const DESPUES = 'Claude te hará unas pocas preguntas y no cambia nada sin tu OK.'
 

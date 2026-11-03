@@ -21,6 +21,9 @@ _spec = importlib.util.spec_from_file_location('cola', HERRAMIENTA)
 cola = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(cola)
 
+# La descripción que las pruebas dan a la tarea que crea Claude, que la orden exige (tarea 326).
+DESCRIPCION = 'Qué se pide y por qué.'
+
 
 def git(repo: Path, *args: str) -> str:
     r = subprocess.run(['git', '-C', str(repo), *args], capture_output=True, text=True, encoding='utf-8')
@@ -72,8 +75,12 @@ class Base(unittest.TestCase):
         """Ejecuta cola.py en el proceso y devuelve su mensaje; comprueba si hizo el cambio."""
         return self.respuesta(*args, ok=ok)['mensaje']
 
-    def respuesta(self, *args: str, ok: bool = True) -> dict:
-        """Como orden, pero devuelve la respuesta JSON entera, la que lee el panel."""
+    def respuesta(self, *args: str, ok: bool = True, descripcion: bool = True) -> dict:
+        """Como orden, pero devuelve la respuesta JSON entera, la que lee el panel. Un «crear» o un «de-propuesta» de
+        Claude sin --descripcion la recibe aquí, que la orden la exige (tarea 326); descripcion=False no la pone."""
+        if descripcion and args and args[0] in ('crear', 'de-propuesta') and '--descripcion' not in args \
+                and '--quien' not in args:
+            args = (*args, '--descripcion', DESCRIPCION)
         salida = io.StringIO()
         with contextlib.redirect_stdout(salida):
             codigo = cola.main(['--raiz', str(self.raiz), '--json', *args])
@@ -112,6 +119,21 @@ class Alta(Base):
         e = self.tarea(11)['historial'][0]
         self.assertEqual((e['quien'], e['via']), ('propietario', 'panel'))
 
+    def test_claude_no_crea_sin_descripcion(self):  # tarea 326: el panel la enseña al desplegar la tarea
+        for extra in ((), ('--descripcion', '  '), ('--quien', 'principal')):
+            r = self.respuesta('crear', 'Sin detalle', *extra, ok=False, descripcion=False)
+            self.assertIn('--descripcion', r['mensaje'])
+            self.assertIn('crear "Sin detalle" --descripcion', r['mensaje'])
+        self.assertEqual(self.leer()['peticiones'], [])
+        self.orden('crear', 'Con detalle', '--descripcion', ' Qué y por qué. ')
+        self.assertEqual(self.tarea(11)['descripcion'], 'Qué y por qué.')
+
+    def test_el_propietario_y_el_panel_crean_sin_descripcion(self):  # tarea 326
+        self.respuesta('crear', 'Del propietario', '--quien', 'propietario', descripcion=False)
+        self.respuesta('crear', 'Por el panel', '--quien', 'principal', '--via', 'panel', descripcion=False)
+        self.respuesta('crear', 'Desde el panel', '--quien', 'propietario', '--via', 'panel', descripcion=False)
+        self.assertEqual([('descripcion' in self.tarea(n)) for n in (11, 12, 13)], [False, False, False])
+
     def test_los_numeros_no_se_reutilizan(self):
         self.orden('crear', 'Una')
         self.orden('eliminar', '11')
@@ -133,7 +155,7 @@ class Alta(Base):
     def test_cola_con_ruta_de_archivo(self):
         salida = io.StringIO()
         with contextlib.redirect_stdout(salida):
-            cola.main(['--raiz', str(self.archivo), 'crear', 'Por archivo'])
+            cola.main(['--raiz', str(self.archivo), 'crear', 'Por archivo', '--descripcion', DESCRIPCION])
         self.assertEqual(self.tarea(11)['texto'], 'Por archivo')
 
 
@@ -607,6 +629,17 @@ class PropuestasEnDevelop(Base):
         self.assertEqual(git(self.raiz, 'show', '--name-only', '--format=', 'develop'), self.RUTA)
         self.assertEqual(git(self.raiz, 'show', 'develop:a.txt'), 'uno')
         self.assertIsNone(self.tarea(12))
+
+    def test_de_propuesta_de_claude_sin_descripcion_no_toca_nada(self):  # tarea 326, como crear
+        cabeza = git(self.raiz, 'rev-parse', 'develop')
+        r = self.respuesta('de-propuesta', 'Otra', '--numero', 'P07', ok=False, descripcion=False)
+        self.assertIn('--descripcion', r['mensaje'])
+        self.assertEqual(git(self.raiz, 'rev-parse', 'develop'), cabeza)
+        self.assertIsNone(self.tarea(13))
+        # Desde el panel («A Pendientes»), sin resumen, sí.
+        self.respuesta('de-propuesta', 'Otra', '--numero', 'P07', '--quien', 'propietario', '--via', 'panel',
+                       descripcion=False)
+        self.assertNotIn('descripcion', self.tarea(13))
 
     def test_de_propuesta_con_develop_activa_y_no_dos_veces(self):
         r = self.respuesta('de-propuesta', 'Otra', '--numero', 'P07', '--descripcion', 'Detalle', '--tipo', 'diseñar')
@@ -1836,7 +1869,7 @@ class ConGit(Base):
 
 class Terminal(Base):
     def test_se_ejecuta_como_programa(self):
-        r = subprocess.run([sys.executable, '-I', '-X', 'utf8', str(HERRAMIENTA), '--raiz', str(self.raiz), 'crear', 'Ñandú'],
+        r = subprocess.run([sys.executable, '-I', '-X', 'utf8', str(HERRAMIENTA), '--raiz', str(self.raiz), 'crear', 'Ñandú', '--descripcion', DESCRIPCION],
                            capture_output=True, text=True, encoding='utf-8')
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(self.tarea(11)['texto'], 'Ñandú')
@@ -1883,7 +1916,7 @@ class Lanzador(Base):
     def test_lanza_la_copia_de_la_sesion_y_no_otra(self):
         shutil.copy(HERRAMIENTA, self.sf / 'cola-s1.py')
         (self.sf / 'cola-s2.py').write_text('raise SystemExit("otra sesión")', encoding='utf-8')
-        r = self.lanzar('s1', 'crear', 'Ñandú')
+        r = self.lanzar('s1', 'crear', 'Ñandú', '--descripcion', DESCRIPCION)
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(self.tarea(11)['texto'], 'Ñandú')
         r = self.lanzar('s1', 'en-cola', '11')
@@ -1896,12 +1929,29 @@ class Lanzador(Base):
         (config / 'sf').mkdir(parents=True)
         shutil.copy(HERRAMIENTA, config / 'sf' / 'cola-s1.py')
         (self.sf / 'cola-s1.py').write_text('raise SystemExit("la de ~/.claude")', encoding='utf-8')
-        r = self.lanzar('s1', 'crear', 'Ñandú', config=config)
+        r = self.lanzar('s1', 'crear', 'Ñandú', '--descripcion', DESCRIPCION, config=config)
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(self.tarea(11)['texto'], 'Ñandú')
         r = self.lanzar('s2', 'crear', 'X', config=config)
         self.assertEqual(r.returncode, 2)
         self.assertIn(str(config / 'sf' / 'cola-s2.py'), r.stderr)
+
+    def test_la_copia_del_panel_encuentra_indice_decisiones_en_su_plugin(self):
+        # Tarea 322: la copia, sola en ~/.claude/sf, lleva en su primera línea la raíz del plugin (como la escribe
+        # copiarCola en hooks/cola.ts) y «decision» usa el indice_decisiones.py de allí.
+        texto = HERRAMIENTA.read_text(encoding='utf-8')
+        (self.sf / 'cola-s1.py').write_text(f'# sf-plugin: {HERRAMIENTA.parents[1]}\n{texto}', encoding='utf-8')
+        (self.sf / 'cola-s2.py').write_text(texto, encoding='utf-8')  # sin la línea: dice qué falta
+        carpeta = self.raiz / 'sf' / 'decisiones'
+        carpeta.mkdir(parents=True)
+        r = self.lanzar('s2', '--json', 'decision', 'Sin plugin', '--texto', 'Texto.')
+        self.assertEqual(r.returncode, 1)
+        self.assertIn('indice_decisiones.py', r.stdout)
+        r = self.lanzar('s1', '--json', 'decision', 'Desde la copia', '--texto', 'Texto.')
+        self.assertEqual(r.returncode, 0, r.stderr + r.stdout)
+        self.assertEqual(json.loads(r.stdout.strip().splitlines()[-1])['numero'], 1)
+        self.assertTrue(list(carpeta.glob('001-*-desde-la-copia.md')))
+        self.assertTrue((carpeta / 'README.md').is_file())
 
     def test_sin_sesion_o_sin_copia_sale_con_2_sin_tocar_la_cola(self):
         antes = self.archivo.read_text(encoding='utf-8')

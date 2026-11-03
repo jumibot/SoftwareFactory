@@ -59,7 +59,7 @@ export type Respuesta = { ok: boolean; mensaje: string; id?: number; fallo?: str
 // La copia de cola.py que ejecuta el panel (decisión 136): al cargar el mod (al empezar la sesión y con
 // /reload-plugins) copia el cola.py de su plugin fuera del repositorio, en ~/.claude/sf/cola-<sesión>.py, y lanza
 // siempre esa copia. Así el panel cargado y el CLI van a juego aunque la C, la R o Activar rama cambien de rama la carpeta del
-// plugin. Sin copia (falla al copiar), el del disco, con un aviso. Copia también el lanzador de Claude (tarea 252) a
+// plugin. La copia lleva en su primera línea la raíz del plugin, para sus módulos (tarea 322). Sin copia (falla al copiar), el del disco, con un aviso. Copia también el lanzador de Claude (tarea 252) a
 // ~/.claude/sf/cola.py, si ha cambiado: Claude lanza siempre ordenColaClaude(), que pasa la orden a esta copia.
 let copiaCola: string | null = null
 const DIAS_COPIA = 7
@@ -74,7 +74,9 @@ export async function copiarCola($: $): Promise<void> {
     carpeta = `${claude}/${CARPETA_COPIAS}`
     const id = (await $.session.id()).replace(/[^A-Za-z0-9_-]/g, '_')
     const destino = `${carpeta}/cola-${id}.py`
-    await $.fs.write(destino, await $.fs.read(origen))
+    // Con la raíz del plugin en la primera línea: la copia busca allí lo que necesita del plugin, como
+    // indice_decisiones.py y el generador de los .html (tarea 322; MARCA_PLUGIN de cola.py).
+    await $.fs.write(destino, `# sf-plugin: ${$.plugin.root}\n${await $.fs.read(origen)}`)
     copiaCola = destino
     void borrarCopiasViejas($, carpeta, `cola-${id}.py`).catch(() => undefined)
   } catch (err) {
@@ -972,6 +974,16 @@ export function pedirTurbo($: $): void {
     void encargarAClaude($, PROMPT_TURBO).catch(err => emergenteError($, `TURBO: no se pudo pasar a Claude: ${String(err)}`))
   })
   emergente($, 'TURBO: se lo paso a Claude.')
+}
+
+// La pastilla de la bienvenida, un botón (decisión 248): pasa a Claude «incorpora este proyecto a la SF» como si lo
+// escribiera el propietario. Desde un temporizador, como TURBO: el motor no deja enviar un prompt desde el hook que
+// atiende el panel.
+export function pedirIncorporar($: $, texto: string): void {
+  $.clock.after(50, () => {
+    void encargarAClaude($, texto).catch(err => emergenteError($, `No se pudo pasar a Claude «${texto}»: ${String(err)}`))
+  })
+  emergente($, 'Se lo paso a Claude: incorporar el proyecto a la SF.')
 }
 
 // /sf_split (decisión del propietario, 2026-10-29): se separan pasos de una tarea en curso o en cola en una tarea

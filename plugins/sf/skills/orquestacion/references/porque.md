@@ -23,6 +23,7 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 - **Agresivo con los pasos y las fusiones**: los cambios pequeños como tareas sueltas llenaban la cola (propietario, 2026-10-31, tarea «Skill de orquestación», 205).
 - **La tarea incluye lo que permite probarla**: la de descartar y revertir se cerró sin su botón y no se pudo probar (propietario, 2026-10-29).
 - **Guiar, no solo ejecutar** («La SF guía el desarrollo: observa y sugiere cómo avanzar», 235): las sugerencias llegaban a petición o tarde. El propietario: «la SF es la guía que organiza el desarrollo, observando las tareas, el proyecto y al desarrollador». Solo sugerir: decide él.
+- **Lo útil para terceros, en el plugin** («Lo útil para terceros viaja en el plugin, no en la memoria ni en CLAUDE.md», 247): al pedir el propietario que los descartes llevaran contexto, Claude lo guardó en su memoria, que solo ve quien trabaja en esa carpeta y esa máquina. «Todas tus propuestas para la sf que sean de utilidad para terceros no las guardes en memoria ni en claude.md sino en alguna parte en la que viajen con el plugin».
 
 ## Poner en curso
 
@@ -55,6 +56,7 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 - **Probar antes de cerrar** (074): la observación se llenaba de tareas cerradas sin probar en su rama.
 - **Cerrar directamente lo que no tiene nada que probar**: deliberar, investigar, documentar o especificar no se prueban como el código; el propietario aprueba el resultado («Cerrar directamente lo que no tiene prueba», 154).
 - **El cierre espera el OK** («Preguntar antes de cerrar una petición; lo nuevo, a la cola», 048): Claude cerró y publicó una skill sin permiso. Los commits en la rama, sin preguntar.
+- **Descartes con contexto** (propietario, 2026-11-03, tarea 324): se proponía descartar una tarea duplicada citándola por su número, y el propietario no recuerda cada tarea por su número; con qué pedía, dónde quedó hecha y qué supone, decide sin buscarla.
 - **«Ciérrala» sin número, la rama activa** (095): se cerró otra tarea tras un cambio de rama.
 - **La pregunta de «¿Cómo va?»** por las en observación (050, 051, 204): el menú anterior mezclaba tareas y no decía qué era cada una; se cierra o se revierte, en el lenguaje de la SF.
 - **Un cierre que falla pasa a Claude** (111).

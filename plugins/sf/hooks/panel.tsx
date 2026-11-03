@@ -1,9 +1,9 @@
 import { atom, read, update } from 'claude-code'
 import type { Register, RenderChildren } from 'claude-code'
 import type { Actualizacion, Cerrada, Estado, FuenteVersion, Paso, Peticion, Prueba, Sesion } from '../types'
-import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, elegirPasos, eliminable, eliminarTarea, enCursoOObservando, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
+import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, eliminable, eliminarTarea, enCursoOObservando, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
 import { CLAVE_PLEGADO, COLORES, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO, RGB } from './constantes'
-import { COLOR_MARCA, LETRA_MARCA, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
+import { LETRA_MARCA, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, colorMarca, logoSvg, sangriaOrden } from './bienvenida'
 import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, COLOR_TURBO, COLOR_TAREA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, colorLetra, colorLetraApagada, hueco, puntosDe } from './estilo'
 import { atrasada, commitsDe, creadaEn, cuentaPasos, texto, ultimoCierre } from './lectura'
 import { AVISO_PANTALLA, anotarPantalla, sinPantallaCompleta } from './pantalla'
@@ -27,6 +27,16 @@ const minuto = atom({ plugin: 'sf', key: 'minuto' } as const, 0)
 // La hora de la última comprobación del latido en la red (la del latido, /sf o RELEASE; al empezar, la del arranque): la escriben register.tsx y cola.ts, y la lee
 // el panel para decir, al pulsar la etiqueta de la versión, cuánto falta para la próxima (tarea 238).
 const comprobadaEn = atom({ plugin: 'sf', key: 'comprobadaEn' } as const, null as number | null)
+// El color de la sesión, el último puesto con /color en ella (decisión 249): el motor no deja leerlo, así que el mod lo
+// apunta al pasar el comando, el del propietario o el que lanza el propio mod con la identidad. null: sin color (o
+// /color default). Pinta la marca de la bienvenida; sin él, naranja.
+const colorSesion = atom({ plugin: 'sf', key: 'colorSesion' } as const, null as string | null)
+// Lo que /color deja: uno de COLORES, o sin color con default; cualquier otra cosa (sin argumento, el selector) no cambia nada.
+export const colorDeOrden = (args: string): string | null | undefined => {
+  const a = args.trim().toLowerCase()
+  if (a === 'default' || a === 'reset' || a === 'none') return null
+  return COLORES.find(c => c === a)
+}
 // disponible: el catálogo local está registrado en este proyecto; pedido: los ajustes piden la copia de trabajo.
 const prueba = atom({ plugin: 'sf', key: 'prueba' } as const, { disponible: false, pedido: false } as Prueba)
 const sesion = atom({ plugin: 'sf', key: 'sesion' } as const, { limpiadas: {} } as Sesion)
@@ -144,7 +154,17 @@ export function lineaEstado(e: Estado): string {
   return partes.join(' · ')
 }
 
+// El RGB de un color de /color, o null.
+const rgbSesion = (c: string | null) => (c && (COLORES as readonly string[]).includes(c) ? RGB[c as (typeof COLORES)[number]] : null)
+
 export function registrarPanel(on: Parameters<Register>[0]): void {
+  // /color: se apunta el color que deja, tras ejecutarlo (decisión 249).
+  on('command.run', { command: 'color' }, async ($, e, next) => {
+    const r = await next(e)
+    const c = colorDeOrden(e.args)
+    if (c !== undefined) await update($, colorSesion, () => c).catch(() => undefined)
+    return r
+  })
   // Centro de control: en pantalla completa, el panel lateral (se abre solo); si no hay panel (pantalla normal,
   // terminal estrecho o panel cerrado a mano), una caja pequeña sobre el prompt con el estado y la cola.
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
@@ -164,7 +184,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         $.ui.log(`panel sin colocar: ${r.reason}`, { to: 'debug' })
       }
     }
-    const { Box, Text } = $.ui.resolve(e)
+    const { Box, Text, Button } = $.ui.resolve(e)
     const cola = est.peticiones
     const porRevisar = est.realimentacion?.porRevisar.length ?? 0
     const cuenta = (x: Peticion['estado']) => cola.filter(p => p.estado === x).length
@@ -198,10 +218,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         {sinSf && (
           <Box flexDirection="column">
             <Text>{PARA_EMPEZAR}</Text>
+            {/* Un botón, como en el panel: la pasa a Claude (decisión 248). */}
             <Box flexDirection="row">
-              <Text backgroundColor={COLOR_MARCA} color={LETRA_MARCA} weight="bold">
-                {` ${ORDEN_EMPEZAR} `}
-              </Text>
+              <Button key="incorporar-caja" plain onPress={() => pedirIncorporar($, ORDEN_EMPEZAR)}>
+                <Text backgroundColor={colorMarca(rgbSesion(await read($, colorSesion)))} color={LETRA_MARCA} weight="bold">
+                  {` ${ORDEN_EMPEZAR} `}
+                </Text>
+              </Button>
             </Box>
           </Box>
         )}
@@ -318,6 +341,12 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // títulos de las tareas, no: van enteros, partidos con sangría colgante (filaTitulo).
     // Una columna de margen a la derecha: lo último de cada línea no toca el borde (decisión del propietario, 2026-10-30).
     const ancho = e.props.bodyColumns - 1
+    // En una superficie gráfica (la app de escritorio, VS Code, el móvil), los anchos se cuentan en celdas de su fuente
+    // de código, pero el texto va en fuente proporcional y cada Button es un botón nativo, con su relleno: un ancho
+    // fijo en columnas recorta («3…», «ACTUALI…») y un título largo se sale del panel (tarea 323). Allí, las cajas
+    // toman el ancho de su contenido, las filas de la cabecera se parten entre etiquetas y los títulos plegados se
+    // cortan con puntos suspensivos. El terminal sigue como estaba.
+    const grafica = e.surface !== 'terminal'
     const enLinea = (t: string, ocupado: number) => recortar(t, Math.max(12, ancho - ocupado))
 
     // El paso en curso, sin amarillo, también arriba: el amarillo es solo para la tarea (decisión del propietario,
@@ -755,28 +784,33 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const conTipo = (texto: string, tipo: string | null | undefined): RenderChildren[] =>
       tipo ? [texto, <Text>{sufijoTipo(tipo)}</Text>] : [texto]
     // Con `delante`, un margen de ese ancho antes de la cabeza, fuera de su botón: alinea los números a la derecha.
-    const filaTitulo = (cabeza: RenderChildren, ancho: number, cuerpo: RenderChildren, clave: string | null, delante = 0) => (
-      <Box flexDirection="row">
-        <Box width={ancho} flexShrink={0} paddingLeft={delante}>
-          {clave ? (
-            <Button key={`${clave}:num`} plain onPress={alternar(clave)}>
-              {cabeza}
-            </Button>
-          ) : (
-            cabeza
-          )}
+    // En una superficie gráfica (grafica), la columna del número crece con él (mínimo, su ancho más dos celdas por el
+    // relleno del botón nativo) y el título, plegado, se corta con puntos suspensivos; desplegado, se parte.
+    const filaTitulo = (cabeza: RenderChildren, ancho: number, cuerpo: RenderChildren, clave: string | null, delante = 0) => {
+      const titulo = grafica ? <Text wrap={clave && abierta(clave) ? 'wrap' : 'truncate-end'}>{cuerpo}</Text> : cuerpo
+      return (
+        <Box flexDirection="row">
+          <Box width={grafica ? undefined : ancho} minWidth={grafica ? ancho + 2 : undefined} flexShrink={0} paddingLeft={grafica ? 0 : delante}>
+            {clave ? (
+              <Button key={`${clave}:num`} plain onPress={alternar(clave)}>
+                {cabeza}
+              </Button>
+            ) : (
+              cabeza
+            )}
+          </Box>
+          <Box flexShrink={1} flexGrow={grafica ? 1 : undefined} minWidth={grafica ? 0 : undefined} overflow={grafica ? 'hidden' : undefined}>
+            {clave ? (
+              <Button key={clave} plain onPress={alternar(clave)}>
+                {titulo}
+              </Button>
+            ) : (
+              titulo
+            )}
+          </Box>
         </Box>
-        <Box flexShrink={1}>
-          {clave ? (
-            <Button key={clave} plain onPress={alternar(clave)}>
-              {cuerpo}
-            </Button>
-          ) : (
-            cuerpo
-          )}
-        </Box>
-      </Box>
-    )
+      )
+    }
 
     const peticion = (p: Peticion, conPrueba: boolean, donde: string) => {
       const id = String(p.id)
@@ -1043,7 +1077,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const w = anchoDe(t, 0)
       const [i, d] = huecos(t.length, w)
       return (
-        <Box flexShrink={0} marginRight={1} width={w} backgroundColor={FONDO_ETIQUETA}>
+        <Box flexShrink={0} marginRight={1} width={caja(w)} backgroundColor={FONDO_ETIQUETA}>
           <Text backgroundColor={FONDO_ETIQUETA}>
             {' '.repeat(i)}
             <Text weight="bold" color={n === 0 ? undefined : color} dimColor={n === 0}>
@@ -1077,7 +1111,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const fila1 = [hayActualizar && 'ACTUALIZAR'.length, est.tipo !== 'sin-sf' && 'RELEASE'.length, est.tipo !== 'sin-sf' && 'TURBO'.length, hayPrueba && 'PRUEBA'.length, textoSf.length]
     const fila2 = [duracion !== null && duracion.length, `${String(nPrompts)} prompts`.length]
     const deFila = (f: (number | false)[]) => f.filter((n): n is number => typeof n === 'number')
-    const comun = anchoComun(ancho, [
+    // En una superficie gráfica, sin ancho común: cada etiqueta, con su texto y un espacio a cada lado (tarea 323).
+    const comun = grafica ? null : anchoComun(ancho, [
       { necesita: deFila(fila1), reserva: 0 },
       // La rama va sola en la tercera fila: no le quita sitio a la segunda.
       { necesita: deFila(fila2), reserva: 0 },
@@ -1085,6 +1120,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // El ancho de una etiqueta de texto t: el común si su texto cabe en él (con el relleno que quepa); si no (las que
     // piden confirmar), el suyo con `relleno`; sin común, el suyo, con un espacio a cada lado.
     const anchoDe = (t: string, relleno = 2) => (comun === null ? t.length + 2 : t.length <= comun ? comun : t.length + relleno)
+    // El ancho de la caja de una etiqueta: en el terminal, el calculado; en una superficie gráfica, el de su contenido.
+    const caja = (w: number) => (grafica ? undefined : w)
     const marcador = (
       <Box flexDirection="row" flexShrink={0}>
         {metricas.map(casilla)}
@@ -1092,7 +1129,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     )
     const etiquetaDuracion =
       duracion === null ? null : (
-        <Box flexShrink={0} marginRight={1} width={anchoDe(duracion)} backgroundColor={FONDO_ETIQUETA}>
+        <Box flexShrink={0} marginRight={1} width={caja(anchoDe(duracion))} backgroundColor={FONDO_ETIQUETA}>
           <Text backgroundColor={FONDO_ETIQUETA} dimColor>
             {centrar(duracion, anchoDe(duracion))}
           </Text>
@@ -1103,7 +1140,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // cian, en negrita: no se confunde con los fondos llenos de PRUEBA ni del nombre.
     const etiquetaTurbo =
       est.tipo !== 'sin-sf' ? (
-        <Box marginRight={1} flexShrink={0} width={anchoDe('TURBO')} backgroundColor={FONDO_ETIQUETA}>
+        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('TURBO'))} backgroundColor={FONDO_ETIQUETA}>
           <Button key="turbo" plain onPress={() => pedirTurbo($)}>
             <Text color={COLOR_TURBO} weight="bold" backgroundColor={FONDO_ETIQUETA}>
               {centrar('TURBO', anchoDe('TURBO'))}
@@ -1151,7 +1188,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const elegida = aConfirmar?.startsWith('release:') && fuente ? aConfirmar.slice('release:'.length) : null
     const etiquetaRelease =
       est.tipo === 'sin-sf' ? null : elegida ? (
-        <Box marginRight={1} flexShrink={0} width={anchoDe(`¿Publicar v${elegida}? sí`)} backgroundColor={FONDO_ETIQUETA}>
+        <Box marginRight={1} flexShrink={0} width={caja(anchoDe(`¿Publicar v${elegida}? sí`))} backgroundColor={FONDO_ETIQUETA}>
           <Button key={`release-v:${elegida}`} plain onPress={elegirVersion(elegida)}>
             {textoRelease(`¿Publicar v${elegida}? sí`, anchoDe(`¿Publicar v${elegida}? sí`))}
           </Button>
@@ -1168,7 +1205,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           ))}
         </Box>
       ) : (
-        <Box marginRight={1} flexShrink={0} width={anchoDe('RELEASE')} backgroundColor={FONDO_ETIQUETA}>
+        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('RELEASE'))} backgroundColor={FONDO_ETIQUETA}>
           <Button key="release" plain onPress={abrirRelease}>
             {textoRelease('RELEASE', anchoDe('RELEASE'))}
           </Button>
@@ -1204,7 +1241,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       : aConfirmar === boton ? `¿Actualizar a v${nueva?.version ?? ''}? sí` : 'ACTUALIZAR'
     const etiquetaActualizar =
       est.tipo === 'sin-sf' || !nueva ? null : (
-        <Box marginRight={1} flexShrink={0} width={anchoDe(textoBoton)} backgroundColor={FONDO_ETIQUETA}>
+        <Box marginRight={1} flexShrink={0} width={caja(anchoDe(textoBoton))} backgroundColor={FONDO_ETIQUETA}>
           <Button key={boton} plain onPress={pulsarActualizar}>
             <Text color={COLOR_ACTUALIZAR} weight="bold" backgroundColor={FONDO_ETIQUETA}>
               {centrar(textoBoton, anchoDe(textoBoton))}
@@ -1244,7 +1281,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const activo = await desdeCopia($)
     const etiquetaPrueba =
       est.tipo === 'sf' && (mp.disponible || activo) ? (
-        <Box marginRight={1} flexShrink={0} width={anchoDe('PRUEBA')} backgroundColor={activo ? COLOR_PRUEBA : undefined}>
+        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('PRUEBA'))} backgroundColor={activo ? COLOR_PRUEBA : undefined}>
           <Button
             key="modo-prueba"
             plain
@@ -1401,11 +1438,11 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           </Box>
         </Box>
       ) : (
-      <Box flexDirection="column" height={altoCabecera} flexShrink={0}>
+      <Box flexDirection="column" height={grafica ? undefined : altoCabecera} flexShrink={0} rowGap={grafica ? 'xs' : undefined} paddingBottom={grafica ? 1 : undefined}>
         {/* Dos filas (decisión del propietario, 2026-10-29) y la de la rama (tarea 260). La primera: ACTUALIZAR, RELEASE, TURBO y el modo prueba a la
             izquierda y, a la derecha, la etiqueta de la SF con los colores de la etiqueta de la sesión (fondo del color
             de /color y letra negra); sin color, atenuada como los rótulos de los bloques. */}
-        <Box flexDirection="row">
+        <Box flexDirection="row" flexWrap={grafica ? 'wrap' : undefined} rowGap={grafica ? 'xs' : undefined}>
           {etiquetaActualizar}
           {etiquetaRelease}
           {etiquetaTurbo}
@@ -1413,13 +1450,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           <Box flexGrow={1} />
           {/* Al pulsarla, cuánto falta para la próxima comprobación de versión (tarea 238). */}
           {est.color ? (
-            <Box backgroundColor={RGB[est.color as (typeof COLORES)[number]]} width={anchoDe(etiquetaSf)} flexShrink={0}>
+            <Box backgroundColor={RGB[est.color as (typeof COLORES)[number]]} width={caja(anchoDe(etiquetaSf))} flexShrink={0}>
               <Button key="version-sf" plain onPress={avisarComprobacion}>
                 <Text color="#000000">{centrar(etiquetaSf, anchoDe(etiquetaSf))}</Text>
               </Button>
             </Box>
           ) : (
-            <Box flexShrink={0} width={anchoDe(etiquetaSf)}>
+            <Box flexShrink={0} width={caja(anchoDe(etiquetaSf))}>
               <Button key="version-sf" plain onPress={avisarComprobacion}>
                 <Text dimColor>{centrar(etiquetaSf, anchoDe(etiquetaSf))}</Text>
               </Button>
@@ -1428,7 +1465,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         </Box>
         {/* La segunda: la duración y los prompts, a la izquierda. */}
         <Box flexDirection="row">
-          <Box flexDirection="row" flexGrow={1} flexShrink={0}>
+          <Box flexDirection="row" flexGrow={1} flexShrink={0} flexWrap={grafica ? 'wrap' : undefined} rowGap={grafica ? 'xs' : undefined}>
             {etiquetaDuracion}
             {marcador}
           </Box>
@@ -1478,6 +1515,16 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // sin las secciones (vacías) y sin el aviso de la pantalla completa: aquí no hay botones que pulsar.
     if (est.tipo === 'sin-sf') {
       const lineas = bienvenida(ancho)
+      // La marca, en el color de la sesión, el de /color (decisión 249); sin él, el naranja.
+      const marca = colorMarca(rgbSesion(await read($, colorSesion)))
+      // En una superficie gráfica, el logo va en SVG, centrado (los bloques ▄█▀ se descuadran en su fuente), y la orden, en
+      // un solo botón centrado; en el terminal, como texto centrado con espacios (tarea 323).
+      const tabla = $.ui.resolve(e)
+      const Svg = grafica && 'Svg' in tabla ? tabla.Svg : null
+      const primerLogo = lineas.findIndex(x => x.estilo === 'logo')
+      const primeraOrden = lineas.findIndex(x => x.estilo === 'orden')
+      // La pastilla de la orden es un botón: la pasa a Claude como si la escribiera el propietario (decisión 248).
+      const incorporar = () => pedirIncorporar($, ORDEN_EMPEZAR)
       return conMargen(
         <Box flexDirection="column">
           {cabecera()}
@@ -1485,17 +1532,35 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
             avisoPrueba,
             <Box flexDirection="column">
               {lineas.map((x, i) =>
-                x.estilo === 'orden' ? (
+                x.estilo === 'logo' && Svg ? (
+                  i === primerLogo ? (
+                    <Box key="bienvenida:logo" flexDirection="row" justifyContent="center">
+                      <Svg source={logoSvg(marca)} alt="SF" />
+                    </Box>
+                  ) : null
+                ) : x.estilo === 'orden' && grafica ? (
+                  i === primeraOrden ? (
+                    <Box key="bienvenida:orden" flexDirection="row" justifyContent="center">
+                      <Button key="incorporar" plain onPress={incorporar}>
+                        <Text backgroundColor={marca} color={LETRA_MARCA} weight="bold">
+                          {` ${ORDEN_EMPEZAR} `}
+                        </Text>
+                      </Button>
+                    </Box>
+                  ) : null
+                ) : x.estilo === 'orden' ? (
                   <Box key={`bienvenida:${String(i)}`} flexDirection="row">
                     <Text>{' '.repeat(sangriaOrden(x.texto, ancho))}</Text>
-                    <Text backgroundColor={COLOR_MARCA} color={LETRA_MARCA} weight="bold">
-                      {x.texto}
-                    </Text>
+                    <Button key={`incorporar:${String(i)}`} plain onPress={incorporar}>
+                      <Text backgroundColor={marca} color={LETRA_MARCA} weight="bold">
+                        {x.texto}
+                      </Text>
+                    </Button>
                   </Box>
                 ) : (
                   <Text
                     key={`bienvenida:${String(i)}`}
-                    color={x.estilo === 'logo' ? COLOR_MARCA : undefined}
+                    color={x.estilo === 'logo' ? marca : undefined}
                     weight={x.estilo === 'nombre' || x.estilo === 'normal' ? 'bold' : undefined}
                     dimColor={x.estilo === 'tenue'}
                     wrap="truncate-end"

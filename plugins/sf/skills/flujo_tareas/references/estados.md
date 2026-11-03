@@ -81,7 +81,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Autorización:** el menú de alta (139). Si, a juicio del principal, encaja como paso de una tarea, pregunta primero si se añade a ella (06); si no encaja o el propietario lo descarta, pregunta si va en curso (02) o se queda en cola. Menú breve; sin la pregunta que el propietario ya responde al pedir («tarea», «paso de la NN», «en curso», «en cola»). Con «→» en el panel, sin menú.
 - **Repositorio:** nada.
 - **Panel:** Pendientes, con A.
-- **CLI:** `cola.py crear "texto" [--descripcion "…"] [--en-curso]`. Desde una propuesta por decidir de `sf/propuestas.md` («A Pendientes» en Propuestas), `cola.py de-propuesta "título" [--numero P07] [--descripcion "…"] [--tipo T]`: crea la tarea y cambia el «Estado» de la propuesta por «pasada a la tarea N de la cola el <fecha>», con su commit en `develop` (como en «A propuesta»); si ya no está por decidir en `develop`, no hace nada.
+- **CLI:** `cola.py crear "texto" --descripcion "…" [--en-curso]` (la descripción, obligatoria cuando crea Claude; el propietario y el panel pueden omitirla, tarea 326). Desde una propuesta por decidir de `sf/propuestas.md` («A Pendientes» en Propuestas), `cola.py de-propuesta "título" [--numero P07] [--descripcion "…"] [--tipo T]`: crea la tarea y cambia el «Estado» de la propuesta por «pasada a la tarea N de la cola el <fecha>», con su commit en `develop` (como en «A propuesta»); si ya no está por decidir en `develop`, no hace nada.
 - **Sale de:** 031, 048, 077, 096, 098 (descripción sin origen), 092, 139.
 
 #### 02 · Crear en curso
@@ -92,7 +92,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Autorización:** ninguna.
 - **Repositorio:** nada (la rama, en 05).
 - **Panel:** arriba, en amarillo, con A.
-- **CLI:** `cola.py crear "texto" --en-curso`.
+- **CLI:** `cola.py crear "texto" --descripcion "…" --en-curso`.
 - **Sale de:** 048, 139.
 
 #### 03 · Poner en curso

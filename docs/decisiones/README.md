@@ -19,6 +19,10 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 250 | 2026-11-03 | [No interrumpir mientras se prueba o se está en otra tarea](250-2026-11-03-no-interrumpir-mientras-se-prueba-o-se-esta-en-otra-tarea.md) |
+| 249 | 2026-11-03 | [El logo de bienvenida va del color de la sesión](249-2026-11-03-el-logo-de-bienvenida-va-del-color-de-la-sesion.md) |
+| 248 | 2026-11-03 | [La pastilla de incorporar es un botón](248-2026-11-03-la-pastilla-de-incorporar-es-un-boton.md) |
+| 247 | 2026-11-03 | [Lo útil para terceros viaja en el plugin, no en la memoria ni en CLAUDE.md](247-2026-11-03-lo-util-para-terceros-viaja-en-el-plugin.md) |
 | 246 | 2026-11-02 | [Si se dice que no a incorporar, se puede no volver a preguntar](246-2026-11-02-si-se-dice-que-no-a-incorporar-se-puede-no-volver-a-preguntar.md) |
 | 245 | 2026-11-02 | [Bienvenida del panel publicada y pantalla completa al incorporar](245-2026-11-02-bienvenida-del-panel-publicada-y-pantalla-completa-al-incorporar.md) |
 | 244 | 2026-11-02 | [La instalación la comprueba y la diagnostica Claude](244-2026-11-02-la-instalacion-la-comprueba-y-la-diagnostica-claude.md) |

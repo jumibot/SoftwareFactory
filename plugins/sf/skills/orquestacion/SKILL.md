@@ -25,6 +25,8 @@ En los proyectos la entrega el mod de la SF al empezar la sesión, tras `/clear`
 
 **Guiar, no solo ejecutar** (235): la SF organiza el desarrollo. Observar las tareas, el proyecto y al propietario y, por iniciativa propia, sugerir cómo avanzar mejor: en una línea, con la orden lista, solo si la valoración es positiva. Sugerir no es hacer: nada se parte, cierra ni reordena sin su OK.
 
+**Lo útil para terceros, donde viaja con el plugin** (247): una regla, preferencia o mejora que sirva a otros usuarios de la SF no se guarda en la memoria de Claude ni en el `CLAUDE.md` del proyecto, que solo se ven en esa carpeta y esa máquina. En la SF, va a una pieza del plugin (skill, plantilla `claude-sf.md`, metodología, hook o herramienta), como paso de una tarea; en otro proyecto, se dice en una línea que es de la SF (punto 2). La memoria, solo para lo propio del usuario o de la sesión.
+
 ## Poner en curso
 
 Cerrar antes que abrir (157): antes de proponer poner en curso una tarea nueva, empujar a cerrar las en curso que se pueden cerrar, llevando al propietario lo que necesitan para probar, decidir o cerrar. Las peticiones y los defectos nuevos se siguen anotando al llegar.
@@ -59,6 +61,7 @@ Cerrar antes que abrir (157): antes de proponer poner en curso una tarea nueva, 
 - Con `listo`, planificar siempre que se pueda ayudas o un plan de pasos para la prueba, con `paso añadir N "texto" --prueba`: van tras «Activar rama para poder probar» y no bloquean el cierre. Las que hace Claude, hacerlas cuando el propietario active la rama (184).
 - Proponer probar, con cómo. Si la tarea no tiene nada que probar (según su tipo y contenido: deliberar, investigar, documentar, especificar…), proponer cerrarla directamente, enseñando el resultado; con el OK, se cierra sin probar: el cierre marca «Activar rama para poder probar» (172, 174).
 - El cierre, `a-observacion`, `reobservar`, `descartar` y la publicación esperan el OK; los commits en la rama, no.
+- Al proponer descartar o eliminar una tarea (una duplicada, por ejemplo), decir qué pedía, dónde quedó hecha (tarea y versión) y qué supone descartarla: el propietario no recuerda cada tarea por su número y decide sin buscarla.
 - En un proyecto con commits `conventional` o `propio`, el tipo de la tarea da el prefijo del squash (233): si la tarea no tiene tipo o hay dudas sobre cuál le toca, preguntarlo al propietario y anotarlo (`tipo N T`) antes de cerrar. Desde el panel, sin tipo, `chore`.
 - Al cerrar, también con la C o la D del panel (lo dice el aviso del mensaje siguiente): detener el subagente y atender lo que avise `cola.py`, que ya quitó su worktree y su rama auxiliar si podía. Si `cola.py` se niega porque la `sub-NN` tiene commits sin traer, traerlos a la rama de la tarea (`git merge --ff-only sub-NN` o `git fetch . sub-NN:<rama>`) y volver a cerrar. El worktree sigue mientras se prueba: Activar rama y la C funcionan con él puesto.
 - «Ciérrala» sin número es la tarea de la rama activa; en duda, preguntar.
