@@ -1,9 +1,9 @@
-# Agentes del plugin, uno por familia de tarea
+# Agentes del plugin por familia de tarea, solo si la especialización aporta
 
 Fecha: 2026-11-04. Decidida por el propietario de la Software Factory.
 
-El plugin lleva un agente por familia de tarea (código, deliberativa y documental), con las reglas fijas del encargo dentro (worktree y rama auxiliar, no escribir la cola, no tocar documentos compartidos, formato de commits, forma del informe) y sus skills precargadas. Lo propio de cada tarea lo leen con «cola.py encargo N»; el principal solo les pasa lo que no está en la cola.
+Un agente del plugin por familia de tarea (código, deliberativa y documental), con las reglas fijas del encargo dentro y sus skills precargadas, solo tiene sentido si la especialización aporta algo a cómo se hace el trabajo de esa familia. No es una forma de liberar al agente principal: el trabajo de las tareas ya lo hacen hoy sus subagentes.
 
-Porqué: medido en las últimas sesiones largas, el 84 % de cada encargo es texto fijo que el principal vuelve a escribir en cada lanzamiento. Con el texto fijo dentro del agente, los encargos son de pocas líneas, el principal queda libre antes y cada agente sabe ya trabajar en su familia de tarea. Descartado un agente solo para la cola o un orquestador aparte: cada operación sería de 2 a 3 veces más lenta que una orden de cola.py, y un subagente no puede preguntar al propietario (informe «Liberar al agente principal», tarea 358).
+Porqué: el propietario lo eligió al deliberar cómo liberar al principal (tarea 358) y precisó después que los agentes especializados no lo liberan, porque las tareas ya van en subagentes; lo que pueden aportar es especialización. Reescrita el mismo día para dejarlo dicho así.
 
-Aplicada en: la tarea «Agentes especializados, uno por familia de tarea» (304).
+Aplicada en: la tarea «Agentes especializados, uno por familia de tarea» (304), que valora qué aporta la especialización a cada familia antes de implementarla.
