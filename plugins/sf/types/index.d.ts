@@ -57,7 +57,8 @@ export type Sesion = { limpiadas: Record<string, number> }
 
 // El progreso de una incorporación (tarea 333), de ~/.claude/sf/incorporacion-<sesión>.json, que escribe
 // tools/incorporacion.py: el caso, el paso en que se está (desde 1; 0, todos hechos) y los pasos con su respuesta.
-export type Incorporacion = { caso: string; actual: number; pausa: boolean; pasos: { nombre: string; respuesta: string | null }[] }
+// recarga: la incorporación pidió recargar los plugins y sigue sola tras recargar (tarea 366).
+export type Incorporacion = { caso: string; actual: number; pausa: boolean; recarga?: boolean; pasos: { nombre: string; respuesta: string | null }[] }
 // Qué parte de la lista de la incorporación se ve (tarea 333): desde qué paso (desde 0), movida a mano con ▲ y ▼ cuando el
 // actual era `actual`; al cambiar el actual, la lista vuelve a seguirlo.
 export type VistaIncorporacion = { desde: number; actual: number }

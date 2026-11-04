@@ -14,6 +14,12 @@ mod, al acabar un turno o al cargarse con la incorporación a medias (también c
 quita cualquier orden que escriba; al abandonarla, al cerrar la lista terminada o al salir el panel operativo, lo deja
 en {} (sin pasos), que vale como borrado (decisión 258).
 
+Lo respondido no se pierde (tarea 366): borrar una incorporación a medias, aquí o desde el mod (salvo con Abandonar, que lo borra todo: decisión 286), deja una copia en
+incorporacion-<carpeta>.guardada.json; `ver` la menciona y `recuperar` la trae. Volver a anotar un paso ya respondido
+(el Plugin, tras actualizarlo) solo cambia su respuesta. Y `recargar` pide al mod que recargue los plugins al acabar el
+turno ("recargar": true) y que, tras recargar, pase a Claude «continúa la incorporación a la SF»: así el propietario no
+tiene que escribir /reload-plugins ni volver a pedir la incorporación.
+
   {
     "version": 1,
     "carpeta": "/ruta/a/Contador",
@@ -35,9 +41,16 @@ Uso (desde la carpeta del proyecto; <plugin> es la carpeta del plugin sf, la de 
   … paso N|NOMBRE           Se pone en ese paso (para volver a uno o saltar a otro).
   … anotar N|NOMBRE TEXTO   Anota la respuesta de un paso (lo detectado sin preguntar también) y, si era el actual,
                             pasa al siguiente sin respuesta. Un texto de varias líneas queda en una, con « · ».
-  … ver                     Los pasos, con su respuesta y cuál es el actual.
-  … borrar                  Borra el progreso: al empezar de nuevo. Al terminar no: lo quita el mod cuando el
-                            proyecto ya tiene su panel operativo; si se para a medias, el propietario, con Abandonar.
+  … ver                     Los pasos, con su respuesta y cuál es el actual. Sin progreso, sale con 2 y dice si hay
+                            respuestas guardadas de una incorporación borrada a medias.
+  … recuperar               Trae las respuestas guardadas (las de los pasos que se llaman igual; lo anotado ahora
+                            manda) y se pone en el primer paso sin respuesta. Sale con 2 si no hay nada guardado.
+  … recargar                Pide al mod que recargue los plugins al acabar el turno y que, después, pase a Claude
+                            «continúa la incorporación a la SF».
+  … borrar [--sin-guardar]  Borra el progreso: al empezar de nuevo. Si estaba a medias, guarda antes lo respondido;
+                            con --sin-guardar, no, y quita también lo guardado («Empezar de nuevo»). Al terminar no se
+                            borra: lo quita el mod cuando el proyecto ya tiene su panel operativo; si se para a medias,
+                            el propietario, con Abandonar.
 
 Todas las órdenes toman --raiz RUTA (por omisión, la carpeta actual): el proyecto cuyo progreso se lee o escribe.
 
@@ -60,13 +73,16 @@ VERSION = 1
 # Los pasos de cada caso, en el orden de la skill sf:incorporar_proyecto_a_sf («Nuevo y existente», «Actualizar» y
 # «Procedimiento»), tras poner al día el plugin, antes de nada (tools/plugin_sf.py). Los nombres son cortos: el panel
 # los pinta en una columna estrecha.
+# «Reglas del proyecto» (tarea 366): el CLAUDE.md y las demás reglas del proyecto se leen antes de preguntar nada, para
+# saber qué choca con la SF; y el repositorio va antes que la identidad: cómo lo lleva la SF se explica y se acepta antes
+# de pedir nada más (decisión 285).
 PASOS = {
-    'nuevo': ['Plugin', 'Caso', 'Identidad', 'Repositorio', 'Convenciones', 'Cambios y OK', 'Aplicar', 'Comprobación'],
-    'existente': ['Plugin', 'Caso', 'Diagnóstico', 'Identidad', 'Repositorio', 'Convenciones', 'Cambios y OK', 'Aplicar',
-                  'CLAUDE.md', 'Pasar a sf/', 'Comprobación'],
-    'actualizar': ['Plugin', 'Caso', 'Diagnóstico', 'Configuración', 'Cambios y OK', 'Aplicar', 'CLAUDE.md',
-                   'Pasar a sf/', 'Comprobación'],
-    'diagnosticar': ['Plugin', 'Caso', 'Diagnóstico', 'Informe'],
+    'nuevo': ['Plugin', 'Caso', 'Repositorio', 'Identidad', 'Convenciones', 'Cambios y OK', 'Aplicar', 'Comprobación'],
+    'existente': ['Plugin', 'Caso', 'Diagnóstico', 'Reglas del proyecto', 'Repositorio', 'Identidad', 'Convenciones',
+                  'Cambios y OK', 'Aplicar', 'CLAUDE.md', 'Pasar a sf/', 'Comprobación'],
+    'actualizar': ['Plugin', 'Caso', 'Diagnóstico', 'Reglas del proyecto', 'Configuración', 'Cambios y OK', 'Aplicar',
+                   'CLAUDE.md', 'Pasar a sf/', 'Comprobación'],
+    'diagnosticar': ['Plugin', 'Caso', 'Diagnóstico', 'Reglas del proyecto', 'Informe'],
 }
 LARGO_RESPUESTA = 300
 LARGO_NOMBRE = 40
@@ -104,29 +120,37 @@ def archivo(carpeta: str) -> Path:
     return carpeta_sf() / f'incorporacion-{clave(carpeta)}.json'
 
 
+def archivo_guardado(carpeta: str) -> Path:
+    """La copia de lo respondido en una incorporación borrada a medias (como guardadaIncorporacion() del mod)."""
+    return carpeta_sf() / f'incorporacion-{clave(carpeta)}.guardada.json'
+
+
 def ahora() -> str:
     return datetime.now().astimezone().isoformat(timespec='seconds')
 
 
-def leer(carpeta: str) -> dict | None:
-    """El progreso del proyecto, o None si no hay."""
-    ruta = archivo(carpeta)
+def leer(carpeta: str, ruta: Path | None = None) -> dict | None:
+    """El progreso del proyecto (o, con `ruta`, lo guardado), o None si no hay."""
+    ruta = ruta or archivo(carpeta)
     try:
         datos = json.loads(ruta.read_text(encoding='utf-8'))
     except (OSError, ValueError):
         return None
-    if not isinstance(datos, dict) or not isinstance(datos.get('pasos'), list):
+    if not isinstance(datos, dict) or not isinstance(datos.get('pasos'), list) or not datos['pasos']:
         return None
     if normal(str(datos.get('carpeta', ''))).lower() != normal(carpeta).lower():
         return None
     return datos
 
 
-def escribir(datos: dict) -> None:
+def escribir(datos: dict, marcas: dict | None = None) -> None:
     ruta = archivo(datos['carpeta'])
     ruta.parent.mkdir(parents=True, exist_ok=True)
-    # Anotar algo quita la pausa que pone el mod al acabar un turno con la incorporación a medias (decisión 258).
-    datos.pop('pausa', None)
+    # Anotar algo quita la pausa que pone el mod al acabar un turno con la incorporación a medias (decisión 258) y una
+    # recarga pedida que no llegó a hacerse; `marcas` pone las que se piden ahora (recargar).
+    for marca in ('pausa', 'recargar', 'retomar'):
+        datos.pop(marca, None)
+    datos.update(marcas or {})
     datos['cambio'] = ahora()
     fd, tmp = tempfile.mkstemp(prefix='.incorporacion-', suffix='.tmp', dir=str(ruta.parent))
     try:
@@ -188,10 +212,32 @@ def resumen(datos: dict) -> str:
     return f'Incorporación ({datos.get("caso")}): paso {n} de {total}, {datos["pasos"][n - 1]["nombre"]}.'
 
 
+def respondidos(datos: dict | None) -> int:
+    return sum(1 for p in (datos or {}).get('pasos', []) if isinstance(p, dict) and p.get('respuesta'))
+
+
+def a_medias(datos: dict | None) -> bool:
+    """Con algo respondido y sin terminar: lo que merece guardarse al borrar."""
+    return datos is not None and 0 < respondidos(datos) < len(datos['pasos'])
+
+
+def texto_guardada(carpeta: str) -> str:
+    g = leer(carpeta, archivo_guardado(carpeta))
+    if g is None:
+        return ''
+    n = respondidos(g)
+    cuando = str(g.get('cambio', ''))[:16].replace('T', ' ')
+    return (f' Hay respuestas guardadas de una incorporación anterior ({g.get("caso")}, {n} '
+            f'{"paso respondido" if n == 1 else "pasos respondidos"}{", " + cuando if cuando else ""}): '
+            '«recuperar» las trae.')
+
+
 def requerida(raiz: str) -> dict:
-    datos = leer(carpeta_de(raiz))
+    carpeta = carpeta_de(raiz)
+    datos = leer(carpeta)
     if datos is None:
-        raise Fallo('no hay ninguna incorporación empezada en esta carpeta: antes, «empezar CASO».', 2)
+        raise Fallo('no hay ninguna incorporación empezada en esta carpeta: antes, «empezar CASO».'
+                    + texto_guardada(carpeta), 2)
     return datos
 
 
@@ -241,12 +287,52 @@ def o_anotar(cual: str, texto: str, raiz: str) -> dict:
     return datos
 
 
-def o_borrar(raiz: str) -> bool:
+def guardar_copia(datos: dict) -> None:
+    copia = {k: v for k, v in datos.items() if k not in ('pausa', 'recargar', 'retomar')}
+    ruta = archivo_guardado(datos['carpeta'])
+    ruta.parent.mkdir(parents=True, exist_ok=True)
+    ruta.write_text(json.dumps(copia, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+
+
+def o_borrar(raiz: str, guardar: bool = True) -> bool:
+    carpeta = carpeta_de(raiz)
+    datos = leer(carpeta)
+    if guardar and a_medias(datos):
+        guardar_copia(datos)
+    if not guardar:
+        archivo_guardado(carpeta).unlink(missing_ok=True)
     try:
-        archivo(carpeta_de(raiz)).unlink()
-        return True
+        archivo(carpeta).unlink()
+        return datos is not None
     except FileNotFoundError:
         return False
+
+
+def o_recuperar(raiz: str) -> dict:
+    carpeta = carpeta_de(raiz)
+    guardada = leer(carpeta, archivo_guardado(carpeta))
+    if guardada is None:
+        raise Fallo('no hay respuestas guardadas de ninguna incorporación en esta carpeta.', 2)
+    datos = leer(carpeta)
+    if datos is None:
+        datos = {k: v for k, v in guardada.items() if k not in ('pausa', 'recargar', 'retomar', 'cambio')}
+    else:
+        # Lo anotado ahora manda; lo guardado rellena los pasos sin respuesta que se llaman igual.
+        dichas = {str(p.get('nombre', '')).lower(): p.get('respuesta') for p in guardada['pasos']}
+        for p in datos['pasos']:
+            if not p.get('respuesta'):
+                p['respuesta'] = dichas.get(str(p.get('nombre', '')).lower()) or None
+    datos['carpeta'] = carpeta
+    datos['actual'] = siguiente_sin_respuesta(datos, 1)
+    escribir(datos)
+    archivo_guardado(carpeta).unlink(missing_ok=True)
+    return datos
+
+
+def o_recargar(raiz: str) -> dict:
+    datos = requerida(raiz)
+    escribir(datos, {'recargar': True})
+    return datos
 
 
 def texto_ver(datos: dict) -> str:
@@ -273,7 +359,10 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument('cual')
     a.add_argument('texto', nargs='+')
     sub.add_parser('ver', parents=[comun])
-    sub.add_parser('borrar', parents=[comun])
+    sub.add_parser('recuperar', parents=[comun])
+    sub.add_parser('recargar', parents=[comun])
+    b = sub.add_parser('borrar', parents=[comun])
+    b.add_argument('--sin-guardar', action='store_true')
     args = ap.parse_args(argv)
     como_json = args.json or args.json_orden
     try:
@@ -285,9 +374,16 @@ def main(argv: list[str] | None = None) -> int:
             datos = o_anotar(args.cual, ' '.join(args.texto), args.raiz)
         elif args.orden == 'ver':
             datos = requerida(args.raiz)
+        elif args.orden == 'recuperar':
+            datos = o_recuperar(args.raiz)
+        elif args.orden == 'recargar':
+            datos = o_recargar(args.raiz)
         else:
-            borrado = o_borrar(args.raiz)
+            antes = leer(carpeta_de(args.raiz))
+            borrado = o_borrar(args.raiz, not args.sin_guardar)
             mensaje = 'Progreso de la incorporación borrado.' if borrado else 'No había progreso que borrar.'
+            if borrado and not args.sin_guardar and a_medias(antes):
+                mensaje += ' Lo respondido queda guardado: «recuperar» lo trae.'
             print(json.dumps({'ok': True, 'mensaje': mensaje}, ensure_ascii=False) if como_json else mensaje)
             return 0
     except Fallo as f:
@@ -296,10 +392,16 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(f'incorporacion.py: {f}', file=sys.stderr)
         return f.codigo
+    mensaje = resumen(datos)
+    if args.orden == 'recargar':
+        mensaje = ('Recarga pedida: al acabar este turno, el mod de la SF recarga los plugins y me pasa «continúa la '
+                   'incorporación a la SF». ' + mensaje)
+    elif args.orden == 'recuperar':
+        mensaje = 'Respuestas recuperadas. ' + mensaje
     if como_json:
-        print(json.dumps({'ok': True, 'mensaje': resumen(datos), 'progreso': datos}, ensure_ascii=False))
+        print(json.dumps({'ok': True, 'mensaje': mensaje, 'progreso': datos}, ensure_ascii=False))
     else:
-        print(texto_ver(datos) if args.orden == 'ver' else resumen(datos))
+        print(texto_ver(datos) if args.orden == 'ver' else mensaje)
     return 0
 
 

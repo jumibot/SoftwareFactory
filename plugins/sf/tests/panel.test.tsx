@@ -4469,7 +4469,7 @@ test('ACTUALIZAR: el primer clic pide confirmar; a los 5 s o con otro clic vuelv
   await ui.unmount()
 })
 
-test('ACTUALIZAR: confirmado, claude plugin update en el scope user y en el local del proyecto, no en el de otro; avisa de reiniciar y desaparece', async (...m) => {
+test('ACTUALIZAR: confirmado, claude plugin update en el scope user y en el local del proyecto, no en el de otro; sin dependencias nuevas, pasa a REFRESCAR para recargar sin reiniciar (286)', async (...m) => {
   const otro: Instalada = { scope: 'local', projectPath: '/otro', version: '0.5.0' }
   // El local del proyecto, con la ruta escrita con barras invertidas y barra final: es la misma carpeta.
   const local: Instalada = { scope: 'local', projectPath: '\\sf\\', version: '1.0.0' }
@@ -4478,9 +4478,10 @@ test('ACTUALIZAR: confirmado, claude plugin update en el scope user y en el loca
   await ui.press({ key: 'actualizar' })
   expect(updates(ordenes)).toEqual([UPDATE('user'), UPDATE('local')])
   expect(cwds.every(c => c === RAIZ)).toBe(true)
-  expect(toasts).toContain('Actualizado a v1.1.0: reinicia Claude Code')
+  expect(toasts).toContain('Actualizado a v1.1.0: pulsa REFRESCAR para cargarla, sin reiniciar')
   expect(prompts).toHaveLength(0)
   expect(await ui.find({ type: 'Button', key: 'actualizar' })).toBe(undefined)
+  expect(await hay(ui, { type: 'Button', key: 'refrescar' })).toBe(true)
   await ui.unmount()
 })
 
@@ -4526,13 +4527,13 @@ test('ACTUALIZAR: si Claude Code ya tenía la versión, la anota en el registro 
   await ui.unmount()
 })
 
-test('ACTUALIZAR: con un scope ya al día y otro actualizado, pide reiniciar', async (...m) => {
+test('ACTUALIZAR: con un scope ya al día y otro actualizado, pide recargar con REFRESCAR', async (...m) => {
   const { archivos, toasts, ui } = await actualizar(m, { alDia: ['local'] })
   await ui.press({ key: 'actualizar' })
   await ui.press({ key: 'actualizar' })
   const sf = (JSON.parse(archivos[INSTALADAS]!) as { plugins: Record<string, { scope: string; version: string }[]> }).plugins['sf@softwarefactory']!
   expect(sf.map(x => x.version)).toEqual(['1.1.0', '1.1.0'])
-  expect(toasts).toContain('Actualizado a v1.1.0: reinicia Claude Code')
+  expect(toasts).toContain('Actualizado a v1.1.0: pulsa REFRESCAR para cargarla, sin reiniciar')
   await ui.unmount()
 })
 
@@ -4625,7 +4626,7 @@ test('ACTUALIZAR: con un scope por detrás, actualiza aunque la sesión también
   await ui.press({ key: 'actualizar' })
   expect(updates(ordenes)).toEqual([UPDATE('user'), UPDATE('local')])
   expect(comandos).not.toContain('reload-plugins')
-  expect(toasts).toContain('Actualizado a v1.1.0: reinicia Claude Code')
+  expect(toasts).toContain('Actualizado a v1.1.0: pulsa REFRESCAR para cargarla, sin reiniciar')
   await ui.unmount()
 })
 
@@ -4635,12 +4636,12 @@ const installs = (ordenes: string[]) => ordenes.filter(o => o.startsWith('claude
 const DEPS_110 = { '1.1.0': ['nueva@softwarefactory', 'vieja', { name: 'ajena', marketplace: 'otro' }] }
 const VIEJA: Record<string, Instalada[]> = { 'vieja@softwarefactory': [{ scope: 'user', version: '1' }] }
 
-test('ACTUALIZAR: tras actualizar, instala las dependencias de la versión nueva que faltan, una vez en el scope de usuario, y luego pide reiniciar', async (...m) => {
+test('ACTUALIZAR: tras actualizar, instala las dependencias de la versión nueva que faltan, una vez en el scope de usuario, y, con ellas nuevas, pide reiniciar', async (...m) => {
   const { ordenes, toasts, ui } = await actualizar(m, { deps: DEPS_110, otros: VIEJA })
   await ui.press({ key: 'actualizar' })
   await ui.press({ key: 'actualizar' })
   expect(ordenes.filter(o => o.startsWith('claude '))).toEqual([REFRESCO, UPDATE('user'), UPDATE('local'), INSTALL('nueva@softwarefactory', 'user'), INSTALL('ajena@otro', 'user')])
-  expect(toasts).toContain('Actualizado a v1.1.0: reinicia Claude Code')
+  expect(toasts).toContain('Actualizado a v1.1.0, con dependencias nuevas: reinicia Claude Code')
   await ui.unmount()
 })
 
@@ -4656,7 +4657,7 @@ test('ACTUALIZAR: si una dependencia no se puede instalar, avisa con su orden en
   expect(ordenesDelAviso(aviso!)).toEqual([INSTALL('nueva@softwarefactory', 'user')])
   // Sigue con las demás: la que falla no corta las siguientes.
   expect(installs(ordenes)).toEqual([INSTALL('nueva@softwarefactory', 'user'), INSTALL('ajena@otro', 'user')])
-  expect(toasts).not.toContain('Actualizado a v1.1.0: reinicia Claude Code')
+  expect(toasts.some(t => t.startsWith('Actualizado a v1.1.0'))).toBe(false)
   await ui.unmount()
 })
 
@@ -4698,15 +4699,15 @@ test('ACTUALIZAR: con el interruptor apagado en .sf/proyecto.json, no instala de
   expect(installs(ordenes)).toEqual([])
   const aviso = toasts.find(t => t.startsWith('ACTUALIZAR: sf necesita nueva@softwarefactory, ajena@otro y no están instaladas'))
   expect(ordenesDelAviso(aviso ?? '')).toEqual([INSTALL('nueva@softwarefactory', 'user'), INSTALL('ajena@otro', 'user')])
-  expect(toasts).not.toContain('Actualizado a v1.1.0: reinicia Claude Code')
+  expect(toasts.some(t => t.startsWith('Actualizado a v1.1.0'))).toBe(false)
   await ui.unmount()
 })
 
-test('ACTUALIZAR: con el interruptor apagado y las dependencias ya instaladas, pide reiniciar', async (...m) => {
+test('ACTUALIZAR: con el interruptor apagado y las dependencias ya instaladas, basta recargar con REFRESCAR', async (...m) => {
   const { toasts, ui } = await actualizar(m, { deps: { '1.1.0': ['vieja'] }, otros: VIEJA, proyecto: { nombre: 'x', automatizaciones: { dependencias_al_actualizar: false } } })
   await ui.press({ key: 'actualizar' })
   await ui.press({ key: 'actualizar' })
-  expect(toasts).toContain('Actualizado a v1.1.0: reinicia Claude Code')
+  expect(toasts).toContain('Actualizado a v1.1.0: pulsa REFRESCAR para cargarla, sin reiniciar')
   await ui.unmount()
 })
 
@@ -6952,6 +6953,103 @@ test('Incorporación: una terminada de antes de cargar el mod se conserva, sin p
   const { archivos } = await preparar(m, { sinMarca: true, extra: { [PROGRESO]: progreso(0, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']) } })
   expect(sinPasos(archivos)).toBe(false)
   expect(enPausa(archivos)).toBe(false)
+})
+
+// ── Tarea 366: la incorporación de corrido ──
+const conMarcas = (actual: number, respuestas: (string | null)[], marcas: Record<string, unknown>) =>
+  JSON.stringify({ ...JSON.parse(progreso(actual, respuestas)), ...marcas })
+const PENDIENTES_BOTON = { type: 'Button', text: /^PENDIENTES [▸▾]/ }
+
+test('Incorporación (366): con SF a medias (tras Aplicar), su caja en lugar de las tareas; terminada, el panel normal', async (...m) => {
+  const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: { '/sf/.sf/proyecto.json': JSON.stringify({ proyecto: 'Demo', color: 'blue' }) } })
+  archivos[PROGRESO] = progreso(8, ['Existente', 'falta .sf/', 'verde', 'De acuerdo', 'español', 'OK', 'Hecho'])
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Text', text: 'paso 8 de 10' })).toBe(true)
+  expect(await hay(ui, PENDIENTES_BOTON)).toBe(false)
+  // El turno siguiente no la quita: no está terminada.
+  await m[0].turn.start({ text: 'sigue', turnId: 't1' })
+  expect(sinPasos(archivos)).toBe(false)
+  archivos[PROGRESO] = progreso(0, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
+  await cambiarCola(INICIAL)
+  expect(await hay(ui, { type: 'Text', text: '10 de 10 pasos' })).toBe(true)
+  expect(await hay(ui, PENDIENTES_BOTON)).toBe(true)
+  await ui.unmount()
+})
+
+test('Incorporación (366): un turno en marcha quita la pausa (un menú esperando respuesta no es una pausa)', async (...m) => {
+  const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/'])
+  await acabaTurno(m, 't1')
+  expect(enPausa(archivos)).toBe(true)
+  await m[0].turn.start({ text: 'De acuerdo', turnId: 't2' })
+  expect(enPausa(archivos)).toBe(false)
+  expect(JSON.parse(archivos[PROGRESO]!).pasos[1].respuesta).toBe('falta .sf/')
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Text', text: ' En curso ' })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: ' En pausa ' })).toBe(false)
+  await ui.unmount()
+})
+
+test('Incorporación (366): pedida la recarga, al acabar el turno el mod lanza /reload-plugins y no la pausa', async (...m) => {
+  const { archivos, comandos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = conMarcas(1, [], { recargar: true })
+  const antes = comandos.filter(c => c === 'reload-plugins').length
+  await acabaTurno(m, 't1')
+  expect(comandos.filter(c => c === 'reload-plugins').length).toBe(antes + 1)
+  const d = JSON.parse(archivos[PROGRESO]!)
+  expect([d.recargar, d.pausa, typeof d.retomar]).toEqual([undefined, undefined, 'number'])
+  // Mientras, la caja dice que recarga, sin los botones de la pausa.
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Text', text: ' Recargando la SF ' })).toBe(true)
+  expect(await hay(ui, { type: 'Button', key: 'incorporacion:continuar' })).toBe(false)
+  // Otro turno que acaba no la recarga dos veces.
+  await acabaTurno(m, 't2')
+  expect(comandos.filter(c => c === 'reload-plugins').length).toBe(antes + 1)
+  await ui.unmount()
+})
+
+test('Incorporación (366): tras la recarga pedida, el mod la retoma solo, pasándole a Claude «continúa la incorporación a la SF»', async (...m) => {
+  const { archivos, prompts, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: { [PROGRESO]: conMarcas(1, [], { retomar: Date.parse('2026-10-27T11:58:00Z') }) } })
+  await reloj!.advance(2000)
+  expect(prompts).toContain('continúa la incorporación a la SF')
+  const d = JSON.parse(archivos[PROGRESO]!)
+  expect([d.retomar, d.pausa]).toEqual([undefined, undefined])
+})
+
+test('Incorporación (366): una recarga de hace mucho no se retoma sola: queda en pausa', async (...m) => {
+  const { archivos, prompts, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: { [PROGRESO]: conMarcas(1, [], { retomar: Date.parse('2026-10-27T10:00:00Z') }) } })
+  await reloj!.advance(2000)
+  expect(prompts).not.toContain('continúa la incorporación a la SF')
+  expect(enPausa(archivos)).toBe(true)
+})
+
+test('Incorporación (366, 286): Abandonar lo borra todo, también lo guardado antes; un no a incorporar en un menú sí lo guarda', async (...m) => {
+  const respuestas = ['Ahora no']
+  m[1]('tool.call', { tool: 'AskUserQuestion' }, (_, e) => {
+    const q = (e as unknown as { questions: { question: string }[] }).questions[0]!.question
+    return { result: { questions: (e as unknown as { questions: unknown[] }).questions, answers: { [q]: respuestas.shift()! } } as never }
+  })
+  const { archivos, cambiarCola, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: GIT('ref: refs/heads/develop\n') })
+  const GUARDADA = PROGRESO.replace(/\.json$/, '.guardada.json')
+  const guardada = () => (archivos[GUARDADA] ? (JSON.parse(archivos[GUARDADA]!) as { pasos?: { respuesta: string | null }[] }).pasos : undefined)
+  // Un no a incorporar en un menú (otra causa): se guarda lo respondido.
+  archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/'])
+  await m[0].tool.call({ tool: 'AskUserQuestion', questions: [{ question: '¿Incorporar?', header: 'SF', multiSelect: false, options: [{ label: 'Ahora no', description: '' }] }] } as never)
+  expect(sinPasos(archivos)).toBe(true)
+  expect(guardada()?.[1]?.respuesta).toBe('falta .sf/')
+  // Abandonar: lo borra todo, también lo guardado antes.
+  archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/'])
+  await acabaTurno(m, 't1')
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  await ui.press({ key: 'incorporacion:abandonar' })
+  await reloj!.advance(100)
+  expect(sinPasos(archivos)).toBe(true)
+  expect(guardada()).toBe(undefined)
+  await ui.unmount()
 })
 
 test('Incorporación: la clave del archivo de progreso es la de incorporacion.py (por proyecto)', () => {

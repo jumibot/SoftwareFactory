@@ -121,6 +121,14 @@ class PluginSf(unittest.TestCase):
                                       'claude plugin install oklch-skill@softwarefactory --scope user'])
         self.assertIn('reinicia Claude Code', r['mensaje'])
 
+    def test_actualizar_sin_dependencias_nuevas_basta_recargar(self):
+        self.plugin_json(self.base / 'cache' / 'user' / '1.6.0', '1.7.6', ['gsap-skills'])
+        self.instalar({'sf@softwarefactory': [self.entrada('user', '1.6.0')],
+                       'gsap-skills@softwarefactory': [self.entrada('user', '1.0.0')]})
+        codigo, r = self.orden('actualizar')
+        self.assertEqual((codigo, r['estado']), (0, 'recargar'))
+        self.assertIn('/reload-plugins', r['mensaje'])
+
     def test_actualizar_para_en_el_primer_fallo(self):
         self.fallan = {'softwarefactory'}
         codigo, r = self.orden('actualizar')

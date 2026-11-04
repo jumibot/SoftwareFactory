@@ -7,6 +7,8 @@ import { importaCopia, leerIncorporacion, leerJson, raizSesion, rutaIncorporacio
 import type { $ } from './lectura'
 import { detectarPython, lineaPython } from './python'
 import { ORDEN_EMPEZAR } from './bienvenida'
+import { lanzar } from './identidad'
+import { encargarAClaude } from './avisos'
 
 // ── Lo que pinta la SF y lo global no son del proyecto (decisión 167) ──
 // En los proyectos incorporados a la SF (con .sf/proyecto.json), nunca en la propia SF, el mod añade al final del prompt de sistema una regla corta: lo que el plugin pinta en el proyecto
@@ -168,16 +170,76 @@ async function hayIncorporacion($: $): Promise<string | null> {
   if (!ruta) return null
   return (await leerIncorporacion($, await raizSesion($)).catch(() => null)) ? ruta : null
 }
-export async function borrarIncorporacion($: $): Promise<void> {
+// Borrar una incorporación a medias no pierde lo respondido (tarea 366): antes se copia a su .guardada.json, que
+// `incorporacion.py ver` menciona y `recuperar` trae. Una terminada no se guarda, y Abandonar lo borra todo, también
+// lo guardado antes (`guardar: false`): es una decisión expresa del propietario (decisión 286).
+export const guardadaIncorporacion = (ruta: string) => ruta.replace(/\.json$/, '.guardada.json')
+export async function borrarIncorporacion($: $, { guardar = true }: { guardar?: boolean } = {}): Promise<void> {
   const ruta = await hayIncorporacion($)
-  if (ruta) await $.fs.write(ruta, '{}\n')
+  if (!ruta) return
+  const inc = await leerIncorporacion($, await raizSesion($)).catch(() => null)
+  if (!guardar) {
+    if (await $.fs.exists(guardadaIncorporacion(ruta))) await $.fs.write(guardadaIncorporacion(ruta), '{}\n')
+  } else if (inc && !terminada(inc) && inc.pasos.some(p => p.respuesta)) {
+    const { pausa: _p, recargar: _r, retomar: _t, ...d } = await leerJson($, ruta)
+    await $.fs.write(guardadaIncorporacion(ruta), JSON.stringify(d, null, 2) + '\n')
+  }
+  await $.fs.write(ruta, '{}\n')
 }
 export async function pausarIncorporacion($: $): Promise<void> {
   const ruta = await hayIncorporacion($)
   if (!ruta) return
   const d = await leerJson($, ruta)
-  if (d.pausa === true || !(typeof d.actual === 'number' && d.actual > 0)) return
+  // Con una recarga pedida o en marcha, no es una pausa: la incorporación sigue sola tras recargar (tarea 366).
+  if (d.pausa === true || d.recargar === true || typeof d.retomar === 'number' || !(typeof d.actual === 'number' && d.actual > 0)) return
   await $.fs.write(ruta, JSON.stringify({ ...d, pausa: true }, null, 2) + '\n')
+}
+// Mientras corre un turno del principal, la incorporación no está en pausa: el menú que espera respuesta es parte del
+// turno (tarea 366: el panel decía «En pausa» con un menú abierto). Se quita al empezar el turno.
+export async function reanudarIncorporacion($: $): Promise<boolean> {
+  const ruta = await hayIncorporacion($)
+  if (!ruta) return false
+  const d = await leerJson($, ruta)
+  if (d.pausa !== true) return false
+  const { pausa: _p, ...resto } = d
+  await $.fs.write(ruta, JSON.stringify(resto, null, 2) + '\n')
+  return true
+}
+
+// ── Recargar los plugins sin que el propietario escriba la orden (tarea 366) ──
+// Cuando la incorporación necesita la versión instalada de la SF (está instalada una más nueva que la que corre),
+// Claude lo pide con `incorporacion.py recargar` ("recargar": true). Al acabar ese turno, el mod lanza /reload-plugins
+// (Claude Code lo hace en cuanto la sesión queda libre) y deja "retomar" con la hora. El mod recargado, al cargarse, ve
+// "retomar" reciente y pasa a Claude «continúa la incorporación a la SF»: el propietario no escribe nada.
+export const RETOMAR_HASTA_MS = 10 * 60_000
+export async function recargarSiPedido($: $): Promise<boolean> {
+  const ruta = await hayIncorporacion($)
+  if (!ruta) return false
+  const d = await leerJson($, ruta)
+  if (d.recargar !== true) return false
+  const { recargar: _r, pausa: _p, ...resto } = d
+  await $.fs.write(ruta, JSON.stringify({ ...resto, retomar: await $.clock.now() }, null, 2) + '\n')
+  lanzar($, 'reload-plugins', '')
+  return true
+}
+// Al cargarse el mod: tras una recarga pedida (hace menos de RETOMAR_HASTA_MS), la incorporación sigue sola; si no,
+// queda en pausa, como siempre (decisión 258).
+export async function alCargarIncorporacion($: $): Promise<'retomada' | 'pausa' | null> {
+  const ruta = await hayIncorporacion($)
+  if (!ruta) return null
+  const d = await leerJson($, ruta)
+  if (typeof d.retomar === 'number') {
+    const { retomar, pausa: _p, recargar: _r, ...resto } = d
+    await $.fs.write(ruta, JSON.stringify(resto, null, 2) + '\n')
+    if ((await $.clock.now()) - (retomar as number) <= RETOMAR_HASTA_MS) {
+      $.clock.after(1500, () => {
+        void encargarAClaude($, ORDEN_CONTINUAR).catch(err => $.ui.log(`retomar la incorporación: ${String(err)}`, { to: 'debug' }))
+      })
+      return 'retomada'
+    }
+  }
+  await pausarIncorporacion($)
+  return 'pausa'
 }
 // Una incorporación terminada (todos sus pasos anotados, ninguno en curso) se queda en el panel hasta que el proyecto
 // tiene su panel operativo (`conSf`: .sf/proyecto.json válido); entonces, al empezar el siguiente turno del principal,

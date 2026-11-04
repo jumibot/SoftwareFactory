@@ -5,7 +5,7 @@ import { CADA_COMPROBACION, arrancar, comprobarActualizacion, copiarCola, elegir
 import { CLAVE_PLEGADO, PANEL, migrarPlegado } from './constantes'
 import { escribir } from './control'
 import { cargarAvisosPanel, encargarAClaude, tomarAvisoPanel } from './avisos'
-import { anadirRegla, anotarRespuestaIncorporar, cerrarIncorporacionTerminada, contextoInicial, contextoPython, menuEnIncorporacion, pausarIncorporacion, ofrecerIncorporar, reglasAlIncorporar, reiniciarIncorporar, sugerirIncorporar } from './contexto'
+import { alCargarIncorporacion, anadirRegla, anotarRespuestaIncorporar, cerrarIncorporacionTerminada, contextoInicial, contextoPython, menuEnIncorporacion, pausarIncorporacion, ofrecerIncorporar, recargarSiPedido, reanudarIncorporacion, reglasAlIncorporar, reiniciarIncorporar, sugerirIncorporar } from './contexto'
 import { detectarPython } from './python'
 import { marcarSubagente } from './lectura'
 import type { $ } from './lectura'
@@ -190,7 +190,8 @@ export const register: Register = on => {
     // Se borra la que hubiera dejado una versión anterior.
     $.ui.status(undefined)
     // Al cargar el mod, una incorporación a medias queda en pausa, con Continuar y Abandonar: no se pierde (tarea 333).
-    await pausarIncorporacion($).catch(() => undefined)
+    // Si se recarga porque la incorporación lo pidió (incorporacion.py recargar), sigue sola (tarea 366).
+    await alCargarIncorporacion($).catch(() => undefined)
     const ahora = await cargar($)
     // /sf_prueba, solo en la SF con el catálogo local: cambia el modo prueba sin el panel (tarea 185).
     if ((await desdeCopia($)) || (await leerAjustes($))?.extraKnownMarketplaces?.[CATALOGO_PRUEBA]) {
@@ -245,7 +246,7 @@ export const register: Register = on => {
     const r = await next(e)
     if (e.source === 'clear') {
       await cargar($, true).catch(err => $.ui.log(`tras /clear: ${String(err)}`, { to: 'debug' }))
-      await pausarIncorporacion($).catch(() => undefined)
+      await alCargarIncorporacion($).catch(() => undefined)
       // Sin SF, otra vez la sugerencia de incorporar (tarea 323).
       $.clock.after(500, () => void sugerirIncorporar($).catch(() => undefined))
     }
@@ -333,6 +334,8 @@ export const register: Register = on => {
   on('turn.start', async ($, e, next) => {
     if (e.agentId === undefined) {
       marcarTurno(e.turnId)
+      // Con un turno en marcha, la incorporación no está en pausa, aunque espere la respuesta de un menú (tarea 366).
+      if (await reanudarIncorporacion($).catch(() => false)) void refrescar($).catch(() => undefined)
       // Una incorporación terminada, con el panel operativo ya pintado, se quita al empezar el turno siguiente (tarea 333).
       const est = await read($, estado)
       if (est && (await cerrarIncorporacionTerminada($, est.tipo !== 'sin-sf').catch(() => false))) await refrescar($).catch(() => undefined)
@@ -344,8 +347,9 @@ export const register: Register = on => {
   on('turn.complete', async ($, e, next) => {
     if (e.agentId === undefined) {
       marcarTurno(null)
-      // Una incorporación a medias queda en pausa al acabar o interrumpirse el turno (tarea 333, decisión 258).
-      await pausarIncorporacion($).catch(() => undefined)
+      // Una incorporación a medias queda en pausa al acabar o interrumpirse el turno (tarea 333, decisión 258); si pidió
+      // recargar los plugins, el mod los recarga y no la pausa: sigue sola tras recargar (tarea 366).
+      if (!(await recargarSiPedido($).catch(() => false))) await pausarIncorporacion($).catch(() => undefined)
     }
     await refrescar($)
     return next(e)

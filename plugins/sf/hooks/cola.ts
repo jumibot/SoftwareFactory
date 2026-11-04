@@ -654,8 +654,13 @@ const errorDe = (r: { stdout: string; stderr: string }) => (r.stderr.trim() || r
 // las dependencias que falten y lanza /reload-plugins.
 export async function actualizarPlugin($: $, a: Actualizacion): Promise<Resultado> {
   const raiz = await raizSesion($)
-  const correr = (argv: string[]) =>
-    $.process.run(argv, { cwd: raiz }).catch((err: unknown) => ({ exitCode: 1, stdout: '', stderr: String(err) }))
+  // Las dependencias instaladas: con alguna nueva, hay que reiniciar; si no, basta recargar (decisión 286).
+  let nuevas = 0
+  const correr = async (argv: string[]) => {
+    const r = await $.process.run(argv, { cwd: raiz }).catch((err: unknown) => ({ exitCode: 1, stdout: '', stderr: String(err) }))
+    if (argv[1] === 'plugin' && argv[2] === 'install' && r.exitCode === 0) nuevas++
+    return r
+  }
   if (a.scopes.length === 0) {
     // Antes de recargar, las dependencias de la versión instalada: sin ellas, sf no carga (decisión 176).
     const falta = await instalarDependencias($, raiz, null, correr, 'REFRESCAR')
@@ -684,7 +689,12 @@ export async function actualizarPlugin($: $, a: Actualizacion): Promise<Resultad
   if (falta) return { ok: false, mensaje: falta }
   if (sinAnotar) return { ok: false, mensaje: `ACTUALIZAR: sf ya estaba en v${a.version}, pero no se pudo anotar en el registro (${sinAnotar}).` }
   if (alDia.length === a.scopes.length) return { ok: true, mensaje: `sf ya estaba en v${a.version}: anotado en el registro` }
-  return { ok: true, mensaje: `Actualizado a v${a.version}: reinicia Claude Code` }
+  if (nuevas > 0) return { ok: true, mensaje: `Actualizado a v${a.version}, con dependencias nuevas: reinicia Claude Code` }
+  // Sin dependencias nuevas basta recargar (decisión 286): el botón pasa a REFRESCAR, que recarga con un clic del
+  // propietario. El mod no recarga por su cuenta fuera de la incorporación (decisión 103).
+  if (a.corre === a.version) return { ok: true, mensaje: `Actualizado a v${a.version}` }
+  await update($, actualizacion, () => ({ ...a, scopes: [] }))
+  return { ok: true, mensaje: `Actualizado a v${a.version}: pulsa REFRESCAR para cargarla, sin reiniciar` }
 }
 
 type Orden = (argv: string[]) => Promise<{ exitCode: number; stdout: string; stderr: string }>

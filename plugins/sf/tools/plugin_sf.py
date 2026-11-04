@@ -16,15 +16,16 @@ Uso (desde la carpeta del proyecto):
         al_dia       nada que hacer;
         actualizar   la publicada es más nueva que la instalada en algún scope: `actualizar`, con el OK del usuario
                      (cambia la instalación de todos los proyectos), y después reiniciar Claude Code;
-        refrescar    lo instalado ya es más nuevo que lo que corre: /reload-plugins (lo escribe el usuario);
+        refrescar    lo instalado ya es más nuevo que lo que corre: /reload-plugins (en la incorporación lo lanza el
+                     mod, con `incorporacion.py recargar`; si no, lo escribe el usuario);
         sin_instalar sf@softwarefactory no está instalado para esta carpeta (corre otra copia);
       Desde la copia de trabajo de la SF (el modo prueba), la que corre no se compara: el estado es el de la instalada
       frente a la publicada, y el mensaje lo dice («corre la copia de trabajo»).
         desconocido  no se sabe la publicada (sin red, sin catálogo): se sigue y se dice.
   … actualizar [--json]
       Refresca el catálogo, actualiza sf en cada scope atrasado e instala las dependencias de la versión nueva que
-      falten, una orden por dependencia. Para en el primer fallo. Después hay que reiniciar Claude Code: el plugin
-      nuevo solo se carga en una sesión nueva.
+      falten, una orden por dependencia. Para en el primer fallo. Después, estado `recargar` (basta /reload-plugins,
+      como con REFRESCAR) o, si ha instalado dependencias nuevas, `reiniciar` (reiniciar Claude Code).
 
 Sale con 0 si va bien (con `ver`, aunque haya que actualizar: lo dice el estado), con 1 si una orden falla y con 2 si
 no se puede leer la instalación. Con --json, una línea JSON con ok, estado, mensaje y las versiones.
@@ -201,8 +202,14 @@ def actualizar(raiz: str) -> dict:
             fallo = fallo or orden(['claude', 'plugin', 'install', i, '--scope', scope])
     if fallo:
         return {**r, 'ok': False, 'hecho': hecho, 'mensaje': f'No se pudo actualizar: {fallo}. Sin sus dependencias, sf no carga.'}
-    return {**r, 'ok': True, 'estado': 'reiniciar', 'hecho': hecho,
-            'mensaje': f'sf actualizado a la {r["publicada"]}: reinicia Claude Code (/exit y vuelve a abrirlo) para cargarlo.'}
+    # Con dependencias nuevas, reiniciar; si solo cambia sf, basta recargar los plugins, como con REFRESCAR (decisión
+    # 177; tarea 366): la incorporación se lo pide al mod con `incorporacion.py recargar`, sin que se escriba la orden.
+    if any(' plugin install ' in f' {h} ' for h in hecho):
+        return {**r, 'ok': True, 'estado': 'reiniciar', 'hecho': hecho,
+                'mensaje': f'sf actualizado a la {r["publicada"]}, con dependencias nuevas: reinicia Claude Code '
+                           '(/exit y vuelve a abrirlo) para cargarlo.'}
+    return {**r, 'ok': True, 'estado': 'recargar', 'hecho': hecho,
+            'mensaje': f'sf actualizado a la {r["publicada"]}: basta recargar los plugins (/reload-plugins).'}
 
 
 def main(argv: list[str] | None = None) -> int:

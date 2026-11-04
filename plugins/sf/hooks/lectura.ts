@@ -330,7 +330,8 @@ export async function leerIncorporacion($: $, raiz: string): Promise<Incorporaci
     .map(p => ({ nombre: p.nombre as string, respuesta: texto(p.respuesta) }))
   if (!pasos.length) return null
   const actual = typeof d.actual === 'number' && Number.isInteger(d.actual) && d.actual >= 0 && d.actual <= pasos.length ? d.actual : 0
-  return { caso: texto(d.caso) ?? '', actual, pausa: d.pausa === true && actual > 0, pasos }
+  const recarga = d.recargar === true || typeof d.retomar === 'number'
+  return { caso: texto(d.caso) ?? '', actual, pausa: d.pausa === true && actual > 0 && !recarga, ...(recarga ? { recarga } : {}), pasos }
 }
 
 export async function leerEstado($: $, desde = 0): Promise<Estado> {

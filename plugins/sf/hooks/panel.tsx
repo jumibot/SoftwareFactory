@@ -1763,8 +1763,9 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const inc = est.incorporacion ?? null
     const vista = inc ? await read($, vistaIncorporacion) : null
     const continuarIncorporacion = () => pedirIncorporar($, ORDEN_CONTINUAR)
+    // Abandonar lo borra todo, sin guardar lo respondido (decisión 286).
     const abandonarIncorporacion = () => {
-      void borrarIncorporacion($)
+      void borrarIncorporacion($, { guardar: false })
         .then(() => refrescar($))
         .catch(err => emergenteError($, `No se pudo abandonar la incorporación: ${String(err)}`))
     }
@@ -1828,7 +1829,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
             {(inc.pausa || inc.actual > 0 || hecha) && (
               <Box marginLeft={1} flexShrink={0}>
                 <Text backgroundColor={inc.pausa ? COLOR_MARCA_CLARO : COLOR_MARCA} color={LETRA_MARCA} weight="bold">
-                  {inc.pausa ? ' En pausa ' : hecha ? ' Terminada ' : ' En curso '}
+                  {inc.recarga ? ' Recargando la SF ' : inc.pausa ? ' En pausa ' : hecha ? ' Terminada ' : ' En curso '}
                 </Text>
               </Box>
             )}
@@ -2013,10 +2014,12 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
 
     // El mismo panel en todos los proyectos, la SF incluida, sin adaptaciones (decisión del propietario,
     // 2026-10-28): un solo bloque, sin rótulo (decisión 197).
+    // Con una incorporación a medias, su caja en lugar de las tareas: el proyecto ya tiene .sf/proyecto.json desde
+    // Aplicar, pero faltan CLAUDE.md, Pasar a sf/ y la Comprobación. El panel normal sale al terminarla (tarea 366).
     return conMargen(
       <Box flexDirection="column">
         {cabecera()}
-        {cuerpo(listaIncorporacion(), bajoCabecera(), bloqueTareas)}
+        {cuerpo(listaIncorporacion(), bajoCabecera(), inc && !terminada(inc) ? null : bloqueTareas)}
       </Box>,
     )
   })
