@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 281 | 2026-11-04 | [Preguntas legibles: pregunta corta, el detalle antes en el chat en palabras llanas y opciones que dicen qué hacen](281-2026-11-04-preguntas-legibles-pregunta-corta-el-detalle-antes-en-el-chat-en-palabras-llanas-y-opciones-que-dicen-que-hacen.md) |
 | 280 | 2026-11-04 | [Migración al repositorio público: develop público, ramas de tarea locales y _respaldo/ públicos](280-2026-11-04-migracion-al-repositorio-publico-develop-publico-ramas-de-tarea-locales-y-respaldo-publicos.md) |
 | 279 | 2026-11-04 | [Las skills internas de la SF no salen en el menú al escribir /sf](279-2026-11-04-las-skills-internas-de-la-sf-no-salen-en-el-menu-al-escribir-sf.md) |
 | 278 | 2026-11-04 | [Una deliberativa solo escribe su documento, sin rama; lo demás va a tareas propias con rama](278-2026-11-04-una-deliberativa-solo-escribe-su-documento-sin-rama-lo-demas-va-a-tareas-propias-con-rama.md) |
