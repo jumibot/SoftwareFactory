@@ -682,8 +682,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
-<header class="portada oscura"><div class="portada-dentro"><p class="marca">Software Factory · Informe de análisis · Noviembre 2026</p><h1 class="titular">Que la cola no frene al principal: subagente de la cola u órdenes compuestas<span class="lema">Que la cola no haga esperar al propietario;<br>menos idas y vueltas, no un agente más.</span></h1><p class="subtitulo">El principal hace esperar al propietario mientras lleva la cola. Cuánto espera de verdad, qué ganaría un subagente de la cola en segundo plano, qué ganan las órdenes compuestas ya decididas y qué falta por decidir.</p></div></header>
-<nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><a href="#resumen">Resumen</a><a href="#medicion">Medición</a><a href="#subagente">Subagente</a><a href="#ordenes">Órdenes</a><a href="#decidido">Decidido</a><a href="#por-decidir">Por decidir</a><a href="#tareas">Tareas</a><a href="#anexo">Anexo</a><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
+<header class="portada oscura"><div class="portada-dentro"><p class="marca">Software Factory · Informe de análisis · Noviembre 2026</p><h1 class="titular">Que la cola no frene al principal: subagente de la cola u órdenes compuestas<span class="lema">Que la cola no haga esperar al propietario;<br>menos idas y vueltas, no un agente más.</span></h1><p class="subtitulo">El principal hace esperar al propietario mientras lleva la cola. Cuánto espera de verdad, qué ganaría un subagente de la cola en segundo plano, qué ganan las órdenes compuestas y lo que decidió el propietario.</p></div></header>
+<nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><a href="#resumen">Resumen</a><a href="#medicion">Medición</a><a href="#subagente">Subagente</a><a href="#ordenes">Órdenes</a><a href="#decidido">Decidido</a><a href="#por-decidir">Preguntas</a><a href="#tareas">Tareas</a><a href="#anexo">Anexo</a><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
 <div class="hoja">
   <main id="contenido" tabindex="-1"><details class="seccion" id="resumen" open><summary class="seccion-titulo"><span class="etiqueta">01 / Resumen</span><h2>El freno, la pregunta y la respuesta</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El principal hace esperar al propietario mientras lleva la cola. Antes de contestar, consulta la cola, anota la petición, añade pasos, marca los hechos, registra informes y deja tareas listas, cada cosa con su llamada. Mientras tanto, el propietario espera su respuesta, o la conversación se corta para que el principal acabe esas operaciones. Es el freno que hoy se nota.</p>
 <aside class="recuadro"><p class="recuadro-etiqueta">La pregunta que se delibera</p><p>¿Conviene un subagente de la cola, vivo toda la sesión y en segundo plano, al que el principal encargue las operaciones de la cola para contestar al propietario sin esperar? ¿O bastan las órdenes compuestas ya decididas, o las dos cosas?</p></aside>
@@ -716,8 +716,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <figcaption>Un turno de ejemplo (anotar una petición con tres pasos), a unos 5 s por llamada. Lo que gana el subagente es juntar los tres pasos en un mensaje, que una orden con sus pasos junta igual sin él; y deja trabajo y un aviso para después.</figcaption>
 </figure>
 
-<p>Queda una pregunta abierta, la del subagente, y tres más pequeñas que completan las órdenes compuestas.</p>
-<p><a class="salto" href="#por-decidir">Ver las preguntas</a> <a class="salto" href="#medicion">Ver la medición</a></p></div></details><details class="seccion" id="medicion"><summary class="seccion-titulo"><span class="etiqueta">02 / Medición</span><h2>Cuánto espera el propietario por la cola</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La cola se lleva la mitad de las llamadas del principal, pero solo una cuarta parte de ese tiempo es de operaciones cuyo resultado no necesita para contestar. Se midieron las cinco últimas sesiones largas del principal en la SF, sin las de los subagentes, y se clasificó cada llamada a <code>cola.py</code> según si el principal necesita su resultado al momento.</p>
+<p>El propietario lo decidió así: sin subagente de la cola; órdenes compuestas, varios pasos en una orden, la cola en el contexto del principal y contestar primero («Sin subagente de la cola: órdenes compuestas, la cola en el contexto y contestar primero», decisión 284). No queda ninguna pregunta abierta.</p>
+<p><a class="salto" href="#decidido">Ver lo decidido</a> <a class="salto" href="#medicion">Ver la medición</a></p></div></details><details class="seccion" id="medicion"><summary class="seccion-titulo"><span class="etiqueta">02 / Medición</span><h2>Cuánto espera el propietario por la cola</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La cola se lleva la mitad de las llamadas del principal, pero solo una cuarta parte de ese tiempo es de operaciones cuyo resultado no necesita para contestar. Se midieron las cinco últimas sesiones largas del principal en la SF, sin las de los subagentes, y se clasificó cada llamada a <code>cola.py</code> según si el principal necesita su resultado al momento.</p>
 <div class="columnas cols-3">
 <div class="columna">
 <p class="metrica"><strong>51 %</strong>  de las llamadas</p>
@@ -864,68 +864,81 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <td data-label="Decisión">Poner en curso y recoger una tarea con una sola orden</td>
 <td data-label="Qué fija aquí"><code>en-curso N</code> lo hace todo, sin orden nueva; <code>recoger N</code> trae el trabajo, anota el informe, marca los pasos y deja la tarea lista, y el subagente deja la orden escrita al final de su informe. Se aplica en la tarea 360.</td>
 </tr>
+<tr>
+<td data-label="Nº">284</td>
+<td data-label="Decisión">Sin subagente de la cola: órdenes compuestas, la cola en el contexto y contestar primero</td>
+<td data-label="Qué fija aquí">Sin subagente de la cola (<a href="#p1">pregunta 1</a>). Varios pasos en una orden, como paso de la 360 (<a href="#p2">pregunta 2</a>). La cola en el contexto del principal, y lo demás que mejore su contexto de entrada, que es barato, en la tarea 361 (<a href="#p3">pregunta 3</a>). Contestar primero y anotar después, en <code>sf:orquestacion</code> (<a href="#p4">pregunta 4</a>).</td>
+</tr>
 </tbody>
-</table></div></details><details class="seccion" id="por-decidir"><summary class="seccion-titulo"><span class="etiqueta">06 / Por decidir</span><h2>Las preguntas para el propietario</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La primera es la que da sentido a esta tarea; las otras tres completan las órdenes compuestas y pueden ir como pasos de la tarea 360 o en una propia.</p>
+</table></div></details><details class="seccion" id="por-decidir"><summary class="seccion-titulo"><span class="etiqueta">06 / Preguntas</span><h2>Las preguntas y lo que se eligió</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Las cuatro, decididas con la opción recomendada (decisión 284).</p>
 <div class="tarjetas preguntas cols-2">
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="B" id="p1" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">1 · Un subagente de la cola en segundo plano</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="B" data-recomendada="B" id="p1" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">1 · Un subagente de la cola en segundo plano</h3><span class="estado-pregunta decidida">Decidida · B</span></summary>
 <div class="tarjeta-cuerpo">
 <p>Las órdenes compuestas (283) ya están decididas; falta saber si además conviene el subagente.</p>
 <dl>
-<dt class="opcion">Opción A</dt>
-<dd class="opcion">Un subagente de la cola, vivo toda la sesión, para las operaciones que no necesitan respuesta; el principal contesta sin esperarlas.</dd>
-<dt class="opcion recomendada">Opción B<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Solo órdenes: las compuestas (283) y las tres piezas que las completan (preguntas 2, 3 y 4).</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Las dos: las órdenes, y probar el subagente en una tarea aparte para medir si quita espera.</dd>
+<dt class="opcion descartada">Opción A</dt>
+<dd class="opcion descartada">Un subagente de la cola, vivo toda la sesión, para las operaciones que no necesitan respuesta; el principal contesta sin esperarlas.</dd>
+<dt class="opcion recomendada elegida">Opción B<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Solo órdenes: las compuestas (283) y las tres piezas que las completan (preguntas 2, 3 y 4).</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Las dos: las órdenes, y probar el subagente en una tarea aparte para medir si quita espera.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>B.</strong> Encargar una operación cuesta el mismo turno que hacerla; el subagente ahorraría alrededor de un segundo por turno y traería fallos que nadie ve y operaciones fuera de orden.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>B.</strong> Solo órdenes, sin subagente de la cola. Decisión 284.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p2" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg><h3 class="tarjeta-titulo">2 · Varios pasos en una orden</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p2" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg><h3 class="tarjeta-titulo">2 · Varios pasos en una orden</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p><code>paso añadir</code> es la operación más repetida del principal.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada"><code>paso añadir N "a" "b" …</code> y <code>crear … --paso "a" --paso "b"</code>.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Como hoy, un paso por orden.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida"><code>paso añadir N "a" "b" …</code> y <code>crear … --paso "a" --paso "b"</code>.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Como hoy, un paso por orden.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Es poco código y quita la mayor parte de lo que no necesita respuesta.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A.</strong> Como paso de la tarea 360. Decisión 284.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p3" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg><h3 class="tarjeta-titulo">3 · La cola en el contexto del principal</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p3" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg><h3 class="tarjeta-titulo">3 · La cola en el contexto del principal</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p>El principal consulta la cola antes de actuar porque el propietario la cambia desde el panel.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">El mod añade a cada mensaje las tareas en curso y lo que cambió desde el mensaje anterior.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Como hoy: <code>lista</code> y <code>ver</code> cuando hace falta.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">El mod añade a cada mensaje las tareas en curso y lo que cambió desde el mensaje anterior.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Como hoy: <code>lista</code> y <code>ver</code> cuando hace falta.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Quita consultas que ningún agente puede quitar; con solo lo que cambia, el texto añadido es corto.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A,</strong> y más: el contexto de entrada es barato, así que la tarea 361 valora también qué otras cosas conviene poner en él. Decisión 284.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p4" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">4 · Contestar primero, anotar después</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p4" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">4 · Contestar primero, anotar después</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p>Hoy el principal anota cuando le viene en el turno, a veces antes de contestar.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Regla en <code>sf:orquestacion</code>: lo que no necesita respuesta, después de contestar.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Como hoy.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Regla en <code>sf:orquestacion</code>: lo que no necesita respuesta, después de contestar.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Como hoy.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> No cuesta nada y quita la espera de lo que queda por anotar.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A.</strong> Como paso de la tarea que actualiza las reglas del método (<code>sf:orquestacion</code>). Decisión 284.</dd>
 </dl>
 </div>
 </details>
-</div></div></details><details class="seccion" id="tareas"><summary class="seccion-titulo"><span class="etiqueta">07 / Tareas</span><h2>Las tareas que salen</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Con las recomendaciones, no sale ningún agente: salen órdenes y una regla.</p>
+</div></div></details><details class="seccion" id="tareas"><summary class="seccion-titulo"><span class="etiqueta">07 / Tareas</span><h2>Las tareas que salen</h2></summary><div class="seccion-cuerpo"><p class="entradilla">No sale ningún agente: salen órdenes, la cola en el contexto y una regla.</p>
 <table>
 <thead>
 <tr>
@@ -938,30 +951,30 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <tr>
 <td data-label="Tarea">Poner en curso y recoger una tarea con una sola orden (360)</td>
 <td data-label="Tipo">implementar</td>
-<td data-label="Qué hace">Ya existe (decisión 283). Puede llevar como pasos varios pasos en una orden (<a href="#p2">pregunta 2</a>) y la regla de contestar primero (<a href="#p4">pregunta 4</a>).</td>
+<td data-label="Qué hace"><code>en-curso N</code> completo y <code>recoger N</code> (decisión 283), con un paso nuevo: varios pasos en una orden (<a href="#p2">pregunta 2</a>).</td>
 </tr>
 <tr>
-<td data-label="Tarea">Que el principal tenga la cola en su contexto</td>
+<td data-label="Tarea">Que el principal tenga la cola en su contexto (361)</td>
 <td data-label="Tipo">implementar</td>
-<td data-label="Qué hace">El mod añade a cada mensaje las tareas en curso y los cambios (<a href="#p3">pregunta 3</a>); <code>sf:orquestacion</code> deja de pedir <code>lista</code> antes de actuar.</td>
+<td data-label="Qué hace">El mod añade a cada mensaje las tareas en curso y los cambios, y se valora qué más conviene poner en el contexto de entrada (<a href="#p3">pregunta 3</a>); <code>sf:orquestacion</code> deja de pedir <code>lista</code> antes de actuar.</td>
 </tr>
 <tr>
-<td data-label="Tarea">Probar un subagente de la cola</td>
-<td data-label="Tipo">investigar</td>
-<td data-label="Qué hace">Solo si se elige la C en la <a href="#p1">pregunta 1</a>: medir la espera con y sin él en una sesión real.</td>
+<td data-label="Tarea">Actualizar la metodología, la plantilla y el CLAUDE.md</td>
+<td data-label="Tipo">documentar</td>
+<td data-label="Qué hace">Con el paso de contestar primero y anotar después en <code>sf:orquestacion</code> (<a href="#p4">pregunta 4</a>).</td>
 </tr>
 </tbody>
 </table>
 <p>Los agentes del plugin por familia de tarea quedan fuera de esta tarea: en «Agentes especializados, uno por familia de tarea» (304), con la decisión 282.</p></div></details><details class="seccion" id="anexo"><summary class="seccion-titulo"><span class="etiqueta">08 / Anexo</span><h2>Texto propuesto para los documentos compartidos</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Para la tarea «Actualizar la metodología, la plantilla y el CLAUDE.md», una vez hecha la 360.</p>
 <h4>Metodología («Ramas y subagentes»)</h4>
 <blockquote class="destacado"><p><code>cola.py en-curso N</code> pone la tarea en curso con su rama, su worktree y su rama auxiliar, y la deja lista para lanzar su subagente; <code>cola.py recoger N</code>, con la orden que deja el subagente al final de su informe, trae su trabajo, anota el informe y marca los pasos.</p></blockquote>
-<h4><code>sf:orquestacion</code> (si se acepta la pregunta 4)</h4>
+<h4><code>sf:orquestacion</code> (pregunta 4)</h4>
 <blockquote class="destacado"><p>En un turno, lo que no necesita respuesta (añadir o marcar pasos, informes, listos) va después de contestar al propietario.</p></blockquote>
 <div class="fuentes">
 <p id="src-E1"><strong>Sub-agents.</strong> Claude Code Docs, consultado el 04/11/2026. code.claude.com/docs/en/sub-agents</p>
 <p id="src-E2"><strong>Prompt caching.</strong> Claude Code Docs, consultado el 04/11/2026. code.claude.com/docs/en/prompt-caching</p>
 </div></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Informe de análisis · Versión 3.0 · 04/11/2026 · Propuesta · Tarea 358</p><p>Informe de la tarea «Liberar antes al agente principal: deliberar qué delegar en agentes del plugin y qué en órdenes de cola.py» (358). Parte de sf:orquestacion, sf:flujo_tareas, cola.py y los avisos del mod en develop, de las cinco últimas sesiones largas del principal en la SF y de la documentación oficial de Claude Code. Decide el propietario de la Software Factory. Las versiones anteriores, más amplias, están en _respaldo/.</p><p class="procedencia">Generado el 04/11/2026 18:47 · fuente Liberar al agente principal.md · huella 528b54a93640 · commit 811ede9 (con cambios sin commit)</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Informe de análisis · Versión 3.1 · 04/11/2026 · Decidido · Tarea 358</p><p>Informe de la tarea «Liberar antes al agente principal: deliberar qué delegar en agentes del plugin y qué en órdenes de cola.py» (358). Parte de sf:orquestacion, sf:flujo_tareas, cola.py y los avisos del mod en develop, de las cinco últimas sesiones largas del principal en la SF y de la documentación oficial de Claude Code. Decidido por el propietario de la Software Factory (decisiones 283 y 284). Las versiones anteriores, más amplias, están en _respaldo/.</p><p class="procedencia">Generado el 04/11/2026 18:53 · fuente Liberar al agente principal.md · huella 76aabc9de94f · commit e477a81 (con cambios sin commit)</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).

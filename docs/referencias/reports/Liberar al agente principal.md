@@ -1,15 +1,15 @@
 ---
 antetitulo: Software Factory · Informe de análisis · Noviembre 2026
 lema: Que la cola no haga esperar al propietario; // menos idas y vueltas, no un agente más.
-subtitulo: El principal hace esperar al propietario mientras lleva la cola. Cuánto espera de verdad, qué ganaría un subagente de la cola en segundo plano, qué ganan las órdenes compuestas ya decididas y qué falta por decidir.
-version: Versión 3.0 · 04/11/2026
-estado: Propuesta · Tarea 358
+subtitulo: El principal hace esperar al propietario mientras lleva la cola. Cuánto espera de verdad, qué ganaría un subagente de la cola en segundo plano, qué ganan las órdenes compuestas y lo que decidió el propietario.
+version: Versión 3.1 · 04/11/2026
+estado: Decidido · Tarea 358
 portada: oscura
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
 menu: secciones
 tipo: Informe de análisis
-pie: Informe de la tarea «Liberar antes al agente principal: deliberar qué delegar en agentes del plugin y qué en órdenes de cola.py» (358). Parte de sf:orquestacion, sf:flujo_tareas, cola.py y los avisos del mod en develop, de las cinco últimas sesiones largas del principal en la SF y de la documentación oficial de Claude Code. Decide el propietario de la Software Factory. Las versiones anteriores, más amplias, están en _respaldo/.
+pie: Informe de la tarea «Liberar antes al agente principal: deliberar qué delegar en agentes del plugin y qué en órdenes de cola.py» (358). Parte de sf:orquestacion, sf:flujo_tareas, cola.py y los avisos del mod en develop, de las cinco últimas sesiones largas del principal en la SF y de la documentación oficial de Claude Code. Decidido por el propietario de la Software Factory (decisiones 283 y 284). Las versiones anteriores, más amplias, están en _respaldo/.
 ---
 # Que la cola no frene al principal: subagente de la cola u órdenes compuestas
 
@@ -50,9 +50,9 @@ La respuesta del análisis es que no conviene el subagente. Cada operación le c
 <figcaption>Un turno de ejemplo (anotar una petición con tres pasos), a unos 5 s por llamada. Lo que gana el subagente es juntar los tres pasos en un mensaje, que una orden con sus pasos junta igual sin él; y deja trabajo y un aviso para después.</figcaption>
 </figure>
 
-Queda una pregunta abierta, la del subagente, y tres más pequeñas que completan las órdenes compuestas.
+El propietario lo decidió así: sin subagente de la cola; órdenes compuestas, varios pasos en una orden, la cola en el contexto del principal y contestar primero («Sin subagente de la cola: órdenes compuestas, la cola en el contexto y contestar primero», decisión 284). No queda ninguna pregunta abierta.
 
-[Ver las preguntas](#por-decidir){: .salto} [Ver la medición](#medicion){: .salto}
+[Ver lo decidido](#decidido){: .salto} [Ver la medición](#medicion){: .salto}
 
 ## Medición | Cuánto espera el propietario por la cola | Medición {#medicion}
 
@@ -179,14 +179,15 @@ Juntas, estas piezas quitan casi todo el tiempo de la cola que el subagente podr
 | Nº | Decisión | Qué fija aquí |
 | --- | --- | --- |
 | 283 | Poner en curso y recoger una tarea con una sola orden | `en-curso N` lo hace todo, sin orden nueva; `recoger N` trae el trabajo, anota el informe, marca los pasos y deja la tarea lista, y el subagente deja la orden escrita al final de su informe. Se aplica en la tarea 360. |
+| 284 | Sin subagente de la cola: órdenes compuestas, la cola en el contexto y contestar primero | Sin subagente de la cola ([pregunta 1](#p1)). Varios pasos en una orden, como paso de la 360 ([pregunta 2](#p2)). La cola en el contexto del principal, y lo demás que mejore su contexto de entrada, que es barato, en la tarea 361 ([pregunta 3](#p3)). Contestar primero y anotar después, en `sf:orquestacion` ([pregunta 4](#p4)). |
 
-## Por decidir | Las preguntas para el propietario | Por decidir {#por-decidir}
+## Preguntas | Las preguntas y lo que se eligió | Preguntas {#por-decidir}
 
-La primera es la que da sentido a esta tarea; las otras tres completan las órdenes compuestas y pueden ir como pasos de la tarea 360 o en una propia.
+Las cuatro, decididas con la opción recomendada (decisión 284).
 
 ::: preguntas 2 plegables
 
-### 1 · Un subagente de la cola en segundo plano {recomendada=B icono=dialogo} {: #p1}
+### 1 · Un subagente de la cola en segundo plano {estado=decidida elegida=B recomendada=B icono=dialogo} {: #p1}
 
 Las órdenes compuestas (283) ya están decididas; falta saber si además conviene el subagente.
 
@@ -202,7 +203,10 @@ Opción C
 Recomendación
 :   **B.** Encargar una operación cuesta el mismo turno que hacerla; el subagente ahorraría alrededor de un segundo por turno y traería fallos que nadie ve y operaciones fuera de orden.
 
-### 2 · Varios pasos en una orden {recomendada=A icono=check} {: #p2}
+Decisión
+:   **B.** Solo órdenes, sin subagente de la cola. Decisión 284.
+
+### 2 · Varios pasos en una orden {estado=decidida elegida=A recomendada=A icono=check} {: #p2}
 
 `paso añadir` es la operación más repetida del principal.
 
@@ -215,7 +219,10 @@ Opción B
 Recomendación
 :   **A.** Es poco código y quita la mayor parte de lo que no necesita respuesta.
 
-### 3 · La cola en el contexto del principal {recomendada=A icono=lupa} {: #p3}
+Decisión
+:   **A.** Como paso de la tarea 360. Decisión 284.
+
+### 3 · La cola en el contexto del principal {estado=decidida elegida=A recomendada=A icono=lupa} {: #p3}
 
 El principal consulta la cola antes de actuar porque el propietario la cambia desde el panel.
 
@@ -228,7 +235,10 @@ Opción B
 Recomendación
 :   **A.** Quita consultas que ningún agente puede quitar; con solo lo que cambia, el texto añadido es corto.
 
-### 4 · Contestar primero, anotar después {recomendada=A icono=dialogo} {: #p4}
+Decisión
+:   **A,** y más: el contexto de entrada es barato, así que la tarea 361 valora también qué otras cosas conviene poner en él. Decisión 284.
+
+### 4 · Contestar primero, anotar después {estado=decidida elegida=A recomendada=A icono=dialogo} {: #p4}
 
 Hoy el principal anota cuando le viene en el turno, a veces antes de contestar.
 
@@ -241,17 +251,20 @@ Opción B
 Recomendación
 :   **A.** No cuesta nada y quita la espera de lo que queda por anotar.
 
+Decisión
+:   **A.** Como paso de la tarea que actualiza las reglas del método (`sf:orquestacion`). Decisión 284.
+
 :::
 
 ## Tareas | Las tareas que salen | Tareas {#tareas}
 
-Con las recomendaciones, no sale ningún agente: salen órdenes y una regla.
+No sale ningún agente: salen órdenes, la cola en el contexto y una regla.
 
 | Tarea | Tipo | Qué hace |
 | --- | --- | --- |
-| Poner en curso y recoger una tarea con una sola orden (360) | implementar | Ya existe (decisión 283). Puede llevar como pasos varios pasos en una orden ([pregunta 2](#p2)) y la regla de contestar primero ([pregunta 4](#p4)). |
-| Que el principal tenga la cola en su contexto | implementar | El mod añade a cada mensaje las tareas en curso y los cambios ([pregunta 3](#p3)); `sf:orquestacion` deja de pedir `lista` antes de actuar. |
-| Probar un subagente de la cola | investigar | Solo si se elige la C en la [pregunta 1](#p1): medir la espera con y sin él en una sesión real. |
+| Poner en curso y recoger una tarea con una sola orden (360) | implementar | `en-curso N` completo y `recoger N` (decisión 283), con un paso nuevo: varios pasos en una orden ([pregunta 2](#p2)). |
+| Que el principal tenga la cola en su contexto (361) | implementar | El mod añade a cada mensaje las tareas en curso y los cambios, y se valora qué más conviene poner en el contexto de entrada ([pregunta 3](#p3)); `sf:orquestacion` deja de pedir `lista` antes de actuar. |
+| Actualizar la metodología, la plantilla y el CLAUDE.md | documentar | Con el paso de contestar primero y anotar después en `sf:orquestacion` ([pregunta 4](#p4)). |
 
 Los agentes del plugin por familia de tarea quedan fuera de esta tarea: en «Agentes especializados, uno por familia de tarea» (304), con la decisión 282.
 
@@ -263,7 +276,7 @@ Para la tarea «Actualizar la metodología, la plantilla y el CLAUDE.md», una v
 
 > `cola.py en-curso N` pone la tarea en curso con su rama, su worktree y su rama auxiliar, y la deja lista para lanzar su subagente; `cola.py recoger N`, con la orden que deja el subagente al final de su informe, trae su trabajo, anota el informe y marca los pasos.
 
-#### `sf:orquestacion` (si se acepta la pregunta 4)
+#### `sf:orquestacion` (pregunta 4)
 
 > En un turno, lo que no necesita respuesta (añadir o marcar pasos, informes, listos) va después de contestar al propietario.
 
