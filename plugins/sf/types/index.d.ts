@@ -106,6 +106,10 @@ export type Estado = {
   salidas: Salida[]
   // Las tareas con el push de develop pendiente: su cierre anotó push-fallido y origin/develop aún no tiene su commit.
   pushPendiente: number[]
+  // Con develop activa, el remoto de la configuración y cuántos commits de develop faltan por subir a su develop, según
+  // la referencia remota local, sin red; null sin remoto o sin esa referencia (tarea 355). Opcional: un estado guardado
+  // antes no lo tiene.
+  develop?: { remoto: string; porSubir: number } | null
   // La incorporación en marcha en esta sesión y en esta carpeta, si la hay (tarea 333). Opcional: un estado guardado
   // antes no lo tiene.
   incorporacion?: Incorporacion | null

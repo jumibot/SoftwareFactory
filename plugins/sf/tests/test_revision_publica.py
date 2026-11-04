@@ -145,6 +145,31 @@ class Revision(unittest.TestCase):
         self.assertIn('develop sin subir a origin: el repositorio es público', j['mensaje'])
         self.assertIn(CORREO_AJENO, j['mensaje'])
 
+    def cola_subir(self, *args: str, codigo: int) -> dict:
+        r = subprocess.run([sys.executable, '-I', '-X', 'utf8', str(HERRAMIENTA.with_name('cola.py')), '--raiz',
+                            str(self.raiz), '--json', 'subir', *args], capture_output=True, text=True, encoding='utf-8')
+        self.assertEqual(r.returncode, codigo, r.stdout + r.stderr)
+        return json.loads(r.stdout.strip().splitlines()[-1])
+
+    def test_cola_subir_con_repetir_dice_como_dar_el_permiso(self):
+        # La etiqueta de develop del panel (tarea 355): el permiso se da volviendo a pulsarla.
+        self.commit({'src/a.py': f'# {CORREO_AJENO}\n'}, 'Subido')
+        self.git('update-ref', 'refs/remotes/origin/develop', 'HEAD')
+        self.commit({'src/b.py': '# nada\n'}, 'Nuevo')
+        j = self.cola_subir('--repetir', 'vuelve a pulsar develop', codigo=1)
+        self.assertIn('vuelve a pulsar develop en los próximos 10 minutos', j['mensaje'])
+
+    def test_cola_subir_sube_develop_a_un_remoto_local(self):
+        # Sin red: un repositorio desnudo en la carpeta temporal, que no es público y no se revisa.
+        remoto = Path(self._tmp.name) / 'remoto.git'
+        subprocess.run(['git', 'init', '-q', '--bare', str(remoto)], check=True, capture_output=True)
+        self.git('remote', 'add', 'origin', str(remoto))
+        self.commit({'src/a.py': f'# {CORREO_AJENO}\n'}, 'Nuevo')
+        j = self.cola_subir(codigo=0)
+        self.assertEqual(j['mensaje'], 'develop subida a origin.')
+        self.assertEqual(self.git('rev-parse', 'refs/remotes/origin/develop'), self.git('rev-parse', 'develop'))
+        self.assertEqual(self.git('rev-list', '--count', 'refs/remotes/origin/develop..develop').strip(), '0')
+
     def test_encuentra_secretos_correos_rutas_e_internos(self):
         ruta_nueva = (Path(self._tmp.name) / 'Contador').as_posix()
         self.commit({'src/x.py': f'T = "{TOKEN}"\n# {CORREO_AJENO} y {AUTORA}\nRAIZ = "{ruta_nueva}"\n',

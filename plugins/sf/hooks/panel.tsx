@@ -12,12 +12,13 @@ import { ORDEN_CONTINUAR, borrarIncorporacion, terminada } from './contexto'
 import { COLOR_PRUEBA, cambiarPrueba, desdeCopia } from './prueba'
 import type { $ } from './lectura'
 import { emergente, emergenteError, emergenteRespuesta } from './emergentes'
+import { subirDevelop } from './cola'
 
 // Valores de estado del mod: el motor exige declararlos en el archivo que los usa; con el mismo
 // plugin y clave, son el mismo valor en todos los archivos.
 // Cambiar la etiqueta si cambian los campos de Estado.
 const estado = atom({ plugin: 'sf', key: 'estado' } as const, null, {
-  shape: 'estado-16',
+  shape: 'estado-17',
 })
 // Propuestas añadidas en esta sesión de la SF: títulos nuevos respecto a los del inicio.
 // Prompts enviados por el propietario en esta sesión.
@@ -125,6 +126,11 @@ const fuenteRelease = atom({ plugin: 'sf', key: 'fuenteRelease' } as const, null
 // Su botón espera en porConfirmar como «actualizar»; sin scopes es REFRESCAR (decisión 177) y espera como «refrescar».
 const actualizacion = atom({ plugin: 'sf', key: 'actualizacion' } as const, null as Actualizacion | null)
 const ESPERA_CONFIRMAR = 5000
+// La etiqueta de develop con commits sin subir (tarea 355): espera en porConfirmar como «subir-develop»; mientras sube,
+// otro clic no hace nada. Su cifra y su contorno, en verde.
+const MARCA_SUBIR = 'subir-develop'
+let subiendoDevelop = false
+const COLOR_SUBIR = '#4ade80'
 // Los párrafos de una descripción, separados por una línea en blanco: cada uno se pinta aparte.
 const parrafos = (d: string) => d.split(/\r?\n\s*\n/).map(x => x.trim()).filter(x => x !== '')
 // Las órdenes con confirmación: el texto de su etiqueta, su color y el prefijo de la clave de su botón. Al confirmar,
@@ -1385,7 +1391,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Con avisos, se turnan con la cabecera en sus filas, unos 5 s cada uno (decisión 164). Mientras un botón de la
     // cabecera espera su segundo clic, la cabecera se queda: los botones no se mueven.
     conAvisos = avisos.length > 0
-    const enBotonCabecera = aConfirmar === 'actualizar' || aConfirmar === 'refrescar' || (aConfirmar?.startsWith('release') ?? false)
+    const enBotonCabecera = aConfirmar === 'actualizar' || aConfirmar === 'refrescar' || (aConfirmar?.startsWith('release') ?? false) || aConfirmar === MARCA_SUBIR
     const turno = await read($, turnoAvisos)
     const verAvisos = conAvisos && !enBotonCabecera && turno % 2 === 1
     // Con varios, uno por turno blanco, en ciclo (petición del propietario, 2026-11-01).
@@ -1507,6 +1513,51 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // a la derecha de la segunda): fondo neutro; en el
     // amarillo de la tarea si es la rama de una tarea en curso o en observación; en una cabeza separada, el commit corto
     // (decisión del propietario, 2026-10-29).
+    // develop con commits sin subir a su remoto (tarea 355): «develop ↑N», con la cifra en verde. El primer clic avisa
+    // de que lo subido se ve al momento si el repositorio es público y pide confirmarlo en la propia etiqueta; el
+    // segundo sube develop sin Claude (cola.py subir, con la revisión de lo que sale) y avisa del resultado.
+    const etiquetaDevelop = (remoto: string, n: number, libre: number) => {
+      const confirmando = aConfirmar === MARCA_SUBIR
+      const commits = `${String(n)} ${n === 1 ? 'commit' : 'commits'}`
+      const t = confirmando ? `¿Subir ${String(n)} a ${remoto}? sí` : `develop ↑${String(n)}`
+      const pulsar = () => {
+        if (subiendoDevelop) return
+        if (!confirmando) {
+          emergente($, `develop: ${commits} sin subir a ${remoto}. Si el repositorio es público, lo subido se ve al momento. Pulsa otra vez para subirlo.`, false)
+          return pedirConfirmar(MARCA_SUBIR)
+        }
+        turnoConfirmar++
+        subiendoDevelop = true
+        void update($, porConfirmar, () => null)
+          .then(async () => {
+            emergente($, `develop: subiendo ${commits} a ${remoto}…`, false)
+            emergenteRespuesta($, await subirDevelop($))
+          })
+          .catch(err => emergenteError($, `develop: no se pudo subir a ${remoto} (${String(err)}).`))
+          .finally(() => {
+            subiendoDevelop = false
+          })
+      }
+      return (
+        <Box flexDirection="row" flexShrink={1} minWidth={grafica ? 0 : undefined}>
+          {enCaja(
+            <Button key="subir-develop" label={t} plain onPress={pulsar}>
+              {confirmando ? (
+                <Text color={COLOR_SUBIR} weight="bold" backgroundColor={FONDO_ETIQUETA} wrap="truncate-end">
+                  {` ${recortar(t, Math.max(6, libre))} `}
+                </Text>
+              ) : (
+                <Text backgroundColor={FONDO_ETIQUETA} wrap="truncate-end">
+                  <Text dimColor> develop </Text>
+                  <Text color={COLOR_SUBIR} weight="bold">{`↑${String(n)}`}</Text>{' '}
+                </Text>
+              )}
+            </Button>,
+            COLOR_SUBIR,
+          )}
+        </Box>
+      )
+    }
     const ramaCabecera = () => {
       const r = est.rama
       if (!r) return null
@@ -1514,6 +1565,9 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       // A la izquierda, bajo la duración (petición del propietario, 2026-11-01): se recorta solo si no cabe en la fila, contando el
       // espacio de cada lado de la etiqueta.
       const libre = ancho - 2
+      // develop, con commits sin subir: «develop ↑2», y un clic, confirmado, la sube (tarea 355).
+      const subir = r.nombre === 'develop' && !r.separada ? (est.develop ?? null) : null
+      if (subir && subir.porSubir > 0) return etiquetaDevelop(subir.remoto, subir.porSubir, libre)
       const nombre = recortar(r.separada ? `(${r.nombre})` : r.nombre, Math.max(6, libre))
       return (
         <Box flexDirection="row" flexShrink={1}>

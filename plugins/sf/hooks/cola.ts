@@ -16,7 +16,7 @@ import { revisarPublicacion } from './revision'
 // plugin y clave, son el mismo valor en todos los archivos.
 // Cambiar la etiqueta si cambian los campos de Estado.
 const estado = atom({ plugin: 'sf', key: 'estado' } as const, null, {
-  shape: 'estado-16',
+  shape: 'estado-17',
 })
 const nuevasEnSf = atom({ plugin: 'sf', key: 'nuevasEnSf' } as const, 0)
 const sesion = atom({ plugin: 'sf', key: 'sesion' } as const, { limpiadas: {} } as Sesion)
@@ -165,6 +165,14 @@ async function cambiarCola($: $, args: string[]): Promise<Respuesta> {
   const r = await ordenCola($, args)
   await refrescar($)
   return r
+}
+
+// La etiqueta de develop en la cabecera, confirmada (tarea 355): sube develop a su remoto sin Claude, con «cola.py
+// subir», que con el remoto público revisa antes lo que sale, como el push de un cierre y RELEASE (decisión 259). Si
+// la revisión pide permiso, se da volviendo a pulsar la etiqueta. Después, la relectura, que pone al día su cifra.
+export const REPETIR_SUBIDA = 'vuelve a pulsar la etiqueta de develop del panel y confírmalo'
+export async function subirDevelop($: $): Promise<Respuesta> {
+  return cambiarCola($, ['subir', '--repetir', REPETIR_SUBIDA])
 }
 
 // Lo que se dice al propietario cuando la orden de un botón no sale: el mensaje de cola.py, tras la letra del botón.

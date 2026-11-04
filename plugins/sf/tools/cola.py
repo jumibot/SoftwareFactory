@@ -32,7 +32,7 @@ Uso:
            registra en sf/decisiones/ (o en docs/decisiones/, la de antes; NNN-AAAA-MM-DD-titulo.md, el siguiente número) o reescribe la NNN, rehace su
            README.md y hace el commit «Decisión NNN: Título» en develop, también con otra rama activa, sin cambiarla
            (tarea 283); da el número y el hash. No toca la cola.
-  subir    sube develop a su remoto. Como el push de un cierre, con el remoto público revisa antes lo que sale
+  subir [--repetir T]  sube develop a su remoto. Como el push de un cierre, con el remoto público revisa antes lo que sale
            (revision_publica.py, decisión 259): con algo nuevo, no sube; con algo ya subido, sube si se repite la
            subida en 10 minutos con los mismos hallazgos. No toca la cola.
 
@@ -2049,7 +2049,7 @@ def push_develop(repo: Path) -> str:
 def o_subir(cola: Cola, a) -> str:
     """Sube develop a su remoto, con la revisión de lo que sale (decisión 259): tras un cierre que no la subió."""
     remoto = configuracion(cola.repo)['remoto']
-    error = subir_develop(cola.repo, remoto)
+    error = subir_develop(cola.repo, remoto, getattr(a, 'repetir', None) or REPETIR_SUBIDA)
     if error:
         raise Rechazo(f'develop sin subir a {remoto}: {error}')
     return f'develop subida a {remoto}.'
@@ -2614,7 +2614,8 @@ def analizador() -> argparse.ArgumentParser:
     s.add_argument('--numero', type=int, help='reescribe la decisión con ese número, sin cambiar su nombre')
     s.add_argument('--coautor', help='la línea Co-Authored-By del commit')
     s.add_argument('--push', action='store_true', help='sube develop a su remoto tras el commit')
-    orden('subir', o_subir, 'sube develop a su remoto, con la revisión de lo que sale (decisión 259)')
+    s = orden('subir', o_subir, 'sube develop a su remoto, con la revisión de lo que sale (decisión 259)')
+    s.add_argument('--repetir', help='cómo se da el permiso si la revisión lo pide (el panel: volver a pulsar develop)')
     s = orden('encargo', o_encargo, 'la parte fija del encargo de su subagente', 'n')
     s.add_argument('--coautor', help='la línea Co-Authored-By de los commits')
     return p

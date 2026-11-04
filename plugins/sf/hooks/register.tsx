@@ -19,7 +19,7 @@ import { leerAvisoSubagentes, rearmarAvisosSubagentes, recuperarSubagentes, SIN_
 // plugin y clave, son el mismo valor en todos los archivos.
 // Cambiar la etiqueta si cambian los campos de Estado.
 const estado = atom({ plugin: 'sf', key: 'estado' } as const, null, {
-  shape: 'estado-16',
+  shape: 'estado-17',
 })
 // Propuestas añadidas en esta sesión de la SF: títulos nuevos respecto a los del inicio.
 // Prompts enviados por el propietario en esta sesión.

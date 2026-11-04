@@ -119,7 +119,7 @@ type Motor = Parameters<Parameters<typeof test>[1]>
 // update responde que ya está en la última versión, sin tocar el registro; installFalla: los plugins que
 // claude plugin install no puede instalar. revision: lo que responde tools/revision_publica.py (RELEASE, decisiones 252 y 259;
 // sin él, seguir; null, no responde).
-type Git = { status?: string; worktrees?: string; switchFalla?: boolean; mergeFalla?: boolean; pushFalla?: boolean; log?: string; revertFalla?: boolean; tags?: string; noAncestro?: boolean; remoto?: string | null; updateFalla?: string[]; catalogoFalla?: boolean; alDia?: string[]; installFalla?: string[]; html?: string[]; sinAbridor?: string[]; propuestasDevelop?: string; rutaDevelop?: string; revision?: object | null }
+type Git = { status?: string; worktrees?: string; switchFalla?: boolean; mergeFalla?: boolean; pushFalla?: boolean; log?: string; revertFalla?: boolean; tags?: string; noAncestro?: boolean; remoto?: string | null; updateFalla?: string[]; catalogoFalla?: boolean; alDia?: string[]; installFalla?: string[]; html?: string[]; sinAbridor?: string[]; propuestasDevelop?: string; rutaDevelop?: string; revision?: object | null; porSubir?: number }
 // paneles: lo que responde $.ui.panes() en cada llamada (sin él, ningún panel abierto).
 // agentes: lo que responde $.agent.list(), que el caso puede cambiar (sin él, la llamada falla).
 type Agente = { description: string; status: string }
@@ -284,6 +284,10 @@ async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = 
     const no = (mensaje: string): Respuesta => ({ ok: false, mensaje })
     const pasos = (x: Pet) => (x.pasos as Pet[] | undefined) ?? []
     switch (orden) {
+      // Sube develop (tarea 355): la referencia remota local pasa a su commit, como tras un push.
+      case 'subir':
+        archivos['/sf/.git/refs/remotes/origin/develop'] = archivos['/sf/.git/refs/heads/develop'] ?? ''
+        return { ok: true, mensaje: 'develop subida a origin.' }
       case 'crear': {
         const id = siguiente()
         const nueva: Pet = { id, texto: args[1], estado: 'en-cola' }
@@ -536,6 +540,12 @@ async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = 
       return salida(JSON.stringify(colaFalsa(argv.slice(i + 1))) + '\n')
     }
     if (argv[0] === 'git' && argv[1] === 'log' && argv[2] === 'develop') return salida(logDevelop)
+    // Los commits de develop sin subir (tarea 355): los que diga el caso.
+    if (argv[0] === 'git' && argv[1] === 'rev-list') {
+      ordenes.push(argv.join(' '))
+      return salida(`${String(git.porSubir ?? 0)}
+`)
+    }
     // El programa del sistema que abre archivos, para Activar rama y la línea de Decisiones: se apunta tal cual;
     // `sinAbridor` dice cuáles no existen.
     if (['rundll32', 'xdg-open', 'open'].includes(argv[0] ?? '')) {
@@ -2603,6 +2613,99 @@ test('Rama: en un panel estrecho se recorta por el final', async (...m) => {
   expect(t !== undefined).toBe(true)
   expect(conAmarillo(t)).toBe(false)
   expect(await hay(ui, { type: 'Text', text: /^ *SF 0\.32\.3 *$/ })).toBe(true)
+  await ui.unmount()
+})
+
+// develop con commits sin subir (tarea 355): «develop ↑N» en la cabecera; un clic, confirmado, la sube sin Claude.
+const CON_ORIGIN = (remota: string | null, config = '[remote "origin"]\n\turl = https://github.com/x/y.git\n') => ({
+  ...GIT('ref: refs/heads/develop\n'),
+  '/sf/.git/refs/heads/develop': 'abc1234',
+  ...(config ? { '/sf/.git/config': config } : {}),
+  ...(remota === null ? {} : { '/sf/.git/refs/remotes/origin/develop': remota }),
+})
+const REV_LIST = 'git rev-list --count refs/remotes/origin/develop..refs/heads/develop'
+
+test('develop ↑N: los commits sin subir, contados contra origin/develop sin red y solo cuando cambian', async (...m) => {
+  const { ordenes, cambiarCola } = await preparar(m, { extra: CON_ORIGIN('0ld0ld0'), git: { porSubir: 2 } })
+  const ui = await m[0].ui.mount({ ...ANCHO, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Button', key: 'subir-develop' })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: /^↑2$/ })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: /^ develop $/ })).toBe(true)
+  // Sin fetch ni ls-remote: solo la referencia remota local.
+  expect(ordenes.some(o => /^git (fetch|ls-remote|push)/.test(o))).toBe(false)
+  // Otra relectura con las mismas referencias no vuelve a ejecutar git.
+  const veces = ordenes.filter(o => o === REV_LIST).length
+  expect(veces).toBeGreaterThanOrEqual(1)
+  await cambiarCola(INICIAL)
+  expect(ordenes.filter(o => o === REV_LIST).length).toBe(veces)
+  await ui.unmount()
+})
+
+for (const [caso, extra] of [
+  ['al día', CON_ORIGIN('abc1234')],
+  ['sin referencia remota', CON_ORIGIN(null)],
+  ['sin el remoto en la configuración de git', CON_ORIGIN('0ld0ld0', '')],
+] as const)
+  test(`develop ↑N: ${caso}, «develop» sin cifra ni botón`, async (...m) => {
+    const { ordenes } = await preparar(m, { extra, git: { porSubir: 2 } })
+    const ui = await m[0].ui.mount({ ...ANCHO, surface: 'terminal' })
+    expect(await hay(ui, { type: 'Text', text: /^ ?develop ?$/ })).toBe(true)
+    expect(await hay(ui, { type: 'Button', key: 'subir-develop' })).toBe(false)
+    expect(ordenes.includes(REV_LIST)).toBe(false)
+    await ui.unmount()
+  })
+
+test('develop ↑N: solo en develop; en otra rama, su nombre como siempre', async (...m) => {
+  await preparar(m, { cola: CON_RAMAS, extra: { ...CON_ORIGIN('0ld0ld0'), '/sf/.git/HEAD': 'ref: refs/heads/feature/1-panel\n' }, git: { porSubir: 2 } })
+  const ui = await m[0].ui.mount({ ...ANCHO, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Button', key: 'subir-develop' })).toBe(false)
+  expect(await hay(ui, { type: 'Text', text: /^ ?feature\/1-panel ?$/ })).toBe(true)
+  await ui.unmount()
+})
+
+test('develop ↑N: el primer clic avisa de que puede ser público y pide confirmar; el segundo sube con cola.py subir y avisa', async (...m) => {
+  const { colas, toasts, prompts, reloj } = await preparar(m, { extra: CON_ORIGIN('0ld0ld0'), git: { porSubir: 2 }, reloj: true })
+  const ui = await m[0].ui.mount({ ...ANCHO, surface: 'terminal' })
+  await ui.press({ key: 'subir-develop' })
+  expect(toasts.some(t => t.includes('2 commits sin subir a origin') && t.includes('público'))).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: /¿Subir 2 a origin\? sí/ })).toBe(true)
+  expect(colas.some(c => c.startsWith('subir'))).toBe(false)
+  // A los 5 s, sin confirmar, vuelve a «develop ↑2».
+  await reloj!.advance(5500)
+  expect(await hay(ui, { type: 'Text', text: /^↑2$/ })).toBe(true)
+  await ui.press({ key: 'subir-develop' })
+  await ui.press({ key: 'subir-develop' })
+  expect(colas).toContain('subir --repetir vuelve a pulsar la etiqueta de develop del panel y confírmalo')
+  expect(toasts).toContain('develop subida a origin.')
+  expect(prompts).toHaveLength(0)
+  // Subida: la referencia remota está al día y la etiqueta vuelve a ser «develop», sin botón.
+  expect(await hay(ui, { type: 'Button', key: 'subir-develop' })).toBe(false)
+  expect(await hay(ui, { type: 'Text', text: /^ ?develop ?$/ })).toBe(true)
+  await ui.unmount()
+})
+
+test('develop ↑N: si no sube, lo dice como error y la cifra sigue', async (...m) => {
+  const { marcados } = await preparar(m, {
+    extra: CON_ORIGIN('0ld0ld0'),
+    git: { porSubir: 1 },
+    reloj: true,
+    respuestas: { subir: { ok: false, mensaje: 'develop sin subir a origin: fatal: sin red' } },
+  })
+  const ui = await m[0].ui.mount({ ...ANCHO, surface: 'terminal' })
+  await ui.press({ key: 'subir-develop' })
+  await ui.press({ key: 'subir-develop' })
+  expect(marcados.some(x => x.text.startsWith(MARCA_ERROR_EMERGENTE) && x.text.includes('develop sin subir a origin: fatal: sin red'))).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: /^↑1$/ })).toBe(true)
+  await ui.unmount()
+})
+
+test('develop ↑N: en el escritorio, un botón con su texto dentro de una caja con contorno', async (...m) => {
+  await preparar(m, { extra: CON_ORIGIN('0ld0ld0'), git: { porSubir: 3 } })
+  const ui = await m[0].ui.mount({ ...ANCHO, surface: 'desktop' })
+  const b = (await ui.find({ type: 'Button', key: 'subir-develop' })) as { props: Record<string, unknown> } | undefined
+  expect(b?.props.label).toBe('develop ↑3')
+  const caja = buscar((await ui.drawn()) as Nodo, n => n.type === 'Box' && n.props?.borderStyle === 'round' && JSON.stringify(n).includes('develop ↑3'))
+  expect(caja !== undefined).toBe(true)
   await ui.unmount()
 })
 

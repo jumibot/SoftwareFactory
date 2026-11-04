@@ -362,6 +362,7 @@ export async function leerEstado($: $, desde = 0): Promise<Estado> {
     mergeadas: {},
     salidas: [],
     pushPendiente: [],
+    develop: null,
   }
   // Las propuestas del propio proyecto, en su sf/propuestas.md (decisiones 194 y 203).
   base.realimentacion = await leerRealimentacion($, raiz).catch(() => null)
@@ -395,7 +396,11 @@ export async function leerEstado($: $, desde = 0): Promise<Estado> {
     // Solo las de la sesión: las cerradas antes ya no salen en Cerradas.
     const conCierre = [...base.peticiones, ...base.salidas].filter(t => ultimoCierre(t.historial, desde) !== null)
     base.pushPendiente = await leerPushPendiente($, raiz, conCierre, conf.remoto).catch(() => [])
-    if (!errorIdent) base.avisosConfiguracion = avisosConfiguracion(conf, await remotos($, git))
+    const enRemotos = await remotos($, git)
+    if (!errorIdent) base.avisosConfiguracion = avisosConfiguracion(conf, enRemotos)
+    // Con develop activa, sus commits sin subir al remoto de la configuración (tarea 355).
+    if (base.rama?.nombre === 'develop' && !base.rama.separada && enRemotos && conf.remoto in enRemotos)
+      base.develop = await leerPorSubir($, raiz, git, conf.remoto).catch(() => null)
   }
   if (conCarpeta || antiguo) {
     if (errorIdent) return { ...base, tipo: 'proyecto', error: errorIdent }
@@ -560,14 +565,35 @@ export async function existeRama($: $, git: Git, rama: string): Promise<boolean>
 
 // El commit de una rama: su archivo en refs/heads o su línea en packed-refs; null si no existe.
 export async function commitRama($: $, git: Git, rama: string): Promise<string | null> {
+  return commitRef($, git, `refs/heads/${rama}`)
+}
+// El commit de una referencia completa (refs/heads/…, refs/remotes/…): su archivo o su línea en packed-refs.
+export async function commitRef($: $, git: Git, ref: string): Promise<string | null> {
   try {
-    if (await $.fs.exists(`${git.comun}/refs/heads/${rama}`)) return (await $.fs.read(`${git.comun}/refs/heads/${rama}`)).trim() || null
+    if (await $.fs.exists(`${git.comun}/${ref}`)) return (await $.fs.read(`${git.comun}/${ref}`)).trim() || null
     if (!(await $.fs.exists(`${git.comun}/packed-refs`))) return null
-    const l = (await $.fs.read(`${git.comun}/packed-refs`)).split('\n').find(x => x.trim().endsWith(` refs/heads/${rama}`))
+    const l = (await $.fs.read(`${git.comun}/packed-refs`)).split('\n').find(x => x.trim().endsWith(` ${ref}`))
     return l ? (l.trim().split(' ')[0] ?? null) : null
   } catch {
     return null
   }
+}
+
+// Los commits de develop sin subir a <remoto>/develop (tarea 355): los cuenta git rev-list contra la referencia remota
+// local, sin red; null sin esa referencia (develop nunca subida, o sin remoto). Las dos referencias se leen de archivo y
+// git solo se ejecuta cuando alguna cambia: se guarda lo contado con sus commits, como en leerMergeadas.
+let porSubirLeido: { raiz: string; local: string; remota: string; commits: number } | null = null
+async function leerPorSubir($: $, raiz: string, git: Git, remoto: string): Promise<Estado['develop']> {
+  const local = await commitRama($, git, 'develop')
+  const remota = await commitRef($, git, `refs/remotes/${remoto}/develop`)
+  if (local === null || remota === null) return null
+  if (local === remota) return { remoto, porSubir: 0 }
+  if (porSubirLeido?.raiz === raiz && porSubirLeido.local === local && porSubirLeido.remota === remota) return { remoto, porSubir: porSubirLeido.commits }
+  const r = await $.process.run(['git', 'rev-list', '--count', `refs/remotes/${remoto}/develop..refs/heads/develop`], { cwd: raiz })
+  const commits = Number(r.stdout.trim())
+  if (r.exitCode !== 0 || r.stdout.trim() === '' || !Number.isInteger(commits)) return null
+  porSubirLeido = { raiz, local, remota, commits }
+  return { remoto, porSubir: commits }
 }
 
 // Las tareas mergeadas en develop (decisión del propietario, 2026-10-29): las que tienen un commit en la historia de
