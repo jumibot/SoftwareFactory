@@ -1313,6 +1313,39 @@ test('/clear: con el estado leído, vuelve a leer la cola; otro SessionStart no'
   await ui.unmount()
 })
 
+// ui.find solo compara el tipo, la clave y el texto (ElementQuery): las props se comprueban aparte.
+const conProps = async (ui: { findAll: (q: object) => Promise<unknown[]> }, q: object, props: Record<string, unknown>) =>
+  ((await ui.findAll(q)) as Nodo[]).some(x => Object.entries(props).every(([k, v]) => x.props[k] === v))
+
+// «1 prompt», en singular; 0 y 2, en plural (tarea 356). En los dos dibujos.
+for (const surface of ['terminal', 'desktop'] as const)
+  test(`${surface}: «1 prompt» en singular, «0 prompts» y «2 prompts» en plural (356)`, async (...m) => {
+    await preparar(m)
+    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    expect(await hay(ui, { type: 'Text', text: /^prompts$/ })).toBe(true)
+    await m[0].prompt.submit({ text: 'hola', origin: { kind: 'composer' }, wait: false })
+    expect(await hay(ui, { type: 'Text', text: /^prompt$/ })).toBe(true)
+    expect(await hay(ui, { type: 'Text', text: /^prompts$/ })).toBe(false)
+    await m[0].prompt.submit({ text: 'otra', origin: { kind: 'composer' }, wait: false })
+    expect(await hay(ui, { type: 'Text', text: /^prompts$/ })).toBe(true)
+    await ui.unmount()
+  })
+
+// En una superficie gráfica, los apartados, bien separados: más aire entre ellos y entre las secciones de las tareas, y el
+// bloque de las tareas con un contorno tenue; en el terminal, como estaban (tarea 356).
+for (const surface of ['terminal', 'desktop'] as const)
+  test(`${surface}: separación de los apartados del panel (356)`, async (...m) => {
+    await preparar(m)
+    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const grafica = surface === 'desktop'
+    expect(await conProps(ui, { type: 'Box' }, { gap: 'lg' })).toBe(grafica)
+    expect(await conProps(ui, { type: 'Box' }, { gap: 'md' })).toBe(grafica)
+    expect(await conProps(ui, { type: 'Box' }, { backgroundColor: '#3a3a3a', borderStyle: 'round' })).toBe(grafica)
+    // La cabecera, separada del cuerpo: en la superficie gráfica, con el mismo aire que los apartados.
+    expect(await conProps(ui, { type: 'Box' }, { paddingBottom: 'lg' })).toBe(grafica)
+    await ui.unmount()
+  })
+
 // Un /clear empieza una sesión nueva en el panel (decisión 165): la duración, los prompts y las Cerradas, de cero,
 // aunque el estado siga leído. /reload-plugins (otro session.start) no los reinicia.
 test('/clear: la duración, los prompts y las Cerradas empiezan de cero; /reload-plugins no', async (...m) => {
@@ -6803,17 +6836,64 @@ test('Incorporación en pausa tras Esc: si Claude Code no admite el encargo de C
   await ui.unmount()
 })
 
-test('Incorporación en pausa: en una superficie gráfica, los dos botones centrados con la caja', async (...m) => {
+test('Incorporación en pausa: en una superficie gráfica, los dos botones lado a lado, con el mismo estilo y partibles (356)', async (...m) => {
   const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
   archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/'])
   await acabaTurno(m, 't1', true)
   await cambiarCola(INICIAL)
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
-  for (const k of ['continuar', 'abandonar'])
-    expect(await hay(ui, { type: 'Box', key: `incorporacion:${k}:fila`, justifyContent: 'center' })).toBe(true)
-  expect(await etiqueta(ui, 'incorporacion:continuar')).toMatchObject({ backgroundColor: '#827dbd', color: '#000000', weight: 'bold' })
+  // Una sola fila, centrada, que se parte si no caben.
+  const botones = (await ui.find({ type: 'Box', key: 'incorporacion:botones' })) as { props: Record<string, unknown>; children: { props: Record<string, unknown> }[] }
+  expect(botones.props).toMatchObject({ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' })
+  expect(botones.children).toHaveLength(2)
+  // Las dos, cajas redondeadas con contorno: Continuar, llena del morado de la marca; Abandonar, solo el contorno, en el claro.
+  const [continuar, abandonar] = botones.children
+  expect(continuar!.props).toMatchObject({ borderStyle: 'round', borderColor: '#827dbd', backgroundColor: '#827dbd' })
+  expect(abandonar!.props).toMatchObject({ borderStyle: 'round', borderColor: '#b3aee6' })
+  expect(abandonar!.props.backgroundColor).toBe(undefined)
+  expect(JSON.stringify(continuar)).toContain('Continuar incorporación a la SF')
+  expect(JSON.stringify(abandonar)).toContain('Abandonar incorporación a la SF')
+  for (const k of ['continuar', 'abandonar']) expect(await hay(ui, { type: 'Box', key: `incorporacion:${k}:fila` })).toBe(false)
   await ui.unmount()
 })
+
+for (const surface of ['terminal', 'desktop'] as const)
+  test(`${surface}: incorporación con el número arriba, ✓ verde en los hechos y, en una superficie gráfica, aire, respuesta sangrada y legible (356)`, async (...m) => {
+    const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+    archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/ y develop'])
+    await cambiarCola(INICIAL)
+    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const grafica = surface === 'desktop'
+    // El número, arriba, alineado con el título.
+    expect(await conProps(ui, { type: 'Box', key: 'incorporacion:1' }, { alignItems: 'flex-start' })).toBe(true)
+    // Los hechos (1 y 2), con su número y un ✓ en verde; el actual y los pendientes, sin él.
+    for (const i of [1, 2]) {
+      const titulo = JSON.stringify(await ui.find({ type: 'Box', key: `incorporacion:${String(i)}:titulo` }))
+      expect(titulo).toContain('✓')
+      expect(await conProps(ui, { type: 'Text', text: `${String(i)}.` }, { color: 'success' })).toBe(true)
+    }
+    for (const i of [3, 4]) {
+      expect(JSON.stringify(await ui.find({ type: 'Box', key: `incorporacion:${String(i)}:titulo` }))).not.toContain('✓')
+      expect(await conProps(ui, { type: 'Text', text: `${String(i)}.` }, { color: 'success' })).toBe(false)
+    }
+    expect(await conProps(ui, { type: 'Text', text: ' ✓' }, { color: 'success' })).toBe(true)
+    // La respuesta: en la superficie gráfica, sangrada y en gris claro, sin atenuar; en el terminal, como estaba.
+    const respuesta = (await ui.find({ type: 'Text', text: 'falta .sf/ y develop' })) as { props: Record<string, unknown> }
+    if (grafica) {
+      expect(respuesta.props).toMatchObject({ color: '#d4d4d4' })
+      expect(respuesta.props.dimColor).toBeFalsy()
+      expect(await conProps(ui, { type: 'Box', text: 'falta .sf/ y develop' }, { paddingLeft: 2 })).toBe(true)
+      expect(await conProps(ui, { type: 'Box', key: 'incorporacion:pasos' }, { rowGap: 'sm' })).toBe(true)
+      // La caja, con un contorno tenue que la separa del resto.
+      expect(await conProps(ui, { type: 'Box', key: 'incorporacion' }, { borderStyle: 'round' })).toBe(true)
+    } else {
+      expect(respuesta.props).toMatchObject({ dimColor: true })
+      expect(await conProps(ui, { type: 'Box', text: 'falta .sf/ y develop' }, { paddingLeft: 2 })).toBe(false)
+      expect(await conProps(ui, { type: 'Box', key: 'incorporacion:pasos' }, { rowGap: 'sm' })).toBe(false)
+      expect(await conProps(ui, { type: 'Box', key: 'incorporacion' }, { borderStyle: 'round' })).toBe(false)
+    }
+    await ui.unmount()
+  })
 
 test('Incorporación: un no a incorporar en un menú la borra; otra respuesta, no', async (...m) => {
   const respuestas = ['Demo', 'Ahora no']
