@@ -25,9 +25,14 @@ export const MEMORIA_SUBAGENTES = '.sf/subagentes.json'
 export const CLI_COLA = 'tools/cola.py'
 // Dónde copia el panel su cola.py al cargar (decisión 136), relativo a la carpeta de Claude Code (carpetaClaude).
 export const CARPETA_COPIAS = 'sf'
+// El progreso de una incorporación (tarea 333), que escribe tools/incorporacion.py: en la misma carpeta que las copias,
+// un archivo por proyecto, <CARPETA_COPIAS>/<PREFIJO_INCORPORACION><clave de la carpeta>.json, con la carpeta dentro.
+export const PREFIJO_INCORPORACION = 'incorporacion-'
 // El lanzador de la cola para Claude (tarea 252): el panel lo copia al cargar a ~/.claude/sf/cola.py, que pasa cada
 // orden a la copia de cola.py de la sesión (CLAUDE_CODE_SESSION_ID), la misma que lanza el panel.
 export const CLI_LANZADOR = 'tools/cola_sesion.py'
+// La revisión de lo que sale al publicar en un repositorio público (decisión 252), que lanza RELEASE.
+export const CLI_REVISION = 'tools/revision_publica.py'
 // La orden con que Claude lanza la cola, en cualquier proyecto y en bash, zsh o PowerShell, tras el intérprete que
 // detecta el mod (python.ts, ordenColaClaude; decisión 236): nunca el cola.py del disco.
 export const ARGS_COLA = '-I -X utf8 "$HOME/.claude/sf/cola.py"'

@@ -5,15 +5,15 @@ import { CADA_COMPROBACION, arrancar, comprobarActualizacion, copiarCola, elegir
 import { CLAVE_PLEGADO, PANEL, migrarPlegado } from './constantes'
 import { escribir } from './control'
 import { cargarAvisosPanel, encargarAClaude, tomarAvisoPanel } from './avisos'
-import { anadirRegla, anotarRespuestaIncorporar, contextoInicial, contextoPython, ofrecerIncorporar, reglasAlIncorporar, reiniciarIncorporar, sugerirIncorporar } from './contexto'
+import { anadirRegla, anotarRespuestaIncorporar, cerrarIncorporacionTerminada, contextoInicial, contextoPython, menuEnIncorporacion, pausarIncorporacion, ofrecerIncorporar, reglasAlIncorporar, reiniciarIncorporar, sugerirIncorporar } from './contexto'
 import { detectarPython } from './python'
 import { marcarSubagente } from './lectura'
 import type { $ } from './lectura'
 import { emergente, emergenteError } from './emergentes'
 import { ofrecerPantalla, reiniciarOferta } from './pantalla'
-import { CATALOGO_PRUEBA, anotarPrueba, apagarAlEntrar, cambiarPrueba, desdeCopia, leerAjustes, marcarTurno, ponerPrueba } from './prueba'
+import { CATALOGO_PRUEBA, apagarAlCerrar, apagarAlEntrar, cambiarPrueba, desdeCopia, leerAjustes, marcarTurno } from './prueba'
 import { registrarPanel, turnarAvisos } from './panel'
-import { leerAvisoSubagentes, rearmarAvisosSubagentes, recuperarSubagentes } from './subagentes'
+import { leerAvisoSubagentes, rearmarAvisosSubagentes, recuperarSubagentes, SIN_AVISO } from './subagentes'
 
 // Valores de estado del mod: el motor exige declararlos en el archivo que los usa; con el mismo
 // plugin y clave, son el mismo valor en todos los archivos.
@@ -104,6 +104,26 @@ async function cargar($: $, nueva = false): Promise<number> {
   return ahora
 }
 
+// Una conversación reanudada (--continue, --resume o /resume; el SessionStart con source «resume»): la duración, los
+// prompts, las Cerradas y el aviso de lo cambiado desde el panel cuentan desde aquí, no desde que empezó la
+// conversación, aunque el $.store de su sesión guarde un aviso de hace días (tarea 350). /reload-plugins no lo lanza.
+// Con /resume, y según cómo arranque --resume, el mod sigue en la sesión reanudada con su $.state vacío y sin
+// session.start, como tras un /clear: sin inicio ni estado leído, se carga entera, como sesión nueva; si no, el panel
+// se queda en «Leyendo el estado…» hasta un /reload-plugins.
+async function reanudar($: $): Promise<void> {
+  if ((await read($, inicioSesion)) === 0 || (await read($, estado)) === null) {
+    await cargar($, true)
+    return
+  }
+  const ahora = await $.clock.now()
+  await update($, inicioSesion, () => ahora)
+  await update($, minuto, () => ahora)
+  await update($, prompts, () => 0)
+  // La relectura, aunque falle la carga de los avisos: sin ella, Cerradas seguiría contando desde antes.
+  await cargarAvisosPanel($, ahora, true).catch(err => $.ui.log(`al reanudar, avisos: ${String(err)}`, { to: 'debug' }))
+  await refrescar($)
+}
+
 // Las órdenes del mod que no pasan nada a Claude: tras ellas no hay turno ni sugerencia del motor (tarea 323).
 const ORDENES_LOCALES = new Set(['sf', 'sf_paso', 'sf_split', 'sf_fusionar', 'sf_prueba'])
 
@@ -152,6 +172,8 @@ export const register: Register = on => {
     // Sin línea de estado: Claude Code la marca con «⚠ sf:» y repite lo que ya dice la caja sobre el prompt.
     // Se borra la que hubiera dejado una versión anterior.
     $.ui.status(undefined)
+    // Al cargar el mod, una incorporación a medias queda en pausa, con Continuar y Abandonar: no se pierde (tarea 333).
+    await pausarIncorporacion($).catch(() => undefined)
     const ahora = await cargar($)
     // /sf_prueba, solo en la SF con el catálogo local: cambia el modo prueba sin el panel (tarea 185).
     if ((await desdeCopia($)) || (await leerAjustes($))?.extraKnownMarketplaces?.[CATALOGO_PRUEBA]) {
@@ -206,11 +228,13 @@ export const register: Register = on => {
     const r = await next(e)
     if (e.source === 'clear') {
       await cargar($, true).catch(err => $.ui.log(`tras /clear: ${String(err)}`, { to: 'debug' }))
+      await pausarIncorporacion($).catch(() => undefined)
       // Sin SF, otra vez la sugerencia de incorporar (tarea 323).
       $.clock.after(500, () => void sugerirIncorporar($).catch(() => undefined))
     }
     // Tras compactar, Claude ya no tiene los avisos de subagentes dados: lo pendiente se vuelve a avisar (tarea 249).
     if (e.source === 'compact') await rearmarAvisosSubagentes($).catch(() => undefined)
+    if (e.source === 'resume') await reanudar($).catch(err => $.ui.log(`al reanudar: ${String(err)}`, { to: 'debug' }))
     const textos = [
       await contextoInicial($, e).catch(err => {
         $.ui.log(`reglas en SessionStart: ${String(err)}`, { to: 'debug' })
@@ -225,10 +249,9 @@ export const register: Register = on => {
   // En los proyectos incorporados, no en la SF, la regla de lo que es de la SF y lo global, en el prompt de sistema (decisión 167).
   on('prompt.compose', async ($, e, next) => anadirRegla($, await next(e))).catch(($, e, next) => next(e))
 
-  // Al cerrar la sesión, el modo prueba se desactiva: la siguiente entra con el plugin publicado.
+  // Al cerrar la sesión, en la SF, el modo prueba se desactiva: la siguiente entra con el plugin publicado.
   on('session.end', async ($, e, next) => {
-    await anotarPrueba($, `session.end: ${String(e.reason)}`)
-    await ponerPrueba($, false, `session.end (${String(e.reason)})`).catch(() => undefined)
+    await apagarAlCerrar($, String(e.reason)).catch(() => undefined)
     return next(e)
   })
 
@@ -256,14 +279,19 @@ export const register: Register = on => {
   on('tool.call', { tool: 'Agent' }, async ($, e, next) => {
     const r = await next(e)
     if (e.agentId || r.deny !== undefined) return r
-    const aviso = await leerAvisoSubagentes($).catch(() => null)
-    return aviso ? { ...r, context: [...(r.context ?? []), aviso] } : r
+    const { lanzar, recoger } = await leerAvisoSubagentes($).catch(() => SIN_AVISO)
+    const aviso = [lanzar, recoger].filter((x): x is string => !!x)
+    return aviso.length ? { ...r, context: [...(r.context ?? []), ...aviso] } : r
   }).catch(($, e, next) => next(e))
 
   // La respuesta al menú de incorporar (decisión 246): «No, y no vuelvas a preguntar en esta carpeta» se guarda por carpeta.
   on('tool.call', { tool: 'AskUserQuestion' }, async ($, e, next) => {
     const r = await next(e)
-    if (!e.agentId && r.deny === undefined && r.isError !== true) await anotarRespuestaIncorporar($, (r.result as { answers?: unknown } | undefined)?.answers).catch(() => undefined)
+    if (e.agentId || r.deny !== undefined) return r
+    const respuestas = r.isError === true ? undefined : (r.result as { answers?: unknown } | undefined)?.answers
+    if (respuestas !== undefined) await anotarRespuestaIncorporar($, respuestas).catch(() => undefined)
+    // Con un no a incorporar, se borra el progreso que hubiera (tarea 333, decisión 258).
+    if (respuestas !== undefined) await menuEnIncorporacion($, respuestas).catch(() => undefined)
     return r
   }).catch(($, e, next) => next(e))
 
@@ -286,13 +314,22 @@ export const register: Register = on => {
 
   // El turno de Claude en curso: el /reload-plugins del modo prueba espera a que acabe (tarea 185).
   on('turn.start', async ($, e, next) => {
-    if (e.agentId === undefined) marcarTurno(e.turnId)
+    if (e.agentId === undefined) {
+      marcarTurno(e.turnId)
+      // Una incorporación terminada, con el panel operativo ya pintado, se quita al empezar el turno siguiente (tarea 333).
+      const est = await read($, estado)
+      if (est && (await cerrarIncorporacionTerminada($, est.tipo !== 'sin-sf').catch(() => false))) await refrescar($).catch(() => undefined)
+    }
     return next(e)
   }).catch(($, e, next) => next(e))
 
   // Y al acabar cada turno.
   on('turn.complete', async ($, e, next) => {
-    if (e.agentId === undefined) marcarTurno(null)
+    if (e.agentId === undefined) {
+      marcarTurno(null)
+      // Una incorporación a medias queda en pausa al acabar o interrumpirse el turno (tarea 333, decisión 258).
+      await pausarIncorporacion($).catch(() => undefined)
+    }
     await refrescar($)
     return next(e)
   })
@@ -315,8 +352,9 @@ export const register: Register = on => {
     const panel = tomado?.aviso ?? null
     // Sin pantalla completa, la oferta de activarla, una vez por conversación (tarea 264).
     const pantalla = delPropietario ? await ofrecerPantalla($).catch(() => null) : null
-    const subagentes = await leerAvisoSubagentes($).catch(() => null)
-    const avisos = [reglas, incorporar, panel, pantalla, subagentes].filter((x): x is string => !!x)
+    // El de lanzar los subagentes que faltan, el primero: es lo primero del turno (tarea 351).
+    const { lanzar, recoger } = await leerAvisoSubagentes($).catch(() => SIN_AVISO)
+    const avisos = [lanzar, reglas, incorporar, panel, pantalla, recoger].filter((x): x is string => !!x)
     if (!avisos.length) return next(e)
     // Si el mensaje no llega a entrar (otro hook lo descarta), el aviso del panel queda pendiente para el siguiente.
     const r = await next({ ...e, context: [...(e.context ?? []), ...avisos] }).catch(async (err: unknown) => {

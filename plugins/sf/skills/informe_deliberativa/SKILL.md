@@ -22,7 +22,7 @@ El nombre del archivo es el tema, no el número de la tarea: `Tipos de tarea.md`
 
 ## Estructura
 
-Las secciones van siempre en este orden, con estos `{#id}`, para que el propietario sepa dónde mirar y las tareas puedan enlazarlas:
+Las secciones van siempre en este orden, con estos `{#id}`, para que el propietario sepa dónde mirar y las tareas puedan enlazarlas. La primera versión ya lleva sus recursos (`crear_documentos`, «Desde la primera versión»): el esquema del proceso o del conjunto, las tarjetas y el análisis largo partido.
 
 1. **Resumen** `{#resumen}`. La conclusión en dos o tres párrafos cortos: qué se propone, en qué se apoya y cuántas preguntas quedan y dónde. Si un esquema aclara el conjunto, va aquí. Termina con saltos a lo que hay que decidir (`[Ver las N preguntas](#por-decidir){: .salto}`).
 2. **El análisis**, en una o varias secciones propias: lo que se estudió y lo que se propone, con su porqué. Primero lo que se propone o se concluye, aunque se derive del resto; después, la valoración que lo sostiene y sus límites. Aquí van las tarjetas, los esquemas y las tablas del tema.

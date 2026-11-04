@@ -2,6 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Evento } from '../types'
 import { leerPeticiones, leerSalidas, raizSesion } from './lectura'
 import type { $ } from './lectura'
+import { emergente } from './emergentes'
 
 // ── Avisos del panel (tarea 228) ──
 // Con cada mensaje del propietario, el mod añade al contexto lo que él ha cambiado en la cola desde el panel desde el
@@ -143,22 +144,31 @@ async function fijarAvisado($: $, cambio: (v: number) => number): Promise<void> 
   await $.store.set(CLAVE_AVISADO, valor).catch(() => undefined)
 }
 
+// Lo más atrás que llegan los avisos del panel al cargarse el mod: al reanudar una sesión de hace días, lo cambiado
+// desde entonces ya está en la cola, y avisarlo entero (con «Recoge el subagente…» de tareas cerradas hace días) solo
+// tapa lo que importa (tarea 351).
+export const VENTANA_AVISOS = 12 * 3600_000
+
 // Al cargarse el mod: tras /clear (nueva), los avisos cuentan desde ahora; si no, siguen desde el último dado en esta
-// sesión, el de $.store (manda sobre el atom, que una versión anterior pudo reiniciar) o el del atom; sin ninguno (la
-// sesión empieza), desde ahora.
+// sesión, el de $.store (manda sobre el atom, que una versión anterior pudo reiniciar) o el del atom, con
+// VENTANA_AVISOS como mucho; sin ninguno (la sesión empieza), desde ahora.
 export async function cargarAvisosPanel($: $, ahora: number, nueva: boolean): Promise<void> {
   if (nueva) return fijarAvisado($, () => segundo(ahora))
   const g = (await $.store.get(CLAVE_AVISADO).catch(() => undefined)) as Partial<Avisado> | undefined
   const guardado = g && g.sesion === (await $.session.id()) && typeof g.avisado === 'number' && g.avisado > 0 ? g.avisado : 0
   const atomo = await read($, avisadoPanel)
   await update($, avisadoPanel, () => 0)
-  await fijarAvisado($, () => guardado || atomo || segundo(ahora))
+  const desde = guardado || atomo
+  await fijarAvisado($, () => (desde && desde >= ahora - VENTANA_AVISOS ? desde : segundo(ahora)))
 }
 
 // Toma el aviso de lo cambiado desde el panel desde el último dado, y lo da por dado solo si lo ha podido leer; con
 // devolver, si el mensaje que lo lleva no llega a enviarse, vuelve a quedar pendiente. null sin cambios o sin leer.
 export async function tomarAvisoPanel($: $): Promise<{ aviso: string | null; devolver: () => Promise<void> }> {
   const hasta = segundo(await $.clock.now())
+  // Con el atom a 0, el mod aún no lo ha cargado (el estado se acaba de vaciar al cambiar de plugin): se carga ahora,
+  // del $.store de esta sesión o desde ahora; con 0 se avisaría de todo lo hecho desde el panel (tarea 350).
+  if ((await read($, avisadoPanel)) === 0) await cargarAvisosPanel($, hasta, false)
   const desde = await read($, avisadoPanel)
   const aviso = await leerAvisoPanel($, desde, hasta).catch(() => undefined)
   if (aviso === undefined) return { aviso: null, devolver: async () => undefined }
@@ -169,12 +179,29 @@ export async function tomarAvisoPanel($: $): Promise<{ aviso: string | null; dev
 // Un encargo del panel a Claude, como si lo escribiera el propietario (R, T y C fallidas, «?», /sf_paso, TURBO…). El
 // hook prompt.submit del mod no ve los prompts que envía el propio mod: el aviso de lo cambiado desde el panel va
 // aquí, tras el encargo; si no, se quedaría sin dar hasta el siguiente mensaje del propietario (tarea 285).
+// El motor puede no admitir el encargo sin lanzar error: responde { drop }. Pasa tras interrumpir a Claude con Esc (en
+// un menú o mientras trabaja): hasta que el propietario escribe algo, Claude Code no deja que un plugin le pase
+// mensajes. Entonces el encargo se deja escrito en el prompt (si está vacío), para enviarlo con Intro, y se dice; el
+// aviso del panel queda para el siguiente mensaje (tarea 333: Continuar no hacía nada tras Esc).
 export async function encargarAClaude($: $, text: string): Promise<void> {
   const { aviso, devolver } = await tomarAvisoPanel($)
+  let r: Awaited<ReturnType<typeof $.prompt.submit>>
   try {
-    await $.prompt.submit({ text: aviso ? `${text}\n\n${aviso}` : text, asUser: true })
+    r = await $.prompt.submit({ text: aviso ? `${text}\n\n${aviso}` : text, asUser: true })
   } catch (err) {
     await devolver()
     throw err
   }
+  if (!r || !('drop' in r) || r.drop === undefined) return
+  await devolver()
+  $.ui.log(`encargo a Claude no admitido: ${r.drop}`, { to: 'debug' })
+  const borrador = await $.prompt.read().catch(() => ({ text: '' }))
+  const escrito = !borrador.text.trim() && (await $.prompt.fill({ text }).catch(() => ({ isFilled: false }))).isFilled
+  emergente(
+    $,
+    escrito
+      ? 'Claude Code no me deja pasárselo ahora (tras Esc espera tu mensaje): te lo dejo escrito en el prompt; pulsa Intro.'
+      : `Claude Code no me deja pasárselo ahora (tras Esc espera tu mensaje): escríbele «${text}».`,
+    false,
+  )
 }

@@ -55,6 +55,13 @@ export type Actualizacion = { version: string; scopes: string[]; corre?: string 
 export type Sesion = { limpiadas: Record<string, number> }
 
 
+// El progreso de una incorporación (tarea 333), de ~/.claude/sf/incorporacion-<sesión>.json, que escribe
+// tools/incorporacion.py: el caso, el paso en que se está (desde 1; 0, todos hechos) y los pasos con su respuesta.
+export type Incorporacion = { caso: string; actual: number; pausa: boolean; pasos: { nombre: string; respuesta: string | null }[] }
+// Qué parte de la lista de la incorporación se ve (tarea 333): desde qué paso (desde 0), movida a mano con ▲ y ▼ cuando el
+// actual era `actual`; al cambiar el actual, la lista vuelve a seguirlo.
+export type VistaIncorporacion = { desde: number; actual: number }
+
 export type Estado = {
   // 'sf': repositorio de la propia SF; 'proyecto': tiene .sf/proyecto.json (o el antiguo docs/sf.json); 'sin-sf': ninguno
   tipo: 'sf' | 'proyecto' | 'sin-sf'
@@ -99,6 +106,9 @@ export type Estado = {
   salidas: Salida[]
   // Las tareas con el push de develop pendiente: su cierre anotó push-fallido y origin/develop aún no tiene su commit.
   pushPendiente: number[]
+  // La incorporación en marcha en esta sesión y en esta carpeta, si la hay (tarea 333). Opcional: un estado guardado
+  // antes no lo tiene.
+  incorporacion?: Incorporacion | null
 }
 
 // Un subagente de una tarea visto en la sesión, por su id: su tarea, su descripción, su nombre (el de SendMessage
@@ -111,6 +121,6 @@ export type AvisosSubagentes = { claves: string[]; nueva: boolean; sesion?: stri
 
 declare module 'claude-code' {
   interface PluginState {
-    'sf': { estado: Shaped<Estado | null>; nuevasEnSf: number; prompts: number; avisadoPanel: number; inicioSesion: number; minuto: number; sesion: Sesion; panelCerrado: boolean; plegado: Record<string, boolean>; desplazamiento: number; turnoAvisos: number; identidadPuesta: { color: string | null; nombre: string | null }; prueba: Prueba; porConfirmar: string | null; fuenteRelease: FuenteVersion | null; actualizacion: Actualizacion | null; publicadaConocida: string | null; comprobadaEn: number | null; subagentesVistos: Record<string, SubagenteVisto>; pantallaOfrecida: boolean; reglasDadas: boolean; incorporarOfrecido: boolean; avisosSubagentes: AvisosSubagentes }
+    'sf': { estado: Shaped<Estado | null>; nuevasEnSf: number; prompts: number; avisadoPanel: number; inicioSesion: number; minuto: number; sesion: Sesion; panelCerrado: boolean; plegado: Record<string, boolean>; desplazamiento: number; turnoAvisos: number; identidadPuesta: { color: string | null; nombre: string | null }; prueba: Prueba; porConfirmar: string | null; fuenteRelease: FuenteVersion | null; actualizacion: Actualizacion | null; publicadaConocida: string | null; comprobadaEn: number | null; subagentesVistos: Record<string, SubagenteVisto>; pantallaOfrecida: boolean; reglasDadas: boolean; incorporarOfrecido: boolean; avisosSubagentes: AvisosSubagentes; vistaIncorporacion: VistaIncorporacion | null }
   }
 }

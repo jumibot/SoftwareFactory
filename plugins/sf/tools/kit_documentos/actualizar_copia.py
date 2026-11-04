@@ -8,6 +8,9 @@ marca son contenido (el tema, las notas, el CSS del proyecto) y no se tocan. Las
 reconocen por la primera línea de cada archivo del kit. Los scripts del kit que falten (por ejemplo, lectura.js en una
 copia de herramientas 1.1) se añaden tras herramientas.js.
 
+Los marcadores de color de las plantillas ({{primario}}, {{oscuro}}…, en las URI de datos SVG) se rellenan con el tema
+del propio documento, el de sus variables :root (--primario: #…), como hacen los generadores; si falta alguno, no se toca.
+
 Antes de escribir, comprueba que el documento sin el código del kit queda igual, y guarda el original en copias/.
 --herramientas cambia las herramientas que lleva el documento (<html data-herramientas>).
 Procedencia: docs/referencias/procedencia/kit_documentos.md del repositorio de la SF."""
@@ -60,8 +63,32 @@ def marcar(html: str) -> tuple[str, list[str]]:
     return ETIQUETA.sub(uno, html), marcados
 
 
+MARCADOR = re.compile(r"\{\{([a-z][a-z-]*)\}\}")
+
+
+def colores_tema(html: str) -> dict:
+    """Colores del tema del documento: las variables --rol: #hex de sus bloques :root, fuera del código del kit."""
+    colores = {}
+    for bloque in re.findall(r":root\s*\{([^}]*)\}", sin_kit(html)):
+        for rol, valor in re.findall(r"--([a-z][a-z-]*)\s*:\s*(#[0-9a-fA-F]{3,8})\s*;", bloque):
+            colores.setdefault(rol, valor)
+    return colores
+
+
+def rellenar(cuerpo: str, colores: dict) -> str:
+    """Como aplicar_tema de los generadores: {{rol}} → %23hex. Los marcadores sin color (p. ej. {{rol}} en un
+    comentario) se dejan."""
+    return MARCADOR.sub(lambda m: "%23" + colores[m.group(1)].lstrip("#") if m.group(1) in colores else m.group(0), cuerpo)
+
+
+def faltan_colores(cuerpo: str, colores: dict) -> list[str]:
+    """Marcadores usados en valores (dentro de comillas de un atributo SVG) que el tema no rellena."""
+    return sorted({r for r in re.findall(r"'\{\{([a-z][a-z-]*)\}\}'", cuerpo) if r not in colores})
+
+
 def actualizar(html: str) -> tuple[str, dict]:
     cambios = {}
+    colores = colores_tema(html)
     def uno(m):
         k = re.search(r'\bdata-kit="([^"]+)"', m.group(2))
         if not k:
@@ -71,7 +98,14 @@ def actualizar(html: str) -> tuple[str, dict]:
             cambios[ruta] = "desconocido (se deja)"
             return m.group(0)
         nuevo = actual(ruta)
+        if MARCADOR.search(nuevo):
+            faltan = faltan_colores(nuevo, colores)
+            if faltan:
+                sys.exit(f"{ruta}: el documento no tiene los colores de su tema para {', '.join(faltan)}; no se toca nada")
+            nuevo = rellenar(nuevo, colores)
         cambios[ruta] = "igual" if m.group(3).strip() == nuevo.strip() else "actualizado"
+        if cambios[ruta] == "igual" and ruta == k.group(1):
+            return m.group(0)  # sin cambios: ni siquiera de espacios
         return f'<{m.group(1)} data-kit="{ruta}">\n{nuevo}\n</{m.group(1)}>'
     html = ETIQUETA.sub(uno, html)
     # Scripts del kit que falten, tras el anterior que sí esté.

@@ -1,6 +1,6 @@
 ---
 name: crear_documentos
-description: Lo común para crear cualquier documento de la Software Factory — el generador .md → HTML, el catálogo de recursos con su sintaxis (portada, secciones plegables, recuadros, tarjetas con color, icono y plegado, columnas, fichas con buscador, preguntas con opciones, fuentes y referencias, esquemas SVG), cuándo usar cada recurso, los temas y la identidad del proyecto, las herramientas de lectura, el respaldo en _respaldo/, la impresión A4 y la comprobación en escritorio y móvil. Úsala junto a la skill del tipo de documento (documento_fundacional, informe_deliberativa, documento_vision…), y también para crear un tipo de documento nuevo, añadir o cambiar un recurso, un tema o la identidad de un proyecto, o generar, respaldar y comprobar el HTML de un documento.
+description: Lo común para crear cualquier documento de la Software Factory — el generador .md → HTML, el catálogo de recursos con su sintaxis (portada, secciones plegables, recuadros, tarjetas con color, icono y plegado, columnas, fichas con buscador, preguntas con opciones, fuentes y referencias, esquemas SVG), cuándo usar cada recurso y la norma de usarlos desde la primera versión, los temas y la identidad del proyecto, las herramientas de lectura, el respaldo en _respaldo/, la impresión A4 y la comprobación en escritorio y móvil. Úsala junto a la skill del tipo de documento (documento_fundacional, informe_deliberativa, documento_vision…), y también para crear un tipo de documento nuevo, añadir o cambiar un recurso, un tema o la identidad de un proyecto, o generar, respaldar y comprobar el HTML de un documento.
 ---
 
 # Crear documentos
@@ -133,7 +133,7 @@ Los títulos aceptan `{: #id}` (`### S2 · Conservación domiciliaria {: #S2}`).
 
 ### Esquemas
 
-Un SVG en el propio `.md`, dentro de `<figure class="vertical">` y con un `<figcaption>` breve en cursiva que diga qué hay que ver. Norma de la SF: todo esquema es SVG, nunca ASCII ni mermaid. La guía común es `../metodologia/references/diagramas-svg.md`: cuándo dibujar, forma vertical de 560 de ancho, estilo ligero, color con significado, accesibilidad y revisión. En el generador común:
+Un SVG en el propio `.md`, dentro de `<figure class="vertical">` y con un `<figcaption>` breve en cursiva que diga qué hay que ver. Norma de la SF para todo documento, tenga el proyecto metodología o no: todo esquema es SVG inline, nunca ASCII ni mermaid. La guía común es `../metodologia/references/diagramas-svg.md`, que viaja en el plugin con la skill `metodologia` y se lee aunque el proyecto no la use: cuándo dibujar, forma vertical de 560 de ancho, estilo ligero, color con significado, accesibilidad y revisión. En el generador común:
 
 - títulos de 18 y detalle de 15 como mínimo;
 - colores y letra del tema con `style`: `fill:var(--primario)`, `var(--oscuro)`, `var(--texto-suave)`, `var(--linea)`, `var(--fondo)`, y `style="font-family:var(--fuente-texto)"` en el `<svg>`. Sin fondo propio: en modo oscuro se invierte con la página;
@@ -143,6 +143,32 @@ Un SVG en el propio `.md`, dentro de `<figure class="vertical">` y con un `<figc
 
 Dentro de un bloque HTML del `.md` no se dejan líneas en blanco: el conversor de Markdown lo cortaría.
 
+### Lector de libros
+
+Para contar una historia como un libro (la opción novela de los documentos de visión, o cualquier documento que lo pida). El generador lo añade solo cuando el documento lleva `class="libro"` o `class="lector"`: estilo en `assets/lector.css` y script en `assets/lector.js`.
+
+```html
+<div class="lector" data-titulo="El verano de Marc · prólogo" data-al-abrir="historia" data-marca="/SF"
+     data-invitacion="Pulsa el logo… para vivir, con…, qué cambia cuando…" style="--lector-marca:#827dbd;--lector-marca-claro:#b3aee6">
+<div class="libro">
+<p class="libro-capitulo">Prólogo</p>
+<p class="libro-titulo">Tres días para el jueves</p>
+<p>Primer párrafo, con capitular…</p>
+<p class="libro-ornamento"></p>
+<p>…</p>
+</div>
+</div>
+```
+
+- **`.libro`**: una página de ebook: columna estrecha, letra serif de lectura, encabezado de capítulo (`.libro-capitulo`), título (`.libro-titulo`), capitular en el primer párrafo, sangría y separador (`.libro-ornamento`). Sola, se ve como una página en el documento.
+- **`.lector`**: la página dentro de un lector electrónico que pagina (botones ‹ ›, zonas de toque, deslizar, flechas del teclado y «Página 1 de N»). **Conserva siempre el aspecto de ebook**: en móvil, a pantalla completa; en tableta y escritorio, el aparato de 6-7" a escala, con su marco, la pantalla de tinta en 3:4, centrado y con un fondo sobrio. Sin JS o al imprimir, el texto se ve seguido.
+- **Tinta electrónica**: papel gris cálido y mate, tinta negra con algo de grano, sin sombras, degradados ni colores; en el modo oscuro de «Lectura» no se invierte. Al pasar página, un destello oscuro breve encima de la página nueva, que se pinta ya; sin él con movimiento reducido. **El paso es inmediato siempre**: nada de filtros ni sombras de texto que obliguen a repintar la página, y los efectos con Web Animations, sin forzar el diseño. Un ajuste en el marco (▣ / ❏) cambia el paso a **hoja de papel**, que gira desde el lomo; la elección se recuerda en el navegador.
+- **La historia completa**: con un `.lector` y al menos dos partes narrativas (`.libro`, `.caso` y `.escena`, salvo las que estén dentro de `data-historia="no"`), aparece «Leer la historia completa». Abre un lector a pantalla completa con todas ellas seguidas, por capítulos, con su índice y la página de cada uno; se cierra con Esc o con ×, y al terminar, con «Ver el documento». Sale del mismo texto: nada se duplica en el `.md`.
+- **`data-titulo`**: el rótulo del marco.
+- **`data-marca`** (y, si se quiere, `--lector-marca` y `--lector-marca-claro` en `style`): la marca del proyecto en el marco, como el logo de un aparato. Lo que va antes de la primera letra o cifra (la barra de «/SF») sale en `--lector-marca-claro` y el resto, en `--lector-marca`: en la SF, `--lector-marca:#827dbd;--lector-marca-claro:#b3aee6`, los colores de su logo (decisión 255).
+- **`data-al-abrir="historia"`**: el documento se abre en la historia completa, a pantalla completa y sin nada encima.
+- **Pantalla de entrada** (con `data-al-abrir` y `data-marca`), como el encendido del lector. **Anuncia el tema del documento, no la marca**: arriba, el tema y su subtítulo (`data-tema` y `data-subtitulo`; por defecto, el título del documento partido por sus dos puntos); en medio, el logo en sus colores con un **latido** (un halo suave que respira lento, unos 2 s, siempre visible y que es también su señal de foco; fijo con movimiento reducido); debajo, la invitación (`data-invitacion`); y abajo, en letra pequeña, el **aviso de ficción** (`data-aviso`; por defecto, «Historia de ficción: personajes y escenas son imaginados.»; vacío, sin aviso). Pulsar el logo, o Intro o espacio sobre él, lleva a la página 1.
+
 ### Componentes propios del proyecto
 
 HTML en bruto dentro del `.md` (por ejemplo, una calculadora), con su CSS y su JS en la identidad del proyecto (`identidad.json`: `"css"` y `"js"`).
@@ -150,6 +176,21 @@ HTML en bruto dentro del `.md` (por ejemplo, una calculadora), con su CSS y su J
 ## Cuándo usar cada recurso
 
 Estas reglas valen para cualquier documento que use el catálogo. La skill de cada tipo añade las suyas.
+
+### Desde la primera versión
+
+**Todo documento sale ya con sus recursos en la primera versión, sin esperar a que el propietario los pida: nada monótono** (decisión 231). Un primer borrador de prosa seguida, que se maqueta después, no se entrega. Al proponer el índice se dice qué recurso lleva cada sección, y al escribir se aplican estos criterios:
+
+- **Esquema SVG del proceso** cuando el documento cuenta un proceso, un ciclo, un recorrido, unos estados o una estructura de tres partes o más que se relacionan: al menos uno, en la sección que da la visión de conjunto (el resumen o la primera). Vale para todo documento, **con o sin metodología** en el proyecto: la guía de diagramas viaja en el plugin (ver «Esquemas»).
+- **Tarjetas** para tres o más elementos paralelos con la misma estructura; **con color e icono** cuando son de familias o tipos que conviene distinguir. Los bloques de tarjetas de un documento no son todos iguales: se combinan tarjetas con color, columnas, fichas, preguntas y métricas según el contenido.
+- **Plegables para el móvil:** un bloque de cuatro tarjetas o más, o con tarjetas de más de unas 80 palabras, lleva `plegables`. El detalle que no sostiene el argumento de la sección va en `####`, plegado, o a un anexo.
+- **Secciones largas, partidas:** una sección de más de unas 500 palabras, o con más de tres temas, se parte en secciones propias o en apartados `###` con el detalle plegado. Ninguna sección es un bloque de prosa de más de cinco párrafos seguidos sin un recurso que la corte (esquema, tarjetas, recuadro, tabla o métrica).
+- **Recuadro** para la decisión propuesta y para el aviso que no puede pasar desapercibido; **métrica** para la cifra que sostiene el argumento; **tabla** para comparar en filas.
+- **Variedad:** dos secciones seguidas no repiten el mismo recurso principal, y en un documento de cuatro secciones o más se usan al menos tres recursos distintos además de la prosa.
+
+Son mínimos para la primera versión, no un adorno: cada recurso sigue justificándose por su contenido con las reglas de abajo. Si un criterio no aplica (un documento sin proceso no lleva esquema), se omite sin forzarlo.
+
+### Reglas de cada recurso
 
 - **Lectura por capas.** Lo más importante primero, y cada capa siguiente profundiza: quien solo lee la primera se lleva lo esencial. El orden es de importancia, no el de cómo se llegó a las conclusiones. Cada sección abre con su conclusión y deja el detalle a las tarjetas, los `####` plegados y los anexos.
 - **Cada sección abre con prosa que argumenta**, antes de cualquier tarjeta: la conclusión, los hechos que la sostienen y lo que falta por saber. Una frase de presentación («Seis experiencias permiten…») no basta. Las tarjetas vienen después y aportan el detalle que se consulta, sin repetir el argumento.
@@ -286,6 +327,7 @@ Antes de entregar, con Playwright y el navegador instalado. Si Playwright no tie
 - **Escritorio** (≈1300 px) y **móvil** (390 × 844): sin desplazamiento horizontal, tarjetas en una columna en el móvil y menú sin solaparse.
 - **Sin errores de página.** El buscador de fichas filtra y cuenta. «Plegar las tarjetas» pliega y despliega su bloque. Los componentes propios responden.
 - **Sin avisos del generador** (`<…>` sueltos, preguntas sin recomendación).
+- **Recursos desde la primera versión** («Desde la primera versión»): el esquema SVG del proceso, si lo hay; los bloques largos, plegables; ninguna sección de más de unas 500 palabras sin partir ni con más de cinco párrafos seguidos sin un recurso; dos secciones seguidas sin el mismo recurso principal. Se comprueba también en la primera versión, no solo al revisar.
 - **Secciones plegables:** solo la primera abierta al cargar; un enlace interno (menú, referencia, insignia o `#id` en la dirección) abre la sección de destino; al imprimir se abre todo.
 - **Herramientas:** la columna desde 1400 px; por debajo, minimizada hasta «Buscar». El buscador no distingue mayúsculas ni tildes y abre la sección plegada.
 - **Impresión A4** (`page.pdf`): portada sola en la primera página, sin menú ni herramientas, tarjetas sin cortar.

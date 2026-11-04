@@ -1,12 +1,14 @@
 import { atom, read, update } from 'claude-code'
 import type { Register, RenderChildren } from 'claude-code'
-import type { Actualizacion, Cerrada, Estado, FuenteVersion, Paso, Peticion, Prueba, Sesion } from '../types'
-import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, eliminable, eliminarTarea, enCursoOObservando, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
+import type { Actualizacion, Cerrada, Estado, FuenteVersion, Incorporacion, Paso, Peticion, Prueba, Sesion, VistaIncorporacion } from '../types'
+import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, observable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, refrescar, eliminable, eliminarTarea, enCursoOObservando, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
 import { CLAVE_PLEGADO, COLORES, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO, RGB } from './constantes'
-import { COLOR_MARCA, DESPUES, LEMA, LETRA_MARCA, LOGO, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, logoSvg, sangriaOrden } from './bienvenida'
+import { COLOR_MARCA, COLOR_MARCA_CLARO, DESPUES, LEMA, LETRA_MARCA, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
+import { ANCHO_LOGO, COLOR_BARRA, COLOR_LETRAS, logoSvg, logoTexto } from './logo'
 import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, COLOR_TURBO, COLOR_TAREA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, colorLetra, colorLetraApagada, hueco, puntosDe } from './estilo'
 import { atrasada, commitsDe, creadaEn, cuentaPasos, texto, ultimoCierre } from './lectura'
 import { AVISO_PANTALLA, anotarPantalla, sinPantallaCompleta } from './pantalla'
+import { ORDEN_CONTINUAR, borrarIncorporacion, terminada } from './contexto'
 import { COLOR_PRUEBA, cambiarPrueba, desdeCopia } from './prueba'
 import type { $ } from './lectura'
 import { emergente, emergenteError, emergenteRespuesta } from './emergentes'
@@ -38,6 +40,37 @@ const panelCerrado = atom({ plugin: 'sf', key: 'panelCerrado' } as const, false)
 const plegado = atom({ plugin: 'sf', key: 'plegado' } as const, {} as Record<string, boolean>)
 // Filas que el cuerpo del panel ha subido con el scroll: la cabecera queda fija encima.
 const desplazamiento = atom({ plugin: 'sf', key: 'desplazamiento' } as const, 0)
+// La parte de la lista de la incorporación que se ve, movida a mano (tarea 333); null, la que sigue al paso actual.
+const vistaIncorporacion = atom({ plugin: 'sf', key: 'vistaIncorporacion' } as const, null as VistaIncorporacion | null)
+// Los pasos de la incorporación que se ven a la vez cuando no caben todos y no se sabe el alto del panel: los demás,
+// con ▲ y ▼. Si se sabe, se pliegan solo los que no caben (tarea 333, a petición del propietario).
+export const PASOS_VISIBLES = 6
+
+// Cuántos pasos de la incorporación se ven a la vez: todos, si caben en `filas` (sin alto conocido, también todos: la
+// superficie se desplaza sola); si no, los más que quepan con el actual a la vista y las flechas que hagan falta, al
+// menos uno. `alto` da las filas de cada paso: la suya y las de su respuesta.
+export function pasosQueCaben(inc: Incorporacion, vista: VistaIncorporacion | null, filas: number | null, alto: (p: Paso) => number): number {
+  const n = inc.pasos.length
+  if (filas === null) return n
+  const suma = (a: number, b: number) => inc.pasos.slice(a, b).reduce((t, p) => t + alto(p), 0)
+  if (suma(0, n) <= filas) return n
+  for (let k = n - 1; k > 1; k--) {
+    const desde = desdeIncorporacion(inc, vista, k)
+    const flechas = (desde > 0 ? 1 : 0) + (desde + k < n ? 1 : 0)
+    if (suma(desde, desde + k) + flechas <= filas) return k
+  }
+  return 1
+}
+
+// Desde qué paso (desde 0) se ve la lista de la incorporación: la movida a mano mientras el actual no cambie; si no, la
+// que deja el actual en la segunda fila (con el anterior encima, para ver su respuesta), sin pasar del final.
+export function desdeIncorporacion(inc: Incorporacion, vista: VistaIncorporacion | null, visibles = PASOS_VISIBLES): number {
+  const n = inc.pasos.length
+  const tope = Math.max(0, n - visibles)
+  if (vista && vista.actual === inc.actual) return Math.min(Math.max(0, vista.desde), tope)
+  const i = inc.actual > 0 ? inc.actual - 1 : n - 1
+  return Math.min(Math.max(0, i - 1), tope)
+}
 // Turnos de la cabecera con avisos: par, la cabecera normal (también al abrir); impar, los avisos. Lo sube el reloj
 // mientras el panel tiene avisos: la cabecera dura TURNO_CABECERA ms y los avisos, TURNO_AVISOS (decisión 164; los
 // avisos, 10 s y no 5, tras probarlo el propietario, 2026-11-01).
@@ -180,21 +213,22 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const avisos = [sinPantallaCompleta(e) && !sinSf ? AVISO_PANTALLA : null, est.error || est.aviso || est.avisosConfiguracion?.length ? 'revisar .sf/' : null, est.errorPeticiones ? 'revisar .sf/peticiones.json' : null]
       .filter((x): x is string => x !== null)
 
-    // Sin SF, un mini splash a la izquierda (tarea 323): el logo de la bienvenida, en el color de la SF; en una
-    // superficie gráfica, en SVG pequeño (los bloques se descuadran en su fuente); en el terminal, en texto, a su lado
-    // el contenido, sin hacer la caja más alta.
+    // Sin SF, un mini splash a la izquierda (tarea 323): el logo «/SF» de la bienvenida (tarea 339), la barra en el morado
+    // claro y las letras en el de la SF; en una superficie gráfica, en SVG pequeño (los bloques se descuadran en su
+    // fuente); en el terminal, en texto, a su lado el contenido, sin hacer la caja más alta.
     const tabla = $.ui.resolve(e)
     const Svg = e.surface !== 'terminal' && 'Svg' in tabla ? tabla.Svg : null
     const miniLogo = !sinSf ? null : Svg ? (
       <Box flexShrink={0} marginRight={2}>
-        <Svg source={logoSvg(COLOR_MARCA, 5)} alt="SF" />
+        <Svg source={logoSvg(5)} alt="/SF" />
       </Box>
     ) : (
       <Box flexDirection="column" flexShrink={0} marginRight={2}>
-        {LOGO.map((fila, i) => (
-          <Text key={`mini-logo:${String(i)}`} color={COLOR_MARCA}>
-            {fila}
-          </Text>
+        {logoTexto(ANCHO_LOGO).map((fila, i) => (
+          <Box key={`mini-logo:${String(i)}`} flexDirection="row">
+            <Text color={COLOR_BARRA}>{fila.barra}</Text>
+            <Text color={COLOR_LETRAS}>{fila.letras}</Text>
+          </Box>
         ))}
       </Box>
     )
@@ -620,7 +654,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const deTarea = [
         conProbar(p) ? botonProbar(p, donde) : null,
         enCola && conCerrar(p) ? botonAccion(p, donde, 'cerrar') : null,
-        enCola && conCerrar(p) ? botonAccion(p, donde, 'aObservacion') : null,
+        enCola && conCerrar(p) && observable(p) ? botonAccion(p, donde, 'aObservacion') : null,
         p.estado === 'en-observacion' ? botonAccion(p, donde, 'cerrarObservada') : null,
         p.descripcion ? botonRedescribir(p, donde) : null,
         botonExplicar(p, donde),
@@ -1515,10 +1549,143 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         <Box width={1} flexShrink={0} />
       </Box>
     )
+    // La incorporación en marcha (tarea 333): sus pasos, numerados, con la respuesta de cada uno; el actual, resaltado en
+    // el morado de la marca y negrita, como la cabecera de la lista; los que faltan, atenuados. Se ven todos si caben en el
+    // alto del panel; si no, se pliegan los mínimos (pasosQueCaben), y ▲ y ▼ mueven la ventana, que vuelve a seguir al
+    // actual en cuanto Claude pasa de paso. Sale bajo la bienvenida sin SF y, con SF (al actualizar, o
+    // tras aplicar), arriba del cuerpo.
+    const inc = est.incorporacion ?? null
+    const vista = inc ? await read($, vistaIncorporacion) : null
+    // Un botón de la incorporación en pausa, centrado en el bloque (su ancho, el del panel menos el relleno): el principal,
+    // como la orden de la bienvenida; el secundario, en el morado claro, sin fondo (tarea 333).
+    const botonCentrado = (key: string, etiqueta: string, principal: boolean, pulsar: () => void) => (
+      <Box key={`${key}:fila`} flexDirection="row" justifyContent={grafica ? 'center' : undefined}>
+        {!grafica && <Text>{' '.repeat(sangriaOrden(etiqueta, ancho - 2))}</Text>}
+        <Button key={key} plain onPress={pulsar}>
+          {principal ? (
+            <Text backgroundColor={COLOR_MARCA} color={LETRA_MARCA} weight="bold">
+              {etiqueta}
+            </Text>
+          ) : (
+            <Text color={COLOR_MARCA_CLARO} weight="regular">
+              {etiqueta}
+            </Text>
+          )}
+        </Button>
+      </Box>
+    )
+    // `encima`: las filas del panel que ocupa lo que va sobre la lista (la bienvenida, sin SF).
+    const listaIncorporacion = (encima = 0) => {
+      if (!inc) return null
+      const n = inc.pasos.length
+      const columna = String(n).length + 2
+      // Filas para los pasos: las del cuerpo, menos la cabecera del panel, lo de encima y lo fijo del bloque (relleno,
+      // cabecera de la lista con su hueco y, en pausa, los dos botones con sus huecos).
+      const cuerpoFilas = (e.props as { scroll?: { bodyRows?: number } }).scroll?.bodyRows
+      // Terminada y sin panel operativo (simulada, o un diagnóstico sin SF): se queda, con un botón que la cierra; abandonar
+      // no tiene sentido en algo terminado (tarea 333, a petición del propietario).
+      const hecha = terminada(inc)
+      const cerrable = !inc.pausa && hecha && est.tipo === 'sin-sf'
+      const filas = typeof cuerpoFilas === 'number' ? cuerpoFilas - altoCabecera - encima - 4 - (inc.pausa ? 4 : cerrable ? 2 : 0) : null
+      const anchoTexto = Math.max(8, ancho - 2 - columna)
+      const alto = (p: Paso) => 1 + (p.respuesta ? Math.max(1, Math.ceil(p.respuesta.length / anchoTexto)) : 0)
+      const visibles = pasosQueCaben(inc, vista, filas, alto)
+      const desde = desdeIncorporacion(inc, vista, visibles)
+      const hasta = Math.min(n, desde + visibles)
+      const mover = (a: number) => () =>
+        void update($, vistaIncorporacion, () => ({ desde: Math.min(Math.max(0, a), Math.max(0, n - visibles)), actual: inc.actual })).catch(() => undefined)
+      const hechos = inc.pasos.filter(p => p.respuesta).length
+      return (
+        <Box key="incorporacion" flexDirection="column" backgroundColor={FONDO_BLOQUE} paddingX={1} paddingY={1}>
+          {/* La cabecera, en la línea de la marca (tarea 333, a petición del propietario): «INCORPORACIÓN» en el morado del
+              logo y negrita; el estado como etiqueta, letra negra en negrita sobre morado (En curso) o morado claro (En
+              pausa); y la cuenta, discreta. Sin paso actual (Claude aún no ha empezado o ya ha terminado), sin etiqueta. */}
+          <Box key="incorporacion:cabecera" flexDirection="row" flexWrap={grafica ? 'wrap' : undefined} marginBottom={1}>
+            <Text color={COLOR_MARCA} weight="bold">
+              INCORPORACIÓN
+            </Text>
+            {(inc.pausa || inc.actual > 0 || hecha) && (
+              <Box marginLeft={1} flexShrink={0}>
+                <Text backgroundColor={inc.pausa ? COLOR_MARCA_CLARO : COLOR_MARCA} color={LETRA_MARCA} weight="bold">
+                  {inc.pausa ? ' En pausa ' : hecha ? ' Terminada ' : ' En curso '}
+                </Text>
+              </Box>
+            )}
+            <Box marginLeft={1} flexShrink={1}>
+              <Text dimColor wrap="truncate-end">
+                {inc.pausa || inc.actual > 0 ? `paso ${String(inc.actual)} de ${String(n)}` : `${String(hechos)} de ${String(n)} pasos`}
+              </Text>
+            </Box>
+          </Box>
+          {desde > 0 && (
+            <Button key="incorporacion:arriba" plain onPress={mover(desde - Math.max(1, visibles - 1))}>
+              <Text dimColor>{`▲ ${String(desde)} ${desde === 1 ? 'paso' : 'pasos'} antes`}</Text>
+            </Button>
+          )}
+          {inc.pasos.slice(desde, hasta).map((p, j) => {
+            const i = desde + j + 1
+            const actual = i === inc.actual && !inc.pausa
+            const falta = inc.pausa || (!actual && !p.respuesta)
+            return (
+              <Box key={`incorporacion:${String(i)}`} flexDirection="row">
+                <Box width={columna} flexShrink={0}>
+                  <Text color={actual ? COLOR_MARCA : undefined} weight={actual ? 'bold' : undefined} dimColor={falta}>
+                    {`${String(i)}.`}
+                  </Text>
+                </Box>
+                <Box flexDirection="column" flexShrink={1} flexGrow={1}>
+                  <Text color={actual ? COLOR_MARCA : undefined} weight={actual ? 'bold' : undefined} dimColor={falta}>
+                    {actual ? `${p.nombre} ◂` : p.nombre}
+                  </Text>
+                  {p.respuesta && (
+                    <Text color={actual ? COLOR_MARCA_CLARO : undefined} dimColor={!actual}>
+                      {p.respuesta}
+                    </Text>
+                  )}
+                </Box>
+              </Box>
+            )
+          })}
+          {hasta < n && (
+            <Button key="incorporacion:abajo" plain onPress={mover(desde + Math.max(1, visibles - 1))}>
+              <Text dimColor>{`▼ ${String(n - hasta)} ${n - hasta === 1 ? 'paso' : 'pasos'} más`}</Text>
+            </Button>
+          )}
+          {/* En pausa (decisión 258): seguir, pasándoselo a Claude, o abandonar, sin Claude. Centrados como la orden de la
+              bienvenida y separados por una línea (tarea 333, a petición del propietario): Continuar, el principal, como
+              aquella, fondo morado de la marca y letra negra en negrita; Abandonar, secundario, en el morado claro del
+              logo, sin fondo. En el terminal se centran con espacios; en una superficie gráfica, con la caja. */}
+          {inc.pausa && (
+            <Box flexDirection="column" marginTop={1}>
+              {botonCentrado('incorporacion:continuar', ' Continuar incorporación a la SF ', true, () => pedirIncorporar($, ORDEN_CONTINUAR))}
+              <Box marginTop={1} flexDirection="column">
+                {botonCentrado('incorporacion:abandonar', ' Abandonar incorporación a la SF ', false, () => {
+                  void borrarIncorporacion($)
+                    .then(() => refrescar($))
+                    .catch(err => emergenteError($, `No se pudo abandonar la incorporación: ${String(err)}`))
+                })}
+              </Box>
+            </Box>
+          )}
+          {/* Terminada sin panel operativo: un solo botón, el principal, que quita la lista y devuelve la bienvenida. */}
+          {cerrable && (
+            <Box flexDirection="column" marginTop={1}>
+              {botonCentrado('incorporacion:cerrar', ' Hecho: cerrar la lista ', true, () => {
+                void borrarIncorporacion($)
+                  .then(() => refrescar($))
+                  .catch(err => emergenteError($, `No se pudo cerrar la lista de la incorporación: ${String(err)}`))
+              })}
+            </Box>
+          )}
+        </Box>
+      )
+    }
+
     // Sin SF, la bienvenida (tarea 289): la marca, qué es la SF y qué escribir para empezar. Sin la línea de la tarea,
     // sin las secciones (vacías) y sin el aviso de la pantalla completa: aquí no hay botones que pulsar.
     if (est.tipo === 'sin-sf') {
-      const lineas = bienvenida(ancho)
+      // Con una incorporación en marcha, sin la invitación a empezar: no compite con su lista ni con sus botones.
+      const lineas = bienvenida(ancho, !inc)
       // La marca, siempre en el color de la SF, el morado (COLOR_MARCA), sin depender de la sesión (decisión 249, corregida).
       const marca = COLOR_MARCA
       // En una superficie gráfica, el logo va en SVG, centrado (los bloques ▄█▀ se descuadran en su fuente), y la orden, en
@@ -1539,7 +1706,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                 x.estilo === 'logo' && Svg ? (
                   i === primerLogo ? (
                     <Box key="bienvenida:logo" flexDirection="row" justifyContent="center">
-                      <Svg source={logoSvg(marca)} alt="SF" />
+                      <Svg source={logoSvg()} alt="/SF" />
                     </Box>
                   ) : null
                 ) : x.estilo === 'orden' && grafica ? (
@@ -1552,6 +1719,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                       </Button>
                     </Box>
                   ) : null
+                ) : x.logo ? (
+                  // En el terminal, el logo «/SF» con la barra en el morado claro y las letras en el de la SF (tarea 339).
+                  <Box key={`bienvenida:${String(i)}`} flexDirection="row">
+                    <Text>{' '.repeat(x.logo.sangria)}</Text>
+                    {x.logo.barra ? <Text color={COLOR_BARRA}>{x.logo.barra}</Text> : null}
+                    <Text color={COLOR_LETRAS}>{x.logo.letras}</Text>
+                  </Box>
                 ) : x.estilo === 'orden' ? (
                   <Box key={`bienvenida:${String(i)}`} flexDirection="row">
                     <Text>{' '.repeat(sangriaOrden(x.texto, ancho))}</Text>
@@ -1574,6 +1748,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                 ),
               )}
             </Box>,
+            listaIncorporacion(lineas.length),
           )}
         </Box>,
       )
@@ -1584,7 +1759,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     return conMargen(
       <Box flexDirection="column">
         {cabecera()}
-        {cuerpo(bajoCabecera(), bloqueTareas)}
+        {cuerpo(listaIncorporacion(), bajoCabecera(), bloqueTareas)}
       </Box>,
     )
   })

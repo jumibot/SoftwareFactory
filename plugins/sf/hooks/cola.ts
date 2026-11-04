@@ -10,6 +10,7 @@ import type { $ } from './lectura'
 import { emergente, emergenteError } from './emergentes'
 import { encargarAClaude } from './avisos'
 import { desdeCopia } from './prueba'
+import { revisarPublicacion } from './revision'
 
 // Valores de estado del mod: el motor exige declararlos en el archivo que los usa; con el mismo
 // plugin y clave, son el mismo valor en todos los archivos.
@@ -280,6 +281,13 @@ export function cerrable(p: Peticion, ramas: Record<string, boolean>): boolean {
   )
 }
 
+// Las deliberativas (investigar, deliberar y diseñar) no se prueban ni pasan por observación: se cierran con la C
+// (218, 278). Como DELIBERATIVAS de cola.py.
+const DELIBERATIVAS = ['investigar', 'deliberar', 'diseñar']
+export function observable(p: { tipo?: string | null }): boolean {
+  return !DELIBERATIVAS.includes(p.tipo ?? '')
+}
+
 // La C del panel, confirmada: cierra la tarea sin Claude (decisión del propietario, 2026-10-29: pulsarla es el OK
 // «ciérrala»), con «cola.py cerrar»: si la rama está en otro worktree o hay cambios sin commit, no hace nada y
 // dice por qué; pasa la rama a develop por squash, con un commit «<tarea> (N)» y sus pasos hechos, hace push de
@@ -393,6 +401,7 @@ export function subirManifiesto(original: string, ruta: string, nueva: string): 
 // la SF, «sf X.Y.Z») en develop; un manifiesto sin versión o con otra que la del tag se avisa sin bloquear, y se
 // escribe (226). Después pasa develop a main sin cambiar de rama (git fetch . develop:<main>), crea el tag anotado y
 // hace push de develop, main y el tag al remoto de la configuración. Si el push falla, lo local queda hecho y lo dice.
+// Antes de tocar nada, si el remoto es público, revisa lo que sale (revision.ts, decisión 252).
 export async function publicarVersion($: $, fuente: FuenteVersion, nueva: string): Promise<Resultado> {
   const raiz = await raizSesion($)
   const git = gitEn($, raiz)
@@ -420,6 +429,9 @@ export async function publicarVersion($: $, fuente: FuenteVersion, nueva: string
   const ahora = await versionActual($)
   if (ahora.actual !== fuente.actual || ahora.manifiestos.join('\n') !== fuente.manifiestos.join('\n'))
     return { ok: false, mensaje: `RELEASE: la versión ha cambiado (ahora, ${ahora.actual ?? 'ninguna'}). Vuelve a pulsar RELEASE.` }
+  // Lo que sale en esta versión, revisado (decisiones 252 y 259): para, o pide permiso, si encuentra algo.
+  const revision = await revisarPublicacion($, raiz, remoto, fuente.actual === null ? null : `v${fuente.actual}`, nueva)
+  if (revision) return { ok: false, mensaje: revision }
   // Los manifiestos, con la versión nueva; lo que no cuadra se avisa sin bloquear.
   const avisos: string[] = []
   const escritos: { ruta: string; original: string }[] = []
@@ -983,7 +995,7 @@ export function pedirIncorporar($: $, texto: string): void {
   $.clock.after(50, () => {
     void encargarAClaude($, texto).catch(err => emergenteError($, `No se pudo pasar a Claude «${texto}»: ${String(err)}`))
   })
-  emergente($, 'Se lo paso a Claude: incorporar el proyecto a la SF.')
+  emergente($, `Se lo paso a Claude: «${texto}».`)
 }
 
 // /sf_split (decisión del propietario, 2026-10-29): se separan pasos de una tarea en curso o en cola en una tarea
@@ -1139,7 +1151,9 @@ export async function convertirPropuesta($: $, pr: Realimentacion['porRevisar'][
 
 export async function refrescar($: $): Promise<Estado> {
   raicesConocidas.clear()
-  const nuevo = await leerEstado($, await read($, inicioSesion))
+  // Sin inicio de la sesión (el estado se acaba de vaciar al cambiar de plugin y aún no ha pasado cargar), desde
+  // ahora: con 0, Cerradas contaría todo lo cerrado desde el principio del historial (tarea 350).
+  const nuevo = await leerEstado($, (await read($, inicioSesion)) || (await $.clock.now()))
   await update($, estado, () => nuevo)
   await ponerIdentidad($, nuevo).catch(() => undefined)
   const rf = nuevo.realimentacion

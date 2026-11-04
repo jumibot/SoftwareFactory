@@ -1,5 +1,6 @@
 import { COLOR_SF, RGB } from './constantes'
 import { centrar } from './estilo'
+import { ANCHO_LETRAS, COLOR_BARRA, logoTexto } from './logo'
 
 // ── La bienvenida, en un proyecto sin SF (tarea 289) ──
 // La primera vez que alguien abre el panel en una carpeta sin .sf/proyecto.json, lo único que necesita saber es qué
@@ -11,30 +12,10 @@ import { centrar } from './estilo'
 // La letra negra encima: contraste 5,6:1 (con blanca, 3,8:1).
 export const COLOR_MARCA = RGB[COLOR_SF]
 export const LETRA_MARCA = '#000000'
+// El morado claro de la barra del logo, para lo secundario junto a la marca (el Abandonar de la incorporación en pausa,
+// tarea 333): sobre el gris del bloque (#3a3a3a), contraste 5,5:1.
+export const COLOR_MARCA_CLARO = COLOR_BARRA
 
-// «SF» en letra de bloques, cinco filas de 13 columnas.
-export const LOGO = [
-  '▄█████ ██████',
-  '██     ██    ',
-  '▀████▄ █████ ',
-  '    ██ ██    ',
-  '█████▀ ██    ',
-]
-// El logo como SVG, para las superficies gráficas (la app de escritorio, VS Code, el móvil): allí los bloques ▄█▀ van
-// en una fuente que no los dibuja a una celda y el logo se descuadra (tarea 323). Cada carácter, una celda de 1×2:
-// █ entera, ▄ la mitad de abajo, ▀ la de arriba.
-export function logoSvg(color: string, celda = 9): string {
-  const rects: string[] = []
-  LOGO.forEach((fila, y) =>
-    [...fila].forEach((c, x) => {
-      const [dy, alto] = c === '█' ? [0, 2] : c === '▄' ? [1, 1] : c === '▀' ? [0, 1] : [0, 0]
-      if (alto > 0) rects.push(`<rect x="${x}" y="${y * 2 + dy}" width="1.04" height="${alto + 0.04}"/>`)
-    }),
-  )
-  const w = LOGO[0]!.length
-  const h = LOGO.length * 2
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w * celda}" height="${h * celda}" fill="${color}" shape-rendering="crispEdges">${rects.join('')}</svg>`
-}
 export const NOMBRE_ANCHO = 'S O F T W A R E   F A C T O R Y'
 export const NOMBRE = 'SOFTWARE FACTORY'
 export const LEMA = 'Tu fábrica de software sobre Claude Code: de la idea al código, tarea a tarea.'
@@ -63,21 +44,33 @@ export function equilibrar(texto: string, w: number): string[] {
   return partir(texto, mejor)
 }
 
-// Lo que pinta la bienvenida en w columnas: cada línea ya centrada y su estilo. La orden, en una pastilla del color de la SF con
-// un espacio a cada lado; si no cabe, partida en varias del mismo ancho.
-export type LineaBienvenida = { texto: string; estilo: 'logo' | 'nombre' | 'lema' | 'normal' | 'orden' | 'tenue' | 'hueco' }
-export function bienvenida(w: number): LineaBienvenida[] {
+// Lo que pinta la bienvenida en w columnas: cada línea ya centrada y su estilo. Las del logo llevan además, aparte, la
+// sangría, la barra y las letras, para pintar cada una con su color (tarea 339); sin sitio para la barra, solo las letras. La orden, en una pastilla del color de la SF con
+// un espacio a cada lado; si no cabe, partida en varias del mismo ancho. Sin `invitacion` (con una incorporación en
+// marcha, que tiene sus botones), solo la marca y el lema: ni «Para empezar…», ni la orden, ni lo que viene después
+// (tarea 333, a petición del propietario).
+export type LineaBienvenida = {
+  texto: string
+  estilo: 'logo' | 'nombre' | 'lema' | 'normal' | 'orden' | 'tenue' | 'hueco'
+  logo?: { sangria: number; barra: string; letras: string }
+}
+export function bienvenida(w: number, invitacion = true): LineaBienvenida[] {
   const ancho = Math.max(12, w)
   const c = (t: string) => centrar(t, ancho).trimEnd()
   const l: LineaBienvenida[] = [{ texto: '', estilo: 'hueco' }]
-  if (ancho >= LOGO[0]!.length) {
-    for (const fila of LOGO) l.push({ texto: c(fila), estilo: 'logo' })
+  if (ancho >= ANCHO_LETRAS) {
+    for (const { barra, letras } of logoTexto(ancho)) {
+      const texto = c(barra + letras)
+      const sangria = texto.length - texto.trimStart().length - (barra + letras).length + (barra + letras).trimStart().length
+      l.push({ texto, estilo: 'logo', logo: { sangria, barra, letras: letras.trimEnd() } })
+    }
     l.push({ texto: '', estilo: 'hueco' })
   }
   for (const x of ancho >= NOMBRE_ANCHO.length ? [NOMBRE_ANCHO] : equilibrar(NOMBRE, ancho)) l.push({ texto: c(x), estilo: 'nombre' })
   l.push({ texto: '', estilo: 'hueco' })
   for (const x of equilibrar(LEMA, Math.min(ancho, 44))) l.push({ texto: c(x), estilo: 'lema' })
   l.push({ texto: '', estilo: 'hueco' })
+  if (!invitacion) return l
   l.push({ texto: '', estilo: 'hueco' })
   for (const x of equilibrar(PARA_EMPEZAR, ancho)) l.push({ texto: c(x), estilo: 'normal' })
   l.push({ texto: '', estilo: 'hueco' })

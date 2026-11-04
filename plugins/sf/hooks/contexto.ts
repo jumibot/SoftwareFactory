@@ -3,7 +3,7 @@ import type { PromptComposeResult } from 'claude-code'
 import { configuracion, convenciones } from './configuracion'
 import { MARCA_SF, PROYECTO } from './constantes'
 import { normal } from './control'
-import { importaCopia, leerJson, raizSesion } from './lectura'
+import { importaCopia, leerIncorporacion, leerJson, raizSesion, rutaIncorporacion } from './lectura'
 import type { $ } from './lectura'
 import { detectarPython, lineaPython } from './python'
 import { ORDEN_EMPEZAR } from './bienvenida'
@@ -151,6 +151,52 @@ export async function anotarRespuestaIncorporar($: $, respuestas: unknown): Prom
 }
 export async function reiniciarIncorporar($: $): Promise<void> {
   await update($, incorporarOfrecido, () => false)
+}
+
+// ── La incorporación en pausa (tarea 333, decisión 258) ──
+// Un turno del principal que acaba (también interrumpido con Esc, en un menú o mientras Claude trabaja) con una
+// incorporación a medias la pone en pausa: no se borra lo respondido. El mod añade "pausa": true al progreso, y
+// incorporacion.py la quita en cuanto Claude anota algo. En pausa, el panel atenúa la lista y ofrece Continuar (pasa a
+// Claude ORDEN_CONTINUAR) y Abandonar (borra el progreso, sin Claude). Al cargar el mod (sesión nueva o reanudada,
+// /reload-plugins, el modo prueba, /clear), lo mismo: en pausa, no se borra (tarea 333, a petición del propietario).
+// Se borra solo con Abandonar, con «Hecho» en la lista terminada, al salir el panel operativo y con «Ahora no» o «No,
+// y no vuelvas a preguntar» en un menú. Borrar es dejar el archivo sin pasos, que el panel y incorporacion.py leen
+// como sin progreso.
+export const ORDEN_CONTINUAR = 'continúa la incorporación a la SF'
+async function hayIncorporacion($: $): Promise<string | null> {
+  const ruta = await rutaIncorporacion($)
+  if (!ruta) return null
+  return (await leerIncorporacion($, await raizSesion($)).catch(() => null)) ? ruta : null
+}
+export async function borrarIncorporacion($: $): Promise<void> {
+  const ruta = await hayIncorporacion($)
+  if (ruta) await $.fs.write(ruta, '{}\n')
+}
+export async function pausarIncorporacion($: $): Promise<void> {
+  const ruta = await hayIncorporacion($)
+  if (!ruta) return
+  const d = await leerJson($, ruta)
+  if (d.pausa === true || !(typeof d.actual === 'number' && d.actual > 0)) return
+  await $.fs.write(ruta, JSON.stringify({ ...d, pausa: true }, null, 2) + '\n')
+}
+// Una incorporación terminada (todos sus pasos anotados, ninguno en curso) se queda en el panel hasta que el proyecto
+// tiene su panel operativo (`conSf`: .sf/proyecto.json válido); entonces, al empezar el siguiente turno del principal,
+// la borra el mod: así el propietario ve Aplicar y Comprobación marcados y repasa la lista junto al panel nuevo. La
+// skill ya no la borra al terminar. Sin panel operativo (simulada, o diagnosticar sin SF), sigue hasta Abandonar
+// (tarea 333, norma del propietario).
+export const terminada = (inc: { actual: number; pasos: { respuesta: string | null }[] }) => inc.actual === 0 && inc.pasos.every(p => !!p.respuesta)
+export async function cerrarIncorporacionTerminada($: $, conSf: boolean): Promise<boolean> {
+  if (!conSf) return false
+  const inc = await leerIncorporacion($, await raizSesion($)).catch(() => null)
+  if (!inc || !terminada(inc)) return false
+  await borrarIncorporacion($)
+  return true
+}
+// Las respuestas de un menú del principal: con un no a incorporar, se borra el progreso.
+export async function menuEnIncorporacion($: $, respuestas: unknown): Promise<void> {
+  if (!respuestas || typeof respuestas !== 'object') return
+  const no = Object.values(respuestas as Record<string, unknown>).some(v => typeof v === 'string' && (v.trim().startsWith(AHORA_NO) || v.trim().startsWith(NUNCA_AQUI)))
+  if (no) await borrarIncorporacion($)
 }
 
 // Las reglas y la orquestación del proyecto de la sesión, con el momento en que se entregan.

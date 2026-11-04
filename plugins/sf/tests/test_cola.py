@@ -2237,5 +2237,116 @@ class Encargo(Base):
         self.orden('encargo', '99', ok=False)
 
 
+class Deliberativas(Base):
+    """Las deliberativas (investigar, deliberar, diseñar) no tienen rama, worktree ni rama auxiliar, ni se prueban
+    (decisiones 218, 256 y 278; tarea 345)."""
+    git = True
+
+    def textos(self, id_: int) -> list:
+        return [x['texto'] for x in self.tarea(id_)['pasos']]
+
+    def test_en_curso_sin_paso_de_activar_rama(self):
+        for tipo in cola.DELIBERATIVAS:
+            r = self.respuesta('crear', f'Pensar {tipo}', '--tipo', tipo, '--en-curso')
+            self.assertEqual(self.textos(r['id']), ['Cerrar la tarea'])
+        self.orden('crear', 'Hacer', '--tipo', 'implementar', '--en-curso')
+        self.assertEqual(self.textos(14), list(cola.PASOS_CIERRE))
+
+    def test_rama_y_subagente_se_niegan(self):
+        self.orden('crear', 'Investigar', '--tipo', 'investigar', '--en-curso')
+        self.assertIn('deliberativa', self.orden('rama', '11', 'investigar', '--sin-activar', ok=False))
+        self.assertIn('deliberativa', self.orden('subagente', '11', '--worktree', '../wt', '--rama', 'sub-11', ok=False))
+        self.assertNotIn('feature/11-investigar', git(self.raiz, 'branch'))
+        self.assertIsNone(self.tarea(11).get('rama'))
+
+    def test_encargo_sin_worktree(self):
+        self.orden('crear', 'Deliberar', '--tipo', 'deliberar', '--en-curso')
+        r = self.respuesta('encargo', '11')
+        self.assertTrue(r['sin_rama'])
+        self.assertIsNone(r['worktree'])
+        self.assertIn('Sin rama, worktree ni rama auxiliar', r['encargo'])
+        self.assertNotIn('Qué mirar en la prueba', r['encargo'])
+
+    def test_cierra_sin_rama_y_no_va_a_observacion(self):
+        self.orden('crear', 'Deliberar', '--tipo', 'deliberar', '--en-curso')
+        self.orden('paso', 'añadir', '11', 'Escribir el informe')
+        self.orden('paso', 'marcar', '11', '1', 'hecho')
+        self.assertIn('observación', self.orden('a-observacion', '11', ok=False))
+        self.assertIn('sin rama', self.orden('cerrar', '11'))
+        self.assertEqual(self.archivadas()[-1]['estado'], 'cerrada')
+
+    def test_cambiar_el_tipo_pone_o_quita_activar_rama(self):
+        self.orden('crear', 'Algo', '--tipo', 'implementar', '--en-curso')
+        self.assertIn('quitado', self.orden('tipo', '11', 'investigar'))
+        self.assertEqual(self.textos(11), ['Cerrar la tarea'])
+        self.assertIn('añadido', self.orden('tipo', '11', 'corregir'))
+        self.assertEqual(self.textos(11), list(cola.PASOS_CIERRE))
+
+    def test_al_cargar_una_deliberativa_pierde_activar_rama(self):
+        self.escribir({'ultimo': 11, 'peticiones': [{'id': 11, 'texto': 'Vieja', 'tipo': 'investigar', 'estado': 'en-curso',
+                                                     'pasos': [{'texto': x, 'estado': 'pendiente'} for x in cola.PASOS_CIERRE]}]})
+        self.orden('paso', 'añadir', '11', 'Leer')
+        self.assertEqual(self.textos(11), ['Leer', 'Cerrar la tarea'])
+
+    def test_reabrir_deliberativa_sin_rama(self):
+        self.orden('crear', 'Deliberar', '--tipo', 'deliberar', '--en-curso')
+        self.orden('cerrar', '11')
+        self.assertIn('deliberativa', self.orden('reabrir', '11', 'Falta algo'))
+        self.assertIsNone(self.tarea(11).get('rama'))
+        self.orden('cerrar', '11')
+        self.assertIn('deliberativa', self.orden('reabrir', '11', 'otra', '--rama', 'x', ok=False))
+
+
+class RamaVacia(Base):
+    """Una rama sin cambios respecto a develop se cierra sin commit: se borra y la tarea sale de la cola (tarea 345;
+    antes, el squash fallaba con «nothing added to commit»)."""
+    git = True
+
+    def preparar(self, activar: bool = False) -> str:
+        self.orden('crear', 'Vacía', '--tipo', 'corregir', '--en-curso')
+        self.orden('rama', '11', 'vacia', *([] if activar else ['--sin-activar']))
+        return git(self.raiz, 'rev-parse', 'develop')
+
+    def test_cerrar_rama_sin_commits(self):
+        antes = self.preparar()
+        (self.raiz / 'suelto.txt').write_text('sin seguir\n', encoding='utf-8')  # «untracked files present»
+        self.assertIn('sin commit', self.orden('cerrar', '11'))
+        self.assertEqual(git(self.raiz, 'rev-parse', 'develop'), antes)
+        self.assertNotIn('feature/11-vacia', git(self.raiz, 'branch'))
+        self.assertIsNone(self.tarea(11))
+        salida = self.archivadas()[-1]
+        self.assertEqual(salida['estado'], 'cerrada')
+        self.assertNotIn('commit', salida)
+
+    def test_cerrar_rama_activa_sin_cambios(self):
+        antes = self.preparar(activar=True)
+        self.assertIn('sin commit', self.orden('cerrar', '11'))
+        self.assertEqual((git(self.raiz, 'branch', '--show-current'), git(self.raiz, 'rev-parse', 'develop')),
+                         ('develop', antes))
+
+    def test_cerrar_rama_cuyo_cambio_ya_esta_en_develop(self):
+        self.preparar()
+        self.commit_en('feature/11-vacia', 'a.txt', 'dos\n')
+        self.commit_en('develop', 'a.txt', 'dos\n')
+        antes = git(self.raiz, 'rev-parse', 'develop')
+        self.assertIn('sin commit', self.orden('cerrar', '11'))
+        self.assertEqual(git(self.raiz, 'rev-parse', 'develop'), antes)
+        self.assertNotIn('feature/11-vacia', git(self.raiz, 'branch'))
+
+    def test_cerrar_recoge_la_auxiliar_vacia(self):
+        self.preparar()
+        wt = self.raiz.parent / 'wt-11'
+        git(self.raiz, 'worktree', 'add', '-q', '-b', 'sub-11', str(wt), 'feature/11-vacia')
+        self.orden('subagente', '11', '--worktree', str(wt), '--rama', 'sub-11')
+        self.orden('cerrar', '11')
+        self.assertNotIn('sub-11', git(self.raiz, 'branch'))
+        self.assertFalse(wt.exists())
+
+    def test_a_observacion_se_niega(self):
+        self.preparar()
+        self.assertIn('nada que observar', self.orden('a-observacion', '11', ok=False))
+        self.assertEqual(self.tarea(11)['estado'], 'en-curso')
+
+
 if __name__ == '__main__':
     unittest.main()

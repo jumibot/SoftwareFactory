@@ -362,6 +362,24 @@ def kit_scripts() -> str:
     return "".join("\n" + bloque_kit(r) for r in KIT_SCRIPTS)
 
 
+# Lector de libros (recurso común: assets/lector.css y lector.js). Solo entra si el documento lo usa.
+LECTOR_CSS = "skills/crear_documentos/assets/lector.css"
+LECTOR_JS = "skills/crear_documentos/assets/lector.js"
+# Con data-al-abrir="historia", la cabecera oculta el documento desde el principio, sin parpadeo; sin JS, la clase no
+# se pone y el documento se ve entero.
+HISTORIA_PRIMERO = "\n  <script>document.documentElement.classList.add('historia-primero')</script>"
+
+
+def lector_estilos(html: str) -> str:
+    if 'class="libro' not in html and 'class="lector' not in html:
+        return ""
+    return "\n  " + bloque_kit(LECTOR_CSS) + (HISTORIA_PRIMERO if 'data-al-abrir="historia"' in html else "")
+
+
+def lector_scripts(html: str) -> str:
+    return "\n" + bloque_kit(LECTOR_JS) if 'class="lector"' in html else ""
+
+
 def enlaces_externos(html: str) -> str:
     """Los enlaces a otras webs se abren aparte (target, rel) y lo dicen con ↗, salvo si el texto ya lo lleva."""
     def uno(m):

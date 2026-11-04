@@ -4,6 +4,8 @@ import type { Prueba } from '../types'
 import { emergente } from './emergentes'
 import { normal } from './control'
 import { lanzar } from './identidad'
+import { MARCA_SF } from './constantes'
+import { raizSesion } from './lectura'
 
 // Valores de estado del mod: el motor exige declararlos en el archivo que los usa; con el mismo
 // plugin y clave, son el mismo valor en todos los archivos.
@@ -36,12 +38,18 @@ export async function leerPrueba($: EngineInterface): Promise<void> {
   await update($, prueba, () => ({ disponible, pedido }))
 }
 
+// La sesión está en el repositorio fuente de la SF. Fuera de él (una carpeta de prueba con el catálogo local, o un
+// proyecto), el mod no apaga el modo prueba ni escribe en .sf/: manda lo que diga .claude/settings.local.json (tarea 338).
+export async function enLaFuente($: EngineInterface): Promise<boolean> {
+  return $.fs.exists(`${await raizSesion($)}/${MARCA_SF}`).catch(() => false)
+}
+
 // Registro de diagnóstico (tarea 183): quién cambia el modo prueba y cuándo, en .sf/prueba.log, fuera de git.
-// Solo en la SF (con el catálogo local registrado): en un proyecto consumidor no escribe nada.
+// Solo en la SF, con el catálogo local registrado: en otra carpeta no escribe nada.
 export const REGISTRO_PRUEBA = '.sf/prueba.log'
 export async function anotarPrueba($: EngineInterface, texto: string): Promise<void> {
   try {
-    if (!(await leerAjustes($))?.extraKnownMarketplaces?.[CATALOGO_PRUEBA]) return
+    if (!(await leerAjustes($))?.extraKnownMarketplaces?.[CATALOGO_PRUEBA] || !(await enLaFuente($))) return
     let antes = ''
     try {
       antes = await $.fs.read(REGISTRO_PRUEBA)
@@ -67,6 +75,7 @@ export async function ponerPrueba($: EngineInterface, activar: boolean, motivo =
 // La sesión que ya lo apagó queda en .sf/prueba.json (fuera de git), que sobrevive al cambio de plugin.
 export const MARCA_PRUEBA = '.sf/prueba.json'
 export async function apagarAlEntrar($: EngineInterface): Promise<void> {
+  if (!(await enLaFuente($))) return leerPrueba($)
   const id = await $.session.id()
   let anterior: string | null = null
   try {
@@ -79,6 +88,13 @@ export async function apagarAlEntrar($: EngineInterface): Promise<void> {
   await $.fs.write(MARCA_PRUEBA, JSON.stringify({ sesion: id }) + '\n')
   // La sesión arrancó con la copia de trabajo (la anterior se cerró sin apagarlo): vuelve al publicado.
   if (await desdeCopia($)) lanzar($, 'reload-plugins', '')
+}
+
+// Al cerrar la sesión, el modo prueba se desactiva, solo en la SF: la siguiente entra con el plugin publicado.
+export async function apagarAlCerrar($: EngineInterface, motivo: string): Promise<void> {
+  if (!(await enLaFuente($))) return
+  await anotarPrueba($, `session.end: ${motivo}`)
+  await ponerPrueba($, false, `session.end (${motivo})`)
 }
 
 // El turno de Claude en curso (el del principal, no los de los subagentes). Claude Code guarda el /reload-plugins

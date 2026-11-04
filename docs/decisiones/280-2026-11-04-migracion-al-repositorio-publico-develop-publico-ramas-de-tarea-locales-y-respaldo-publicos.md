@@ -1,0 +1,3 @@
+# Migración al repositorio público: develop público, ramas de tarea locales y _respaldo/ públicos
+
+Decisión del propietario de la Software Factory (2026-11-04), en la tarea 328. Al pasar la carpeta de trabajo al repositorio público (decisión 252): develop se sube al público; las ramas feature/NN no se suben, porque se cierran por squash en develop y no hace falta que salgan; las carpetas _respaldo/ de los documentos salen públicas, porque son versiones anteriores de documentos que ya lo son, y se revisan con lo demás. La revisión de lo que sale la hace revision_publica.py, para lo que la tarea 332 se cierra antes de la mudanza. La mudanza se hace cuando ningún subagente esté trabajando: al terminar la 350, y antes del siguiente RELEASE.

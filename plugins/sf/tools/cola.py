@@ -32,6 +32,9 @@ Uso:
            registra en sf/decisiones/ (o en docs/decisiones/, la de antes; NNN-AAAA-MM-DD-titulo.md, el siguiente número) o reescribe la NNN, rehace su
            README.md y hace el commit «Decisión NNN: Título» en develop, también con otra rama activa, sin cambiarla
            (tarea 283); da el número y el hash. No toca la cola.
+  subir    sube develop a su remoto. Como el push de un cierre, con el remoto público revisa antes lo que sale
+           (revision_publica.py, decisión 259): con algo nuevo, no sube; con algo ya subido, sube si se repite la
+           subida en 10 minutos con los mismos hallazgos. No toca la cola.
 
 Cada escritura guarda antes una copia de la cola en .sf/copias/ (las últimas 50), con la cola bloqueada por
 .sf/peticiones.lock. Cada tarea lleva su historial {evento, fecha, quien, via, detalle}; las que salen de la cola
@@ -46,6 +49,9 @@ subagente (cerrar, a-observacion, descartar, eliminar, a-propuesta, revertir, li
 fusionar) quitan su worktree y borran su rama auxiliar, sin forzar (salvo reabrir): lo que queda se avisa (decisión
 169). Una tarea en curso con commits propios en su rama no vuelve a la cola (decisión 170); con la rama vacía o ya
 borrada, sí: «en-cola» borra la rama y recoge su subagente vacío (tarea 275).
+Las deliberativas (investigar, deliberar, diseñar) no tienen rama, worktree ni rama auxiliar: «rama» y «subagente» se
+niegan, su único paso de cierre es «Cerrar la tarea» y no pasan a observación (decisiones 256 y 278). Una rama sin
+cambios respecto a develop se cierra sin commit: «cerrar» la borra y saca la tarea (tarea 345).
 «probar» activa la rama, o la deja si ya lo está, y marca hecho el paso de prueba (decisión 172). Antes integra develop
 en ella (merge), para probar con lo último; con choques, lo deshace, no la activa y dice qué archivos chocan («fallo»:
 choques); con commits de una rama auxiliar sin traer a la de la tarea, ni integra ni activa (tarea 270). P, el número de un
@@ -83,6 +89,11 @@ PASO_PROBAR, PASO_PROBAR_ANTES = PASOS_CIERRE[0], 'Probar la tarea'
 # El tipo de cada tarea, en infinitivo; el panel lo pinta tras el título, «(DELIBERAR)» (decisión del propietario,
 # 2026-10-31). Opcional: las tareas anteriores no lo tienen.
 TIPOS = ('deliberar', 'documentar', 'diseñar', 'implementar', 'especificar', 'corregir', 'investigar')
+# Las deliberativas (metodología, «Tipos de tarea»: investigar, deliberar y diseñar) no tienen rama, worktree ni rama
+# auxiliar: solo escriben su documento, que va directo a develop en cada vuelta; lo demás, a tareas propias con rama
+# («Las tareas de investigar no tienen rama», 256; «Una deliberativa solo escribe su documento, sin rama…», 278). No
+# se prueban ni pasan por observación (218): su único paso de cierre es «Cerrar la tarea».
+DELIBERATIVAS = ('investigar', 'deliberar', 'diseñar')
 MAX_COPIAS = 50
 # La línea de coautoría de los commits de la propia SF, que no tiene .sf/proyecto.json: su valor de `coautor` por
 # defecto. Un proyecto la configura en `coautor` de su .sf/proyecto.json o con --coautor; sin ninguna, sus commits
@@ -310,7 +321,7 @@ class Cola:
                     x['texto'] = PASO_PROBAR
             # Una tarea en curso de antes de la decisión 174 recibe aquí sus pasos de cierre, una vez y al final.
             if isinstance(t, dict) and t.get('estado') == 'en-curso':
-                asegurar_cierre(pasos(t))
+                asegurar_cierre(t)
 
     @property
     def tareas(self) -> list:
@@ -487,15 +498,30 @@ def es_ayuda(x) -> bool:
     return isinstance(x, dict) and x.get('ayuda') is True and not es_de_cierre(x.get('texto'))
 
 
-def asegurar_cierre(p: list) -> list:
+def es_deliberativa(t: dict) -> bool:
+    return t.get('tipo') in DELIBERATIVAS
+
+
+def pasos_cierre(t: dict) -> tuple:
+    """Los pasos de cierre de la tarea: los dos (174) o, en una deliberativa sin rama, que no se prueba (218, 278),
+    solo «Cerrar la tarea»."""
+    return PASOS_CIERRE[1:] if es_deliberativa(t) and not t.get('rama') else PASOS_CIERRE
+
+
+def asegurar_cierre(t: dict) -> list:
     """Deja los pasos de cierre al final, una vez cada uno y en su orden (decisión 174), con las ayudas de prueba entre
-    los dos (decisión 184): el que falta, pendiente; uno repetido se quita y queda el primero, con su estado. Devuelve
-    los avisos de lo que ha arreglado (tarea 253)."""
+    los dos (decisión 184): el que falta, pendiente; uno repetido se quita y queda el primero, con su estado. Una
+    deliberativa sin rama no lleva «Activar rama para poder probar» (278): si lo tiene, se quita. Devuelve los avisos de
+    lo que ha arreglado (tarea 253)."""
+    p = pasos(t)
+    cierre = pasos_cierre(t)
     habia = [x for x in p if es_de_cierre(x.get('texto'))]
     ayudas = [x for x in p if es_ayuda(x)]
     p[:] = [x for x in p if not es_de_cierre(x.get('texto')) and not es_ayuda(x)]
     avisos, faltan = [], []
-    for nombre in PASOS_CIERRE:
+    if PASO_PROBAR not in cierre:
+        p.extend(ayudas)
+    for nombre in cierre:
         mismos = [x for x in habia if x.get('texto').strip() == nombre]
         if len(mismos) > 1:
             avisos.append(f'«{nombre}» estaba {len(mismos)} veces: queda una')
@@ -524,7 +550,7 @@ def probar_otra_vez(t: dict) -> bool:
 def a_en_curso(t: dict) -> None:
     """La tarea pasa a en curso con sus pasos de cierre, pendientes (decisión 174)."""
     t['estado'] = 'en-curso'
-    asegurar_cierre(pasos(t))
+    asegurar_cierre(t)
     cierre_pendiente(t)
 
 
@@ -616,14 +642,27 @@ class Fallo(Exception):
         self.tipo = tipo
 
 
-def squash(cola: Cola, t: dict, coautor: str | None = None) -> tuple[str, str | None, str | None]:
-    """Pasa la rama de la tarea a develop por squash. Devuelve (hash, error del push, error al borrar la rama)."""
+def sin_cambios(repo: Path, rama: str) -> bool:
+    """La rama no trae nada a develop: sin diferencias desde su base común con develop (tarea 345)."""
+    return existe_rama(repo, 'develop') and git(repo, 'diff', '--quiet', f'develop...{rama}', '--').returncode == 0
+
+
+def squash(cola: Cola, t: dict, coautor: str | None = None) -> tuple[str | None, str | None, str | None]:
+    """Pasa la rama de la tarea a develop por squash. Devuelve (hash, error del push, error al borrar la rama). Una
+    rama sin cambios respecto a develop no da commit: se borra y el hash es None (tarea 345; antes, el commit fallaba
+    con «nothing added to commit»)."""
     repo, rama, id_ = cola.repo, t['rama'], t['id']
     if not existe_rama(repo, rama):
         raise Rechazo(f'La rama {rama} no existe.')
     ajeno = worktree_ajeno(repo, rama)
     if ajeno:
         raise Rechazo(f'La rama {rama} está en el worktree {ajeno}. Para ese agente y quita el worktree antes.')
+    if sin_cambios(repo, rama):
+        if rama_activa(repo) == rama:
+            exigir_limpio(repo, rama)
+            a_develop(repo)
+        borrado = git(repo, 'branch', '-D', rama)
+        return None, None, (motivo(borrado) if borrado.returncode else None)
     exigir_limpio(repo, rama_activa(repo) or 'la rama activa')
     antes = a_develop(repo)
 
@@ -637,6 +676,10 @@ def squash(cola: Cola, t: dict, coautor: str | None = None) -> tuple[str, str | 
         choques = git(repo, 'diff', '--name-only', '--diff-filter=U').stdout.split()
         deshacer()
         raise Fallo(f'choques en el merge de {rama}' + (f': {", ".join(choques)}' if choques else ''), 'choques')
+    if git(repo, 'diff', '--cached', '--quiet').returncode == 0:  # lo suyo ya estaba en develop: nada que commitear
+        git(repo, 'reset', '-q', '--merge')
+        borrado = git(repo, 'branch', '-D', rama)
+        return None, None, (motivo(borrado) if borrado.returncode else None)
     hechos = [p['texto'] for p in pasos(t) if p.get('estado') == 'hecho' and p.get('texto') not in PASOS_CIERRE
               and not es_ayuda(p)]
     cuerpo = ''.join(f'- {x}\n' for x in hechos)
@@ -647,9 +690,9 @@ def squash(cola: Cola, t: dict, coautor: str | None = None) -> tuple[str, str | 
         deshacer()
         raise Fallo(f'falló el commit ({motivo(r)})', 'commit')
     hash_ = git(repo, 'rev-parse', '--short', 'HEAD').stdout.strip()
-    push = git(repo, 'push', '-q', conf['remoto'], 'develop')
+    push = subir_develop(repo, conf['remoto'])
     borrado = git(repo, 'branch', '-D', rama)
-    return hash_, (motivo(push) if push.returncode else None), (motivo(borrado) if borrado.returncode else None)
+    return hash_, push, (motivo(borrado) if borrado.returncode else None)
 
 
 def hashes_de(t: dict) -> list:
@@ -1000,10 +1043,19 @@ def o_en_cola(cola: Cola, a) -> str:
                                     if rama else '') + '.' + (' Activa: develop.' if activa else '') + recogido)
 
 
+def sin_rama_deliberativa(t: dict) -> str:
+    """Por qué una deliberativa no lleva rama (256, 278), para los rechazos."""
+    return (f'La {t["id"]} es de {t["tipo"]}, deliberativa: no tiene rama, worktree ni rama auxiliar; solo escribe su '
+            f'documento, que va directo a develop en cada vuelta, y lo demás va a tareas propias con rama (decisiones '
+            f'256 y 278). Si no es deliberativa, cámbiale el tipo con «tipo {t["id"]} T».')
+
+
 def o_rama(cola: Cola, a) -> str:
     t = cola.tarea(a.n, 'en-curso')
     if t.get('rama'):
         raise Rechazo(f'La {a.n} ya tiene rama: {t["rama"]}.')
+    if es_deliberativa(t):
+        raise Rechazo(sin_rama_deliberativa(t))
     rama = nombre_rama(a.n, a.nombre)
     if a.anotar:
         if not existe_rama(cola.repo, rama):
@@ -1091,8 +1143,19 @@ def o_tipo(cola: Cola, a) -> str:
         raise Rechazo(f'La {a.n} ya es de tipo {a.tipo}.')
     t['tipo'] = a.tipo
     cola.anotar(t, 'tipo', a.tipo + (f' (antes: {antes})' if antes else ''))
+    aviso = ''
+    if t.get('estado') == 'en-curso':
+        # Una deliberativa sin rama no lleva «Activar rama para poder probar»; las demás, sí (278).
+        tenia = any(x.get('texto') == PASO_PROBAR for x in pasos(t))
+        asegurar_cierre(t)
+        tiene = any(x.get('texto') == PASO_PROBAR for x in pasos(t))
+        if tenia != tiene:
+            aviso = f' «{PASO_PROBAR}», {"añadido" if tiene else "quitado: una deliberativa no se prueba"}.'
+    if es_deliberativa(t) and t.get('rama'):
+        aviso += (f' Tiene rama ({t["rama"]}), de antes: se cierra con su squash, o sin commit si no tiene cambios; '
+                  f'una deliberativa nueva no lleva rama (278).')
     cola.guardar()
-    return f'La {a.n}, de tipo {a.tipo}.'
+    return f'La {a.n}, de tipo {a.tipo}.' + aviso
 
 
 def o_redescribir(cola: Cola, a) -> str:
@@ -1108,6 +1171,8 @@ def o_redescribir(cola: Cola, a) -> str:
 
 def o_subagente(cola: Cola, a) -> str:
     t = cola.tarea(a.n, 'en-curso')
+    if es_deliberativa(t) and not t.get('rama'):
+        raise Rechazo(sin_rama_deliberativa(t) + ' Su subagente se lanza sin anotarlo: «encargo» no lo pide.')
     cola.anotar(t, 'subagente', a.worktree + (f' · {a.rama}' if a.rama else ''))
     cola.guardar()
     return f'Subagente en la {a.n}: {a.worktree}.'
@@ -1132,7 +1197,7 @@ def o_listo(cola: Cola, a) -> str:
     t = cola.tarea(a.n, 'en-curso')
     # Solo guarda el «qué mirar» (decisión 174). Una tarea de antes, sin los pasos de cierre o con uno repetido, se
     # arregla aquí, y se avisa.
-    avisos = asegurar_cierre(pasos(t))
+    avisos = asegurar_cierre(t)
     t['prueba'] = a.prueba
     cola.anotar(t, 'listo', a.prueba)
     cola.guardar()
@@ -1283,11 +1348,18 @@ def cierre_git(cola: Cola, t: dict, evento: str, coautor: str | None = None) -> 
         cola.tareas.append(t)
     else:
         t = t2
-    cola.anotar(t, evento, f'develop {hash_}')
     avisos = []
+    if hash_ is None:  # sin cambios: sin commit ni push (tarea 345)
+        cola.anotar(t, evento, f'sin cambios: {rama} ' + ('sin borrar' if borrado else 'borrada'))
+        if borrado:
+            avisos.append(f'no se pudo borrar {rama} ({borrado})')
+        else:
+            t.pop('rama', None)
+        return t, None, avisos
+    cola.anotar(t, evento, f'develop {hash_}')
     if push:
         cola.anotar(t, 'push-fallido', push)
-        avisos.append(f'falta el push de develop ({push})')
+        avisos.append(f'falta el push de develop ({push}); después, súbela con la orden «subir» de cola.py')
     if borrado:
         avisos.append(f'no se pudo borrar {rama} ({borrado})')
     else:
@@ -1343,7 +1415,8 @@ def o_cerrar(cola: Cola, a) -> str:
     avisos: list = []
     if t.get('rama'):
         t, hash_, avisos = cierre_git(cola, t, 'cerrada', coautor_de(a))
-        mensaje = f'Cerrada la {a.n} en develop ({hash_}).'
+        mensaje = (f'Cerrada la {a.n} en develop ({hash_}).' if hash_ else
+                   f'Cerrada la {a.n}, sin commit: su rama no tenía cambios respecto a develop y se ha borrado.')
     else:
         cola.anotar(t, 'cerrada', 'sin rama')
         mensaje = f'Cerrada la {a.n}, sin rama.'
@@ -1358,12 +1431,29 @@ def o_cerrar(cola: Cola, a) -> str:
 
 def o_a_observacion(cola: Cola, a) -> str:
     t = cola.tarea(a.n, 'en-curso')
+    if es_deliberativa(t):
+        raise Rechazo(f'La {a.n} es de {t["tipo"]}, deliberativa: no pasa por observación (218); se cierra con '
+                      f'«cerrar {a.n}».')
     exigir_cierre(t)
     sin_integrar = sin_integrar_de(cola.repo, t)
     exigir_traido(t, sin_integrar)
+    rama = t.get('rama')
+    if rama and existe_rama(cola.repo, rama) and sin_cambios(cola.repo, rama):
+        raise Rechazo(f'La rama {rama} no tiene cambios respecto a develop: no hay nada que observar. Ciérrala con '
+                      f'«cerrar {a.n}», que borra la rama sin commit.')
     avisos: list = []
-    if t.get('rama'):
+    if rama:
         t, hash_, avisos = cierre_git(cola, t, 'a-observacion', coautor_de(a))
+        if hash_ is None:  # lo suyo ya estaba en develop: se cierra, sin commit (tarea 345)
+            for p in pasos(t):
+                if p.get('texto') in PASOS_CIERRE:
+                    p['estado'] = 'hecho'
+            cola.anotar(t, 'cerrada', 'sin cambios')
+            recogido = recogida(cola, t, sin_integrar)
+            cola.sacar(t, 'cerrada')
+            cola.guardar()
+            return (f'Cerrada la {a.n}, sin commit: lo de su rama ya estaba en develop; no pasa a observación.'
+                    + recogido + ''.join(f' Aviso: {x}.' for x in avisos))
         detalle = f' en develop ({hash_})'
     else:
         cola.anotar(t, 'a-observacion', a.commit)
@@ -1557,11 +1647,13 @@ def o_reabrir(cola: Cola, a) -> str:
     vieja = t.get('rama') or next((e.get('detalle') for e in reversed(t.get('historial', []))
                                    if e.get('evento') == 'rama'), None)
     estado = 'en-cola' if a.en_cola else 'en-curso'
+    if a.rama and es_deliberativa(t):
+        raise Rechazo(sin_rama_deliberativa(t))
     # Un worktree viejo no se reutiliza nunca: lo que quedó se limpia, también con cambios sin commit y sin avisar de
     # commits perdidos, antes de la rama nueva (decisión 169).
     recogido = recogida(cola, t, {}, forzar=True)
     rama = None
-    if estado == 'en-curso':
+    if estado == 'en-curso' and not es_deliberativa(t):
         if a.rama:
             rama = nombre_rama(a.n, a.rama)
         elif vieja:
@@ -1583,7 +1675,8 @@ def o_reabrir(cola: Cola, a) -> str:
     if not en_cola:
         cola.tareas.append(t)
     cola.guardar()
-    falta = '' if rama or estado == 'en-cola' else ' Sin rama: créala con «rama» antes del primer activo.'
+    falta = ('' if rama or estado == 'en-cola' else ' Sin rama: es deliberativa (278).' if es_deliberativa(t)
+             else ' Sin rama: créala con «rama» antes del primer activo.')
     return f'Reabierta la {a.n}, {nombre_estado(t)}' + (f', rama {rama} desde develop.' if rama else '.') + falta + recogido
 
 
@@ -1923,11 +2016,43 @@ def leer_decisiones(repo: Path) -> tuple[dict, str | None, str, str]:
     return textos, readme, 'develop' if con_git else 'archivo', rel
 
 
+REPETIR_SUBIDA = 'sube develop con la orden «subir» de cola.py'
+
+
+def subir_develop(repo: Path, remoto: str, repetir: str = REPETIR_SUBIDA) -> str | None:
+    """Sube develop a `remoto`, tras la revisión de lo que sale si el remoto es público (decisión 259: la misma que
+    RELEASE, antes_de_subir de revision_publica.py). Devuelve por qué no se ha subido, o None si se ha subido."""
+    import importlib.util
+    ruta = carpeta_tools() / 'revision_publica.py'
+    if not ruta.is_file():
+        return f'no está {ruta}, que revisa lo que sale; con el plugin sf activo, /reload-plugins rehace la copia de cola.py'
+    spec = importlib.util.spec_from_file_location('revision_publica', ruta)
+    rev = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rev)
+    try:
+        d = rev.antes_de_subir(repo, remoto, repetir=repetir, solo_publico=True, accion='subir')
+    except RuntimeError as err:
+        return f'no se pudo revisar lo que sale ({err})'
+    if d['accion'] != 'seguir':
+        return d['mensaje']
+    r = git(repo, 'push', '-q', remoto, 'refs/heads/develop:refs/heads/develop')
+    return motivo(r) if r.returncode else None
+
+
 def push_develop(repo: Path) -> str:
     """Sube develop al remoto de la configuración (origin, si no dice otro). Devuelve lo que añadir al mensaje."""
     remoto = configuracion(repo)['remoto']
-    r = git(repo, 'push', '-q', remoto, 'refs/heads/develop:refs/heads/develop')
-    return f' Subida a {remoto}.' if r.returncode == 0 else f' Sin subir a {remoto}: {motivo(r)}'
+    error = subir_develop(repo, remoto)
+    return f' Subida a {remoto}.' if error is None else f' Sin subir a {remoto}: {error}'
+
+
+def o_subir(cola: Cola, a) -> str:
+    """Sube develop a su remoto, con la revisión de lo que sale (decisión 259): tras un cierre que no la subió."""
+    remoto = configuracion(cola.repo)['remoto']
+    error = subir_develop(cola.repo, remoto)
+    if error:
+        raise Rechazo(f'develop sin subir a {remoto}: {error}')
+    return f'develop subida a {remoto}.'
 
 
 def o_decision(cola: Cola, a) -> str:
@@ -2076,6 +2201,8 @@ def o_fusionar(cola: Cola, a) -> str:
         queda['prueba'] = prueba
     if tipo:
         queda['tipo'] = tipo
+    if queda['estado'] == 'en-curso':  # con su tipo y su rama ya puestos: una deliberativa sin rama no se prueba (278)
+        asegurar_cierre(queda)
     otras = [t['id'] for t in salen]
     cola.anotar(queda, 'fusion', f'absorbe {enumerar(otras)}')
     for t in salen:
@@ -2327,18 +2454,29 @@ def o_encargo(cola: Cola, a) -> str:
         raise Rechazo('El encargo está apagado en .sf/proyecto.json (automatizaciones.encargo_subagente): escríbelo a mano.')
     t = cola.tarea(a.n, 'en-curso', 'en-observacion')
     subs = subagentes_de(t)
-    if not subs:
+    deliberativa = es_deliberativa(t) and not t.get('rama')
+    if not subs and not deliberativa:
         raise Rechazo(f'La {a.n} no tiene subagente anotado: antes, cola.py subagente {a.n} --worktree RUTA --rama sub-{a.n}.')
-    wt, aux = subs[-1]
+    wt, aux = subs[-1] if subs else (None, None)
     conf = leer_configuracion(proyecto, es_sf=(cola.repo / MARCA_SF).is_file())
     coautor = coautor_de(a) or conf['coautor']
     nombre = conf['proyecto'] or cola.repo.name
     marca = f'«({a.n})» al final del título' if conf['commits'] == 'libre' else f'el trailer «{TRAILER_TAREA}: {a.n}» al pie'
     rama = f' (nunca la rama de la tarea, {t["rama"]}, ni otras)' if t.get('rama') else ' (nunca la rama de la tarea ni otras)'
+    if deliberativa:  # sin rama, worktree ni rama auxiliar (256, 278)
+        donde = (f'Sin rama, worktree ni rama auxiliar: es de {t["tipo"]}, deliberativa («Una deliberativa solo escribe su '
+                 f'documento, sin rama…», 278). Lees en la carpeta del proyecto, {cola.repo.as_posix()}, sin cambiar de '
+                 f'rama, y solo escribes su documento (el informe y, si la hay, la visión), que va directo a develop en '
+                 f'cada vuelta, con el respaldo de la versión anterior en _respaldo/. Lo demás que haga falta cambiar '
+                 f'(código, skills, otros documentos) no lo cambias: propónlo en el informe como tarea aparte, con rama. '
+                 f'Si develop no es la rama activa de esa carpeta, no la cambies: deja el documento sin commit y dilo en '
+                 f'el informe.')
+    else:
+        donde = f'Worktree: {wt}' + (f', rama auxiliar {aux}{rama}.' if aux else f'{rama}.')
     lineas = [
         f'Tarea {a.n} de {nombre}: «{t.get("texto", "")}».',
         '',
-        f'Worktree: {wt}' + (f', rama auxiliar {aux}{rama}.' if aux else f'{rama}.'),
+        donde,
         '',
         'Reglas:',
         '- No escribas la cola (.sf/peticiones.json) ni uses cola.py para cambiarla: en pruebas, solo colas temporales.',
@@ -2347,10 +2485,10 @@ def o_encargo(cola: Cola, a) -> str:
         ' salvo que el encargo lo pida: propón el texto en el informe.',
         '- Textos compactos: títulos de paso y commit empiezan por lo que cambia, sin prefijos ni relleno. Sin referencias'
         ' por número que no se vean en pantalla: por su título, con el número entre paréntesis si ayuda.',
-        f'- Commits en la rama auxiliar, con {marca} y '
+        f'- Commits {"solo de su documento, en develop" if deliberativa else "en la rama auxiliar"}, con {marca} y '
         + (f'terminados en «{coautor}».' if coautor
            else 'sin línea de coautoría (Co-Authored-By): el proyecto no la tiene configurada.'),
-        '- Antes de terminar, pasa las pruebas y la validación del proyecto.',
+        *([] if deliberativa else ['- Antes de terminar, pasa las pruebas y la validación del proyecto.']),
         '- Si algo exige una decisión del propietario, para y devuélvela con opciones.',
         f'- {convenciones(conf)}',
     ]
@@ -2365,17 +2503,17 @@ def o_encargo(cola: Cola, a) -> str:
         '- Lo comprobado.',
         '- Lo que debe decidir el propietario.',
         '- Documentos compartidos a actualizar, con el texto propuesto.',
-        '- Qué mirar en la prueba.',
+        *([] if deliberativa else ['- Qué mirar en la prueba.']),
     ]
     texto = '\n'.join(lineas)
-    return Consulta(texto, {'encargo': texto, 'worktree': wt, 'rama_auxiliar': aux})
+    return Consulta(texto, {'encargo': texto, 'worktree': wt, 'rama_auxiliar': aux, 'sin_rama': deliberativa})
 
 
 # ---------- Línea de órdenes ----------
 
 SOLO_LECTURA = {'lista', 'ver', 'copias', 'choques', 'encargo'}
 # No leen ni escriben la cola: ni la bloquean ni la cargan.
-SIN_COLA = {'decision'}
+SIN_COLA = {'decision', 'subir'}
 
 
 def analizador() -> argparse.ArgumentParser:
@@ -2476,6 +2614,7 @@ def analizador() -> argparse.ArgumentParser:
     s.add_argument('--numero', type=int, help='reescribe la decisión con ese número, sin cambiar su nombre')
     s.add_argument('--coautor', help='la línea Co-Authored-By del commit')
     s.add_argument('--push', action='store_true', help='sube develop a su remoto tras el commit')
+    orden('subir', o_subir, 'sube develop a su remoto, con la revisión de lo que sale (decisión 259)')
     s = orden('encargo', o_encargo, 'la parte fija del encargo de su subagente', 'n')
     s.add_argument('--coautor', help='la línea Co-Authored-By de los commits')
     return p

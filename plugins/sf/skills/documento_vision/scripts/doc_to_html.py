@@ -162,6 +162,8 @@ EXTRA_HEAD = """
     @media (max-width: 560px) { .cmp-fila { grid-template-columns: 1fr; } }
   </style>"""
 
+
+
 import argparse
 ap = argparse.ArgumentParser()
 ap.add_argument("md")
@@ -242,9 +244,9 @@ page = m.render_page(
     # Después, el CSS del proyecto, que puede usar las variables del tema y ajustar lo que necesite.
     extra_head=EXTRA_HEAD.replace("<style>", "<style>\n    " + variables_css(tema), 1).replace(
         "</style>", ("    " + css_estilo(tema["estilo"]) + "\n  " if tema["estilo"] else "") + "</style>")
-        + kit_estilos() + css_proyecto,
+        + kit_estilos() + lector_estilos(html) + css_proyecto,
     # Columna de herramientas (buscador): anclada a la derecha en pantalla grande y despegable; ver tools/kit_documentos/herramientas.js.
-    extra_body_end=kit_scripts(),
+    extra_body_end=kit_scripts() + lector_scripts(html),
     footer_text=" · ".join(x for x in (producto, tipo) if x),
 )
 page = page.replace('class="subseccion">', 'class="subseccion" open>')

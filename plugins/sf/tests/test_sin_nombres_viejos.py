@@ -6,7 +6,8 @@ El alcance: el plugin entero (código, skills con sus references, plantillas, ti
 y los documentos que describen el flujo. Fuera, con su porqué: las decisiones y el historial de versiones de los
 documentos (son historia, 215), docs/referencias/ (también la procedencia de las piezas), docs/specs/vision/ y
 _respaldo/ («testing» en su sentido general o histórico) y las líneas con «migración 215», las únicas que nombran lo de antes para
-convertirlo al cargar.
+convertirlo al cargar. Fuera también lo que Claude Code genera en el plugin al pasar sus pruebas (tsconfig.json y
+.claude-plugin/types/, los tipos del motor): no es del plugin, va al .gitignore y no se publica (tarea 346).
 """
 import re
 import unittest
@@ -31,6 +32,8 @@ EN_SU_TAREA = {
     'docs/como-funcionan-los-estados.md',
     'docs/uso-del-panel.md',
 }
+# Lo que Claude Code genera en el plugin (claude plugin test): rutas relativas a plugins/sf, archivo o carpeta.
+GENERADOS = {'tsconfig.json', '.claude-plugin/types'}
 EXTENSIONES = {'.py', '.ts', '.tsx', '.md', '.json', '.html', '.txt', '.css', '.js'}
 MARCA = 'migración 215'
 # Lo que nombraba el estado de antes y sus órdenes, campos, botones y frases.
@@ -50,9 +53,14 @@ PERMITIDOS = re.compile(r'claude-code/testing|webapp-testing')
 VERSION = re.compile(r'^\|\s*(próxima|\d+\.\d+\.\d+)\s*\|')
 
 
+def generado(ruta: Path) -> bool:
+    relativa = ruta.relative_to(PLUGIN).as_posix()
+    return any(relativa == g or relativa.startswith(g + '/') for g in GENERADOS)
+
+
 def archivos():
     for ruta in sorted(PLUGIN.rglob('*')):
-        if ruta.is_file() and ruta.suffix in EXTENSIONES \
+        if ruta.is_file() and ruta.suffix in EXTENSIONES and not generado(ruta) \
                 and '__pycache__' not in ruta.parts and 'node_modules' not in ruta.parts \
                 and ruta != Path(__file__).resolve():
             yield ruta
@@ -86,6 +94,12 @@ class SinNombresViejos(unittest.TestCase):
             with self.subTest(relativa):
                 self.assertTrue((RAIZ / relativa).is_file(), f'{relativa} ya no existe: sácalo de EN_SU_TAREA')
                 self.assertNotEqual(rastros(RAIZ / relativa), [], f'{relativa} ya está al día: sácalo de EN_SU_TAREA')
+
+    def test_lo_generado_por_claude_code_queda_fuera(self):
+        for relativa, fuera in [('tsconfig.json', True), ('.claude-plugin/types/tsconfig.json', True),
+                                ('.claude-plugin/types/claude-code/index.d.ts', True), ('.claude-plugin/plugin.json', False),
+                                ('types/index.d.ts', False), ('hooks/tsconfig.json', False)]:
+            self.assertEqual(generado(PLUGIN / relativa), fuera, relativa)
 
     def test_la_prueba_detecta_lo_de_antes(self):
         prueba = PLUGIN / 'tests' / '__rastro_215__.md'

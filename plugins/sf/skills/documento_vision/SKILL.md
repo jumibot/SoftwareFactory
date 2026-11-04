@@ -18,6 +18,54 @@ Hay dos clases de documento de visión, y lo primero es saber cuál se escribe. 
 
 En los dos se mantienen las demás reglas: el caso conductor, las escenas, solo la última decisión, sin tablas, lo ilustrativo marcado y las dudas en la conversación, no en el documento. Al entregar se informa de la extensión, pero en un documento para el autor no se propone recortar salvo que lo pida.
 
+## Cómo se cuenta el caso: repartido o novela
+
+El caso conductor se cuenta de una de dos formas, y se elige al empezar (fase 2), junto con los lectores. Claude pregunta cuál se quiere o sugiere una, con su porqué.
+
+- **Repartido** (la forma de siempre): el caso abre el documento y avanza un capítulo breve al principio de cada sección, en el bloque «El caso». Conviene cuando lo que hay que entender es un producto, una propuesta o un argumento.
+- **Novela**: el caso es además un **relato completo**, que se lee solo y de corrido, con el documento alrededor. Conviene cuando el tema se entiende mejor viviéndolo, como un cambio en la forma de trabajar. Cómo se hace, en «La opción novela».
+
+### La opción novela
+
+**La historia.**
+
+- **Completa**: principio (situación, protagonista con nombre y su necesidad), trama (un conflicto real, con plazo, imprevistos y decisiones que cuestan algo) y final (desenlace y una moraleja o lo aprendido, en la voz de la historia, nunca como lista técnica).
+- **El conflicto es lo que el documento propone, ausente**: al principio el protagonista actúa sin ello y lo paga (elige qué hacer sin la daily que fija el sprint, y se le va la mañana); después lo usa y cambia. La moraleja y algún guiño recogen esa diferencia.
+- **Enlazada**: las partes narrativas se siguen sin las secciones explicativas (si hace falta, con transiciones breves dentro de ellas), y cada sección explicativa nace de algo que pasa en la historia.
+- **Fiel al método que cuenta**: lo que pasa en la historia cumple las reglas del documento (cuándo arranca algo solo y cuándo se pide, qué entra y qué espera).
+
+**El centro, el proyecto del documento.**
+
+- **El caso es el vehículo**: aunque el caso sea de otro proyecto, el relato devuelve una y otra vez la atención al proyecto del documento y a lo que hace por el protagonista. Para eso están los guiños y la marca.
+- **Guiños al método**: dos o tres momentos, bien repartidos, en que el protagonista reconoce sin decirlo el valor de lo que el documento propone, en su voz interior o en lo que dice: un alivio, una pequeña victoria, el contraste con lo que habría pasado sin ello («menos mal que el lunes la dejó encarrilada»). Sutiles y nacidos de la escena: nada de sermones.
+- **Referencias a la marca**: sus elementos reconocibles (el logo y sus colores, la pantalla que ve el protagonista, una orden, el nombre dicho con naturalidad por un personaje), integrados con los guiños y sin sonar a anuncio; en el lector, la marca en el marco (`data-marca`).
+- **Nombres sin choques**: las piezas del proyecto del caso no se llaman como las del proyecto del documento (si el documento tiene un panel, la pantalla del caso es otra cosa, un visor), y los términos del método (cola, tareas, sprint, objetivo, daily) solo nombran lo del proyecto del documento.
+
+**Para un lector sin contexto.**
+
+- **Lo técnico del caso se explica dentro del relato**, pronto (prólogo o capítulo 1) y sin romper el ritmo: dos o tres frases, en la voz de un personaje, que digan qué es el producto, qué es cada pieza técnica que se nombra (un gemelo digital: una simulación en el ordenador que reproduce el aparato para probar sin hardware) y por qué importa a quien lo espera. Cada término técnico que aparece después, igual: una aposición breve la primera vez. Si no basta, una aclaración breve fuera de la historia.
+- **La extensión cede ante la claridad**: lo necesario para entender el caso se añade, con mesura, aunque pase del tope.
+
+**Estilo.**
+
+- **Frases cortas**, pensadas para la pantalla pequeña de un ebook de móvil: una idea por frase, sin subordinadas encadenadas ni incisos uno tras otro; la frase larga se parte en dos o tres.
+- **Negrita en lo que toca al tema del documento**: los momentos clave de lo que se propone, los guiños y la moraleja, en fragmentos cortos, nunca párrafos, y unos pocos por capítulo como mucho, para que quien hojea capte la idea.
+
+**Presentación.** El prólogo y el epílogo van como página de libro en un lector (`.lector`). El documento **se abre en la historia** (`data-al-abrir="historia"` en el lector del prólogo), con su pantalla de entrada, que anuncia el tema y lleva el aviso de ficción; el lector sale al terminar, con «Ver el documento», o con ×, y vuelve con «Leer la historia completa». El recurso, en sf:crear_documentos («Lector de libros»).
+
+**Revisión de coherencia, obligatoria antes de entregar.** Se lee la historia entera, de corrido, buscando:
+
+- [ ] **Cifras iguales** entre la historia, el documento y el anexo, y con los datos reales del proyecto del caso (la temperatura, la duración, los días).
+- [ ] **Cifras que cambian con el tiempo** de la historia: lo que una semana después no puede seguir igual (el número de tareas en cola) no se repite.
+- [ ] **Días y horas que cuadran**: las duraciones («cuarenta minutos», «dos días»), las referencias relativas («la semana anterior», con el día en que ocurre) y qué día y hora es cada escena.
+- [ ] **Hilos cerrados**: lo aplazado dice adónde va (sale del sprint, vuelve a la cola) y lo que se da por cumplido no deja nada colgando.
+- [ ] **Referentes sin ambigüedad**: quién pidió qué («una petición suya»), a qué apunta «lo» o «eso», qué es «la lista».
+- [ ] **Palabras con doble lectura en el dominio del caso**: «urgencias» en un hospital, «cámara» en un aparato con cámara.
+- [ ] **Quién habla** en cada escena y cada frase, y que no se mezclen lo que dice uno y lo que piensa otro.
+- [ ] **Las reglas del método**: lo que pasa en la historia las cumple (la daily arranca sola al abrir; se pide con la orden; un paréntesis solo anota).
+- [ ] **Nombres sin choques** entre los dos proyectos.
+- [ ] **Términos técnicos** explicados la primera vez que salen.
+
 ## Lo propio de cada proyecto
 
 Cada proyecto guarda su identidad en `doc/identidad/` o `docs/identidad/`, con un `identidad.json`. El script lo busca solo, subiendo carpetas desde el `.md`. Las rutas son relativas a esa carpeta. Claves:
@@ -87,7 +135,8 @@ Después, preguntar qué cambiaría. Lo que el autor corrija marca el rumbo de l
 6. **Decisiones ya tomadas.** Lo que no está en discusión y no hay que volver a plantear.
 7. **El caso conductor.** Qué caso real ilustra mejor el proyecto (proponer candidatos del conjunto de referencia si existe).
 8. **Lectores.** Quién lo va a leer, qué saben ya y qué decisión tienen que tomar con él. Sobre todo, si es un documento **para otros o para el autor** (ver «Para quién es»), porque cambia la extensión y el detalle.
-9. **Dudas abiertas.** Lo que el autor aún no tiene claro: se habla en la conversación y no se inventa, pero no se convierte en contenido del documento.
+9. **Cómo se cuenta el caso**: repartido o novela (ver «Cómo se cuenta el caso»), con la sugerencia y su porqué.
+10. **Dudas abiertas.** Lo que el autor aún no tiene claro: se habla en la conversación y no se inventa, pero no se convierte en contenido del documento.
 
 #### Acordar las secciones
 
@@ -106,7 +155,7 @@ Solo con el índice aprobado se escribe el primer borrador, y se respeta ese ín
 
 ### Fase 3 · Escribir y entregar
 
-Escribir siguiendo el índice acordado, los principios de este documento y las reglas del proyecto, generar el `.html`, revisarlo visualmente y entregar con un resumen breve: qué se ha hecho, qué es ilustrativo o inventado, qué conviene que valide un experto y, como mucho, **una** propuesta de siguiente paso en una línea.
+Escribir siguiendo el índice acordado, los principios de este documento y las reglas del proyecto. El primer borrador ya lleva los gráficos del índice y el detalle plegado: la norma «Desde la primera versión» de `crear_documentos`, con las formas de la visión (escenas, diagramas, el caso, fichas y bloques plegables) y sin tablas. Generar el `.html`, revisarlo visualmente y entregar con un resumen breve: qué se ha hecho, qué es ilustrativo o inventado, qué conviene que valide un experto y, como mucho, **una** propuesta de siguiente paso en una línea.
 
 ### Fase 4 · Afinar sobre el documento
 
@@ -212,7 +261,7 @@ Estas reglas salieron de correcciones de autores sobre documentos anteriores. Ti
 
 ## Gráficos (SVG inline en el .md)
 
-- **Norma de la SF: todo diagrama es un SVG inline, nunca ASCII ni mermaid** (metodología, «Estructura documental común»). La guía común de la SF, `../metodologia/references/diagramas-svg.md`, recoge las recomendaciones generales de esta sección para cualquier documento; si cambia una regla general aquí, se actualiza también allí. Si un borrador o un documento que se adapta trae un esquema hecho con caracteres, se redibuja en SVG con las reglas de esta sección. Los árboles de carpetas no son diagramas y siguen en un bloque de texto.
+- **Norma de la SF: todo diagrama es un SVG inline, nunca ASCII ni mermaid**, en todo documento, tenga el proyecto metodología o no (`crear_documentos`, «Esquemas»). La guía común de la SF, `../metodologia/references/diagramas-svg.md`, recoge las recomendaciones generales de esta sección para cualquier documento; si cambia una regla general aquí, se actualiza también allí. Si un borrador o un documento que se adapta trae un esquema hecho con caracteres, se redibuja en SVG con las reglas de esta sección. Los árboles de carpetas no son diagramas y siguen en un bloque de texto.
 - **Un gráfico aclara una idea compleja de otra forma; nunca repite la prosa.** Solo se dibuja lo que cuesta entender en texto: un proceso que cambia en el tiempo, una estructura (un mapa de actores y el hueco que queda) o una escena entre personas. Si el gráfico vuelve a decir lo que ya dice un párrafo, sobra uno de los dos: se quita el gráfico o se recorta la prosa a una frase que lo introduce. Tampoco se repiten entre sí un gráfico y un componente (por ejemplo, un gráfico de algo que el entregable mostrado ya enseña), ni el pie repite la frase de entrada o un texto dentro del propio SVG. Los enlaces de los elementos del gráfico van en una línea debajo («Los productos del gráfico: …»). Al revisar, recorrer todos los gráficos y preguntarse qué entendería de menos el lector sin cada uno; si cabe en una frase, se escribe la frase y se quita el gráfico.
 - **Escenas antes que diagramas** cuando se ilustra una dinámica: personajes (los agentes de IA como robots, las personas con algo propio de su oficio), una mesa con los datos encima, bocadillos con lo que dice cada uno sobre el caso. La mesa se dibuja **plana, sin perspectiva** (un rectángulo redondeado), y los personajes van fuera de ella, en filas encima y debajo, **sin solaparse** con la mesa ni entre sí; los bocadillos, hacia fuera. Diagramas abstractos solo para estructura (capas, flujos).
 - **Todo gráfico en vertical** (`<figure class="vertical">`, `viewBox` de 560 de ancho): caben en el móvil sin desplazamiento. No solo los flujos: también los paneles o tarjetas que se comparan (se apilan), los mapas por columnas (se apilan los grupos), los gradientes (la barra corre en vertical), las líneas de tiempo (cada opción en su fila, con el eje debajo) y los ciclos por pasos (un paso por fila). Antes de entregar, revisar que ningún gráfico tenga más de 560 de ancho, tampoco las escenas con personajes.
@@ -246,6 +295,8 @@ Tres niveles de lectura, que se distinguen por la tipografía y también por la 
 ```
 
 Dentro de un bloque HTML no se dejan líneas en blanco: el conversor de Markdown lo cortaría.
+
+**Página de libro y lector** (opción novela). Es un recurso común: su sintaxis, sus atributos y cómo se ve están en sf:crear_documentos («Lector de libros»). Aquí, la novela pone su prólogo y su epílogo en un `.lector`; el del prólogo lleva `data-al-abrir="historia"`, `data-marca` con los colores del proyecto del documento, `data-invitacion` que enlaza la historia con el tema y, si hace falta, `data-tema`, `data-subtitulo` y `data-aviso`.
 
 Otros componentes de la skill: `.aviso-ficcion` (aviso de ficción al principio) y `.comparativa` (rejilla de versiones; no se usa en documentos nuevos, ver «Comparar versiones»). Los componentes propios de un proyecto (por ejemplo, el formato de lo que entrega a sus usuarios) van en el CSS de su identidad y se explican en sus reglas.
 
@@ -292,7 +343,7 @@ El catálogo, sus valores iniciales según el destino y cómo se anota la elecci
 - [ ] El documento sigue el índice de secciones acordado con el autor.
 - [ ] El documento abre con el gancho del caso, que termina en la pregunta clave, sin bloque de objetivo; el resumen la responde y nombra al destinatario.
 - [ ] Está claro si el documento es para otros o para el autor, y su extensión y su detalle corresponden a esa clase.
-- [ ] Extensión medida por sección. Para otros: cuerpo de unas 2.500-3.000 palabras, prólogo de unas 180 y secciones de unas 200. Para el autor: se informa de la extensión sin recortar lo decidido.
+- [ ] Extensión medida por sección. Para otros: cuerpo de unas 2.500-3.000 palabras, prólogo de unas 180 y secciones de unas 200. Para el autor: se informa de la extensión sin recortar lo decidido. En la opción novela, la extensión cede ante la claridad.
 - [ ] Si es para otros, es breve: todo lo fundamental y nada más; cada sección, lista y anexo ayuda a impactar, iluminar, involucrar o transmitir, y lo que no ayuda se ha quitado, no plegado.
 - [ ] El resumen operativo es corto (unos tres párrafos y uno o dos gráficos que no repiten nada), sin viñetas, y engancha con el caso.
 - [ ] No queda historia del documento («original», «revisado», «ahora»).
@@ -312,6 +363,7 @@ El catálogo, sus valores iniciales según el destino y cómo se anota la elecci
 - [ ] El texto respeta las sensibilidades del tema, y las siglas se explican la primera vez.
 - [ ] Si la historia usa una organización o personas reales, el documento abre con el aviso de ficción, y el contenido del caso existe en el programa real.
 - [ ] Ningún gráfico repite la prosa, otro gráfico o un componente; cada uno aclara de otra forma una idea que en texto costaría entender.
+- [ ] En la opción novela, hecha la revisión de coherencia de «La opción novela».
 - [ ] Lo aprendido en las revisiones de este documento ya está en la skill (si es general) o en las reglas del proyecto (si es de su dominio).
 - [ ] El destino y las herramientas los ha elegido el autor y están anotados.
 - [ ] Lectura por capas: lo más importante primero, cada sección abre con su idea central y el detalle va plegado.

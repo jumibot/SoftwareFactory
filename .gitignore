@@ -30,3 +30,7 @@ desktop.ini
 
 # El índice de las decisiones en html: lo genera el panel al abrirlo (decisión 163)
 docs/decisiones/README.html
+
+# Lo que Claude Code genera en el plugin al pasar sus pruebas (claude plugin test): no es del plugin ni se publica (tarea 346)
+plugins/sf/tsconfig.json
+plugins/sf/.claude-plugin/types/

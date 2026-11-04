@@ -9,8 +9,10 @@ import type { $ } from './lectura'
 // ── Avisos de subagentes (tarea 249) ──
 // Con cada mensaje del propietario, al volver un subagente (su notificación o el final del Agent en primer plano), el
 // mod añade al contexto de Claude las tareas en curso sin subagente vivo y los subagentes que han terminado sin
-// recoger. Solo avisa. Cada situación se avisa una vez, cuando aparece: se repite si se resuelve y vuelve, tras un
-// /clear o una compactación (Claude ya no la tiene en el contexto) y en una sesión nueva. Si el motor no da la lista de
+// recoger. Solo avisa. Las que no tienen subagente, en cada mensaje mientras falten, en un aviso aparte que va el
+// primero y manda lanzarlos antes de nada (tarea 351: al reanudar, un aviso al final de otros no bastó). Los
+// terminados, una vez, cuando aparecen: se repite si se resuelve y vuelve, tras un /clear o una compactación (Claude
+// ya no lo tiene en el contexto) y en una sesión nueva. Si el motor no da la lista de
 // subagentes, no se sabe quién vive: no se avisa de los que faltan. La sesión se reconoce por su id, no por la carga
 // del módulo: /reload-plugins, aunque cambie de plugin y vacíe el estado, no la hace nueva (tarea 277).
 
@@ -37,7 +39,7 @@ export function avisosSubagentes(peticiones: Peticion[], vistos: Record<string, 
     if (suyos.some(v => v.estado === 'trabajando')) continue
     const esperan = suyos.filter(v => v.estado === 'esperando')
     if (!esperan.length) {
-      if (conLista) avisos.push({ clave: `sin:${n}`, texto: `la ${n} está en curso sin subagente: lánzalo («Tarea ${n}: …»)` })
+      if (conLista) avisos.push({ clave: `sin:${n}`, texto: `la ${n} («Tarea ${n}: …»)` })
       continue
     }
     const informe = ultimoInforme(p) ?? -Infinity
@@ -48,17 +50,26 @@ export function avisosSubagentes(peticiones: Peticion[], vistos: Record<string, 
   return avisos
 }
 
-// Las que no se habían avisado, y las claves que quedan avisadas: las de ahora (las resueltas salen y vuelven a contar).
+// Las que hay que avisar ahora: las que no se habían avisado y, siempre, las que faltan por lanzar (tarea 351); y las
+// claves que quedan avisadas: las de ahora (las resueltas salen y vuelven a contar).
 export function nuevos(avisos: AvisoSubagente[], claves: string[]): { nuevos: AvisoSubagente[]; claves: string[] } {
   const ya = new Set(claves)
-  return { nuevos: avisos.filter(a => !ya.has(a.clave)), claves: avisos.map(a => a.clave) }
+  return { nuevos: avisos.filter(a => a.clave.startsWith('sin:') || !ya.has(a.clave)), claves: avisos.map(a => a.clave) }
 }
 
-// El texto del aviso, o null sin nada nuevo. En una sesión recién abierta, recuerda que los de la anterior ya no viven.
-export function textoAviso(nuevosAvisos: AvisoSubagente[], nueva: boolean): string | null {
-  if (!nuevosAvisos.length) return null
-  const inicio = nueva && nuevosAvisos.some(a => a.clave.startsWith('sin:')) ? 'Sesión nueva: los subagentes de la anterior ya no viven. ' : ''
-  return `${inicio}Subagentes: ${nuevosAvisos.map(a => a.texto).join('; ')}.`
+// Los textos del aviso: el de lanzar los que faltan, imperativo, y el de recoger los terminados; cada uno, null sin
+// nada que avisar. En una sesión recién abierta, recuerda que los de la anterior ya no viven.
+export type TextosAviso = { lanzar: string | null; recoger: string | null }
+export function textoAviso(nuevosAvisos: AvisoSubagente[], nueva: boolean): TextosAviso {
+  const sin = nuevosAvisos.filter(a => a.clave.startsWith('sin:'))
+  const fin = nuevosAvisos.filter(a => !a.clave.startsWith('sin:'))
+  return {
+    lanzar: sin.length
+      ? `ANTES DE NADA, en este turno y antes de contestar: lanza el subagente de cada tarea en curso que no lo tiene: ${sin.map(a => a.texto).join(', ')}.` +
+        (nueva ? ' Sesión nueva: los de la anterior ya no viven.' : '')
+      : null,
+    recoger: fin.length ? `Subagentes: ${fin.map(a => a.texto).join('; ')}.` : null,
+  }
 }
 
 // Interruptor de .sf/proyecto.json: `automatizaciones.avisos_subagentes`, encendido salvo que valga false. Sin el
@@ -72,10 +83,11 @@ async function encendidos($: $, raiz: string): Promise<boolean> {
   }
 }
 
-// Lee la cola y los subagentes y devuelve el aviso de lo nuevo, apuntándolo como avisado; null sin nada nuevo.
-export async function leerAvisoSubagentes($: $): Promise<string | null> {
+// Lee la cola y los subagentes y devuelve los textos del aviso, apuntándolo como avisado; null en lo que no hay nada.
+export const SIN_AVISO: TextosAviso = { lanzar: null, recoger: null }
+export async function leerAvisoSubagentes($: $): Promise<TextosAviso> {
   const raiz = await raizSesion($)
-  if (!(await encendidos($, raiz))) return null
+  if (!(await encendidos($, raiz))) return SIN_AVISO
   const { peticiones } = await leerPeticiones($, raiz)
   const { vistos, conLista } = await leerSubagentes($)
   const antes = await read($, avisados)

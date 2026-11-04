@@ -97,7 +97,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 #### 03 · Poner en curso
 
-- **De → a:** `en-cola` → `en-curso`, con los pasos de cierre, «Activar rama para poder probar» y «Cerrar la tarea», pendientes (174): se añaden al final los que falten, sin repetirlos.
+- **De → a:** `en-cola` → `en-curso`, con los pasos de cierre, «Activar rama para poder probar» y «Cerrar la tarea», pendientes (174): se añaden al final los que falten, sin repetirlos. Una deliberativa (investigar, deliberar, diseñar) sin rama, solo con «Cerrar la tarea»: no se prueba (218, 278).
 - **Cuándo:** el propietario pregunta por ella o la elige; o pulsa Activar rama en una tarea en cola; o pulsa TURBO y la tarea se puede hacer sin interactuar con él (160).
 - **Quién:** principal; panel con Activar rama.
 - **Autorización:** la pregunta del propietario basta, salvo choque: antes, el principal ejecuta `cola.py choques 87` (con `--archivos` y los previstos si aún no tiene rama); si comparte archivos con otra en curso o en observación, dice con cuál y cuáles, recomienda esperar o fusionarlas y sigue solo con el OK del propietario. No al lanzar subagentes de tareas ya en curso.
@@ -120,7 +120,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 #### 05 · Crear la rama
 
 - **De → a:** `en-curso` → `en-curso`, `rama`: null → `feature/NN-nombre`.
-- **Cuándo:** antes de tocar el primer activo (todo lo escrito y versionado en el repositorio).
+- **Cuándo:** antes de tocar el primer activo (todo lo escrito y versionado en el repositorio). Nunca en una deliberativa (investigar, deliberar, diseñar): no tiene rama, worktree ni `sub-NN`, y su documento va directo a `develop` en cada vuelta; `cola.py rama` se niega (256, 278).
 - **Quién:** principal. Para un subagente, la crea y la anota antes de lanzarlo.
 - **Autorización:** ninguna; avisa al crearla.
 - **Repositorio:** `git switch -c feature/NN-nombre develop`, o `git branch` sin activarla si va a un subagente.
@@ -180,7 +180,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Cuándo:** al poner la tarea en curso, también las de diseño o deliberación y las triviales; toda tarea en curso tiene el suyo, que hace todo su trabajo. Al final de cada turno y con TURBO, el principal lanza las en curso que aún no lo tienen. Las de la cola, solo al ponerlas en curso; con TURBO, las que no necesitan al propietario (160).
 - **Quién:** principal.
 - **Autorización:** ninguna; avisa en una línea. Trabajo de la tarea en el principal, solo con instrucción expresa del propietario.
-- **Repositorio:** worktree propio para el subagente, siempre en su rama auxiliar `sub-NN` desde la de la tarea, que se crea con `--sin-activar` (149).
+- **Repositorio:** worktree propio para el subagente, siempre en su rama auxiliar `sub-NN` desde la de la tarea, que se crea con `--sin-activar` (149). En una deliberativa, nada: su subagente lee en la carpeta del proyecto y solo escribe su documento, sin worktree ni `sub-NN`; no se anota (`subagente` se niega) y `encargo` da el suyo sin worktree (256, 278).
 - **Panel:** ⚙ en la tarea mientras el subagente trabaja (tarea 145).
 - **CLI:** `cola.py subagente 92 --worktree <ruta> [--rama <auxiliar>]`; la ruta, absoluta o relativa al proyecto. Lo anotado es lo que el CLI recoge al dejar la tarea sin subagente (169).
 - **Sale de:** 083, 086, 105, 115 (14, 15, 17), 149, 151, 152 (documentos compartidos, también por subagente), 160 (TURBO).
@@ -272,7 +272,8 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Cuándo:** tarea en curso con rama existente (sin rama, 20) que tiene el paso «Cerrar la tarea» y ningún otro pendiente salvo «Activar rama para poder probar» y las ayudas de prueba, que quedan como estén (184). Pulsar la C es el OK del propietario, «ciérrala»: «Activar rama para poder probar», si está, queda hecho. También la propuesta que toca un activo: lleva rama y squash, sin pasar por observación.
 - **Quién:** panel; principal, con el OK del propietario en el chat.
 - **Autorización:** dos clics, o el OK.
-- **Repositorio:** antes de nada, se niega si una `sub-NN` tiene commits que no están en la rama de la tarea: el principal no los trajo y el squash los perdería; el mensaje dice cómo traerlos (`git merge --ff-only sub-NN` con la rama activa, `git fetch . sub-NN:<rama>` sin activar). Igual en `a-observacion` (271). Después, `git switch develop`, `git merge --squash <rama>`, commit con los pasos hechos en el cuerpo y el número según el `commits` de `.sf/proyecto.json` («<tarea> (N)» con `libre`; con `conventional` o `propio`, el título «<prefijo>: <tarea>», con el prefijo del tipo de tarea (implementar, `feat`; corregir, `fix`; documentar, especificar, investigar, deliberar y diseñar, `docs`; sin tipo, `chore`, aunque antes de cerrar el principal pregunta el tipo si falta o hay dudas y lo anota con `tipo N T`; decisión 233), y el trailer `SF-Tarea: N` al pie, decisión 207), `git push <remoto> develop` (el `remoto` de la configuración; `origin` si no dice otro), `git branch -D <rama>`. El hash del squash entra en el historial (`cerrada`, «develop <hash>»). Si el push falla, cierra igual, lo anota (`push-fallido`) y avisa. Después recoge el subagente: `git worktree remove` y `git branch -D sub-NN`, sin forzar; un worktree con cambios sin commit se queda, y una auxiliar con commits que no entraron en `develop` se queda, con su worktree, y se avisa: nunca se borra (`recogida` o `recogida-con-avisos`, 169, 271). El panel no para el subagente: el aviso del mensaje siguiente pide al principal detenerlo y dice lo que quedó (11).
+- **Repositorio:** antes de nada, se niega si una `sub-NN` tiene commits que no están en la rama de la tarea: el principal no los trajo y el squash los perdería; el mensaje dice cómo traerlos (`git merge --ff-only sub-NN` con la rama activa, `git fetch . sub-NN:<rama>` sin activar). Igual en `a-observacion` (271). Después, `git switch develop`, `git merge --squash <rama>`, commit con los pasos hechos en el cuerpo y el número según el `commits` de `.sf/proyecto.json` («<tarea> (N)» con `libre`; con `conventional` o `propio`, el título «<prefijo>: <tarea>», con el prefijo del tipo de tarea (implementar, `feat`; corregir, `fix`; documentar, especificar, investigar, deliberar y diseñar, `docs`; sin tipo, `chore`, aunque antes de cerrar el principal pregunta el tipo si falta o hay dudas y lo anota con `tipo N T`; decisión 233), y el trailer `SF-Tarea: N` al pie, decisión 207), `git push <remoto> develop` (el `remoto` de la configuración; `origin` si no dice otro), `git branch -D <rama>`. El hash del squash entra en el historial (`cerrada`, «develop <hash>»). Con el remoto público, antes del push revisa lo que sale (`revision_publica.py`, decisión 259): si encuentra algo, no sube. Si el push falla o no se hace, cierra igual, lo anota (`push-fallido`) y avisa; se sube después con `subir`. Después recoge el subagente: `git worktree remove` y `git branch -D sub-NN`, sin forzar; un worktree con cambios sin commit se queda, y una auxiliar con commits que no entraron en `develop` se queda, con su worktree, y se avisa: nunca se borra (`recogida` o `recogida-con-avisos`, 169, 271). El panel no para el subagente: el aviso del mensaje siguiente pide al principal detenerlo y dice lo que quedó (11).
+  Con la rama sin cambios respecto a `develop` (sin commits propios, o con lo suyo ya en `develop`), no hay squash ni commit: se borra la rama (antes pasa a `develop` si era la activa), se recoge el subagente y la tarea sale como cerrada, sin commit (`cerrada`, «sin cambios: <rama> borrada»; tarea 345).
 - **Panel:** Cerradas, con C y el commit; recuerda el push pendiente.
 - **CLI:** `cola.py cerrar 92`; sin «Cerrar la tarea» o con un paso de trabajo sin hacer sale con 1 y dice cómo arreglarlo.
 - **Sale de:** 082, 090, 101, 115 (5, 18, 19, 20), 121.
@@ -291,7 +292,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 #### 20 · Cerrar sin rama
 
 - **De → a:** `en-curso` sin rama → fuera de la cola.
-- **Cuándo:** la tarea no tocó ningún activo (no pasa por observación). Pide los mismos pasos que 18: «Cerrar la tarea» y ningún otro pendiente salvo «Activar rama para poder probar». Una propuesta que toca un activo lleva rama: se cierra como en 18.
+- **Cuándo:** la tarea no tocó ningún activo (no pasa por observación); siempre, una deliberativa, cuyo único paso de cierre es «Cerrar la tarea» (278). Pide los mismos pasos que 18: «Cerrar la tarea» y ningún otro pendiente salvo «Activar rama para poder probar». Una propuesta que toca un activo lleva rama: se cierra como en 18.
 - **Quién:** panel con «Cerrar» (la C); principal.
 - **Autorización:** dos clics, o el principal pregunta antes de cerrar.
 - **Repositorio:** nada: sin squash ni commit.
@@ -307,7 +308,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Autorización:** dos clics, o el OK del propietario al cierre.
 - **Repositorio:** con rama, el squash en `develop` de 18, con su hash en el historial (`a-observacion`) y en `commit`; la rama se borra. Sin rama, `--commit` anota la versión o el commit del cierre.
 - **Panel:** En observación; Cerradas, con O.
-- **CLI:** `cola.py a-observacion 92 [--prueba "qué mirar"] [--commit "sf 1.0"]`.
+- **CLI:** `cola.py a-observacion 92 [--prueba "qué mirar"] [--commit "sf 1.0"]`. Se niega en una deliberativa (se cierra, 20) y con la rama sin cambios respecto a `develop` (se cierra, 18; tarea 345).
 - **Sale de:** 050, 054, 074, 115 (4), 121, 154, 188.
 
 #### 22 · Cerrar en observación

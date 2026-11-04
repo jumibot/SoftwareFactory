@@ -19,6 +19,34 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 280 | 2026-11-04 | [Migración al repositorio público: develop público, ramas de tarea locales y _respaldo/ públicos](280-2026-11-04-migracion-al-repositorio-publico-develop-publico-ramas-de-tarea-locales-y-respaldo-publicos.md) |
+| 279 | 2026-11-04 | [Las skills internas de la SF no salen en el menú al escribir /sf](279-2026-11-04-las-skills-internas-de-la-sf-no-salen-en-el-menu-al-escribir-sf.md) |
+| 278 | 2026-11-04 | [Una deliberativa solo escribe su documento, sin rama; lo demás va a tareas propias con rama](278-2026-11-04-una-deliberativa-solo-escribe-su-documento-sin-rama-lo-demas-va-a-tareas-propias-con-rama.md) |
+| 277 | 2026-11-04 | [La revisión del sprint se guarda como texto breve en el sprint, y la cabecera del sprint en el panel es desplegable](277-2026-11-04-la-revision-del-sprint-se-guarda-como-texto-breve-en-el-sprint-y-la-cabecera-del-sprint-en-el-panel-es-desplegable.md) |
+| 276 | 2026-11-04 | [Con kanban, el sprint vive en el kanban como una tarjeta con su lista de tareas](276-2026-11-04-con-kanban-el-sprint-vive-en-el-kanban-como-una-tarjeta-con-su-lista-de-tareas.md) |
+| 275 | 2026-11-04 | [Los sprints también en proyectos sin metodología, con interruptor](275-2026-11-04-los-sprints-tambien-en-proyectos-sin-metodologia-con-interruptor.md) |
+| 274 | 2026-11-04 | [Los candidatos del sprint los propone Claude y el developer puede aportar otros](274-2026-11-04-los-candidatos-del-sprint-los-propone-claude-y-el-developer-puede-aportar-otros.md) |
+| 273 | 2026-11-04 | [En un sprint, los paréntesis fuera de tema solo sirven para anotar tareas o ideas nuevas](273-2026-11-04-en-un-sprint-los-parentesis-fuera-de-tema-solo-sirven-para-anotar-tareas-o-ideas-nuevas.md) |
+| 272 | 2026-11-04 | [La daily se hace aunque no haya sprint y sirve para fijarlo](272-2026-11-04-la-daily-se-hace-aunque-no-haya-sprint-y-sirve-para-fijarlo.md) |
+| 271 | 2026-11-04 | [Sin sprint definido, la SF propone crear uno](271-2026-11-04-sin-sprint-definido-la-sf-propone-crear-uno.md) |
+| 270 | 2026-11-04 | [El documento de una deliberación solo recoge decisiones de su tema](270-2026-11-04-el-documento-de-una-deliberacion-solo-recoge-decisiones-de-su-tema.md) |
+| 269 | 2026-11-04 | [Sprints: TURBO solo dentro del sprint, daily breve en el chat y solo /sf_daily](269-2026-11-04-sprints-turbo-solo-dentro-del-sprint-daily-breve-en-el-chat-y-solo-sf-daily.md) |
+| 268 | 2026-11-04 | [El informe de una deliberativa basta para retomarla y ponerla en práctica](268-2026-11-04-el-informe-de-una-deliberativa-basta-para-retomarla-y-ponerla-en-practica.md) |
+| 267 | 2026-11-04 | [Una deliberativa no se cierra sin su documento validado](267-2026-11-04-una-deliberativa-no-se-cierra-sin-su-documento-validado.md) |
+| 266 | 2026-11-04 | [Sprints: en la cola y solo el actual a la vista, panel, observación y tareas fuera del objetivo](266-2026-11-04-sprints-en-la-cola-y-solo-el-actual-a-la-vista-panel-observacion-y-tareas-fuera-del-objetivo.md) |
+| 265 | 2026-11-04 | [Ciclo del sprint: cierre, daily, entrada de tareas y cambio de objetivo](265-2026-11-04-ciclo-del-sprint-cierre-daily-entrada-de-tareas-y-cambio-de-objetivo.md) |
+| 264 | 2026-11-04 | [La daily se pide con /sf_daily y es una conversación](264-2026-11-04-la-daily-se-pide-con-sf-daily-y-es-una-conversacion.md) |
+| 263 | 2026-11-04 | [Una deliberación abre su tarea en curso al empezar y se cierra con su documento validado](263-2026-11-04-una-deliberacion-abre-su-tarea-en-curso-al-empezar-y-se-cierra-creando-las-tareas-que-salen.md) |
+| 262 | 2026-11-04 | [La daily se puede pedir en cualquier momento](262-2026-11-04-la-daily-se-puede-pedir-en-cualquier-momento.md) |
+| 261 | 2026-11-04 | [El resumen al abrir Claude Code es la daily del sprint](261-2026-11-04-el-resumen-al-abrir-claude-code-es-la-daily-del-sprint.md) |
+| 260 | 2026-11-04 | [Un devslice puede tener muchos sprints](260-2026-11-04-un-devslice-puede-tener-muchos-sprints.md) |
+| 259 | 2026-11-04 | [Revisión antes de publicar: bloquear en público, preguntar en privado, y revisar también al subir develop](259-2026-11-04-revision-antes-de-publicar-bloquear-en-publico-preguntar-en-privado-y-revisar-tambien-al-subir-develop.md) |
+| 258 | 2026-11-04 | [Esc pone en pausa la incorporación, con Continuar y Abandonar en el panel](258-2026-11-04-esc-pone-en-pausa-la-incorporacion-con-continuar-y-abandonar-en-el-panel.md) |
+| 257 | 2026-11-04 | [La orden fija del plugin se llama /sf:panel](257-2026-11-04-la-orden-fija-del-plugin-se-llama-sf-panel.md) |
+| 256 | 2026-11-04 | [Las tareas de investigar no tienen rama](256-2026-11-04-las-tareas-de-investigar-no-tienen-rama.md) |
+| 255 | 2026-11-04 | [Logo «/SF»: barra estrecha y empinada en morado claro](255-2026-11-04-logo-sf-barra-estrecha-y-empinada-en-morado-claro.md) |
+| 254 | 2026-11-04 | [En la app, /sf disponible antes del primer mensaje y solo órdenes al escribir /sf](254-2026-11-04-en-la-app-sf-disponible-antes-del-primer-mensaje-y-solo-ordenes-al-escribir-sf.md) |
+| 253 | 2026-11-04 | [Botones del panel en la app de escritorio, con contorno de color](253-2026-11-04-botones-del-panel-en-la-app-de-escritorio-con-contorno-de-color.md) |
 | 252 | 2026-11-03 | [La SF se trabaja en el repositorio público, con revisión antes de publicar](252-2026-11-03-la-sf-se-trabaja-en-el-repositorio-publico-con-revision-antes-de-publicar.md) |
 | 251 | 2026-11-03 | [El título de una tarea dice el resultado buscado, sin ambigüedad](251-2026-11-03-el-titulo-de-una-tarea-dice-el-resultado-buscado-sin-ambiguedad.md) |
 | 250 | 2026-11-03 | [No interrumpir mientras se prueba o se está en otra tarea](250-2026-11-03-no-interrumpir-mientras-se-prueba-o-se-esta-en-otra-tarea.md) |

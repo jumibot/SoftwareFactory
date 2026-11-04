@@ -19,7 +19,7 @@ Se lanzan las órdenes sin preguntar, porque solo leen:
 
 1. **El catálogo:** `claude plugin marketplace list`. Debe estar `softwarefactory`, con origen `jumibot/SoftwareFactory`.
 2. **Los plugins:** `claude plugin list`. Deben estar `sf@softwarefactory`, `gsap-skills@softwarefactory`, `threejs-skills@softwarefactory` y `oklch-skill@softwarefactory`, los cuatro activos («enabled»). Si `sf` sale como «failed to load», el motivo suele nombrar la primera dependencia que falta.
-3. **La versión:** la publicada es el último tag `vX.Y.Z` de `git ls-remote --tags https://github.com/jumibot/SoftwareFactory.git`. Se compara con la versión de `sf` que da `claude plugin list`.
+3. **La versión:** `python -I -X utf8 <plugin>/tools/plugin_sf.py ver` compara la versión de `sf` que corre, la instalada y la publicada (el último tag `vX.Y.Z` del catálogo) y da el estado: `al_dia`, `actualizar`, `refrescar` (instalada más nueva que la que corre), `sin_instalar` o `desconocido` (sin red). La misma comprobación hace `sf:incorporar_proyecto_a_sf` antes de nada. Si `sf` no carga, no hay `<plugin>`: se compara la versión de `sf` que da `claude plugin list` con el último tag de `git ls-remote --tags https://github.com/jumibot/SoftwareFactory.git`.
 4. **Los requisitos:** `git config user.name` y `git config user.email` con valor; `gh auth status` con la sesión iniciada; y `python3 --version`, `python --version` o `py --version` con 3.9 o posterior (basta uno).
 
 ## Qué se dice
@@ -36,7 +36,7 @@ Cada arreglo, con su orden, en un menú: «Arreglarlo» o «Dejarlo así». Con 
 | `sf` | `claude plugin install sf@softwarefactory --scope user`, que trae solas sus dependencias. No se instalan las dependencias a mano antes. |
 | Una dependencia, con `sf` ya instalado | `claude plugin install <dependencia>@softwarefactory --scope user`, una orden por dependencia: `claude plugin install` instala solo el primer plugin que se le da. |
 | Un plugin desactivado | `claude plugin enable <plugin>@softwarefactory` |
-| `sf` en una versión vieja | `claude plugin marketplace update softwarefactory` y después `claude plugin update sf@softwarefactory` |
+| `sf` en una versión vieja | `plugin_sf.py actualizar`: refresca el catálogo, actualiza `sf` en cada scope atrasado e instala las dependencias nuevas que falten. Sin `sf` cargado, `claude plugin marketplace update softwarefactory` y después `claude plugin update sf@softwarefactory`. |
 | «Filename too long» al clonar, en Windows | `git config --global core.longpaths true`, y se repite la orden que falló. |
 | «Permission denied (publickey)» al clonar | Una dependencia se clona por SSH: la SF publicada las trae por HTTPS, así que se actualiza el catálogo y se repite. |
 | git sin nombre o correo | Se piden al usuario y se ponen con `git config --global user.name` y `user.email`. |

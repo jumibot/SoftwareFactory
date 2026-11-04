@@ -2,9 +2,10 @@ import { expect, mock, test } from 'claude-code/testing'
 import { ANCHO_ETIQUETA, FONDO_ORDEN, MARCA_AVISO_EMERGENTE, MARCA_ERROR_EMERGENTE, anchoComun, centrar, puntosDe } from '../hooks/estilo'
 import { abreviarRutas, duracionEmergente, pareceError, textoEmergente } from '../hooks/emergentes'
 import { avisoComprobacion, avisoDependencias, proximaComprobacion, subirManifiesto } from '../hooks/cola'
-import { tareasEnDevelop } from '../hooks/lectura'
+import { claveIncorporacion, tareasEnDevelop } from '../hooks/lectura'
 import { PRUEBA_PYTHON } from '../hooks/python'
-import { LOGO, NOMBRE, NOMBRE_ANCHO, bienvenida, logoSvg, partir } from '../hooks/bienvenida'
+import { NOMBRE, NOMBRE_ANCHO, bienvenida, partir } from '../hooks/bienvenida'
+import { BARRA, COLOR_BARRA, COLOR_LETRAS, LETRAS, logoSvg } from '../hooks/logo'
 
 // Un repositorio de la SF de mentira: la marca del plugin, documentos y una cola de peticiones.
 // Cada caso parte de su propia copia, para que un fallo señale un solo comportamiento.
@@ -116,8 +117,9 @@ type Motor = Parameters<Parameters<typeof test>[1]>
 // remoto: lo que responde git ls-remote --tags (ACTUALIZAR; null, falla); updateFalla: los scopes en que falla
 // claude plugin update; catalogoFalla: falla claude plugin marketplace update; alDia: los scopes en que claude plugin
 // update responde que ya está en la última versión, sin tocar el registro; installFalla: los plugins que
-// claude plugin install no puede instalar.
-type Git = { status?: string; worktrees?: string; switchFalla?: boolean; mergeFalla?: boolean; pushFalla?: boolean; log?: string; revertFalla?: boolean; tags?: string; noAncestro?: boolean; remoto?: string | null; updateFalla?: string[]; catalogoFalla?: boolean; alDia?: string[]; installFalla?: string[]; html?: string[]; sinAbridor?: string[]; propuestasDevelop?: string; rutaDevelop?: string }
+// claude plugin install no puede instalar. revision: lo que responde tools/revision_publica.py (RELEASE, decisiones 252 y 259;
+// sin él, seguir; null, no responde).
+type Git = { status?: string; worktrees?: string; switchFalla?: boolean; mergeFalla?: boolean; pushFalla?: boolean; log?: string; revertFalla?: boolean; tags?: string; noAncestro?: boolean; remoto?: string | null; updateFalla?: string[]; catalogoFalla?: boolean; alDia?: string[]; installFalla?: string[]; html?: string[]; sinAbridor?: string[]; propuestasDevelop?: string; rutaDevelop?: string; revision?: object | null }
 // paneles: lo que responde $.ui.panes() en cada llamada (sin él, ningún panel abierto).
 // agentes: lo que responde $.agent.list(), que el caso puede cambiar (sin él, la llamada falla).
 type Agente = { description: string; status: string }
@@ -519,6 +521,13 @@ async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = 
       if (sinGenerador) return salida('', 1, "ModuleNotFoundError: No module named 'markdown'")
       archivos[`${carpeta}/README.html`] = '<h1>Decisiones</h1>'
       return salida(`${carpeta}/README.html\n`)
+    }
+    // La revisión de lo que sale (RELEASE, decisiones 252 y 259): se apunta como «revision <argumentos>».
+    if (/^(python3?|py)$/.test(argv[0] ?? '') && argv.some(a => /tools\/revision_publica\.py$/.test(a.replace(/\\/g, '/')))) {
+      const i = argv.findIndex(a => /revision_publica\.py$/.test(a))
+      ordenes.push(`revision ${argv.slice(i + 1).join(' ')}`)
+      if (git.revision === null) return salida('', 1, 'Traceback: roto')
+      return salida(JSON.stringify(git.revision ?? { ok: true, accion: 'seguir', mensaje: '', visibilidad: 'PUBLIC', hallazgos: [] }) + '\n')
     }
     // El del plugin (tools/cola.py) o su copia (~/.claude/sf/cola-<sesión>.py).
     if (/^(python3?|py)$/.test(argv[0] ?? '') && argv.some(a => /(tools\/cola|\/cola-[^/]+)\.py$/.test(a.replace(/\\/g, '/')))) {
@@ -1174,6 +1183,21 @@ test('Modo prueba: al entrar se apaga y la etiqueta lanza /reload-plugins', asyn
   await ui.unmount()
 })
 
+// Tarea 338: una carpeta de prueba, sin la SF, con el catálogo local y la copia de trabajo pedida en sus ajustes: al
+// entrar, el mod no la apaga ni recarga, y no crea .sf/ (ni la marca ni el registro).
+test('Modo prueba: en una carpeta de prueba, al entrar no se apaga ni se escribe en .sf/', async (...m) => {
+  const ajustes = {
+    extraKnownMarketplaces: { 'softwarefactory-dev': {} },
+    enabledPlugins: { 'sf@softwarefactory-dev': true, 'sf@softwarefactory': false },
+  }
+  const { archivos, comandos } = await preparar(m, { sinMarca: true, copia: true, extra: { [AJUSTES]: JSON.stringify(ajustes) } })
+  await m[0].session.start({ cwd: RAIZ, surface: 'terminal', isInteractive: true })
+  expect(JSON.parse(archivos[AJUSTES]).enabledPlugins).toEqual(ajustes.enabledPlugins)
+  expect(comandos).not.toContain('reload-plugins')
+  // La cola la pone la prueba; nada más en .sf/.
+  expect(Object.keys(archivos).filter(a => a.startsWith('/sf/.sf/') && a !== COLA)).toEqual([])
+})
+
 // Tarea 185: el cambio de modo con /sf_prueba, sin el panel. Con Claude trabajando, Claude Code guarda la recarga hasta
 // que acaba el turno: se avisa, y el panel de antes sigue mientras.
 test('Modo prueba: /sf_prueba lo cambia sin el panel; con Claude trabajando, avisa de que recarga al acabar el turno', async (...m) => {
@@ -1274,6 +1298,55 @@ test('/clear: la duración, los prompts y las Cerradas empiezan de cero; /reload
   expect(await pintado()).toMatch(/ 0m /)
   expect(await prompts()).toBe('0')
   expect(await conNumero(ui, 4)).toBe(false)
+  expect(await hay(ui, { type: 'Button', text: /CERRADAS [▸▾]\s+0$/ })).toBe(true)
+  await ui.unmount()
+})
+
+// Reanudar una conversación (--continue, --resume, /resume) cuenta como abrir la sesión (tarea 350): la duración, los
+// prompts y las Cerradas, desde ahí, no desde que empezó la conversación.
+test('Reanudar: la duración, los prompts y las Cerradas empiezan de cero (tarea 350)', async (...m) => {
+  const { cambiarCola, reloj } = await preparar(m, { reloj: true })
+  await cambiarCola(CERRADAS, [CERRADA_4])
+  await m[0].prompt.submit({ text: 'hola', origin: { kind: 'composer' }, wait: false })
+  await reloj!.advance(3 * 60_000)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  const pintado = async () => JSON.stringify(await ui.drawn())
+  const prompts = async () => (await ui.find({ type: 'Text', text: /^\d+$/, weight: 'bold' }))?.text
+  expect(await colores(ui, 4)).toEqual(['success'])
+  await m[0].classic.SessionStart({ source: 'resume' })
+  expect(await pintado()).toMatch(/ 0m /)
+  expect(await prompts()).toBe('0')
+  expect(await conNumero(ui, 4)).toBe(false)
+  expect(await hay(ui, { type: 'Button', text: /CERRADAS [▸▾]\s+0$/ })).toBe(true)
+  await ui.unmount()
+})
+
+// Reanudar con /resume o --resume deja el mod en la sesión reanudada, con su $.state vacío y sin session.start, como
+// tras un /clear: el SessionStart «resume» la carga entera y el panel no se queda en «Leyendo el estado…» (tarea 350).
+test('Reanudar: con el estado vacío, el panel deja «Leyendo el estado…» y pinta la cola con lo plegado guardado (tarea 350)', async (...m) => {
+  await preparar(m, { sinArranque: true, plegado: { hecho: true } })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Text', text: /Leyendo el estado/ })).toBe(true)
+  await m[0].classic.SessionStart({ source: 'resume' })
+  expect(await hay(ui, { type: 'Text', text: /Leyendo el estado/ })).toBe(false)
+  expect(await hay(ui, { type: 'Text', text: /Panel lateral/ })).toBe(true)
+  expect(JSON.stringify(await ui.drawn())).toMatch(/ 0m /)
+  // Lo plegado por el propietario, del $.store: la carga entera, no solo la relectura de la cola.
+  expect(await hay(ui, { type: 'Button', text: /CERRADAS ▸\s+0$/ })).toBe(true)
+  await ui.unmount()
+})
+
+// Con el estado recién vaciado (/reload-plugins que cambia de plugin), una relectura de la cola antes de que el mod
+// fije el inicio de la sesión no mete en Cerradas lo cerrado en otras sesiones (tarea 350).
+test('Cerradas: con el estado vacío, una relectura antes de cargar no cuenta lo cerrado en otras sesiones (tarea 350)', async (...m) => {
+  const vaciar = estadoVaciable(m[1])
+  const { archivos } = await preparar(m)
+  vaciar()
+  archivos[HISTORIAL_JSONL] = JSON.stringify({ id: 7, texto: 'Cerrada ayer', estado: 'cerrada', historial: [ev('cerrada', 'develop abc1234', ANTES)] }) + '\n'
+  // El fin de un turno relee la cola (sin esperar a cargar).
+  await m[0].turn.complete({ turnId: 't1', answer: '', durationMs: 1, isAborted: false, reason: 'answer' } as never)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await conNumero(ui, 7)).toBe(false)
   expect(await hay(ui, { type: 'Button', text: /CERRADAS [▸▾]\s+0$/ })).toBe(true)
   await ui.unmount()
 })
@@ -3674,6 +3747,17 @@ for (const [orden, clave, aviso, estado] of [
   })
 }
 
+test('Deliberativa sin rama: Cerrar, sin A observación ni Activar rama (218, 278; tarea 345)', async (...m) => {
+  const cola = [
+    { id: 18, texto: 'Deliberar algo', tipo: 'deliberar', estado: 'en-curso', pasos: [{ texto: 'Escrito el informe', estado: 'hecho' }, { texto: 'Cerrar la tarea', estado: 'pendiente' }] },
+  ]
+  await preparar(m, { desplegadas: true, cola, reloj: true, extra: { '/sf/.git/refs/heads/develop': 'abc', '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Button', key: 'cerrar-tarea:arriba:18', text: /^ Cerrar $/ })).toBe(true)
+  for (const k of ['a-observacion-tarea', 'probar-tarea']) expect(await ui.find({ type: 'Button', key: `${k}:arriba:18` })).toBe(undefined)
+  await ui.unmount()
+})
+
 test('A observación: con choques, se lo pasa a Claude para repetir cola.py a-observacion (241)', async (...m) => {
   const respuesta = { ok: false, mensaje: 'Choques', fallo: 'choques', motivo: 'choques al pasar feature/12-lista a develop' }
   const r = await preparar(m, { desplegadas: true, cola: CERRABLES, reloj: true, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' }, respuestas: { 'a-observacion': respuesta } })
@@ -4000,6 +4084,38 @@ test('RELEASE: si falla el push, lo local queda hecho y lo dice', async (...m) =
   expect(ordenes).toContain('git tag -a v0.34.4 -m sf 0.34.4 main')
   expect(archivos[MANIFIESTO]).toContain('"version": "0.34.4"')
   expect(toasts.some(t => t.startsWith('Publicada v0.34.4 en local; falta el push') && t.includes('sin red'))).toBe(true)
+  await ui.unmount()
+})
+
+test('RELEASE: revisa lo que sale desde el último tag, con el remoto de la configuración, como la acción release, antes de tocar nada (252, 332)', async (...m) => {
+  const { ordenes, toasts, ui } = await release(m)
+  await elegir(ui, '0.35.0')
+  const i = ordenes.indexOf('revision --repo /sf --remoto origin --hasta develop --json --decidir --accion release --repetir vuelve a pulsar RELEASE y elige v0.35.0 --desde v0.34.3')
+  expect(i).toBeGreaterThanOrEqual(0)
+  expect(i).toBeLessThan(ordenes.indexOf('git add plugins/sf/.claude-plugin/plugin.json'))
+  expect(toasts).toContain('Publicada v0.35.0')
+  await ui.unmount()
+})
+
+// La decisión (bloquear o pedir permiso) y su texto son de revision_publica.py, el mismo para el push del cierre (259).
+for (const accion of ['bloquear', 'permiso']) {
+  test(`RELEASE: si la revisión dice ${accion}, no publica y enseña su mensaje (259)`, async (...m) => {
+    const mensaje = `hay 6 cosas que quizá no deban publicarse: abc0001 docs/a.md: correo «p1@ejemplo.es» y 5 más (${accion})`
+    const { archivos, ordenes, toasts, ui } = await release(m, { git: { revision: { ok: true, accion, mensaje, hallazgos: [{}] } } })
+    await elegir(ui, '0.35.0')
+    expect(toasts).toContain(`RELEASE no publica: ${mensaje}`)
+    expect(archivos[MANIFIESTO]).toBe(MANIFIESTO_034)
+    expect(ordenes.some(o => /^git (add|commit|fetch|tag -a|push)/.test(o))).toBe(false)
+    await ui.unmount()
+  })
+}
+
+test('RELEASE: si la revisión no responde, no publica (252)', async (...m) => {
+  const { archivos, ordenes, toasts, ui } = await release(m, { git: { revision: null } })
+  await elegir(ui, '0.35.0')
+  expect(toasts.some(x => /no se pudo revisar lo que sale.*No se publica/.test(x))).toBe(true)
+  expect(archivos[MANIFIESTO]).toBe(MANIFIESTO_034)
+  expect(ordenes.some(o => /^git (add|commit|fetch|tag -a|push)/.test(o))).toBe(false)
   await ui.unmount()
 })
 
@@ -5454,6 +5570,19 @@ test('Avisos del panel: /reload-plugins que cambia de plugin y vacía el estado 
   expect(contextos.at(-1)).toBe(undefined)
 })
 
+test('Avisos del panel: al reanudar una sesión de hace más de 12 horas, no avisa lo cambiado entonces ni pide recoger subagentes de tareas cerradas entonces (tarea 351)', async (...m) => {
+  const vaciar = estadoVaciable(m[1])
+  const { contextos, reloj, guardado } = await preparar(m, { cola: AVISABLES, salidas: [CERRADA_12], reloj: true })
+  await reloj!.advance(10_000)
+  // Lo último avisado en esta sesión, hace 13 horas; el proceso es nuevo, con el estado vacío.
+  guardado.avisadoPanel = { sesion: 'sesion-1', avisado: AHORA - 13 * 3600_000 }
+  vaciar()
+  await m[0].session.start({ cwd: RAIZ, surface: 'terminal', isInteractive: true })
+  await reloj!.advance(2000)
+  await escribe(m, 'hola')
+  expect((contextos.at(-1) ?? []).filter(c => c.startsWith('Desde el panel'))).toEqual([])
+})
+
 test('Avisos del panel: una versión anterior del mod cargada entre medias (el modo prueba) no hace perder lo cambiado (tarea 285, reabierta)', async (...m) => {
   const estado = estadoVaciable(m[1])
   const { contextos, reloj, archivos } = await preparar(m, { cola: AVISABLES, salidas: [CERRADA_12], reloj: true })
@@ -5473,6 +5602,37 @@ test('Avisos del panel: una versión anterior del mod cargada entre medias (el m
   await reloj!.advance(10_000)
   await escribe(m, 'nada nuevo')
   expect(contextos.at(-1)).toBe(undefined)
+})
+
+// Al reanudar la conversación, el $.store de su sesión guarda hasta dónde se avisó hace días: lo hecho desde el panel
+// entre medias se dijo en otras sesiones, no aquí (tarea 350).
+test('Avisos del panel: al reanudar la conversación cuentan desde ahí, aunque el $.store guarde un aviso viejo (tarea 350)', async (...m) => {
+  const vaciar = estadoVaciable(m[1])
+  const { contextos, reloj, guardado } = await preparar(m, { cola: AVISABLES, salidas: [CERRADA_12], reloj: true })
+  await reloj!.advance(10_000)
+  // Un proceso nuevo con la misma sesión: el estado, vacío; el $.store, con el aviso de cuando se dejó.
+  vaciar()
+  guardado.avisadoPanel = { sesion: 'sesion-1', avisado: AHORA - 3 * 86400_000 }
+  await m[0].session.start({ cwd: RAIZ, surface: 'terminal', isInteractive: true })
+  await m[0].classic.SessionStart({ source: 'resume' })
+  await reloj!.advance(2000)
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)?.some(c => c.startsWith('Desde el panel'))).not.toBe(true)
+})
+
+// Un mensaje que llega con el estado recién vaciado, antes de que el mod lo cargue: el aviso sigue desde el último
+// dado en la sesión, no desde el principio del historial (tarea 350).
+test('Avisos del panel: un mensaje con el estado vacío, antes de cargar, no avisa de todo lo hecho desde el panel (tarea 350)', async (...m) => {
+  const vaciar = estadoVaciable(m[1])
+  const vieja: Pet = { id: 11, texto: 'Cerrada hace días', estado: 'cerrada', historial: [ev('cerrada', 'develop abc1234', ANTES)] }
+  const { contextos, reloj } = await preparar(m, { cola: AVISABLES, salidas: [vieja, CERRADA_12], reloj: true })
+  await escribe(m, 'antes')
+  expect(contextos.at(-1)).toBe(undefined)
+  await reloj!.advance(10_000)
+  vaciar()
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)?.[0]).toMatch(/^Desde el panel: la 13, en curso; cerrada la 12\./)
+  expect(contextos.at(-1)?.[0]).not.toMatch(/la 11/)
 })
 
 test('Avisos del panel: tras un /clear cuentan desde ahí', async (...m) => {
@@ -5550,22 +5710,39 @@ test('Avisos del panel: cada evento, como frase corta, sin la rama ni el detalle
 // ── Avisos de subagentes (tarea 249) ──
 // Las en curso de INICIAL: la 1 y la 4. Un informe de cola.py, `segundos` después de AHORA.
 const informe = (segundos: number) => ({ evento: 'informe', fecha: new Date(AHORA + 1000 * segundos).toISOString(), quien: 'principal', via: 'cli', detalle: 'terminado' })
-const LANZA = (n: number) => `la ${String(n)} está en curso sin subagente: lánzalo («Tarea ${String(n)}: …»)`
+// El aviso de lanzar los que faltan (tarea 351): aparte, imperativo y, en el mensaje, el primero.
+const LANZA = (ns: number[], nueva = false) =>
+  `ANTES DE NADA, en este turno y antes de contestar: lanza el subagente de cada tarea en curso que no lo tiene: ${ns.map(n => `la ${String(n)} («Tarea ${String(n)}: …»)`).join(', ')}.` +
+  (nueva ? ' Sesión nueva: los de la anterior ya no viven.' : '')
 const RECOGE = (n: number) => `el subagente de la ${String(n)} ha terminado: recógelo (revisar el diff, merge --ff-only, \`python -I -X utf8 "$HOME/.claude/sf/cola.py" informe ${String(n)}\`, pasos, listo)`
 
-test('Avisos de subagentes: al abrir la sesión, lanzar el de cada tarea en curso; el mensaje siguiente, sin cambios, nada', async (...m) => {
-  const { contextos } = await preparar(m, { agentes: [] })
+test('Avisos de subagentes: al abrir la sesión, lanzar el de cada tarea en curso; y en cada mensaje mientras falten, sin «Sesión nueva» (tarea 351)', async (...m) => {
+  const agentes: Agente[] = []
+  const { contextos } = await preparar(m, { agentes })
   await escribe(m, 'hola')
-  expect(contextos.at(-1)).toEqual([`Sesión nueva: los subagentes de la anterior ya no viven. Subagentes: ${LANZA(1)}; ${LANZA(4)}.`])
+  expect(contextos.at(-1)).toEqual([LANZA([1, 4], true)])
   await escribe(m, 'otra cosa')
+  expect(contextos.at(-1)).toEqual([LANZA([1, 4])])
+  agentes.push({ description: 'Tarea 1: panel', status: 'running' }, { description: 'Tarea 4: fondos', status: 'running' })
+  await escribe(m, 'lanzados')
   expect(contextos.at(-1)).toBe(undefined)
+})
+
+test('Avisos de subagentes: el de lanzar va el primero, antes de lo cambiado desde el panel (tarea 351)', async (...m) => {
+  const { contextos, reloj } = await preparar(m, { cola: AVISABLES, salidas: [CERRADA_12], reloj: true, agentes: [] })
+  await reloj!.advance(10_000)
+  await escribe(m, 'hola')
+  const c = contextos.at(-1)!
+  expect(c[0]).toMatch(/^ANTES DE NADA, en este turno y antes de contestar: lanza el subagente de cada tarea en curso que no lo tiene: la 13 /)
+  expect(c[1]).toMatch(/^Desde el panel: /)
 })
 
 test('Avisos de subagentes: el que termina pide recogerlo, en su notificación; con el informe anotado, nada; si vuelve a trabajar y termina, otra vez', async (...m) => {
   const agentes: Agente[] = [{ description: 'Tarea 1: panel', status: 'running' }]
   const { contextos, reloj, cambiarCola } = await preparar(m, { agentes, reloj: true })
   await escribe(m, 'hola')
-  expect(contextos.at(-1)).toEqual([`Sesión nueva: los subagentes de la anterior ya no viven. Subagentes: ${LANZA(4)}.`])
+  expect(contextos.at(-1)).toEqual([LANZA([4], true)])
+  agentes.push({ description: 'Tarea 4: fondos', status: 'running' })
   await reloj!.advance(5000)
   agentes[0]!.status = 'completed'
   await m[0].prompt.submit({ text: 'El subagente ha terminado', origin: { kind: 'task-notification' }, wait: false })
@@ -5595,18 +5772,27 @@ test('Avisos de subagentes: el que se para vuelve a pedir lanzarlo; sin la lista
   expect(contextos.at(-1)).toBe(undefined)
   agentes[1]!.status = 'killed'
   await escribe(m, 'sigue')
-  expect(contextos.at(-1)).toEqual([`Subagentes: ${LANZA(4)}.`])
+  expect(contextos.at(-1)).toEqual([LANZA([4])])
 })
 
 for (const source of ['compact', 'clear'] as const)
   test(`Avisos de subagentes: tras ${source === 'clear' ? 'un /clear' : 'compactar'}, lo pendiente se vuelve a avisar, sin «Sesión nueva»`, async (...m) => {
-    const { contextos } = await preparar(m, { agentes: [] })
+    const agentes: Agente[] = [
+      { description: 'Tarea 1: panel', status: 'running' },
+      { description: 'Tarea 4: fondos', status: 'running' },
+    ]
+    const { contextos, reloj } = await preparar(m, { agentes, reloj: true })
     await escribe(m, 'hola')
+    await reloj!.advance(5000)
+    agentes[0]!.status = 'completed'
+    agentes[1]!.status = 'killed'
     await escribe(m, 'sigue')
-    expect(contextos.at(-1)).toBe(undefined)
+    expect(contextos.at(-1)).toEqual([LANZA([4]), `Subagentes: ${RECOGE(1)}.`])
+    await escribe(m, 'más')
+    expect(contextos.at(-1)).toEqual([LANZA([4])])
     await m[0].classic.SessionStart({ source })
     await escribe(m, 'otra')
-    expect(contextos.at(-1)).toEqual([`Subagentes: ${LANZA(1)}; ${LANZA(4)}.`])
+    expect(contextos.at(-1)).toEqual([LANZA([4]), `Subagentes: ${RECOGE(1)}.`])
   })
 
 test('Avisos de subagentes: el resultado del Agent del principal lleva los nuevos', async (...m) => {
@@ -5618,7 +5804,7 @@ test('Avisos de subagentes: el resultado del Agent del principal lleva los nuevo
   await preparar(m, { agentes })
   await escribe(m, 'hola')
   const r = await m[0].tool.call({ tool: 'Agent', description: 'Tarea 1: panel', prompt: 'x' } as never)
-  expect((r as { context?: string[] }).context).toEqual([`Subagentes: ${RECOGE(1)}.`])
+  expect((r as { context?: string[] }).context).toEqual([LANZA([4]), `Subagentes: ${RECOGE(1)}.`])
 })
 
 // El estado de la sesión en un almacén del caso, que se puede vaciar como al cambiar de plugin con /reload-plugins
@@ -5663,7 +5849,7 @@ test('Avisos de subagentes: con lo guardado de otra sesión, la nueva sí es nue
   const otra = { sesiones: { 'sesion-0': { fecha: AHORA - 60_000, claves: [], vistos: { x: { tarea: 1, descripcion: 'Tarea 1: panel', estado: 'esperando' } } } } }
   const { contextos } = await preparar(m, { agentes: [], extra: { '/sf/.sf/subagentes.json': JSON.stringify(otra) } })
   await escribe(m, 'hola')
-  expect(contextos.at(-1)).toEqual([`Sesión nueva: los subagentes de la anterior ya no viven. Subagentes: ${LANZA(1)}; ${LANZA(4)}.`])
+  expect(contextos.at(-1)).toEqual([LANZA([1, 4], true)])
 })
 
 test('Avisos de subagentes: con automatizaciones.avisos_subagentes a false en .sf/proyecto.json, nada', async (...m) => {
@@ -5906,14 +6092,14 @@ test('Pantalla completa: sin ella, el primer mensaje del propietario lleva la of
   expect(contextos.at(-1)?.at(-1)).toMatch(/no está en pantalla completa/)
 })
 
-test('Pantalla completa y avisos de subagentes conviven en el mismo mensaje, la oferta antes (tarea 249)', async (...m) => {
+test('Pantalla completa y avisos de subagentes conviven en el mismo mensaje, el de lanzar antes (tarea 351)', async (...m) => {
   const { contextos } = await preparar(m, { agentes: [] })
   await ofertaTras(m, CAJA_NORMAL)
   await escribe(m, 'hola')
   const c = contextos.at(-1)!
   expect(c.length).toBe(2)
-  expect(c[0]).toMatch(/no está en pantalla completa/)
-  expect(c[1]).toBe(`Sesión nueva: los subagentes de la anterior ya no viven. Subagentes: ${LANZA(1)}; ${LANZA(4)}.`)
+  expect(c[0]).toBe(LANZA([1, 4], true))
+  expect(c[1]).toMatch(/no está en pantalla completa/)
 })
 
 test('Pantalla completa: con ella, ningún mensaje lleva la oferta', async (...m) => {
@@ -6029,15 +6215,47 @@ test('Caja: sin SF, qué es la SF, la orden y qué pasa al incorporar', async (.
   await esc.unmount()
 })
 
-test('Bienvenida: el logo en SVG, con el color que se le da', () => {
-  const svg = logoSvg('#9333ea')
+test('Bienvenida: el logo en SVG, la barra en el morado claro y las letras en el de la SF', () => {
+  const svg = logoSvg()
   expect(svg.startsWith('<svg')).toBe(true)
-  expect(svg).toContain('fill="#9333ea"')
+  expect(svg).toContain(`fill="${COLOR_BARRA}"`)
+  expect(svg).toContain(`fill="${COLOR_LETRAS}"`)
+  expect(logoSvg(5, false)).not.toContain(`fill="${COLOR_BARRA}"`)
 })
+
+// El logo «/SF» de la bienvenida (tarea 339): con la barra desde 18 columnas; de 13 a 17, solo las letras; por debajo, sin logo.
+test('Bienvenida: el logo con barra en 18 columnas, solo las letras de 13 a 17 y ninguno por debajo', () => {
+  for (const w of [18, 60]) {
+    const logo = bienvenida(w).filter(x => x.estilo === 'logo')
+    expect(logo.map(x => x.logo?.barra)).toEqual(BARRA)
+    expect(logo.map(x => x.logo?.letras)).toEqual(LETRAS.map(f => f.trimEnd()))
+    for (const x of logo) expect(x.texto).toBe(' '.repeat(x.logo!.sangria) + (x.logo!.barra + LETRAS[logo.indexOf(x)]).trimEnd())
+  }
+  for (const w of [13, 17]) {
+    const logo = bienvenida(w).filter(x => x.estilo === 'logo')
+    expect(logo.length).toBe(LETRAS.length)
+    expect(logo.every(x => x.logo?.barra === '')).toBe(true)
+  }
+  expect(bienvenida(12).some(x => x.estilo === 'logo')).toBe(false)
+})
+
+// En el terminal, la barra y las letras de la bienvenida y del mini splash, cada una con su color.
+for (const [nombre, montar] of [
+  ['bienvenida', { ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface: 'terminal' }],
+  ['caja', CAJA],
+] as const) {
+  test(`terminal: Logo /SF en la ${nombre}: la barra en el morado claro y las letras en el de la SF`, async (...m) => {
+    await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+    const ui = await m[0].ui.mount(montar)
+    expect(((await ui.find({ type: 'Text', text: /^\s*▄█▀\s*$/ })) as ConProps).props.color).toBe(COLOR_BARRA)
+    expect(((await ui.find({ type: 'Text', text: /^▄█████ ██████$/ })) as ConProps).props.color).toBe(COLOR_LETRAS)
+    await ui.unmount()
+  })
+}
 
 test('Bienvenida: en ancho, el logo y el nombre espaciado; en estrecho, sin partir nada fuera del ancho', () => {
   const ancha = bienvenida(60)
-  expect(ancha.filter(x => x.estilo === 'logo').length).toBe(LOGO.length)
+  expect(ancha.filter(x => x.estilo === 'logo').length).toBe(LETRAS.length)
   expect(ancha.some(x => x.texto.trim() === NOMBRE_ANCHO)).toBe(true)
   for (const w of [12, 20, 28, 40, 60, 90]) for (const x of bienvenida(w)) expect(x.texto.length).toBeLessThanOrEqual(Math.max(12, w))
   const estrecha = bienvenida(12)
@@ -6199,4 +6417,249 @@ test('Sugerencia: tras /sf vuelve; tras un turno de Claude, no', async (...m) =>
   await escribe(m, 'hola')
   await reloj!.advance(600)
   expect(vistas.length).toBe(2)
+})
+
+// ── La incorporación, paso a paso (tarea 333) ──
+// El progreso que anota Claude con tools/incorporacion.py, en la carpeta de la SF de Claude Code, por sesión.
+// Por proyecto, no por sesión: la clave de la carpeta /sf (tarea 333).
+const PROGRESO = '/home/.claude/sf/incorporacion-_sf.json'
+const progreso = (actual: number, respuestas: (string | null)[], carpeta = RAIZ) =>
+  JSON.stringify({
+    version: 1,
+    carpeta,
+    caso: 'existente',
+    actual,
+    pasos: ['Caso', 'Diagnóstico', 'Identidad', 'Repositorio', 'Convenciones', 'Cambios y OK', 'Aplicar', 'CLAUDE.md', 'Pasar a sf/', 'Comprobación'].map((nombre, i) => ({ nombre, respuesta: respuestas[i] ?? null })),
+  })
+
+test('Incorporación: sin SF, bajo la bienvenida sin su invitación, todos los pasos si caben y el actual en morado', async (...m) => {
+  const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/ y develop'])
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  // La marca y el lema se quedan; la invitación a empezar, no: compite con la lista (tarea 333).
+  expect(await hay(ui, { type: 'Text', text: /Tu fábrica de software/ })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: /Para empezar/ })).toBe(false)
+  expect(await hay(ui, { type: 'Text', text: /unas pocas preguntas/ })).toBe(false)
+  expect(await hay(ui, { type: 'Text', text: 'paso 3 de 10' })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: ' En curso ', backgroundColor: '#827dbd', color: '#000000' })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: 'falta .sf/ y develop' })).toBe(true)
+  // El actual, en el morado de la marca y negrita, no en amarillo.
+  expect(await hay(ui, { type: 'Text', text: 'Identidad ◂', color: '#827dbd', weight: 'bold' })).toBe(true)
+  // Caben los diez: ni plegados ni flechas.
+  for (const t of ['Caso', 'Aplicar', 'CLAUDE.md', 'Comprobación']) expect(await hay(ui, { type: 'Text', text: t })).toBe(true)
+  expect(await hay(ui, { type: 'Button', key: 'incorporacion:arriba' })).toBe(false)
+  expect(await hay(ui, { type: 'Button', key: 'incorporacion:abajo' })).toBe(false)
+  await ui.unmount()
+})
+
+test('Incorporación: si no caben, pliega solo los que sobran, con el actual a la vista; ▲ y ▼ mueven la ventana', async (...m) => {
+  const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/ y develop'])
+  await cambiarCola(INICIAL)
+  const bajo = (filas: number) => ({ ...PANEL, surface: 'terminal', props: { ...PANEL.props, scroll: { offset: 0, bodyRows: filas } } })
+  const visibles = async (ui: { find: (q: object) => Promise<unknown> }) => {
+    let n = 0
+    for (const t of ['Caso', 'Diagnóstico', 'Identidad ◂', 'Repositorio', 'Convenciones', 'Cambios y OK', 'Aplicar', 'CLAUDE.md', 'Pasar a sf/', 'Comprobación'])
+      if (await hay(ui, { type: 'Text', text: t })) n++
+    return n
+  }
+  const corto = await m[0].ui.mount(bajo(28))
+  const n28 = await visibles(corto)
+  expect(n28 > 1 && n28 < 10).toBe(true)
+  expect(await hay(corto, { type: 'Text', text: 'Identidad ◂' })).toBe(true)
+  expect(await hay(corto, { type: 'Button', key: 'incorporacion:abajo' })).toBe(true)
+  // ▼ baja la ventana hasta el final; ▲, la sube hasta el principio.
+  for (let k = 0; k < 10 && (await hay(corto, { type: 'Button', key: 'incorporacion:abajo' })); k++) await corto.press({ key: 'incorporacion:abajo' })
+  expect(await hay(corto, { type: 'Text', text: 'Comprobación' })).toBe(true)
+  for (let k = 0; k < 10 && (await hay(corto, { type: 'Button', key: 'incorporacion:arriba' })); k++) await corto.press({ key: 'incorporacion:arriba' })
+  expect(await hay(corto, { type: 'Text', text: 'Caso' })).toBe(true)
+  await corto.unmount()
+  // Con una fila más de alto, uno más a la vista (o todos): pliega lo mínimo.
+  const algo = await m[0].ui.mount(bajo(29))
+  expect((await visibles(algo)) >= n28).toBe(true)
+  await algo.unmount()
+})
+
+test('Incorporación: la ventana vuelve a seguir al paso actual cuando Claude pasa de paso', async (...m) => {
+  const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = progreso(1, [])
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal', props: { ...PANEL.props, scroll: { offset: 0, bodyRows: 28 } } })
+  await ui.press({ key: 'incorporacion:abajo' })
+  expect(await hay(ui, { type: 'Text', text: 'Caso ◂' })).toBe(false)
+  archivos[PROGRESO] = progreso(9, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'])
+  await cambiarCola(INICIAL)
+  expect(await hay(ui, { type: 'Text', text: 'Pasar a sf/ ◂' })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: 'Comprobación' })).toBe(true)
+  await ui.unmount()
+})
+
+test('Incorporación terminada: con panel operativo se queda hasta el turno siguiente; sin él, con «Hecho», que la cierra', async (...m) => {
+  const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  const todos = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
+  // Sin SF (simulada, o un diagnóstico): terminada, sigue, sin Continuar ni Abandonar y con «Hecho»; el turno no la quita.
+  archivos[PROGRESO] = progreso(0, todos)
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Text', text: ' Terminada ' })).toBe(true)
+  expect(await hay(ui, { type: 'Button', key: 'incorporacion:continuar' })).toBe(false)
+  expect(await hay(ui, { type: 'Button', key: 'incorporacion:abandonar' })).toBe(false)
+  expect(await hay(ui, { type: 'Button', key: 'incorporacion:cerrar' })).toBe(true)
+  await acabaTurno(m, 't1')
+  await m[0].turn.start({ text: 'sigue', turnId: 't2' })
+  expect(sinPasos(archivos)).toBe(false)
+  // Con el panel operativo (ya hay .sf/proyecto.json): la lista, con Aplicar y Comprobación marcados, se queda.
+  archivos['/sf/.sf/proyecto.json'] = JSON.stringify({ proyecto: 'Demo', color: 'blue' })
+  await cambiarCola(INICIAL)
+  expect(await hay(ui, { type: 'Text', text: '10 de 10 pasos' })).toBe(true)
+  expect(await hay(ui, { type: 'Button', key: 'incorporacion:cerrar' })).toBe(false)
+  await acabaTurno(m, 't2')
+  expect(sinPasos(archivos)).toBe(false)
+  // Y al empezar el turno siguiente, el mod la quita.
+  await m[0].turn.start({ text: 'gracias', turnId: 't3' })
+  expect(sinPasos(archivos)).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
+  await ui.unmount()
+})
+
+test('Incorporación terminada sin SF: «Hecho» quita la lista y vuelve la invitación de la bienvenida', async (...m) => {
+  const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = progreso(0, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Text', text: /Para empezar/ })).toBe(false)
+  await ui.press({ key: 'incorporacion:cerrar' })
+  expect(sinPasos(archivos)).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
+  expect(await hay(ui, { type: 'Text', text: /Para empezar/ })).toBe(true)
+  await ui.unmount()
+})
+
+test('Incorporación: con SF (al actualizar), arriba del cuerpo; de otra carpeta, no sale; borrado, se va', async (...m) => {
+  const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: { '/sf/.sf/proyecto.json': JSON.stringify({ proyecto: 'Demo', color: 'blue' }) } })
+  archivos[PROGRESO] = progreso(2, ['Actualizar'])
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Text', text: 'paso 2 de 10' })).toBe(true)
+  archivos[PROGRESO] = progreso(2, ['Actualizar'], '/otra')
+  await cambiarCola(INICIAL)
+  expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
+  archivos[PROGRESO] = progreso(0, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
+  await cambiarCola(INICIAL)
+  expect(await hay(ui, { type: 'Text', text: '10 de 10 pasos' })).toBe(true)
+  delete archivos[PROGRESO]
+  await cambiarCola(INICIAL)
+  expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
+  await ui.unmount()
+})
+
+// En pausa (decisión 258): un turno que acaba, o se interrumpe, con la incorporación a medias la pone en pausa sin
+// borrar lo respondido; el panel ofrece Continuar (a Claude) y Abandonar (sin Claude). Se borra con un no a incorporar
+// y al cargar el mod.
+const sinPasos = (archivos: Record<string, string>) => !archivos[PROGRESO] || !JSON.parse(archivos[PROGRESO]!).pasos
+const enPausa = (archivos: Record<string, string>) => JSON.parse(archivos[PROGRESO]!).pausa === true
+const acabaTurno = (m: Motor, turnId: string, isAborted = false) =>
+  m[0].turn.complete({ turnId, answer: '', durationMs: 1, isAborted, reason: isAborted ? 'aborted' : 'answer' } as never)
+
+test('Incorporación: al acabar o interrumpirse el turno a medias, en pausa con lo respondido; terminada, no', async (...m) => {
+  const { archivos } = await preparar(m, { sinMarca: true })
+  archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/'])
+  await acabaTurno(m, 't1', true)
+  expect(enPausa(archivos)).toBe(true)
+  expect(JSON.parse(archivos[PROGRESO]!).pasos[1].respuesta).toBe('falta .sf/')
+  archivos[PROGRESO] = progreso(0, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
+  await acabaTurno(m, 't2')
+  expect(enPausa(archivos)).toBe(false)
+})
+
+test('Incorporación en pausa: lista atenuada con Continuar, que lo pasa a Claude, y Abandonar, que la borra', async (...m) => {
+  const { archivos, cambiarCola, prompts, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/'])
+  await acabaTurno(m, 't1', true)
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  // La cabecera (tarea 333): el nombre en el morado de la marca, el estado como etiqueta en morado claro y la cuenta, atenuada.
+  expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN', color: '#827dbd', weight: 'bold' })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: ' En pausa ', backgroundColor: '#b3aee6', color: '#000000' })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: 'paso 3 de 10', dimColor: true })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: 'Identidad ◂' })).toBe(false)
+  // Continuar, como la orden de la bienvenida (morado de la marca, letra negra en negrita); Abandonar, en el morado
+  // claro sin fondo; ninguno en amarillo ni en rojo, centrados con espacios en el terminal (tarea 333).
+  expect(await etiqueta(ui, 'incorporacion:continuar')).toMatchObject({ backgroundColor: '#827dbd', color: '#000000', weight: 'bold' })
+  const abandonar = (await etiqueta(ui, 'incorporacion:abandonar')) as Record<string, unknown>
+  expect(abandonar).toMatchObject({ color: '#b3aee6' })
+  expect(abandonar.backgroundColor).toBe(undefined)
+  const fila = (await ui.find({ type: 'Box', key: 'incorporacion:continuar:fila' })) as { children: { type: string; children: unknown[] }[] }
+  expect(fila.children[0]).toMatchObject({ type: 'Text', children: [expect.stringMatching(/^ +$/)] })
+  await ui.press({ key: 'incorporacion:continuar' })
+  await reloj!.advance(100)
+  expect(prompts).toEqual(['continúa la incorporación a la SF'])
+  await ui.press({ key: 'incorporacion:abandonar' })
+  await reloj!.advance(100)
+  expect(sinPasos(archivos)).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
+  expect(await hay(ui, { type: 'Text', text: /Para empezar/ })).toBe(true)
+  await ui.unmount()
+})
+
+test('Incorporación en pausa tras Esc: si Claude Code no admite el encargo de Continuar, se deja escrito en el prompt y se dice', async (...m) => {
+  // Tras interrumpir con Esc, el motor no deja que un plugin pase mensajes hasta que el propietario escribe: { drop }.
+  m[1]('prompt.submit', { origin: { kind: 'plugin' } } as never, () => ({ drop: 'interrumpido' }))
+  const { archivos, cambiarCola, rellenos, toasts, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/'])
+  await acabaTurno(m, 't1', true)
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  await ui.press({ key: 'incorporacion:continuar' })
+  await reloj!.advance(100)
+  expect(rellenos).toEqual(['continúa la incorporación a la SF'])
+  expect(toasts.some(t => t.includes('pulsa Intro'))).toBe(true)
+  await ui.unmount()
+})
+
+test('Incorporación en pausa: en una superficie gráfica, los dos botones centrados con la caja', async (...m) => {
+  const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/'])
+  await acabaTurno(m, 't1', true)
+  await cambiarCola(INICIAL)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  for (const k of ['continuar', 'abandonar'])
+    expect(await hay(ui, { type: 'Box', key: `incorporacion:${k}:fila`, justifyContent: 'center' })).toBe(true)
+  expect(await etiqueta(ui, 'incorporacion:continuar')).toMatchObject({ backgroundColor: '#827dbd', color: '#000000', weight: 'bold' })
+  await ui.unmount()
+})
+
+test('Incorporación: un no a incorporar en un menú la borra; otra respuesta, no', async (...m) => {
+  const respuestas = ['Demo', 'Ahora no']
+  m[1]('tool.call', { tool: 'AskUserQuestion' }, (_, e) => {
+    const q = (e as unknown as { questions: { question: string }[] }).questions[0]!.question
+    return { result: { questions: (e as unknown as { questions: unknown[] }).questions, answers: { [q]: respuestas.shift()! } } as never }
+  })
+  const { archivos } = await preparar(m, { sinMarca: true })
+  archivos[PROGRESO] = progreso(3, ['Existente'])
+  const pregunta = () => m[0].tool.call({ tool: 'AskUserQuestion', questions: [{ question: '¿Y ahora?', header: 'SF', multiSelect: false, options: [{ label: 'Demo', description: '' }] }] } as never)
+  await pregunta()
+  expect(sinPasos(archivos)).toBe(false)
+  await pregunta()
+  expect(sinPasos(archivos)).toBe(true)
+})
+
+test('Incorporación: un progreso a medias de antes de cargar el mod (/reload-plugins, modo prueba, sesión nueva) queda en pausa, no se borra', async (...m) => {
+  const { archivos } = await preparar(m, { sinMarca: true, extra: { [PROGRESO]: progreso(3, ['Existente']) } })
+  expect(sinPasos(archivos)).toBe(false)
+  expect(enPausa(archivos)).toBe(true)
+  expect(JSON.parse(archivos[PROGRESO]!).pasos[0].respuesta).toBe('Existente')
+})
+
+test('Incorporación: una terminada de antes de cargar el mod se conserva, sin pausa', async (...m) => {
+  const { archivos } = await preparar(m, { sinMarca: true, extra: { [PROGRESO]: progreso(0, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']) } })
+  expect(sinPasos(archivos)).toBe(false)
+  expect(enPausa(archivos)).toBe(false)
+})
+
+test('Incorporación: la clave del archivo de progreso es la de incorporacion.py (por proyecto)', () => {
+  expect(claveIncorporacion('D:\\Projectes\\Contador/')).toBe('d__projectes_contador')
+  expect(claveIncorporacion('/sf')).toBe('_sf')
+  expect(claveIncorporacion('/home/Año')).toBe('_home_a_o')
 })

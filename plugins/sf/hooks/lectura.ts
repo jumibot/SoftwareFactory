@@ -1,8 +1,8 @@
 import { atom, read, update, type EngineInterface } from 'claude-code'
-import type { SubagenteVisto, Estado, Evento, Paso, Peticion, Realimentacion, Salida } from '../types'
-import { ANTIGUO, CAMPO_VIEJO, COLORES, COLOR_SF, ESTADO, ESTADOS_PETICION, ESTADOS_VIEJOS, EVENTO_CERRADA_VIEJO, EVENTOS_VIEJOS, FASES, HISTORIAL, MARCA_SF, PETICIONES, PROYECTO } from './constantes'
+import type { SubagenteVisto, Estado, Incorporacion, Evento, Paso, Peticion, Realimentacion, Salida } from '../types'
+import { ANTIGUO, CAMPO_VIEJO, CARPETA_COPIAS, PREFIJO_INCORPORACION, COLORES, COLOR_SF, ESTADO, ESTADOS_PETICION, ESTADOS_VIEJOS, EVENTO_CERRADA_VIEJO, EVENTOS_VIEJOS, FASES, HISTORIAL, MARCA_SF, PETICIONES, PROYECTO } from './constantes'
 import { avisosConfiguracion, leerConfiguracion, remotos, TRAILER_TAREA } from './configuracion'
-import { normal } from './control'
+import { igual, normal } from './control'
 import { guardarSesion } from './memoria'
 
 export type $ = EngineInterface
@@ -310,6 +310,29 @@ export function atrasada(e: Estado): boolean {
 }
 
 // `desde`: el inicio de la sesión (ms), para leer del historial solo lo que ha pasado en ella.
+// La incorporación en marcha (tarea 333): el progreso que anota Claude con tools/incorporacion.py, en la carpeta de
+// la SF de Claude Code, por proyecto, no por sesión: sobrevive a /reload-plugins, /clear, al modo prueba y a una sesión
+// nueva (tarea 333, a petición del propietario). Solo si es de esta carpeta; null si no hay o no se entiende.
+// La clave, como clave() de incorporacion.py: la ruta en minúsculas, con «_» en lo que no es letra o cifra ASCII o guion.
+export const claveIncorporacion = (carpeta: string) => Array.from(normal(carpeta).toLowerCase(), c => (/^[a-z0-9-]$/.test(c) ? c : '_')).join('')
+export async function rutaIncorporacion($: $): Promise<string | null> {
+  const claude = await carpetaClaude($)
+  if (!claude) return null
+  return `${claude}/${CARPETA_COPIAS}/${PREFIJO_INCORPORACION}${claveIncorporacion(await raizSesion($))}.json`
+}
+export async function leerIncorporacion($: $, raiz: string): Promise<Incorporacion | null> {
+  const ruta = await rutaIncorporacion($)
+  if (!ruta || !(await $.fs.exists(ruta))) return null
+  const d = await leerJson($, ruta)
+  if (typeof d.carpeta !== 'string' || !igual(normal(d.carpeta), normal(raiz)) || !Array.isArray(d.pasos)) return null
+  const pasos = d.pasos
+    .filter((p): p is Record<string, unknown> => typeof p === 'object' && p !== null && typeof (p as Record<string, unknown>).nombre === 'string')
+    .map(p => ({ nombre: p.nombre as string, respuesta: texto(p.respuesta) }))
+  if (!pasos.length) return null
+  const actual = typeof d.actual === 'number' && Number.isInteger(d.actual) && d.actual >= 0 && d.actual <= pasos.length ? d.actual : 0
+  return { caso: texto(d.caso) ?? '', actual, pausa: d.pausa === true && actual > 0, pasos }
+}
+
 export async function leerEstado($: $, desde = 0): Promise<Estado> {
   const raiz = await raizSesion($)
   const base: Estado = {
@@ -346,6 +369,7 @@ export async function leerEstado($: $, desde = 0): Promise<Estado> {
   base.peticiones = cola.peticiones
   base.errorPeticiones = cola.error
   base.salidas = await leerSalidas($, raiz, desde).catch(() => [])
+  base.incorporacion = await leerIncorporacion($, raiz).catch(() => null)
 
   const conCarpeta = await $.fs.exists(`${raiz}/${PROYECTO}`)
   const antiguo = !conCarpeta && (await $.fs.exists(`${raiz}/${ANTIGUO}`))
