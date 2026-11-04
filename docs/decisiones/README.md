@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 284 | 2026-11-04 | [Sin subagente de la cola: órdenes compuestas, la cola en el contexto y contestar primero](284-2026-11-04-sin-subagente-de-la-cola-ordenes-compuestas-la-cola-en-el-contexto-y-contestar-primero.md) |
 | 283 | 2026-11-04 | [Poner en curso y recoger una tarea con una sola orden](283-2026-11-04-poner-en-curso-y-recoger-una-tarea-con-una-sola-orden.md) |
 | 282 | 2026-11-04 | [Agentes del plugin por familia de tarea, solo si la especialización aporta](282-2026-11-04-agentes-del-plugin-uno-por-familia-de-tarea.md) |
 | 281 | 2026-11-04 | [Preguntas legibles: pregunta corta, el detalle antes en el chat en palabras llanas y opciones que dicen qué hacen](281-2026-11-04-preguntas-legibles-pregunta-corta-el-detalle-antes-en-el-chat-en-palabras-llanas-y-opciones-que-dicen-que-hacen.md) |
