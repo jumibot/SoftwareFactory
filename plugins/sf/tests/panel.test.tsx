@@ -6568,7 +6568,7 @@ test('desktop: las órdenes de la tarea, con label y en una caja con contorno de
     const boton = (await ui.find({ type: 'Button', key: 'explicar-tarea:observacion:7' })) as Nodo337 | undefined
     expect(boton?.props.label).toBe('?')
     const cajas = (await ui.findAll({ type: 'Box' })) as Nodo337[]
-    expect(cajas.some(x => x.props.borderStyle === 'round' && x.props.borderColor === 'success')).toBe(surface === 'desktop')
+    expect(cajas.some(x => x.props.borderStyle === 'round' && x.props.borderColor === '#15803d' && x.props.backgroundColor === '#15803d')).toBe(surface === 'desktop')
     // Plegadas otra vez, para que el montaje siguiente empiece igual.
     await ui.press({ key: 'pet:observacion:7' })
     await ui.press({ key: 'sec:observacion' })
@@ -6581,6 +6581,38 @@ test('desktop: la etiqueta «SF x.y.z» de la cabecera y las de la izquierda, co
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
   expect(((await ui.find({ type: 'Button', key: 'version-sf' })) as Nodo337 | undefined)?.props.label).toBe('SF 0.32.3')
   expect(((await ui.find({ type: 'Button', key: 'turbo' })) as Nodo337 | undefined)?.props.label).toBe('TURBO')
+  await ui.unmount()
+})
+
+// En la app, cada botón, lleno de su color, como la etiqueta de la versión, con la letra clara del botón nativo
+// legible; sin el gris de esquinas rectas detrás. En el terminal, como estaba (tarea 367).
+type Nodo367 = { type?: string; props: Record<string, unknown>; children?: Nodo367[] }
+const cajaDe = async (ui: { findAll: (q: object) => Promise<unknown[]> }, key: string) =>
+  ((await ui.findAll({ type: 'Box' })) as Nodo367[]).find(x => (x.children ?? []).some(c => c.type === 'Button' && c.props.key === key))
+const conBoton = async (ui: { findAll: (q: object) => Promise<unknown[]> }, key: string) =>
+  ((await ui.findAll({ type: 'Box' })) as Nodo367[]).filter(x => JSON.stringify(x).includes(`"key":"${key}"`))
+for (const surface of ['desktop', 'terminal'] as const)
+  test(`${surface}: los botones de la cabecera, llenos de su color en la app y sin fondo gris detrás (367)`, async (...m) => {
+    await preparar(m)
+    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const grafica = surface === 'desktop'
+    for (const [key, relleno] of [['turbo', '#0e7490'], ['release', '#9333ea']] as const) {
+      const caja = await cajaDe(ui, key)
+      if (grafica) expect(caja?.props).toMatchObject({ borderStyle: 'round', borderColor: relleno, backgroundColor: relleno })
+      // Ninguna caja que lo contenga lleva el gris de las etiquetas del terminal.
+      expect((await conBoton(ui, key)).some(x => x.props.backgroundColor === '#3f3f46')).toBe(!grafica)
+      expect(await conProps(ui, { type: 'Box' }, { backgroundColor: relleno })).toBe(grafica)
+    }
+    await ui.unmount()
+  })
+
+test('desktop: las órdenes de la tarea, llenas de su color: verde, rojo las que destruyen, gris apagado las discretas (367)', async (...m) => {
+  await preparar(m, { desplegadas: true, cola: CERRABLES, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  const fondo = async (k: string) => (await cajaDe(ui, `${k}-tarea:arriba:12`))?.props.backgroundColor
+  for (const k of ['probar', 'cerrar']) expect(await fondo(k)).toBe('#15803d')
+  expect(await fondo('descartar')).toBe('#dc2626')
+  expect(await fondo('paso')).toBe('#52525b')
   await ui.unmount()
 })
 
@@ -6846,11 +6878,10 @@ test('Incorporación en pausa: en una superficie gráfica, los dos botones lado 
   const botones = (await ui.find({ type: 'Box', key: 'incorporacion:botones' })) as { props: Record<string, unknown>; children: { props: Record<string, unknown> }[] }
   expect(botones.props).toMatchObject({ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' })
   expect(botones.children).toHaveLength(2)
-  // Las dos, cajas redondeadas con contorno: Continuar, llena del morado de la marca; Abandonar, solo el contorno, en el claro.
+  // Las dos, cajas redondeadas y llenas: Continuar, del morado de la marca; Abandonar, discreto, de un morado apagado (367).
   const [continuar, abandonar] = botones.children
   expect(continuar!.props).toMatchObject({ borderStyle: 'round', borderColor: '#827dbd', backgroundColor: '#827dbd' })
-  expect(abandonar!.props).toMatchObject({ borderStyle: 'round', borderColor: '#b3aee6' })
-  expect(abandonar!.props.backgroundColor).toBe(undefined)
+  expect(abandonar!.props).toMatchObject({ borderStyle: 'round', borderColor: '#4c4677', backgroundColor: '#4c4677' })
   expect(JSON.stringify(continuar)).toContain('Continuar incorporación a la SF')
   expect(JSON.stringify(abandonar)).toContain('Abandonar incorporación a la SF')
   for (const k of ['continuar', 'abandonar']) expect(await hay(ui, { type: 'Box', key: `incorporacion:${k}:fila` })).toBe(false)

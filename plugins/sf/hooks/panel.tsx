@@ -138,6 +138,26 @@ const ESPERA_CONFIRMAR = 5000
 const MARCA_SUBIR = 'subir-develop'
 let subiendoDevelop = false
 const COLOR_SUBIR = '#4ade80'
+// En una superficie gráfica, el botón nativo pinta solo su `label`, con la letra clara de la app, y no el color de sus
+// hijos: el botón va lleno de su color, como la etiqueta de la versión (tarea 367). Cada color de letra del terminal
+// tiene aquí su relleno, del mismo tono y lo bastante oscuro para que la letra clara se lea (contraste de 4,5:1 o más
+// con el blanco, salvo el morado de la marca, el de la etiqueta de la versión). Los discretos (sin color, la letra
+// atenuada de Separar pasos y Paso +, el morado claro de Abandonar), con un fondo apagado; uno sin relleno propio, con
+// su color tal cual.
+const GRIS_APAGADO = '#52525b'
+const RELLENO_BOTON: Record<string, string> = {
+  error: '#dc2626',
+  success: '#15803d',
+  [COLOR_ORDEN_DESTRUCTIVA]: '#dc2626',
+  [COLOR_ACTUALIZAR]: '#dc2626',
+  [COLOR_SUBIR]: '#15803d',
+  [COLOR_TURBO]: '#0e7490',
+  [COLOR_RELEASE]: '#9333ea',
+  [COLOR_PRUEBA]: '#c2410c',
+  [TEXTO_TAREA]: GRIS_APAGADO,
+  [COLOR_MARCA_CLARO]: '#4c4677',
+}
+const rellenoBoton = (color?: string) => (color === undefined ? GRIS_APAGADO : (RELLENO_BOTON[color] ?? color))
 // Los párrafos de una descripción, separados por una línea en blanco: cada uno se pinta aparte.
 const parrafos = (d: string) => d.split(/\r?\n\s*\n/).map(x => x.trim()).filter(x => x !== '')
 // Las órdenes con confirmación: el texto de su etiqueta, su color y el prefijo de la clave de su botón. Al confirmar,
@@ -415,21 +435,27 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // hijos (tarea 337). Allí, el botón va en una caja con contorno redondeado, en el color que en el terminal lleva su
     // letra (atenuado, sin color), y con el fondo que allí lleva su texto; lo que tiene que verse en color (el número y
     // el título de una tarea) va fuera del botón. En el terminal, el botón tal cual.
-    const enCaja = (boton: RenderChildren, color?: string, fondo?: string, contorno = true) =>
-      grafica ? (
+    // Desde la tarea 367, la caja va llena, como la etiqueta de la versión: su fondo (y su contorno, del mismo color,
+    // que la redondea) es `fondo` o, sin él, el relleno del color de su letra (rellenoBoton), un tono más oscuro que
+    // ese color, legible con la letra clara del botón nativo; sin color, un gris apagado.
+    const enCaja = (boton: RenderChildren, color?: string, fondo?: string, contorno = true) => {
+      if (!grafica) return boton
+      const lleno = fondo ?? rellenoBoton(color)
+      return (
         <Box
           flexShrink={0}
           borderStyle={contorno ? 'round' : undefined}
-          borderColor={contorno ? color : undefined}
-          borderDimColor={contorno && color === undefined ? true : undefined}
-          backgroundColor={fondo}
+          borderColor={contorno ? lleno : undefined}
+          backgroundColor={lleno}
           paddingX={1}
         >
           {boton}
         </Box>
-      ) : (
-        boton
       )
+    }
+    // Fuera del botón, en una superficie gráfica, nada de fondo: las cajas de las etiquetas de la cabecera llevan en el
+    // terminal el gris de su texto, que en la app asomaba como un cuadrado de esquinas rectas tras el botón (tarea 367).
+    const fondoFuera = (c?: string) => (grafica ? undefined : c)
 
     // El paso en curso, sin amarillo, también arriba: el amarillo es solo para la tarea (decisión del propietario,
     // 2026-10-28).
@@ -1256,7 +1282,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // cian, en negrita: no se confunde con los fondos llenos de PRUEBA ni del nombre.
     const etiquetaTurbo =
       est.tipo !== 'sin-sf' ? (
-        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('TURBO'))} backgroundColor={FONDO_ETIQUETA}>
+        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('TURBO'))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
           {enCaja(
             <Button key="turbo" label="TURBO" plain onPress={() => pedirTurbo($)}>
               <Text color={COLOR_TURBO} weight="bold" backgroundColor={FONDO_ETIQUETA}>
@@ -1307,7 +1333,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const elegida = aConfirmar?.startsWith('release:') && fuente ? aConfirmar.slice('release:'.length) : null
     const etiquetaRelease =
       est.tipo === 'sin-sf' ? null : elegida ? (
-        <Box marginRight={1} flexShrink={0} width={caja(anchoDe(`¿Publicar v${elegida}? sí`))} backgroundColor={FONDO_ETIQUETA}>
+        <Box marginRight={1} flexShrink={0} width={caja(anchoDe(`¿Publicar v${elegida}? sí`))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
           {enCaja(
             <Button key={`release-v:${elegida}`} label={`¿Publicar v${elegida}? sí`} plain onPress={elegirVersion(elegida)}>
               {textoRelease(`¿Publicar v${elegida}? sí`, anchoDe(`¿Publicar v${elegida}? sí`))}
@@ -1325,13 +1351,12 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                   {textoRelease(`v${v}`)}
                 </Button>,
                 COLOR_RELEASE,
-                FONDO_ETIQUETA,
               )}
             </Box>
           ))}
         </Box>
       ) : (
-        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('RELEASE'))} backgroundColor={FONDO_ETIQUETA}>
+        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('RELEASE'))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
           {enCaja(
             <Button key="release" label="RELEASE" plain onPress={abrirRelease}>
               {textoRelease('RELEASE', anchoDe('RELEASE'))}
@@ -1370,7 +1395,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       : aConfirmar === boton ? `¿Actualizar a v${nueva?.version ?? ''}? sí` : 'ACTUALIZAR'
     const etiquetaActualizar =
       est.tipo === 'sin-sf' || !nueva ? null : (
-        <Box marginRight={1} flexShrink={0} width={caja(anchoDe(textoBoton))} backgroundColor={FONDO_ETIQUETA}>
+        <Box marginRight={1} flexShrink={0} width={caja(anchoDe(textoBoton))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
           {enCaja(
             <Button key={boton} label={textoBoton} plain onPress={pulsarActualizar}>
               <Text color={COLOR_ACTUALIZAR} weight="bold" backgroundColor={FONDO_ETIQUETA}>
@@ -1413,7 +1438,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const activo = await desdeCopia($)
     const etiquetaPrueba =
       est.tipo === 'sf' && (mp.disponible || activo) ? (
-        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('PRUEBA'))} backgroundColor={activo ? COLOR_PRUEBA : undefined}>
+        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('PRUEBA'))} backgroundColor={fondoFuera(activo ? COLOR_PRUEBA : undefined)}>
           {enCaja(
           <Button
             key="modo-prueba"
@@ -1744,7 +1769,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         .catch(err => emergenteError($, `No se pudo abandonar la incorporación: ${String(err)}`))
     }
     // Un botón de la incorporación sin fila propia, en su caja (enCaja, que en una superficie gráfica le da el contorno):
-    // el principal, lleno del morado de la marca; el secundario, solo con el contorno en el morado claro (tarea 356).
+    // el principal, lleno del morado de la marca; el secundario, discreto, lleno de un morado apagado (tareas 356 y 367).
     const botonIncorporacion = (key: string, etiqueta: string, principal: boolean, pulsar: () => void) =>
       enCaja(
         <Button key={key} label={etiqueta.trim()} plain onPress={pulsar}>
