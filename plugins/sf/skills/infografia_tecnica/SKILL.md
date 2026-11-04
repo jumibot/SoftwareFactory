@@ -1,5 +1,6 @@
 ---
 name: infografia_tecnica
+user-invocable: false
 description: Infografías técnicas animadas e interactivas de un producto o dispositivo, en 3D con three.js dentro de un HTML (artifact) — despiece, corte, modos de funcionamiento, flujos animados, etiquetas HUD estilo holograma y panel de estado coherente con el modelo. Úsala cuando el usuario pida una infografía técnica, un modelo 3D interactivo de un producto, un plano visual para un fabricante o una especificación gráfica para otra IA de imágenes. Lo propio de cada producto (piezas, relato, reglas aprendidas en ese proyecto) está en las reglas del proyecto.
 ---
 

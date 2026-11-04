@@ -1,5 +1,6 @@
 ---
 name: orquestacion
+user-invocable: false
 description: "Reglas del agente principal (el orquestador) en un proyecto bajo la Software Factory (SF): qué hacer con cada mensaje del propietario, la cola, los subagentes, la prueba, el cierre, las fusiones y cómo preguntar y escribir. En los proyectos la entrega entera el mod de la SF al empezar la sesión, tras /clear y tras compactar; si no está en el contexto (en la propia SF, o con automatizaciones.orquestacion apagado en .sf/proyecto.json), la carga el principal en esos momentos. Se aplica en cada mensaje sin volver a cargarla; un subagente no la carga. La mecánica de la cola está en sf:flujo_tareas."
 ---
 

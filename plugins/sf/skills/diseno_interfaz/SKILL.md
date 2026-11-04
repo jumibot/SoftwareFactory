@@ -1,5 +1,6 @@
 ---
 name: diseno_interfaz
+user-invocable: false
 description: Define en detalle la interfaz de un proyecto antes de implementarla y antes de elegir tecnología — recorridos con protagonista, inventario de pantallas, matriz pantalla × estado (ideal, vacío, cargando, parcial, error, sin permiso), comportamiento de componentes, interacción, textos, accesibilidad mínima, bocetos estáticos de las pantallas clave y criterios de aceptación «Dado / Cuando / Entonces». Úsala cuando pidan diseñar o especificar la interfaz, las pantallas, la experiencia de usuario o los estados de una aplicación de escritorio, web o móvil, como parte de la especificación funcional de la Software Factory.
 ---
 

@@ -1,5 +1,6 @@
 ---
 name: metodologia
+user-invocable: false
 description: "Método de la Software Factory (SF) para desarrollar proyectos con Claude Code: fases (visión, especificación e interfaz, definición técnica, planificación por devslices, preparación, desarrollo y verificación, cierre), kanban, estructura documental, estado del proyecto en .sf/, documentos de la SF en sf/ (propuestas, decisiones una por archivo, informes), tipos de tarea, perfiles y estructuras de código, pruebas, informes y automejora. Úsala al empezar o retomar un proyecto bajo la SF (tiene .sf/proyecto.json), al cambiar de fase o de devslice, al planificar o preparar devslices, al incorporar un proyecto existente a la SF, o cuando haya que saber cómo se hace algo según la SF."
 ---
 

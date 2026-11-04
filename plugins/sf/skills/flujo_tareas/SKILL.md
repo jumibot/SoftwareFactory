@@ -1,5 +1,6 @@
 ---
 name: flujo_tareas
+user-invocable: false
 description: Ciclo de vida de las tareas de un proyecto bajo la Software Factory (SF) y su cola, .sf/peticiones.json — estados (en cola, en curso, en observación, descartada), pasos, ramas feature/NN-nombre, subagentes, prueba y cierre por squash en develop, descarte, reversión, reapertura, eliminación, fusión y separación, historial por tarea y copias de la cola — con el CLI tools/cola.py. Úsala siempre que haya que tocar la cola — anotar una petición o un bug, poner una tarea en curso o dejarla en cola, crear su rama, añadir o marcar pasos, lanzar o recoger un subagente, dejarla lista para probar, cerrarla, pasarla a observación o devolverla a ella, cerrarla o revertirla en observación, descartarla, reabrirla, eliminarla, fusionar o separar tareas, o recuperar una cola rota.
 ---
 

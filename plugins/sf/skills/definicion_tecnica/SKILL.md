@@ -1,5 +1,6 @@
 ---
 name: definicion_tecnica
+user-invocable: false
 description: Elabora la definición técnica y la arquitectura global de un proyecto de la Software Factory — contexto tecnológico, perfil técnico favorito con sus excepciones justificadas, paradigma, decisiones de arquitectura que evitan que las partes diverjan, convenciones, stack con versiones verificadas, estructura semilla, persistencia, capacidades opcionales (agente de IA, brain, KB, API), lo que se aplaza y registro de decisiones en formato MADR. Úsala cuando pidan definir la técnica, la arquitectura, el stack o la solución de un proyecto, o registrar una decisión técnica, después de la especificación funcional y la interfaz.
 ---
 

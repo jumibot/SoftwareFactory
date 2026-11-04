@@ -685,6 +685,9 @@ const conNumero = async (ui: { findAll: (q: object) => Promise<unknown[]> }, id:
 // Ningún número con una letra de estado detrás.
 const SIN_LETRAS = /^ ?\d+[AHTCDR]( |$)/
 
+// Dónde va el título de una tarea: en el terminal, en su botón; en el escritorio, fuera, como texto (tarea 337).
+const titular = (surface: 'terminal' | 'desktop') => (surface === 'desktop' ? 'Text' : 'Button')
+
 for (const surface of ['terminal', 'desktop'] as const) {
   test(`${surface}: cabecera, marcador y bloques`, async (...m) => {
     await preparar(m)
@@ -703,7 +706,11 @@ for (const surface of ['terminal', 'desktop'] as const) {
   test(`${surface}: Cerradas se ve siempre, también con 0`, async (...m) => {
     await preparar(m)
     const ui = await m[0].ui.mount({ ...PANEL, surface })
-    expect(await hay(ui, { type: 'Button', text: /CERRADAS [▸▾]\s+0/ })).toBe(true)
+    // En el escritorio, la cuenta, con su color, fuera del botón (tarea 337).
+    if (surface === 'desktop') {
+      expect(await hay(ui, { type: 'Button', text: /^CERRADAS [▸▾]$/ })).toBe(true)
+      expect(await hay(ui, { type: 'Text', text: /^ 0$/ })).toBe(true)
+    } else expect(await hay(ui, { type: 'Button', text: /CERRADAS [▸▾]\s+0/ })).toBe(true)
     expect(await ui.find({ type: 'Button', text: /^limpiar \(/ })).toBe(undefined)
     await ui.unmount()
   })
@@ -743,7 +750,8 @@ for (const surface of ['terminal', 'desktop'] as const) {
     const ui = await m[0].ui.mount({ ...PANEL, surface })
     await ui.press({ key: 'sec:observacion' })
     expect(await hay(ui, { type: 'Button', text: /EN OBSERVACIÓN/ })).toBe(true)
-    expect(await hay(ui, { type: 'Button', text: /Secciones plegables/ })).toBe(true)
+    // En el escritorio, el título va fuera del botón, que es «▸» (tarea 337).
+    expect(await hay(ui, { type: titular(surface), text: /Secciones plegables/ })).toBe(true)
     // En observación, el número en gris, sin letra.
     expect(await colores(ui, 2)).toEqual([GRIS])
     expect(await ui.find({ type: 'Text', text: SIN_LETRAS })).toBe(undefined)
@@ -763,11 +771,14 @@ for (const surface of ['terminal', 'desktop'] as const) {
     await preparar(m)
     const ui = await m[0].ui.mount({ ...PANEL, surface })
     await ui.press({ key: 'sec:observacion' })
-    expect(await hay(ui, { type: 'Button', text: /Un proyecto por sesión.*…/ })).toBe(false)
-    expect(await hay(ui, { type: 'Button', text: /bloqueo en el mod de la SF/ })).toBe(true)
+    const t = titular(surface)
+    expect(await hay(ui, { type: t, text: /Un proyecto por sesión.*…/ })).toBe(false)
+    expect(await hay(ui, { type: t, text: /bloqueo en el mod de la SF/ })).toBe(true)
     await ui.press({ key: 'pet:observacion:3' })
-    expect((await ui.findAll({ type: 'Button', text: /Un proyecto por sesión/ })).length).toBe(1)
-    expect(await hay(ui, { type: 'Button', text: /bloqueo en el mod de la SF/ })).toBe(true)
+    // En el escritorio, el texto de la fila (el que lleva cómo partirse) va dentro de otro: se cuenta el de la fila.
+    const filas = (await ui.findAll({ type: t, text: /^Un proyecto por sesión/ })) as { props: Record<string, unknown> }[]
+    expect(filas.filter(x => surface === 'terminal' || x.props.wrap !== undefined).length).toBe(1)
+    expect(await hay(ui, { type: t, text: /bloqueo en el mod de la SF/ })).toBe(true)
     await ui.unmount()
   })
 }
@@ -1252,6 +1263,21 @@ test('/sf: con el panel abierto, lo cierra y lo vuelve a abrir', async (...m) =>
   const r = await m[0].command.run({ command: 'sf', args: '' })
   expect(cierres).toEqual(['sf-estado'])
   expect(r.text).toBe('Panel de la SF abierto.')
+})
+
+// Tarea 337: la orden fija del plugin (commands/panel.md), /sf:panel, abre el panel como /sf y no sale en la lista.
+test('/sf:panel, la orden fija: abre el panel como /sf y queda oculta en la lista', async (...m) => {
+  // El motor: la orden se presenta como la declara.
+  m[1]('command.describe', (_, e) => ({ description: e.description, isHidden: e.isHidden }))
+  const { cierres } = await preparar(m, { paneles: () => [{ id: 'sf-estado', title: 'Software Factory', isShown: true, isFocused: false, isPlaced: true }] })
+  const r = await m[0].command.run({ command: 'sf:panel', args: '' })
+  expect(cierres).toEqual(['sf-estado'])
+  expect(r.text).toBe('Panel de la SF abierto.')
+  const provider = { plugin: 'sf', tier: 'user' } as const
+  const fija = await m[0].command.describe({ command: 'sf:panel', description: 'Panel', isHidden: false, immediate: false, provider })
+  expect(fija.isHidden).toBe(true)
+  const sf = await m[0].command.describe({ command: 'sf', description: 'Panel', isHidden: false, immediate: false, provider })
+  expect(sf.isHidden).toBe(false)
 })
 
 // Tras un /clear el motor no lanza session.start: el SessionStart de los ajustes, con source «clear», vuelve a leer el
@@ -6194,7 +6220,9 @@ for (const surface of ['terminal', 'desktop'] as const) {
   test(`${surface}: Bienvenida: el nombre bajo el logo va en el morado de la SF`, async (...m) => {
     await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
     const ui = await m[0].ui.mount({ ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface })
-    expect(((await ui.find({ type: 'Text', text: /S O F T W A R E {3}F A C T O R Y/ })) as ConProps).props.color).toBe('#827dbd')
+    // En el escritorio, sin espaciar las letras: con los espacios, la app la pinta como arte ASCII (tarea 337).
+    const nombre = surface === 'desktop' ? /^SOFTWARE FACTORY$/ : /S O F T W A R E {3}F A C T O R Y/
+    expect(((await ui.find({ type: 'Text', text: nombre })) as ConProps).props.color).toBe('#827dbd')
     await ui.unmount()
   })
 }
@@ -6376,6 +6404,60 @@ for (const surface of ['terminal', 'desktop'] as const) {
     await ui.unmount()
   })
 }
+
+// En la app de escritorio, cada Button es un botón nativo que pinta solo su `label`, sin los colores ni el fondo de sus
+// hijos (tarea 337): el número y el título de una tarea van fuera del botón, que es un «▸»; las órdenes y los botones de
+// color, en una caja con contorno de su color; la etiqueta de la SF, siempre en su fila, con su texto como label.
+type Nodo337 = { props: Record<string, unknown>; text?: string }
+test('desktop: número y título fuera del botón, que despliega con «▸»; el terminal, como estaba', async (...m) => {
+  await preparar(m, { cola: [...INICIAL, { id: 6, texto: 'En cola', estado: 'en-cola', descripcion: 'detalle' }] })
+  const esc = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  expect(await hay(esc, { type: 'Button', key: 'pet:cola:6', text: /^[▸▾]$/ })).toBe(true)
+  expect(await esc.find({ type: 'Button', key: 'pet:cola:6:num' })).toBe(undefined)
+  expect(await hay(esc, { type: 'Text', text: /^En cola$/ })).toBe(true)
+  expect(await esc.find({ type: 'Button', text: /En cola/ })).toBe(undefined)
+  await esc.unmount()
+  const ter = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ter, { type: 'Button', key: 'pet:cola:6:num' })).toBe(true)
+  expect(await hay(ter, { type: 'Button', key: 'pet:cola:6', text: /En cola/ })).toBe(true)
+  await ter.unmount()
+})
+
+test('desktop: las órdenes de la tarea, con label y en una caja con contorno de su color; en el terminal, sin caja', async (...m) => {
+  await preparar(m, { cola: [{ id: 7, texto: 'Otra', estado: 'en-observacion' }] })
+  for (const surface of ['desktop', 'terminal'] as const) {
+    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    await ui.press({ key: 'sec:observacion' })
+    await ui.press({ key: 'pet:observacion:7' })
+    const boton = (await ui.find({ type: 'Button', key: 'explicar-tarea:observacion:7' })) as Nodo337 | undefined
+    expect(boton?.props.label).toBe('?')
+    const cajas = (await ui.findAll({ type: 'Box' })) as Nodo337[]
+    expect(cajas.some(x => x.props.borderStyle === 'round' && x.props.borderColor === 'success')).toBe(surface === 'desktop')
+    // Plegadas otra vez, para que el montaje siguiente empiece igual.
+    await ui.press({ key: 'pet:observacion:7' })
+    await ui.press({ key: 'sec:observacion' })
+    await ui.unmount()
+  }
+})
+
+test('desktop: la etiqueta «SF x.y.z» de la cabecera y las de la izquierda, con su texto como label', async (...m) => {
+  await preparar(m)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  expect(((await ui.find({ type: 'Button', key: 'version-sf' })) as Nodo337 | undefined)?.props.label).toBe('SF 0.32.3')
+  expect(((await ui.find({ type: 'Button', key: 'turbo' })) as Nodo337 | undefined)?.props.label).toBe('TURBO')
+  await ui.unmount()
+})
+
+test('desktop: Bienvenida sin espacios de relleno, centrada por su caja, y la orden en una pastilla morada', async (...m) => {
+  await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  const ui = await m[0].ui.mount({ ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface: 'desktop' })
+  const textos = ((await ui.findAll({ type: 'Text' })) as Nodo337[]).map(x => String(x.text ?? ''))
+  for (const t of [/^Tu fábrica de software/, /^Claude te hará/, /^Para empezar/]) expect(textos.some(x => t.test(x))).toBe(true)
+  expect(textos.filter(x => /^ {2,}\S/.test(x))).toEqual([])
+  expect(((await ui.findAll({ type: 'Box' })) as Nodo337[]).some(x => x.props.backgroundColor === '#827dbd')).toBe(true)
+  expect(((await ui.find({ type: 'Button', key: 'incorporar' })) as Nodo337 | undefined)?.props.label).toBe('incorpora este proyecto a la SF')
+  await ui.unmount()
+})
 
 // Sin SF, la línea del prompt sugiere la orden de incorporar (tarea 323): al empezar, no en la SF ni en un proyecto
 // incorporado, ni donde se dijo «no vuelvas a preguntar» (decisión 246).

@@ -3,7 +3,7 @@ import type { Register, RenderChildren } from 'claude-code'
 import type { Actualizacion, Cerrada, Estado, FuenteVersion, Incorporacion, Paso, Peticion, Prueba, Sesion, VistaIncorporacion } from '../types'
 import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, observable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, refrescar, eliminable, eliminarTarea, enCursoOObservando, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
 import { CLAVE_PLEGADO, COLORES, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO, RGB } from './constantes'
-import { COLOR_MARCA, COLOR_MARCA_CLARO, DESPUES, LEMA, LETRA_MARCA, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
+import { COLOR_MARCA, COLOR_MARCA_CLARO, DESPUES, LEMA, LETRA_MARCA, NOMBRE, NOMBRE_ANCHO, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
 import { ANCHO_LOGO, COLOR_BARRA, COLOR_LETRAS, logoSvg, logoTexto } from './logo'
 import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, COLOR_TURBO, COLOR_TAREA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, colorLetra, colorLetraApagada, hueco, puntosDe } from './estilo'
 import { atrasada, commitsDe, creadaEn, cuentaPasos, texto, ultimoCierre } from './lectura'
@@ -255,8 +255,9 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
             <Text>{LEMA}</Text>
             <Text>{PARA_EMPEZAR}</Text>
             {/* Un botón, como en el panel: la pasa a Claude (decisión 248). */}
-            <Box flexDirection="row">
-              <Button key="incorporar-caja" plain onPress={() => pedirIncorporar($, ORDEN_EMPEZAR)}>
+            {/* En una superficie gráfica, la pastilla morada es la caja: el botón nativo no pinta el fondo de su texto (tarea 337). */}
+            <Box flexDirection="row" alignSelf={e.surface !== 'terminal' ? 'flex-start' : undefined} backgroundColor={e.surface !== 'terminal' ? COLOR_MARCA : undefined} paddingX={e.surface !== 'terminal' ? 1 : undefined}>
+              <Button key="incorporar-caja" label={ORDEN_EMPEZAR} plain onPress={() => pedirIncorporar($, ORDEN_EMPEZAR)}>
                 <Text backgroundColor={COLOR_MARCA} color={LETRA_MARCA} weight="bold">
                   {` ${ORDEN_EMPEZAR} `}
                 </Text>
@@ -359,13 +360,24 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // La cabecera, el nombre en mayúsculas y el icono de desplegar a su derecha, antes de la cuenta: «PENDIENTES ▸ 17»;
     // el cuerpo, sin sangría: el número de una tarea de sección, en la misma columna que el de las de arriba
     // (decisiones del propietario, 2026-10-31).
+    // En una superficie gráfica, una cuenta ya dibujada (con su color) va fuera del botón, que no pinta colores (tarea 337).
     const seccion = (clave: string, titulo: string, cuenta: RenderChildren, cuerpo: RenderChildren) => (
       <Box flexDirection="column">
+        {grafica && cuenta !== null && cuenta !== undefined && typeof cuenta !== 'string' ? (
+          <Box flexDirection="row">
+            <Button key={`sec:${clave}`} plain onPress={alternar(clave)}>
+              <Text weight="bold">{titulo.toUpperCase()}</Text>
+              {abierta(clave) ? ' ▾' : ' ▸'}
+            </Button>
+            <Text> {cuenta}</Text>
+          </Box>
+        ) : (
         <Button key={`sec:${clave}`} plain onPress={alternar(clave)}>
           <Text weight="bold">{titulo.toUpperCase()}</Text>
           {abierta(clave) ? ' ▾' : ' ▸'}
           {cuenta === null || cuenta === undefined ? '' : typeof cuenta === 'string' ? <Text dimColor> {cuenta}</Text> : <Text> {cuenta}</Text>}
         </Button>
+        )}
         {abierta(clave) && (
           <Box flexDirection="column">
             {cuerpo}
@@ -386,6 +398,25 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // cortan con puntos suspensivos. El terminal sigue como estaba.
     const grafica = e.surface !== 'terminal'
     const enLinea = (t: string, ocupado: number) => recortar(t, Math.max(12, ancho - ocupado))
+    // En una superficie gráfica, cada Button es un botón nativo que pinta solo su `label`: ni el color ni el fondo de sus
+    // hijos (tarea 337). Allí, el botón va en una caja con contorno redondeado, en el color que en el terminal lleva su
+    // letra (atenuado, sin color), y con el fondo que allí lleva su texto; lo que tiene que verse en color (el número y
+    // el título de una tarea) va fuera del botón. En el terminal, el botón tal cual.
+    const enCaja = (boton: RenderChildren, color?: string, fondo?: string, contorno = true) =>
+      grafica ? (
+        <Box
+          flexShrink={0}
+          borderStyle={contorno ? 'round' : undefined}
+          borderColor={contorno ? color : undefined}
+          borderDimColor={contorno && color === undefined ? true : undefined}
+          backgroundColor={fondo}
+          paddingX={1}
+        >
+          {boton}
+        </Box>
+      ) : (
+        boton
+      )
 
     // El paso en curso, sin amarillo, también arriba: el amarillo es solo para la tarea (decisión del propietario,
     // 2026-10-28).
@@ -415,12 +446,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           })
           .catch(() => undefined)
       }
-      return (
-        <Button key={`quitar-paso:${donde}:${id}:${i}`} plain onPress={pulsar}>
+      return enCaja(
+        <Button key={`quitar-paso:${donde}:${id}:${i}`} label={confirmando ? '¿Quitar? sí' : '×'} plain onPress={pulsar}>
           <Text color="error" weight={confirmando ? 'bold' : undefined}>
             {confirmando ? ' ¿Quitar? sí' : ' ×'}
           </Text>
-        </Button>
+        </Button>,
+        'error',
       )
     }
     // El texto de un paso, partido por palabras en líneas de `w` columnas, con sus botones («?» y «×», de `botones`
@@ -467,10 +499,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                   {lineas.at(-1)}
                 </Text>
               )}
-              <Button key={`info-paso:${donde}:${id}:${i}`} plain onPress={() => preguntarPaso($, id, x)}>
-                {/* En verde, como Activar rama y la C: así se ve que es un botón (decisión del propietario, 2026-10-30). */}
-                <Text color="success">{lineas.at(-1) === '' ? '?' : ' ?'}</Text>
-              </Button>
+              {enCaja(
+                <Button key={`info-paso:${donde}:${id}:${i}`} label="?" plain onPress={() => preguntarPaso($, id, x)}>
+                  {/* En verde, como Activar rama y la C: así se ve que es un botón (decisión del propietario, 2026-10-30). */}
+                  <Text color="success">{lineas.at(-1) === '' ? '?' : ' ?'}</Text>
+                </Button>,
+                'success',
+              )}
               {quitable && botonQuitarPaso(x, id, i, donde)}
             </Box>
           </Box>
@@ -494,10 +529,11 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         ? `⚙: el subagente de la ${String(p.id)} espera instrucciones (${subagente.descripcion})`
         : `⚙: un subagente trabaja en la ${String(p.id)} (${subagente.descripcion})`
       const avisar = () => emergente($, aviso, false)
-      return (
-        <Button key={`subagente-tarea:${donde}:${p.id}`} plain onPress={avisar}>
+      return enCaja(
+        <Button key={`subagente-tarea:${donde}:${p.id}`} label={MARCA_SUBAGENTE} plain onPress={avisar}>
           <Text color={subagente.esperando ? 'error' : 'success'}>{` ${MARCA_SUBAGENTE} `}</Text>
-        </Button>
+        </Button>,
+        subagente.esperando ? 'error' : 'success',
       )
     }
 
@@ -511,11 +547,14 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     type Tarea = { id: number; texto: string; rama?: string | null }
     const etiquetaOrden = (key: string, color: string | undefined, nombre: string, pulsar: () => void) => (
       <Box marginRight={1} flexShrink={0}>
-        <Button key={key} plain onPress={pulsar}>
-          <Text color={color} weight="regular" backgroundColor={FONDO_ORDEN}>
-            {` ${nombre} `}
-          </Text>
-        </Button>
+        {enCaja(
+          <Button key={key} label={nombre} plain onPress={pulsar}>
+            <Text color={color} weight="regular" backgroundColor={FONDO_ORDEN}>
+              {` ${nombre} `}
+            </Text>
+          </Button>,
+          color,
+        )}
       </Box>
     )
     // Eliminar, en las eliminables: en cola o en curso y sin rama. Descartar, en las descartables: con rama, en cola o
@@ -824,11 +863,34 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Con `delante`, un margen de ese ancho antes de la cabeza, fuera de su botón: alinea los números a la derecha.
     // En una superficie gráfica (grafica), la columna del número crece con él (mínimo, su ancho más dos celdas por el
     // relleno del botón nativo) y el título, plegado, se corta con puntos suspensivos; desplegado, se parte.
+    // Allí, además, el botón nativo no pinta el color del número ni del título, ni corta el título con «…» (tarea 337):
+    // número y título van fuera del botón, como texto, y el botón que despliega es un «▸» (plegada) o «▾» (desplegada)
+    // al final de la fila; el número sigue subrayado si se despliega.
     const filaTitulo = (cabeza: RenderChildren, ancho: number, cuerpo: RenderChildren, clave: string | null, delante = 0) => {
       const titulo = grafica ? <Text wrap={clave && abierta(clave) ? 'wrap' : 'truncate-end'}>{cuerpo}</Text> : cuerpo
+      if (grafica)
+        return (
+          <Box flexDirection="row" minWidth={0}>
+            {cabeza !== null && (
+              <Box minWidth={ancho} flexShrink={0}>
+                {cabeza}
+              </Box>
+            )}
+            <Box flexShrink={1} flexGrow={1} minWidth={0} overflow="hidden">
+              {titulo}
+            </Box>
+            {clave && (
+              <Box flexShrink={0} marginLeft={1}>
+                <Button key={clave} plain onPress={alternar(clave)}>
+                  {abierta(clave) ? '▾' : '▸'}
+                </Button>
+              </Box>
+            )}
+          </Box>
+        )
       return (
         <Box flexDirection="row">
-          <Box width={grafica ? undefined : ancho} minWidth={grafica ? ancho + 2 : undefined} flexShrink={0} paddingLeft={grafica ? 0 : delante}>
+          <Box width={ancho} flexShrink={0} paddingLeft={delante}>
             {clave ? (
               <Button key={`${clave}:num`} plain onPress={alternar(clave)}>
                 {cabeza}
@@ -837,7 +899,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
               cabeza
             )}
           </Box>
-          <Box flexShrink={1} flexGrow={grafica ? 1 : undefined} minWidth={grafica ? 0 : undefined} overflow={grafica ? 'hidden' : undefined}>
+          <Box flexShrink={1}>
             {clave ? (
               <Button key={clave} plain onPress={alternar(clave)}>
                 {titulo}
@@ -858,7 +920,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const conEliminar = (fila: RenderChildren) =>
         agente ? (
           <Box flexDirection="row">
-            <Box flexGrow={1} flexShrink={1}>
+            <Box flexGrow={1} flexShrink={1} minWidth={grafica ? 0 : undefined}>
               {fila}
             </Box>
             {agente}
@@ -963,9 +1025,10 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                 )
                 const cuerpo = <Text color={TEXTO_TAREA} weight="regular">{pr.titulo}</Text>
                 // Sin números en ninguna, sin columna: el título, en la columna 0.
+                // En una superficie gráfica, también sin números, como las tareas: el título fuera del botón (tarea 337).
                 const fila =
-                  columnaProp > 0 ? (
-                    filaTitulo(cabeza, columnaProp, cuerpo, k)
+                  columnaProp > 0 || grafica ? (
+                    filaTitulo(columnaProp > 0 ? cabeza : null, columnaProp, cuerpo, k)
                   ) : (
                     <Button key={k} plain onPress={alternar(k)}>
                       {cuerpo}
@@ -1179,11 +1242,14 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const etiquetaTurbo =
       est.tipo !== 'sin-sf' ? (
         <Box marginRight={1} flexShrink={0} width={caja(anchoDe('TURBO'))} backgroundColor={FONDO_ETIQUETA}>
-          <Button key="turbo" plain onPress={() => pedirTurbo($)}>
-            <Text color={COLOR_TURBO} weight="bold" backgroundColor={FONDO_ETIQUETA}>
-              {centrar('TURBO', anchoDe('TURBO'))}
-            </Text>
-          </Button>
+          {enCaja(
+            <Button key="turbo" label="TURBO" plain onPress={() => pedirTurbo($)}>
+              <Text color={COLOR_TURBO} weight="bold" backgroundColor={FONDO_ETIQUETA}>
+                {centrar('TURBO', anchoDe('TURBO'))}
+              </Text>
+            </Button>,
+            COLOR_TURBO,
+          )}
         </Box>
       ) : null
 
@@ -1227,26 +1293,36 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const etiquetaRelease =
       est.tipo === 'sin-sf' ? null : elegida ? (
         <Box marginRight={1} flexShrink={0} width={caja(anchoDe(`¿Publicar v${elegida}? sí`))} backgroundColor={FONDO_ETIQUETA}>
-          <Button key={`release-v:${elegida}`} plain onPress={elegirVersion(elegida)}>
-            {textoRelease(`¿Publicar v${elegida}? sí`, anchoDe(`¿Publicar v${elegida}? sí`))}
-          </Button>
+          {enCaja(
+            <Button key={`release-v:${elegida}`} label={`¿Publicar v${elegida}? sí`} plain onPress={elegirVersion(elegida)}>
+              {textoRelease(`¿Publicar v${elegida}? sí`, anchoDe(`¿Publicar v${elegida}? sí`))}
+            </Button>,
+            COLOR_RELEASE,
+          )}
         </Box>
       ) : aConfirmar === 'release' && fuente ? (
         <Box flexDirection="row" marginRight={1} flexShrink={0}>
           {fuente.actual === null && <Text dimColor>{'¿Primera versión? '}</Text>}
           {siguientesVersiones(fuente.actual).map(v => (
             <Box marginRight={1} flexShrink={0}>
-              <Button key={`release-v:${v}`} plain onPress={elegirVersion(v)}>
-                {textoRelease(`v${v}`)}
-              </Button>
+              {enCaja(
+                <Button key={`release-v:${v}`} label={`v${v}`} plain onPress={elegirVersion(v)}>
+                  {textoRelease(`v${v}`)}
+                </Button>,
+                COLOR_RELEASE,
+                FONDO_ETIQUETA,
+              )}
             </Box>
           ))}
         </Box>
       ) : (
         <Box marginRight={1} flexShrink={0} width={caja(anchoDe('RELEASE'))} backgroundColor={FONDO_ETIQUETA}>
-          <Button key="release" plain onPress={abrirRelease}>
-            {textoRelease('RELEASE', anchoDe('RELEASE'))}
-          </Button>
+          {enCaja(
+            <Button key="release" label="RELEASE" plain onPress={abrirRelease}>
+              {textoRelease('RELEASE', anchoDe('RELEASE'))}
+            </Button>,
+            COLOR_RELEASE,
+          )}
         </Box>
       )
     // ACTUALIZAR, a la izquierda de todo, solo con una versión publicada mayor que la instalada de sf@softwarefactory
@@ -1280,11 +1356,14 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const etiquetaActualizar =
       est.tipo === 'sin-sf' || !nueva ? null : (
         <Box marginRight={1} flexShrink={0} width={caja(anchoDe(textoBoton))} backgroundColor={FONDO_ETIQUETA}>
-          <Button key={boton} plain onPress={pulsarActualizar}>
-            <Text color={COLOR_ACTUALIZAR} weight="bold" backgroundColor={FONDO_ETIQUETA}>
-              {centrar(textoBoton, anchoDe(textoBoton))}
-            </Text>
-          </Button>
+          {enCaja(
+            <Button key={boton} label={textoBoton} plain onPress={pulsarActualizar}>
+              <Text color={COLOR_ACTUALIZAR} weight="bold" backgroundColor={FONDO_ETIQUETA}>
+                {centrar(textoBoton, anchoDe(textoBoton))}
+              </Text>
+            </Button>,
+            COLOR_ACTUALIZAR,
+          )}
         </Box>
       )
     // Con una versión por confirmar, el aviso de las tareas que quedan en observación, sin bloquear.
@@ -1320,8 +1399,10 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const etiquetaPrueba =
       est.tipo === 'sf' && (mp.disponible || activo) ? (
         <Box marginRight={1} flexShrink={0} width={caja(anchoDe('PRUEBA'))} backgroundColor={activo ? COLOR_PRUEBA : undefined}>
+          {enCaja(
           <Button
             key="modo-prueba"
+            label={activo ? 'PRUEBA' : 'prueba'}
             plain
             onPress={() => void cambiarPrueba($, !activo).catch(() => undefined)}
           >
@@ -1338,7 +1419,9 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                 {' '.repeat(huecos(6, anchoDe('prueba'))[1])}
               </Text>
             )}
-          </Button>
+          </Button>,
+          activo ? COLOR_PRUEBA : undefined,
+          )}
         </Box>
       ) : null
     const avisoPrueba =
@@ -1383,7 +1466,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       return (
         <Box flexDirection="column">
           <Box flexDirection="row">
-            <Box flexGrow={1} flexShrink={1}>
+            <Box flexGrow={1} flexShrink={1} minWidth={grafica ? 0 : undefined}>
               {linea}
             </Box>
             {marcaSubagente(p, 'arriba')}
@@ -1461,7 +1544,25 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const filaRama = ramaCabecera()
     const altoCabecera = ALTO_CABECERA + (filaRama ? 1 : 0)
     const cabecera = () =>
-      verAvisos ? (
+      verAvisos && grafica ? (
+        // En una superficie gráfica, el aviso como texto, que conserva su color (el botón nativo no lo pinta, y sobre el
+        // fondo blanco no se leería), y a su derecha «×», que los quita hasta su siguiente turno (tarea 337).
+        <Box flexDirection="row" flexShrink={0} backgroundColor={fondoAviso} paddingX={1} paddingTop="xs" marginBottom={1}>
+          <Box flexDirection="column" flexGrow={1} flexShrink={1} minWidth={0}>
+            {lineasAviso(avisoDelTurno, Math.max(8, ancho - 6)).map(l => (
+              <Text color={COLOR_AVISO} wrap="truncate-end">
+                {l}
+              </Text>
+            ))}
+          </Box>
+          {enCaja(
+            <Button key="aviso:0" label="×" plain onPress={() => void quitarAvisos($).catch(() => undefined)}>
+              ×
+            </Button>,
+            COLOR_AVISO,
+          )}
+        </Box>
+      ) : verAvisos ? (
         // El bloque blanco, en las dos primeras filas; las demás, vacías, con el fondo del panel: la cabecera no cambia
         // de alto (petición del propietario, 2026-11-01). Un clic en un aviso los quita hasta su siguiente turno.
         <Box flexDirection="column" height={altoCabecera} flexShrink={0}>
@@ -1476,18 +1577,33 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           </Box>
         </Box>
       ) : (
-      <Box flexDirection="column" height={grafica ? undefined : altoCabecera} flexShrink={0} rowGap={grafica ? 'xs' : undefined} paddingBottom={grafica ? 1 : undefined}>
+      <Box flexDirection="column" height={grafica ? undefined : altoCabecera} flexShrink={0} rowGap={grafica ? 'xs' : undefined} paddingTop={grafica ? 'xs' : undefined} paddingBottom={grafica ? 1 : undefined}>
         {/* Dos filas (decisión del propietario, 2026-10-29) y la de la rama (tarea 260). La primera: ACTUALIZAR, RELEASE, TURBO y el modo prueba a la
             izquierda y, a la derecha, la etiqueta de la SF con los colores de la etiqueta de la sesión (fondo del color
             de /color y letra negra); sin color, atenuada como los rótulos de los bloques. */}
-        <Box flexDirection="row" flexWrap={grafica ? 'wrap' : undefined} rowGap={grafica ? 'xs' : undefined}>
-          {etiquetaActualizar}
-          {etiquetaRelease}
-          {etiquetaTurbo}
-          {etiquetaPrueba}
-          <Box flexGrow={1} />
+        {/* En una superficie gráfica, las etiquetas de la izquierda se parten en su propia caja, que encoge, y la de la SF
+            queda siempre a la vista, a la derecha: en una fila que se parte, se salía por el borde (tarea 337). */}
+        <Box flexDirection="row" flexWrap={grafica ? 'nowrap' : undefined} minWidth={grafica ? 0 : undefined}>
+          {grafica ? (
+            <Box flexDirection="row" flexWrap="wrap" rowGap="xs" flexGrow={1} flexShrink={1} minWidth={0}>
+              {etiquetaActualizar}
+              {etiquetaRelease}
+              {etiquetaTurbo}
+              {etiquetaPrueba}
+            </Box>
+          ) : (
+            [etiquetaActualizar, etiquetaRelease, etiquetaTurbo, etiquetaPrueba, <Box flexGrow={1} />]
+          )}
           {/* Al pulsarla, cuánto falta para la próxima comprobación de versión (tarea 238). */}
-          {est.color ? (
+          {grafica ? (
+            enCaja(
+              <Button key="version-sf" label={etiquetaSf} plain onPress={avisarComprobacion}>
+                {etiquetaSf}
+              </Button>,
+              est.color ? RGB[est.color as (typeof COLORES)[number]] : undefined,
+              est.color ? RGB[est.color as (typeof COLORES)[number]] : undefined,
+            )
+          ) : est.color ? (
             <Box backgroundColor={RGB[est.color as (typeof COLORES)[number]]} width={caja(anchoDe(etiquetaSf))} flexShrink={0}>
               <Button key="version-sf" plain onPress={avisarComprobacion}>
                 <Text color="#000000">{centrar(etiquetaSf, anchoDe(etiquetaSf))}</Text>
@@ -1543,7 +1659,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // respete el ancho o el margen de la caja raíz (decisión del propietario, 2026-10-30).
     const conMargen = (contenido: RenderChildren) => (
       <Box flexDirection="row">
-        <Box flexDirection="column" flexGrow={1} flexShrink={1}>
+        <Box flexDirection="column" flexGrow={1} flexShrink={1} minWidth={grafica ? 0 : undefined}>
           {contenido}
         </Box>
         <Box width={1} flexShrink={0} />
@@ -1561,17 +1677,23 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const botonCentrado = (key: string, etiqueta: string, principal: boolean, pulsar: () => void) => (
       <Box key={`${key}:fila`} flexDirection="row" justifyContent={grafica ? 'center' : undefined}>
         {!grafica && <Text>{' '.repeat(sangriaOrden(etiqueta, ancho - 2))}</Text>}
-        <Button key={key} plain onPress={pulsar}>
-          {principal ? (
-            <Text backgroundColor={COLOR_MARCA} color={LETRA_MARCA} weight="bold">
-              {etiqueta}
-            </Text>
-          ) : (
-            <Text color={COLOR_MARCA_CLARO} weight="regular">
-              {etiqueta}
-            </Text>
-          )}
-        </Button>
+        {/* En una superficie gráfica, la pastilla es la caja: el botón nativo no pinta el fondo de su texto (tarea 337). */}
+        {enCaja(
+          <Button key={key} label={etiqueta.trim()} plain onPress={pulsar}>
+            {principal ? (
+              <Text backgroundColor={COLOR_MARCA} color={LETRA_MARCA} weight="bold">
+                {etiqueta}
+              </Text>
+            ) : (
+              <Text color={COLOR_MARCA_CLARO} weight="regular">
+                {etiqueta}
+              </Text>
+            )}
+          </Button>,
+          principal ? undefined : COLOR_MARCA_CLARO,
+          principal ? COLOR_MARCA : undefined,
+          !principal,
+        )}
       </Box>
     )
     // `encima`: las filas del panel que ocupa lo que va sobre la lista (la bienvenida, sin SF).
@@ -1712,11 +1834,17 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                 ) : x.estilo === 'orden' && grafica ? (
                   i === primeraOrden ? (
                     <Box key="bienvenida:orden" flexDirection="row" justifyContent="center">
-                      <Button key="incorporar" plain onPress={incorporar}>
-                        <Text backgroundColor={marca} color={LETRA_MARCA} weight="bold">
-                          {` ${ORDEN_EMPEZAR} `}
-                        </Text>
-                      </Button>
+                      {/* La pastilla morada es la caja: el botón nativo no pinta el fondo de su texto (tarea 337). */}
+                      {enCaja(
+                        <Button key="incorporar" label={ORDEN_EMPEZAR} plain onPress={incorporar}>
+                          <Text backgroundColor={marca} color={LETRA_MARCA} weight="bold">
+                            {` ${ORDEN_EMPEZAR} `}
+                          </Text>
+                        </Button>,
+                        undefined,
+                        marca,
+                        false,
+                      )}
                     </Box>
                   ) : null
                 ) : x.logo ? (
@@ -1734,6 +1862,20 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                         {x.texto}
                       </Text>
                     </Button>
+                  </Box>
+                ) : grafica ? (
+                  // En una superficie gráfica, cada línea sin los espacios que la centran, centrada por su caja: con ellos, la
+                  // app la toma por arte ASCII y la pinta en monoespaciada, y una línea partida sale desplazada. El nombre,
+                  // sin espaciar las letras, en grande (tarea 337).
+                  <Box key={`bienvenida:${String(i)}`} flexDirection="row" justifyContent="center" minWidth={0}>
+                    <Text
+                      color={x.estilo === 'logo' || x.estilo === 'nombre' ? marca : undefined}
+                      weight={x.estilo === 'nombre' || x.estilo === 'normal' ? 'bold' : undefined}
+                      size={x.estilo === 'nombre' ? 'heading' : undefined}
+                      dimColor={x.estilo === 'tenue'}
+                    >
+                      {x.texto.trim() === '' ? ' ' : x.estilo === 'nombre' && x.texto.trim() === NOMBRE_ANCHO ? NOMBRE : x.texto.trim()}
+                    </Text>
                   </Box>
                 ) : (
                   <Text

@@ -1,5 +1,6 @@
 ---
 name: informe_deliberativa
+user-invocable: false
 description: Crea o pone al día el informe de una tarea deliberativa de la Software Factory (investigar, deliberar, diseñar) — con la estructura fija de resumen, el análisis, lo decidido, lo que queda por decidir partido en bloques, las separaciones propuestas y las tareas que salen — y con las preguntas como fichas con opciones, recomendación destacada y estado (abierta, decidida, separada), al día con cada respuesta del propietario. Cada vuelta sube la versión, respalda la anterior en _respaldo/ y regenera el HTML. Úsala cuando una tarea deliberativa escriba o actualice su informe, cuando haya que registrar en él una respuesta, una decisión o una separación, o al pasar un informe antiguo a este formato. Usa el generador y los recursos comunes de crear_documentos.
 ---
 

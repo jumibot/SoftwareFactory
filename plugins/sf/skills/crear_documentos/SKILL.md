@@ -1,5 +1,6 @@
 ---
 name: crear_documentos
+user-invocable: false
 description: Lo común para crear cualquier documento de la Software Factory — el generador .md → HTML, el catálogo de recursos con su sintaxis (portada, secciones plegables, recuadros, tarjetas con color, icono y plegado, columnas, fichas con buscador, preguntas con opciones, fuentes y referencias, esquemas SVG), cuándo usar cada recurso y la norma de usarlos desde la primera versión, los temas y la identidad del proyecto, las herramientas de lectura, el respaldo en _respaldo/, la impresión A4 y la comprobación en escritorio y móvil. Úsala junto a la skill del tipo de documento (documento_fundacional, informe_deliberativa, documento_vision…), y también para crear un tipo de documento nuevo, añadir o cambiar un recurso, un tema o la identidad de un proyecto, o generar, respaldar y comprobar el HTML de un documento.
 ---
 

@@ -125,7 +125,24 @@ async function reanudar($: $): Promise<void> {
 }
 
 // Las órdenes del mod que no pasan nada a Claude: tras ellas no hay turno ni sugerencia del motor (tarea 323).
-const ORDENES_LOCALES = new Set(['sf', 'sf_paso', 'sf_split', 'sf_fusionar', 'sf_prueba'])
+// La orden fija del plugin, commands/panel.md: el motor la nombra con el plugin delante (tarea 337).
+const ORDEN_FIJA = 'sf:panel'
+const ORDENES_LOCALES = new Set(['sf', ORDEN_FIJA, 'sf_paso', 'sf_split', 'sf_fusionar', 'sf_prueba'])
+
+// /sf abre el panel. La orden fija del plugin (commands/panel.md, decisiones 254 y 257) se llama /sf:panel: la app la lista antes
+// del primer mensaje, cuando el mod aún no corre; con el mod en marcha, se atiende aquí igual que /sf y no sale en
+// la lista, para que no se vea dos veces (tarea 337).
+async function abrirPanel($: $) {
+  await refrescar($)
+  await update($, panelCerrado, () => false)
+  // Un panel que ya está abierto se cierra y se abre de nuevo: así /sf repara uno que se ha quedado en blanco
+  // (tarea 185).
+  if ((await $.ui.panes()).some(p => p.id === PANEL)) await $.ui.close({ id: PANEL }).catch(() => undefined)
+  await $.ui.open({ id: PANEL, title: 'Software Factory' })
+  // Al abrir el panel, ACTUALIZAR vuelve a comprobar (tarea 229).
+  await comprobarActualizacion($).catch(() => undefined)
+  return { text: 'Panel de la SF abierto.' }
+}
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
@@ -489,17 +506,9 @@ export const register: Register = on => {
     return { text: await cambiarPrueba($, !copia, 'la orden /sf_prueba', true) }
   })
 
-  on('command.run', { command: 'sf' }, async $ => {
-    await refrescar($)
-    await update($, panelCerrado, () => false)
-    // Un panel que ya está abierto se cierra y se abre de nuevo: así /sf repara uno que se ha quedado en blanco
-    // (tarea 185).
-    if ((await $.ui.panes()).some(p => p.id === PANEL)) await $.ui.close({ id: PANEL }).catch(() => undefined)
-    await $.ui.open({ id: PANEL, title: 'Software Factory' })
-    // Al abrir el panel, ACTUALIZAR vuelve a comprobar (tarea 229).
-    await comprobarActualizacion($).catch(() => undefined)
-    return { text: 'Panel de la SF abierto.' }
-  })
+  on('command.run', { command: 'sf' }, async $ => abrirPanel($))
+  on('command.run', { command: 'sf:panel' }, async $ => abrirPanel($))
+  on('command.describe', { command: 'sf:panel' }, async ($, e, next) => ({ ...(await next(e)), isHidden: true }))
 
   registrarPanel(on)
 }

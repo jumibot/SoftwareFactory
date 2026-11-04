@@ -1,5 +1,6 @@
 ---
 name: configurar_proyecto
+user-invocable: false
 description: Cambia la configuración de un proyecto ya incorporado a la Software Factory (SF), la de .sf/proyecto.json — nombre, descripción, color de sesión, metodología, kanban, línea de coautoría de los commits, idioma, formato de commit, remoto de GitHub, rama de publicación (rama_main), manifiestos con versión y automatizaciones — sin tarea y fuera del panel. Claude enseña lo que hay, pregunta qué cambiar con menús de hasta cuatro preguntas, pide el OK y lo aplica en develop con su commit. La lanza la orden /sf_config; también se ofrece al poner al día el proyecto. Úsala cuando pidan cambiar, ver o revisar la configuración del proyecto o uno de sus valores (activar o quitar la metodología, elegir o quitar el kanban, cambiar o quitar la firma de coautoría de los commits, cambiar el remoto, el idioma, el formato de los commits, la rama de publicación, el manifiesto, el color, el nombre o la descripción, apagar o encender una automatización).
 ---
 

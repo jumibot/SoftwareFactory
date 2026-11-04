@@ -1,5 +1,6 @@
 ---
 name: documento_fundacional
+user-invocable: false
 description: Crea o revisa el documento fundacional de un proyecto o de un producto — su presentación formal, más formal que el documento de visión y sin historia conductora — con la necesidad documentada, la tesis de desarrollo, qué es el producto, los escenarios de uso, las evidencias con lo que respaldan y lo que no, qué debe demostrar el piloto y las fuentes. Para el autor y para compartir con colaboradores, socios o financiadores. Úsala cuando pidan un documento fundacional, una presentación o justificación formal del proyecto, un manifiesto, un dossier o un caso de desarrollo, o convertir uno existente (PDF, HTML) a este formato. Genera .md → .html con el generador y los recursos comunes de crear_documentos (portada sobria, secciones plegables, tarjetas, fichas con buscador, referencias) y el tema de la identidad del proyecto; se imprime en A4.
 ---
 

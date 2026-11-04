@@ -1,5 +1,6 @@
 ---
 name: documento_vision
+user-invocable: false
 description: "Crea o revisa un documento de visión — la explicación de primer nivel de un proyecto o especificación, pensada para personas que tienen que entender y decidir (un equipo, una dirección, un comité, un financiador) y no para desarrolladores, o para el propio autor como herramienta para definir su proyecto (más extensa y detallada). Úsala cuando pidan explicar, valorar o presentar un proyecto, una propuesta o una spec de alto nivel, o convertir un análisis en documento para compartir. Sigue un diálogo en fases: valorar la idea en conversación, proponer la visión y acordar las secciones, escribir, y afinar sobre el documento generado. Recoge el estilo narrativo, los gráficos escenográficos, el caso conductor, los temas visuales y la generación .md → .html. Lo propio de cada proyecto (tema, logo, componentes y reglas del dominio) está en su identidad.json."
 ---
 
