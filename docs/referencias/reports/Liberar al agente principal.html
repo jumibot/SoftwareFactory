@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Que el principal responda antes: qué delegar en agentes y qué en órdenes · Informe de análisis</title>
+  <title>Que la cola no frene al principal: subagente de la cola u órdenes compuestas · Informe de análisis</title>
   <meta name="theme-color" content="#124571">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -682,254 +682,175 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
-<header class="portada oscura"><div class="portada-dentro"><p class="marca">Software Factory · Informe de análisis · Noviembre 2026</p><h1 class="titular">Que el principal responda antes: qué delegar en agentes y qué en órdenes<span class="lema">Que el principal conteste antes;<br>órdenes para la cola, agentes para las tareas.</span></h1><p class="subtitulo">El principal tarda en contestar al propietario porque se le va el tiempo en la cola, git y los encargos. Qué se midió, qué se puede delegar en agentes del plugin y qué en órdenes de cola.py, y lo que decidió el propietario.</p></div></header>
-<nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><a href="#resumen">Resumen</a><a href="#medicion">Medición</a><a href="#agentes">Agentes</a><a href="#opciones">Opciones</a><a href="#decidido">Decidido</a><a href="#por-decidir">Preguntas</a><a href="#tareas">Tareas</a><a href="#anexo">Anexo</a><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
+<header class="portada oscura"><div class="portada-dentro"><p class="marca">Software Factory · Informe de análisis · Noviembre 2026</p><h1 class="titular">Que la cola no frene al principal: subagente de la cola u órdenes compuestas<span class="lema">Que la cola no haga esperar al propietario;<br>menos idas y vueltas, no un agente más.</span></h1><p class="subtitulo">El principal hace esperar al propietario mientras lleva la cola. Cuánto espera de verdad, qué ganaría un subagente de la cola en segundo plano, qué ganan las órdenes compuestas ya decididas y qué falta por decidir.</p></div></header>
+<nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><a href="#resumen">Resumen</a><a href="#medicion">Medición</a><a href="#subagente">Subagente</a><a href="#ordenes">Órdenes</a><a href="#decidido">Decidido</a><a href="#por-decidir">Por decidir</a><a href="#tareas">Tareas</a><a href="#anexo">Anexo</a><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
 <div class="hoja">
-  <main id="contenido" tabindex="-1"><details class="seccion" id="resumen" open><summary class="seccion-titulo"><span class="etiqueta">01 / Resumen</span><h2>El problema, la pregunta y lo decidido</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El agente principal tarda en contestar al propietario. Cada vez que pone una tarea en curso o recoge el trabajo de un subagente, encadena varias órdenes de la cola y de git, y en cada lanzamiento vuelve a escribir un encargo casi igual al anterior. Mientras tanto, el propietario espera, o su conversación se corta para que el principal acabe esas operaciones, y la SF pierde agilidad.</p>
-<p>Medido en las últimas sesiones largas, la mitad de las llamadas del principal son a la cola, y abrir y recoger una tarea le cuestan entre medio minuto y un minuto de idas y vueltas. Lo que se quiere es que el principal quede libre antes, para contestar y atender al propietario mientras las tareas avanzan.</p>
-<aside class="recuadro"><p class="recuadro-etiqueta">La pregunta que se delibera</p><p>El propietario preguntó si un agente del plugin liberaría al principal: uno para las operaciones de la cola, o un orquestador completo, vivo durante toda la sesión, y si podía especializarse. ¿Qué conviene sacar del principal, y adónde: a agentes del plugin o a órdenes de <code>cola.py</code> que hagan de una vez lo que hoy son varias?</p></aside>
-<p>Lo decidido son dos piezas. Poner en curso una tarea lo hace todo de una vez, y recoger el trabajo de su subagente es una sola orden, que el subagente deja escrita al final de su informe («Poner en curso y recoger una tarea con una sola orden», decisión 283). Y el plugin lleva un agente por familia de tarea, con el encargo fijo dentro y sus skills precargadas («Agentes del plugin, uno por familia de tarea», decisión 282).</p>
-<p>Se descartan el agente de la cola siempre vivo y el orquestador fuera del principal. El tiempo no se va en <code>cola.py</code> (1,4 s), sino en los turnos del modelo entre una orden y otra; un agente en medio no los quita, añade los suyos, y un subagente no puede preguntar al propietario. No queda ninguna pregunta abierta: sale la tarea «Poner en curso y recoger una tarea con una sola orden» (360), la 304 pasa a implementar los agentes y la 353 sigue en cola, detrás.</p>
+  <main id="contenido" tabindex="-1"><details class="seccion" id="resumen" open><summary class="seccion-titulo"><span class="etiqueta">01 / Resumen</span><h2>El freno, la pregunta y la respuesta</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El principal hace esperar al propietario mientras lleva la cola. Antes de contestar, consulta la cola, anota la petición, añade pasos, marca los hechos, registra informes y deja tareas listas, cada cosa con su llamada. Mientras tanto, el propietario espera su respuesta, o la conversación se corta para que el principal acabe esas operaciones. Es el freno que hoy se nota.</p>
+<aside class="recuadro"><p class="recuadro-etiqueta">La pregunta que se delibera</p><p>¿Conviene un subagente de la cola, vivo toda la sesión y en segundo plano, al que el principal encargue las operaciones de la cola para contestar al propietario sin esperar? ¿O bastan las órdenes compuestas ya decididas, o las dos cosas?</p></aside>
+<p>La respuesta del análisis es que no conviene el subagente. Cada operación le cuesta al principal unos 5 s, pero solo 1,4 son de <code>cola.py</code>: el resto es su propio turno de modelo, y encargar la operación a otro agente también es un turno, el de escribirle. Delegar ahorra, como mucho, esos 1,4 s por operación, y a cambio trae fallos que nadie ve, operaciones fuera de orden y un contexto más que pagar. Lo que sí quita espera es hacer menos llamadas: las órdenes compuestas ya decididas, varios pasos en una orden, la cola ya en el contexto del principal y contestar antes de anotar.</p>
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 590" width="100%" role="img" aria-label="Abrir una tarea de código: hoy siete llamadas (en-curso, choques, rama sin activar, worktree, subagente, encargo y lanzar con encargo largo); decidido, cola.py en-curso N, que lo hace todo, y lanzar el agente de su familia. Recoger: hoy revisar el diff, merge ff-only, informe, marcar pasos y listo; decidido, revisar el diff y cola.py recoger N." style="font-family:var(--fuente-texto);display:block">
+<svg viewBox="0 0 560 420" width="100%" role="img" aria-label="Un turno de ejemplo, a unos 5 segundos por llamada. Hoy: lista, crear y tres pasos, y contesta a los 25 segundos. Con un subagente de la cola: lista, crear y el mensaje al subagente, y contesta a los 15 segundos; después el subagente anota los tres pasos y su aviso vuelve al principal. Con una orden con sus pasos y la cola ya en el contexto: una llamada y contesta a los 5 segundos." style="font-family:var(--fuente-texto);display:block">
+<g font-size="15">
 <text x="10" y="24" font-size="18" font-weight="700" style="fill:var(--oscuro)">Hoy</text>
-<text x="300" y="24" font-size="18" font-weight="700" style="fill:var(--texto-suave)">Decidido</text>
-<text x="10" y="62" font-size="15" font-weight="700" style="fill:var(--texto-suave)">Abrir una tarea de código</text>
-<g font-size="15" style="fill:var(--texto)">
-<rect x="10" y="75" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="95">en-curso N</text>
-<rect x="10" y="113" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="133">choques N</text>
-<rect x="10" y="151" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="171">rama N … --sin-activar</text>
-<rect x="10" y="189" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="209">git worktree add -b sub-N</text>
-<rect x="10" y="227" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="247">subagente N --worktree …</text>
-<rect x="10" y="265" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="285">encargo N</text>
-<rect x="10" y="303" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="323">lanzar, con encargo largo</text>
-<rect x="300" y="75" width="250" height="220" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="425" y="180" text-anchor="middle" font-weight="700">cola.py en-curso N</text><text x="425" y="202" text-anchor="middle" style="fill:var(--texto-suave)">lo hace todo, sin modelo</text>
-<rect x="300" y="303" width="250" height="30" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="312" y="323">lanzar sf:codigo, encargo corto</text>
-</g>
-<text x="10" y="372" font-size="15" font-weight="700" style="fill:var(--texto-suave)">Recoger su trabajo</text>
-<g font-size="15" style="fill:var(--texto)">
-<rect x="10" y="385" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="405">revisar el diff</text>
-<rect x="10" y="423" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="443">git merge --ff-only sub-N</text>
-<rect x="10" y="461" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="481">informe N --terminado</text>
-<rect x="10" y="499" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="519">paso marcar N P hecho …</text>
-<rect x="10" y="537" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="557">listo N --prueba …</text>
-<rect x="300" y="385" width="250" height="30" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="312" y="405">revisar el diff</text>
-<rect x="300" y="423" width="250" height="144" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="425" y="490" text-anchor="middle" font-weight="700">cola.py recoger N</text><text x="425" y="512" text-anchor="middle" style="fill:var(--texto-suave)">la línea la deja el subagente</text>
+<rect x="10" y="36" width="86" height="36" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="53" y="59" text-anchor="middle" style="fill:var(--texto)">lista</text>
+<rect x="100" y="36" width="86" height="36" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="143" y="59" text-anchor="middle" style="fill:var(--texto)">crear</text>
+<rect x="190" y="36" width="86" height="36" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="233" y="59" text-anchor="middle" style="fill:var(--texto)">paso</text>
+<rect x="280" y="36" width="86" height="36" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="323" y="59" text-anchor="middle" style="fill:var(--texto)">paso</text>
+<rect x="370" y="36" width="86" height="36" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="413" y="59" text-anchor="middle" style="fill:var(--texto)">paso</text>
+<line x1="462" y1="30" x2="462" y2="80" style="stroke:var(--oscuro)" stroke-width="3"/>
+<text x="462" y="100" text-anchor="end" font-weight="700" style="fill:var(--oscuro)">contesta a los ≈ 25 s</text>
+<text x="10" y="136" font-size="18" font-weight="700" style="fill:var(--texto-suave)">Con un subagente de la cola</text>
+<rect x="10" y="148" width="86" height="36" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="53" y="171" text-anchor="middle" style="fill:var(--texto)">lista</text>
+<rect x="100" y="148" width="86" height="36" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="143" y="171" text-anchor="middle" style="fill:var(--texto)">crear</text>
+<rect x="190" y="148" width="86" height="36" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="233" y="171" text-anchor="middle" style="fill:var(--texto)">mensaje</text>
+<line x1="282" y1="142" x2="282" y2="192" style="stroke:var(--oscuro)" stroke-width="3"/>
+<text x="282" y="212" text-anchor="end" font-weight="700" style="fill:var(--oscuro)">contesta a los ≈ 15 s</text>
+<rect x="190" y="226" width="360" height="36" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="2 4"/><text x="202" y="249" style="fill:var(--texto-suave)">después: el subagente anota los 3 pasos</text>
+<text x="202" y="284" style="fill:var(--texto-suave)">y su aviso vuelve al principal, otro turno</text>
+<text x="10" y="330" font-size="18" font-weight="700" style="fill:var(--texto-suave)">Una orden con sus pasos, cola en el contexto</text>
+<rect x="10" y="342" width="86" height="36" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="53" y="365" text-anchor="middle" style="fill:var(--texto)">crear</text>
+<line x1="102" y1="336" x2="102" y2="386" style="stroke:var(--oscuro)" stroke-width="3"/>
+<text x="10" y="406" font-weight="700" style="fill:var(--oscuro)">contesta a los ≈ 5 s</text>
 </g>
 </svg>
-<figcaption>Lo que hace hoy el principal al abrir y al recoger una tarea de código, y lo que queda con lo decidido: una orden para cada momento y el agente de su familia.</figcaption>
+<figcaption>Un turno de ejemplo (anotar una petición con tres pasos), a unos 5 s por llamada. Lo que gana el subagente es juntar los tres pasos en un mensaje, que una orden con sus pasos junta igual sin él; y deja trabajo y un aviso para después.</figcaption>
 </figure>
 
-<p><a class="salto" href="#decidido">Ver lo decidido</a> <a class="salto" href="#tareas">Ver las tareas que salen</a></p></div></details><details class="seccion" id="medicion"><summary class="seccion-titulo"><span class="etiqueta">02 / Medición</span><h2>Dónde se le va el tiempo al principal</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La mitad de lo que hace el principal es llevar la cola, y cada llamada cuesta más por el modelo que por la orden. Se midieron las cinco últimas sesiones largas del principal en la SF (sus transcripciones, sin las de los subagentes) y el historial de las 129 tareas que ya salieron de la cola.</p>
+<p>Queda una pregunta abierta, la del subagente, y tres más pequeñas que completan las órdenes compuestas.</p>
+<p><a class="salto" href="#por-decidir">Ver las preguntas</a> <a class="salto" href="#medicion">Ver la medición</a></p></div></details><details class="seccion" id="medicion"><summary class="seccion-titulo"><span class="etiqueta">02 / Medición</span><h2>Cuánto espera el propietario por la cola</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La cola se lleva la mitad de las llamadas del principal, pero solo una cuarta parte de ese tiempo es de operaciones cuyo resultado no necesita para contestar. Se midieron las cinco últimas sesiones largas del principal en la SF, sin las de los subagentes, y se clasificó cada llamada a <code>cola.py</code> según si el principal necesita su resultado al momento.</p>
 <div class="columnas cols-3">
 <div class="columna">
-<p class="metrica"><strong>51 %</strong>  de sus llamadas</p>
-<p>Son órdenes de <code>cola.py</code>: 1.126 de 2.209. Otro 24 % son órdenes de git (535), casi todas de worktrees, merges y diffs de subagentes.</p>
+<p class="metrica"><strong>51 %</strong>  de las llamadas</p>
+<p>Son a <code>cola.py</code>: 1.126 de 2.209. Llevan unos 65 min en esas sesiones, contando el turno del modelo de cada una.</p>
 </div>
 <div class="columna">
-<p class="metrica"><strong>≈ 5 s</strong>  por llamada</p>
-<p><code>cola.py</code> tarda 1,4 s de mediana; el modelo, entre el resultado de una llamada y la siguiente, 3,7 s de mediana y 4,7 de media, sin contar lo que escribe.</p>
+<p class="metrica"><strong>1,4 de 5 s</strong>  por llamada</p>
+<p>Es lo que tarda <code>cola.py</code>. El resto, 3,7 s de mediana, es el turno del modelo entre una llamada y la siguiente.</p>
 </div>
 <div class="columna">
-<p class="metrica"><strong>84 %</strong>  del encargo, fijo</p>
-<p>Un encargo mide 2.243 caracteres de mediana (134 lanzamientos); la parte que da <code>cola.py encargo</code>, 1.883. El principal la vuelve a escribir entera cada vez.</p>
+<p class="metrica"><strong>16 min</strong>  sin necesidad de esperar</p>
+<p>Es lo que llevan las operaciones cuyo resultado no hace falta para contestar (173 llamadas), un 25 % del tiempo de la cola.</p>
 </div>
 </div>
-<h3>Qué cuesta cada momento</h3>
-<p>El historial confirma que el principal ya encadena las órdenes de la cola en una sola llamada cuando puede: entre poner en curso y anotar el subagente pasan 4,5 s de mediana, y entre el informe y <code>listo</code>, 1 s. Lo caro no es esperar a <code>cola.py</code>, sino componer cada vez la cadena correcta, leer su salida y, cuando falla, repetirla.</p>
+<h3>Qué necesita el principal al momento</h3>
+<p>Para contestar, el principal necesita el resultado de casi todo lo que no sea anotar: el número de la tarea nueva, un choque, un rechazo, la cola que consulta o el encargo que va a pasar. Lo demás lo apunta para que conste, y no cambia lo que dice al propietario.</p>
 <table>
 <thead>
 <tr>
-<th>Momento</th>
-<th>Órdenes hoy</th>
-<th>Llamadas del principal</th>
-<th>Con lo decidido</th>
+<th>Clase</th>
+<th>Órdenes</th>
+<th>Llamadas</th>
+<th>Tiempo</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td data-label="Momento">Abrir una de código</td>
-<td data-label="Órdenes hoy"><code>en-curso</code>, <code>choques</code>, <code>rama --sin-activar</code>, <code>git worktree add -b sub-N</code>, <code>subagente</code>, <code>encargo</code>, lanzar</td>
-<td data-label="Llamadas del principal">4 a 7, más un encargo de ≈ 600 tokens</td>
-<td data-label="Con lo decidido"><code>en-curso N</code> y lanzar con un encargo corto: 2</td>
+<td data-label="Clase">Necesita el resultado al momento</td>
+<td data-label="Órdenes"><code>lista</code> y <code>ver</code> (121, 9 min); <code>crear</code> (48, 5 min); <code>choques</code>, <code>en-curso</code>, <code>rama</code>, <code>subagente</code>, <code>encargo</code>; <code>probar</code>, <code>cerrar</code>, <code>decision</code>, <code>fusionar</code>, <code>descartar</code>…</td>
+<td data-label="Llamadas">347</td>
+<td data-label="Tiempo">46 min</td>
 </tr>
 <tr>
-<td data-label="Momento">Abrir una deliberativa</td>
-<td data-label="Órdenes hoy"><code>en-curso</code>, <code>encargo</code>, lanzar</td>
-<td data-label="Llamadas del principal">2 o 3</td>
-<td data-label="Con lo decidido"><code>en-curso N</code> y lanzar: 2</td>
+<td data-label="Clase">No lo necesita</td>
+<td data-label="Órdenes"><code>paso añadir</code> (120, 11 min); <code>paso marcar</code> (44, 3 min); <code>informe</code>, <code>listo</code>, <code>comprobado</code>, <code>renombrar</code></td>
+<td data-label="Llamadas">173</td>
+<td data-label="Tiempo">16 min</td>
 </tr>
 <tr>
-<td data-label="Momento">Recoger</td>
-<td data-label="Órdenes hoy">revisar el diff, <code>merge --ff-only</code>, <code>informe</code>, <code>paso marcar</code> por paso, <code>listo</code></td>
-<td data-label="Llamadas del principal">3 a 6</td>
-<td data-label="Con lo decidido">revisar el diff y <code>recoger N …</code>: 2</td>
-</tr>
-<tr>
-<td data-label="Momento">Cerrar</td>
-<td data-label="Órdenes hoy"><code>cerrar</code> (ya recoge worktree y rama auxiliar)</td>
-<td data-label="Llamadas del principal">1</td>
-<td data-label="Con lo decidido">igual</td>
-</tr>
-<tr>
-<td data-label="Momento">Encargos sobre la tarea</td>
-<td data-label="Órdenes hoy"><code>SendMessage</code> al subagente vivo</td>
-<td data-label="Llamadas del principal">1</td>
-<td data-label="Con lo decidido">igual</td>
+<td data-label="Clase">Las dos en una llamada</td>
+<td data-label="Órdenes">cadenas que mezclan ambas</td>
+<td data-label="Llamadas">23</td>
+<td data-label="Tiempo">3 min</td>
 </tr>
 </tbody>
 </table>
-<p>Los fallos de sintaxis existen pero no son el grueso: 30 órdenes de <code>cola.py</code> fallidas en esas sesiones (un 2,7 %), cada una con su vuelta extra. En total, abrir y recoger una tarea de código le cuestan al principal entre medio minuto y un minuto de idas y vueltas, más los ≈ 600 tokens del encargo; con veinte tareas en una sesión, son de diez a veinte minutos en los que no atiende al propietario.</p>
-<aside class="recuadro"><p class="recuadro-etiqueta">Lo que no se midió</p><p>El coste en tokens por orden no sale de las transcripciones separado por llamada; las cifras de tiempo son medianas de las cinco sesiones y sirven para comparar opciones, no como presupuesto.</p></aside></div></details><details class="seccion" id="agentes"><summary class="seccion-titulo"><span class="etiqueta">03 / Agentes</span><h2>Qué permite Claude Code a los agentes de un plugin</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Un plugin puede traer agentes (<code>agents/*.md</code>) con su propio prompt, sus skills precargadas, su modelo y sus herramientas. Lo que no puede ningún subagente es preguntar al propietario, y no hay un agente «siempre vivo» como pieza de Claude Code: un subagente parado se reanuda con <code>SendMessage</code>, pero no espera ni escucha por sí mismo.</p>
+<p>Las que no necesitan el resultado aparecen en 165 turnos, con una mediana de una llamada y 5 s por turno. Es decir: en el turno típico donde se podrían delegar, se delegaría una sola llamada.</p>
+<aside class="recuadro"><p class="recuadro-etiqueta">Método</p><p>El tiempo de cada llamada va desde el evento anterior hasta su resultado: incluye el turno del modelo y la orden. Son cifras para comparar opciones, no un presupuesto.</p></aside></div></details><details class="seccion" id="subagente"><summary class="seccion-titulo"><span class="etiqueta">03 / Subagente</span><h2>Qué ganaría un subagente de la cola</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Un subagente de la cola, lanzado al empezar la sesión y vivo hasta el final, recibiría por <code>SendMessage</code> las operaciones que no necesitan respuesta; el principal las encargaría y contestaría sin esperar a que se hicieran. Lo que ahorra es menos de lo que parece, porque encargar también cuesta un turno.</p>
+<h3>Lo que ahorra</h3>
+<p>Hoy, cada operación que no necesita respuesta cuesta un turno del principal (≈ 3,7 s) más <code>cola.py</code> (1,4 s). Con el subagente, cuesta un turno del principal para escribir el mensaje, que puede ser algo más largo que la orden. El ahorro por operación es la ejecución de <code>cola.py</code>, 1,4 s, y solo si el mensaje junta varias operaciones gana algo más; pero juntarlas en una sola llamada a <code>cola.py</code> da lo mismo sin subagente. En las cinco sesiones, el ahorro máximo serían unos 4 min (173 × 1,4 s), repartidos en 165 turnos: alrededor de un segundo por turno.</p>
 <div class="tarjetas cols-2">
 <details class="tarjeta con-cabecera plegable" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v5h5M8 13h8M8 17h6"/></svg><h3 class="tarjeta-titulo">Definición</h3></summary>
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">No lee el mensaje mientras trabaja</h3></summary>
 <div class="tarjeta-cuerpo">
-<p><code>agents/&lt;nombre&gt;.md</code> en el plugin; se lanza como <code>sf:&lt;nombre&gt;</code>. El cuerpo es su prompt de sistema (sin el de Claude Code) y recibe el <code>CLAUDE.md</code> salvo con <code>omitClaudeMd</code>. En el frontmatter: <code>description</code>, <code>tools</code>, <code>disallowedTools</code>, <code>model</code>, <code>effort</code>, <code>skills</code>, <code>memory</code>, <code>background</code>, <code>isolation</code>, <code>maxTurns</code>, <code>autoCompactWindow</code> y <code>color</code>.</p>
+<p>Un subagente que ya está trabajando no recibe el mensaje hasta su siguiente ronda; la documentación solo describe <code>SendMessage</code> para reanudar a uno parado. Con varias operaciones seguidas, se acumulan y llegan juntas.</p>
 </div>
 </details>
 <details class="tarjeta con-cabecera plegable" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg><h3 class="tarjeta-titulo">Lo que un plugin no puede</h3></summary>
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.01"/></svg><h3 class="tarjeta-titulo">Fallos que nadie ve</h3></summary>
 <div class="tarjeta-cuerpo">
-<p>Por seguridad, en los agentes de un plugin se ignoran <code>hooks</code>, <code>mcpServers</code> y <code>permissionMode</code>. Los hooks de la SF siguen siendo los del mod, que ya distinguen a un subagente por su <code>agentId</code>.</p>
+<p>Si una orden falla (2,7 % de las de la cola en las sesiones medidas), el subagente lo devuelve en su aviso, que llega como un turno nuevo del principal. Si el principal no lo atiende, la cola queda distinta de lo que cree, y el panel lo enseña al propietario antes que a él.</p>
 </div>
 </details>
 <details class="tarjeta con-cabecera plegable" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg><h3 class="tarjeta-titulo">Skills y encargo fijo</h3></summary>
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2.2"/><circle cx="6" cy="19" r="2.2"/><circle cx="18" cy="7" r="2.2"/><path d="M6 7.2v9.6M18 9.2c0 5-12 3-12 7.6"/></svg><h3 class="tarjeta-titulo">Orden de las operaciones</h3></summary>
 <div class="tarjeta-cuerpo">
-<p><code>skills:</code> inyecta el contenido entero de hasta 32 skills al arrancar. El agente de las deliberativas puede llevar ya <code>informe_deliberativa</code> y <code>crear_documentos</code>, que hoy carga cada subagente con dos llamadas.</p>
+<p>El principal sigue haciendo las que necesitan respuesta. Si cierra una tarea mientras el subagente aún no ha marcado sus pasos, <code>cerrar</code> se niega por pasos pendientes. El bloqueo de la cola evita que se rompa, no que las órdenes lleguen en mal orden.</p>
 </div>
 </details>
 <details class="tarjeta con-cabecera plegable" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">Preguntar y anidar</h3></summary>
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v5h5M8 13h8M8 17h6"/></svg><h3 class="tarjeta-titulo">Coste en tokens</h3></summary>
 <div class="tarjeta-cuerpo">
-<p><code>AskUserQuestion</code> se quita a todo subagente: no puede preguntar al propietario. Sí puede lanzar otros agentes, hasta tres niveles por debajo del principal.</p>
+<p>Su contexto crece con cada salida de <code>cola.py</code> y se compacta. Su caché es suya y dura 5 min: tras una pausa, vuelve a pagar su contexto entero. Cada aviso de vuelta es, además, un turno más del principal.</p>
 </div>
 </details>
 <details class="tarjeta con-cabecera plegable" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2.2"/><circle cx="6" cy="19" r="2.2"/><circle cx="18" cy="7" r="2.2"/><path d="M6 7.2v9.6M18 9.2c0 5-12 3-12 7.6"/></svg><h3 class="tarjeta-titulo">Vivir y recibir mensajes</h3></summary>
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg><h3 class="tarjeta-titulo">La regla de quién escribe la cola</h3></summary>
 <div class="tarjeta-cuerpo">
-<p>Un subagente terminado o parado conserva su historia y se reanuda con <code>SendMessage</code>; trabaja en segundo plano mientras el principal sigue. Se compacta en su propia ventana. No está documentado qué le pasa con <code>/clear</code> ni al cerrar la sesión, ni que reciba mensajes mientras trabaja fuera de los equipos de agentes.</p>
+<p>«El mod impide que un subagente escriba la cola» (decisión 110) bloquea la escritura directa de <code>.sf/peticiones.json</code>, no <code>cola.py</code>, pero la regla escrita (<code>sf:flujo_tareas</code>) dice que solo el principal la escribe. Habría que hacer una excepción para el agente de la cola y anotarlo como autor en el historial (<code>--quien</code>), para que se sepa quién hizo cada cambio.</p>
 </div>
 </details>
 <details class="tarjeta con-cabecera plegable" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg><h3 class="tarjeta-titulo">Equipos y agente principal</h3></summary>
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg><h3 class="tarjeta-titulo">Si muere</h3></summary>
 <div class="tarjeta-cuerpo">
-<p>Los equipos de agentes (compañeros que siguen vivos y se escriben) son experimentales, van apagados por defecto y no se recuperan al reanudar la sesión. El ajuste <code>agent</code>, que un plugin puede fijar en su <code>settings.json</code>, hace que el principal arranque como uno de sus agentes, con su prompt.</p>
+<p>No está documentado qué pasa con un subagente tras <code>/clear</code> o al cerrar la sesión. Habría que relanzarlo y que el mod avisara de su falta, como ya hace con los de las tareas.</p>
 </div>
 </details>
 </div>
-<p>Dos datos más pesan en la comparación. La caché de un subagente es suya, no la del principal, y dura 5 minutos por defecto: un agente que se despierta de tarde en tarde paga su contexto entero cada vez. Y <code>isolation: worktree</code> crea un worktree desde la rama por defecto con un nombre de rama no documentado, así que no sirve para la <code>sub-N</code> que sale de la rama de la tarea: el worktree lo sigue haciendo <code>cola.py</code>.</p></div></details><details class="seccion" id="opciones"><summary class="seccion-titulo"><span class="etiqueta">04 / Opciones</span><h2>Qué ganaría cada una</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Las órdenes compuestas quitan idas y vueltas sin poner ningún modelo en medio; los agentes por familia quitan el texto repetido del encargo. Las otras dos opciones mueven el trabajo de sitio sin quitarlo, y añaden un salto.</p>
+<h3>Lo descartado: un orquestador completo</h3>
+<p>Un orquestador completo, que llevara también los subagentes de las tareas, no quita espera: el que habla con el propietario sigue siendo el principal, y un subagente no puede preguntarle (<code>AskUserQuestion</code> se quita a todo subagente). Todo lo que decidiera pasaría dos veces.</p></div></details><details class="seccion" id="ordenes"><summary class="seccion-titulo"><span class="etiqueta">04 / Órdenes</span><h2>Lo que sí quita espera: menos llamadas</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Quitar llamadas quita espera entera: el turno del modelo y la orden. Las órdenes compuestas ya decididas atacan el principio y el final de cada tarea; quedan tres huecos que se cubren sin ningún agente.</p>
 <div class="tarjetas cols-2">
-<details class="tarjeta con-cabecera plegable" id="o-compuestas" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg><h3 class="tarjeta-titulo">Órdenes compuestas en cola.py</h3></summary>
+<details class="tarjeta con-cabecera plegable" id="o-283" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg><h3 class="tarjeta-titulo">Poner en curso y recoger, una orden cada uno</h3></summary>
 <div class="tarjeta-cuerpo">
-<p><code>abrir N</code> (en curso, choques, rama sin activar, worktree y rama <code>sub-N</code>, anotar el subagente y dar el encargo; en una deliberativa, solo en curso y encargo) y <code>recoger N --pasos 2,3 --listo "qué mirar"</code> (traer <code>sub-N</code> con <code>--ff-only</code>, anotar el informe, marcar pasos y dejar lista).</p>
+<p>Decidido («Poner en curso y recoger una tarea con una sola orden», decisión 283; tarea 360). <code>en-curso N</code> deja hechos rama, worktree, rama auxiliar y la anotación del subagente; <code>recoger N</code> trae el trabajo, anota el informe, marca los pasos y deja la tarea lista, con la orden escrita por el subagente.</p>
 <dl>
-<dt>Decidido</dt>
-<dd>Sin orden nueva para abrir: lo hace <code>en-curso N</code>. <code>recoger N</code> sí es nueva (decisión 283).</dd>
-<dt>Gana</dt>
-<dd>De 4-7 llamadas a 1 al abrir y de 3-6 a 1 al recoger; sin errores de sintaxis en cadenas largas; lo mismo sirve al panel.</dd>
-<dt>Cuesta</dt>
-<dd>Una tarea de código mediana, con pruebas; las reglas que hoy dice la orquestación pasan al CLI. Abrir sigue pidiendo <code>choques</code> antes y parando si los hay.</dd>
+<dt>Quita</dt>
+<dd>De 4-7 llamadas a 1 al abrir, y de 3-6 a 1 al recoger: los informes, pasos marcados y listos de la recogida, unos 6 min de los 16 que no necesitan respuesta.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera plegable" id="o-familias" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2.2"/><circle cx="6" cy="19" r="2.2"/><circle cx="18" cy="7" r="2.2"/><path d="M6 7.2v9.6M18 9.2c0 5-12 3-12 7.6"/></svg><h3 class="tarjeta-titulo">Agentes del plugin por familia</h3></summary>
+<details class="tarjeta con-cabecera plegable" id="o-pasos" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg><h3 class="tarjeta-titulo">Varios pasos en una orden</h3></summary>
 <div class="tarjeta-cuerpo">
-<p><code>sf:codigo</code>, <code>sf:deliberativa</code> y <code>sf:documental</code>, con las reglas fijas del encargo en su cuerpo, sus skills precargadas y, como primer paso, leer <code>cola.py encargo N</code> para lo variable (worktree, coautoría, convenciones, Python).</p>
+<p><code>paso añadir N "a" "b" "c"</code> y <code>crear … --paso "a" --paso "b"</code>: los pasos de una tarea nueva, de una vez.</p>
 <dl>
-<dt>Decidido</dt>
-<dd>Sí: tres agentes, uno por familia (decisión 282).</dd>
-<dt>Gana</dt>
-<dd>El encargo del principal baja de ≈ 2.200 a ≈ 400 caracteres; las reglas viven en un sitio y se versionan con el plugin; cada familia, su forma de trabajar (decisión «Siete tipos de tarea en tres familias», 223).</dd>
-<dt>Cuesta</dt>
-<dd>Una tarea mediana. Las reglas no pueden repetirse en tres sitios: el encargo fijo queda en el cuerpo de cada agente y <code>cola.py encargo</code> da solo lo variable.</dd>
+<dt>Quita</dt>
+<dd><code>paso añadir</code> es la operación más repetida (120 llamadas, 11 min): casi todo lo que queda sin necesidad de respuesta.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera plegable" id="o-cola" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">Agente de la cola, siempre vivo</h3></summary>
+<details class="tarjeta con-cabecera plegable" id="o-contexto" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg><h3 class="tarjeta-titulo">La cola, ya en el contexto</h3></summary>
 <div class="tarjeta-cuerpo">
-<p>Un subagente lanzado al empezar la sesión que recibe por <code>SendMessage</code> cada operación de la cola y la ejecuta.</p>
+<p>El mod añade en cada mensaje del propietario un resumen de las tareas en curso y de lo que cambió desde el mensaje anterior (también desde el panel), como ya añade sus avisos.</p>
 <dl>
-<dt>Decidido</dt>
-<dd>No: descartado (decisiones 282 y 283).</dd>
-<dt>Gana</dt>
-<dd>Sin coste de arrancar ni de explicarle el contexto en cada operación; puede trabajar en segundo plano mientras el principal habla.</dd>
-<dt>Cuesta</dt>
-<dd>Cada operación sigue pidiendo una llamada del principal, más uno o dos turnos del agente y la notificación de vuelta: de 2 a 3 veces más lento que llamar a <code>cola.py</code>. Su contexto crece con cada salida y se compacta; tras 5 minutos sin uso, paga su caché entera. Si muere, hay que relanzarlo y avisarlo, como hoy los de las tareas. Y rompe «solo el principal escribe la cola» (decisión «El mod impide que un subagente escriba la cola», 110).</dd>
+<dt>Quita</dt>
+<dd>Buena parte de <code>lista</code> y <code>ver</code> (121 llamadas, 9 min), que son de las que necesitan respuesta y ningún subagente puede quitar.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera plegable" id="o-orquestador" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg><h3 class="tarjeta-titulo">Orquestador delegado</h3></summary>
+<details class="tarjeta con-cabecera plegable" id="o-orden" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">Contestar primero, anotar después</h3></summary>
 <div class="tarjeta-cuerpo">
-<p>Un subagente que lleva la cola, lanza los de las tareas y los recoge; el principal solo conversa.</p>
+<p>Una regla de la orquestación: en un turno, lo que no necesita respuesta va después de contestar al propietario.</p>
 <dl>
-<dt>Decidido</dt>
-<dd>No: el principal sigue orquestando (decisión 282).</dd>
-<dt>Gana</dt>
-<dd>El principal tendría el contexto limpio para el propietario.</dd>
-<dt>Cuesta</dt>
-<dd>No puede preguntar al propietario: todo lo que decide pasa dos veces, del orquestador al principal y del principal al propietario. Los subagentes de tarea serían nietos y sus avisos del mod no llegan igual. Es el salto más caro de todos.</dd>
+<dt>Quita</dt>
+<dd>La espera de esas operaciones, sin cambiar ninguna pieza: el propietario lee la respuesta mientras el principal termina de anotar.</dd>
 </dl>
 </div>
 </details>
 </div>
-<h3>El agente de la cola, aunque viva toda la sesión</h3>
-<p>Que el agente esté vivo todo el rato quita su arranque y la explicación del contexto, que era la objeción más fácil. No quita la objeción de fondo: entre el principal y <code>cola.py</code> sigue habiendo un modelo más.</p>
-<table>
-<thead>
-<tr>
-<th></th>
-<th><code>cola.py en-curso N</code></th>
-<th>Agente de la cola vivo</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td data-label="">Llamadas del principal</td>
-<td data-label="cola.py en-curso N">1</td>
-<td data-label="Agente de la cola vivo">1 (<code>SendMessage</code>) y leer la notificación</td>
-</tr>
-<tr>
-<td data-label="">Turnos de modelo en medio</td>
-<td data-label="cola.py en-curso N">0</td>
-<td data-label="Agente de la cola vivo">1 o 2 del agente</td>
-</tr>
-<tr>
-<td data-label="">Tiempo por operación</td>
-<td data-label="cola.py en-curso N">≈ 1,4 s de orden</td>
-<td data-label="Agente de la cola vivo">≈ 10-15 s y vuelve en otro turno</td>
-</tr>
-<tr>
-<td data-label="">Contexto que acumula</td>
-<td data-label="cola.py en-curso N">ninguno</td>
-<td data-label="Agente de la cola vivo">crece con cada salida; compactación y caché de 5 min</td>
-</tr>
-<tr>
-<td data-label="">Si muere</td>
-<td data-label="cola.py en-curso N">nada que relanzar</td>
-<td data-label="Agente de la cola vivo">relanzarlo; <code>/clear</code> y cierre no documentados</td>
-</tr>
-<tr>
-<td data-label="">Trabajar mientras el principal habla</td>
-<td data-label="cola.py en-curso N">sí, si se lanza en segundo plano</td>
-<td data-label="Agente de la cola vivo">sí</td>
-</tr>
-<tr>
-<td data-label="">Reglas de la cola</td>
-<td data-label="cola.py en-curso N">igual que hoy</td>
-<td data-label="Agente de la cola vivo">cambia quién escribe la cola</td>
-</tr>
-</tbody>
-</table>
-<p>Su única ventaja propia, trabajar en segundo plano, no compensa: casi toda operación de la cola da algo que el principal necesita al momento (el número nuevo, un choque, un rechazo), y una orden de 1,4 s no merece ir aparte. La recomendación inicial del principal se mantuvo, y el propietario la aceptó.</p>
-<h3>El principal como agente del plugin</h3>
-<p>Hay una variante que no delega nada: fijar en el <code>settings.json</code> del plugin el ajuste <code>agent</code>, para que el principal arranque como un agente <code>sf:orquestador</code> con la orquestación en su prompt. Ahorraría que el mod la entregue al empezar, tras <code>/clear</code> y tras compactar. Pero sustituye el prompt de sistema de Claude Code, se impondría en todos los proyectos que instalen la SF y no está documentado del todo: si se quiere, es una investigación aparte, no parte de esta propuesta.</p></div></details><details class="seccion" id="decidido"><summary class="seccion-titulo"><span class="etiqueta">05 / Decidido</span><h2>Lo que fija esta tarea</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El propietario aceptó las recomendaciones de las seis preguntas. Dos decisiones las recogen; la de las tareas 304 y 353 se aplica en la cola.</p>
-<table>
+<p>Juntas, estas piezas quitan casi todo el tiempo de la cola que el subagente podría quitar, y además parte del que no puede quitar. Por eso el subagente no se complementa con ellas: llega tarde a un hueco que ya está cubierto.</p></div></details><details class="seccion" id="decidido"><summary class="seccion-titulo"><span class="etiqueta">05 / Decidido</span><h2>Lo que ya fija esta tarea</h2></summary><div class="seccion-cuerpo"><table>
 <thead>
 <tr>
 <th>Nº</th>
@@ -939,123 +860,72 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </thead>
 <tbody>
 <tr>
-<td data-label="Nº">282</td>
-<td data-label="Decisión">Agentes del plugin, uno por familia de tarea</td>
-<td data-label="Qué fija aquí">Tres agentes (código, deliberativa y documental) con el encargo fijo dentro y sus skills; leen lo propio con <code>cola.py encargo N</code> (<a href="#p2">pregunta 2</a>). Descarta el agente de la cola y el orquestador aparte (<a href="#p4">preguntas 4</a> y <a href="#p5">5</a>).</td>
-</tr>
-<tr>
 <td data-label="Nº">283</td>
 <td data-label="Decisión">Poner en curso y recoger una tarea con una sola orden</td>
-<td data-label="Qué fija aquí"><code>en-curso N</code> hace todo, sin orden nueva; <code>recoger N</code> trae el trabajo, anota el informe, marca los pasos y deja la tarea lista; el subagente deja la orden escrita (<a href="#p1">preguntas 1</a> y <a href="#p3">3</a>).</td>
+<td data-label="Qué fija aquí"><code>en-curso N</code> lo hace todo, sin orden nueva; <code>recoger N</code> trae el trabajo, anota el informe, marca los pasos y deja la tarea lista, y el subagente deja la orden escrita al final de su informe. Se aplica en la tarea 360.</td>
 </tr>
 </tbody>
-</table></div></details><details class="seccion" id="por-decidir"><summary class="seccion-titulo"><span class="etiqueta">06 / Preguntas</span><h2>Las preguntas y lo que se eligió</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Las seis preguntas, por importancia, todas decididas con la opción recomendada. La primera, con un matiz: no hay orden nueva para abrir.</p>
+</table></div></details><details class="seccion" id="por-decidir"><summary class="seccion-titulo"><span class="etiqueta">06 / Por decidir</span><h2>Las preguntas para el propietario</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La primera es la que da sentido a esta tarea; las otras tres completan las órdenes compuestas y pueden ir como pasos de la tarea 360 o en una propia.</p>
 <div class="tarjetas preguntas cols-2">
-<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p1" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/></svg><h3 class="tarjeta-titulo">1 · Órdenes compuestas para abrir y recoger</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
+<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="B" id="p1" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">1 · Un subagente de la cola en segundo plano</h3><span class="estado-pregunta abierta">Abierta</span></summary>
 <div class="tarjeta-cuerpo">
-<p>Hoy abrir una tarea de código son 4-7 llamadas del principal y recogerla, 3-6.</p>
+<p>Las órdenes compuestas (283) ya están decididas; falta saber si además conviene el subagente.</p>
 <dl>
-<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
-<dd class="opcion recomendada elegida"><code>cola.py abrir N</code> y <code>cola.py recoger N --pasos … --listo "…"</code>, en una tarea de implementar.</dd>
-<dt class="opcion descartada">Opción B</dt>
-<dd class="opcion descartada">Solo <code>abrir N</code>; la recogida sigue a mano, porque revisar el diff es criterio.</dd>
-<dt class="opcion descartada">Opción C</dt>
-<dd class="opcion descartada">Como hoy.</dd>
+<dt class="opcion">Opción A</dt>
+<dd class="opcion">Un subagente de la cola, vivo toda la sesión, para las operaciones que no necesitan respuesta; el principal contesta sin esperarlas.</dd>
+<dt class="opcion recomendada">Opción B<span class="marca-opcion recomendada">Recomendada</span></dt>
+<dd class="opcion recomendada">Solo órdenes: las compuestas (283) y las tres piezas que las completan (preguntas 2, 3 y 4).</dd>
+<dt class="opcion">Opción C</dt>
+<dd class="opcion">Las dos: las órdenes, y probar el subagente en una tarea aparte para medir si quita espera.</dd>
 <dt class="recomendacion">Recomendación</dt>
-<dd class="recomendacion"><strong>A.</strong> Es lo que más tiempo libera y no pone ningún modelo en medio («Comandos antes que inferencia»). Revisar el diff sigue antes de <code>recoger</code>.</dd>
-<dt class="decision">Decisión</dt>
-<dd class="decision"><strong>A, con un matiz:</strong> no hay orden nueva para abrir; <code>en-curso N</code> lo hace todo (estado, rama, worktree con su rama auxiliar y anotar el subagente). Recoger, <code>cola.py recoger N</code>. Decisión 283.</dd>
+<dd class="recomendacion"><strong>B.</strong> Encargar una operación cuesta el mismo turno que hacerla; el subagente ahorraría alrededor de un segundo por turno y traería fallos que nadie ve y operaciones fuera de orden.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p2" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="5" r="2.2"/><circle cx="6" cy="19" r="2.2"/><circle cx="18" cy="7" r="2.2"/><path d="M6 7.2v9.6M18 9.2c0 5-12 3-12 7.6"/></svg><h3 class="tarjeta-titulo">2 · Agentes del plugin por familia de tarea</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
+<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p2" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg><h3 class="tarjeta-titulo">2 · Varios pasos en una orden</h3><span class="estado-pregunta abierta">Abierta</span></summary>
 <div class="tarjeta-cuerpo">
-<p>El encargo fijo es el 84 % de lo que el principal escribe al lanzar.</p>
+<p><code>paso añadir</code> es la operación más repetida del principal.</p>
 <dl>
-<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
-<dd class="opcion recomendada elegida">Tres agentes (<code>sf:codigo</code>, <code>sf:deliberativa</code>, <code>sf:documental</code>) con las reglas fijas en su cuerpo y sus skills precargadas; leen <code>cola.py encargo N</code> para lo variable.</dd>
-<dt class="opcion descartada">Opción B</dt>
-<dd class="opcion descartada">Un solo agente <code>sf:tarea</code> que se adapta por el tipo que le da <code>cola.py encargo</code>.</dd>
-<dt class="opcion descartada">Opción C</dt>
-<dd class="opcion descartada">Como hoy: <code>cola.py encargo N</code> y un subagente general.</dd>
+<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
+<dd class="opcion recomendada"><code>paso añadir N "a" "b" …</code> y <code>crear … --paso "a" --paso "b"</code>.</dd>
+<dt class="opcion">Opción B</dt>
+<dd class="opcion">Como hoy, un paso por orden.</dd>
 <dt class="recomendacion">Recomendación</dt>
-<dd class="recomendacion"><strong>A.</strong> Es lo decidido en «Siete tipos de tarea en tres familias» (223) y permite skills y modelo propios de cada familia.</dd>
-<dt class="decision">Decisión</dt>
-<dd class="decision"><strong>A.</strong> Tres agentes, uno por familia. Decisión 282.</dd>
+<dd class="recomendacion"><strong>A.</strong> Es poco código y quita la mayor parte de lo que no necesita respuesta.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p3" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></svg><h3 class="tarjeta-titulo">3 · La línea de recogida, del subagente</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
+<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p3" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg><h3 class="tarjeta-titulo">3 · La cola en el contexto del principal</h3><span class="estado-pregunta abierta">Abierta</span></summary>
 <div class="tarjeta-cuerpo">
-<p>Para recoger, el principal tiene que deducir qué pasos marcar y qué probar.</p>
+<p>El principal consulta la cola antes de actuar porque el propietario la cambia desde el panel.</p>
 <dl>
-<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
-<dd class="opcion recomendada elegida">El informe del subagente acaba con la orden lista, <code>cola.py recoger N --pasos 2,3 --listo "…"</code>, que el principal revisa y lanza.</dd>
-<dt class="opcion descartada">Opción B</dt>
-<dd class="opcion descartada">El principal la compone, como hoy.</dd>
+<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
+<dd class="opcion recomendada">El mod añade a cada mensaje las tareas en curso y lo que cambió desde el mensaje anterior.</dd>
+<dt class="opcion">Opción B</dt>
+<dd class="opcion">Como hoy: <code>lista</code> y <code>ver</code> cuando hace falta.</dd>
 <dt class="recomendacion">Recomendación</dt>
-<dd class="recomendacion"><strong>A.</strong> El subagente sabe qué hizo; el principal solo comprueba el diff y la línea.</dd>
-<dt class="decision">Decisión</dt>
-<dd class="decision"><strong>A.</strong> El subagente deja la orden de recogida al final de su informe; el principal revisa el diff y la lanza. Decisión 283.</dd>
+<dd class="recomendacion"><strong>A.</strong> Quita consultas que ningún agente puede quitar; con solo lo que cambia, el texto añadido es corto.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p4" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">4 · Un agente de la cola siempre vivo</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
+<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p4" open="open">
+<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/></svg><h3 class="tarjeta-titulo">4 · Contestar primero, anotar después</h3><span class="estado-pregunta abierta">Abierta</span></summary>
 <div class="tarjeta-cuerpo">
-<p>Lanzado al empezar la sesión y vivo hasta el final, recibiría cada operación por mensaje.</p>
+<p>Hoy el principal anota cuando le viene en el turno, a veces antes de contestar.</p>
 <dl>
-<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
-<dd class="opcion recomendada elegida">No: las órdenes compuestas dan lo mismo sin un modelo en medio.</dd>
-<dt class="opcion descartada">Opción B</dt>
-<dd class="opcion descartada">Sí, como prueba en una tarea aparte, con la regla de quién escribe la cola cambiada.</dd>
+<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
+<dd class="opcion recomendada">Regla en <code>sf:orquestacion</code>: lo que no necesita respuesta, después de contestar.</dd>
+<dt class="opcion">Opción B</dt>
+<dd class="opcion">Como hoy.</dd>
 <dt class="recomendacion">Recomendación</dt>
-<dd class="recomendacion"><strong>A.</strong> Cada operación sería de 2 a 3 veces más lenta y su contexto crecería sin aportar nada que el CLI no dé.</dd>
-<dt class="decision">Decisión</dt>
-<dd class="decision"><strong>A, no.</strong> Descartado en las decisiones 282 y 283.</dd>
+<dd class="recomendacion"><strong>A.</strong> No cuesta nada y quita la espera de lo que queda por anotar.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p5" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-5-5"/></svg><h3 class="tarjeta-titulo">5 · Un orquestador fuera del principal</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
-<div class="tarjeta-cuerpo">
-<p>El principal sigue hablando con el propietario en cualquier caso.</p>
-<dl>
-<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
-<dd class="opcion recomendada elegida">No: el principal orquesta, como hoy, con menos órdenes.</dd>
-<dt class="opcion descartada">Opción B</dt>
-<dd class="opcion descartada">Investigar en una tarea aparte el principal como agente del plugin (ajuste <code>agent</code>), sin delegar.</dd>
-<dt class="opcion descartada">Opción C</dt>
-<dd class="opcion descartada">Un orquestador subagente vivo que lleva la cola y los subagentes.</dd>
-<dt class="recomendacion">Recomendación</dt>
-<dd class="recomendacion"><strong>A.</strong> Un subagente no puede preguntar al propietario; la B no libera tiempo, solo cambia cómo llegan las reglas.</dd>
-<dt class="decision">Decisión</dt>
-<dd class="decision"><strong>A, no.</strong> El principal sigue orquestando. Descartado en la decisión 282.</dd>
-</dl>
-</div>
-</details>
-<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p6" open="open">
-<summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v5h5M8 13h8M8 17h6"/></svg><h3 class="tarjeta-titulo">6 · Qué hacer con las tareas 304 y 353</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
-<div class="tarjeta-cuerpo">
-<p>«Agentes especializados, uno por familia de tarea» (304) y «Valorar un agente del plugin para la incorporación de proyectos a la SF» (353) están en cola, las dos de deliberar.</p>
-<dl>
-<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
-<dd class="opcion recomendada elegida">La 304 pasa a implementar los agentes por familia con lo que fije la pregunta 2; la 353 se mantiene, detrás de la 304, para reutilizar su forma.</dd>
-<dt class="opcion descartada">Opción B</dt>
-<dd class="opcion descartada">Fusionar la 353 en la 304.</dd>
-<dt class="opcion descartada">Opción C</dt>
-<dd class="opcion descartada">Absorber las dos en esta tarea.</dd>
-<dt class="recomendacion">Recomendación</dt>
-<dd class="recomendacion"><strong>A.</strong> La 304 ya tiene su deliberación aquí; la 353 es otro alcance (sin tarea y con menús al propietario, que un agente no puede hacer).</dd>
-<dt class="decision">Decisión</dt>
-<dd class="decision"><strong>A.</strong> La 304 pasa a implementar los agentes; la 353 sigue en cola, detrás de ella.</dd>
-</dl>
-</div>
-</details>
-</div></div></details><details class="seccion" id="tareas"><summary class="seccion-titulo"><span class="etiqueta">07 / Tareas</span><h2>Las tareas que salen</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Salen de lo decidido, en este orden: los agentes leen el encargo que deja la primera.</p>
+</div></div></details><details class="seccion" id="tareas"><summary class="seccion-titulo"><span class="etiqueta">07 / Tareas</span><h2>Las tareas que salen</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Con las recomendaciones, no sale ningún agente: salen órdenes y una regla.</p>
 <table>
 <thead>
 <tr>
@@ -1068,43 +938,30 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <tr>
 <td data-label="Tarea">Poner en curso y recoger una tarea con una sola orden (360)</td>
 <td data-label="Tipo">implementar</td>
-<td data-label="Qué hace"><code>en-curso N</code> hace todo y <code>recoger N --pasos --listo</code> es nueva (<a href="#p1">pregunta 1</a>); el encargo pide al subagente la línea de recogida (<a href="#p3">pregunta 3</a>); pone al día <code>sf:flujo_tareas</code>, <code>estados.md</code>, <code>sf:orquestacion</code> y el aviso del mod que dice cómo recoger.</td>
+<td data-label="Qué hace">Ya existe (decisión 283). Puede llevar como pasos varios pasos en una orden (<a href="#p2">pregunta 2</a>) y la regla de contestar primero (<a href="#p4">pregunta 4</a>).</td>
 </tr>
 <tr>
-<td data-label="Tarea">Agentes especializados, uno por familia de tarea (304)</td>
+<td data-label="Tarea">Que el principal tenga la cola en su contexto</td>
 <td data-label="Tipo">implementar</td>
-<td data-label="Qué hace">Pasa de deliberar a implementar: <code>agents/codigo.md</code>, <code>deliberativa.md</code> y <code>documental.md</code>; <code>cola.py encargo</code> da solo lo variable; la orquestación lanza el de la familia (<a href="#p2">pregunta 2</a>).</td>
+<td data-label="Qué hace">El mod añade a cada mensaje las tareas en curso y los cambios (<a href="#p3">pregunta 3</a>); <code>sf:orquestacion</code> deja de pedir <code>lista</code> antes de actuar.</td>
 </tr>
 <tr>
-<td data-label="Tarea">Valorar un agente del plugin para la incorporación de proyectos a la SF (353)</td>
-<td data-label="Tipo">deliberar</td>
-<td data-label="Qué hace">Sigue en cola, detrás de la 304 (<a href="#p6">pregunta 6</a>).</td>
-</tr>
-<tr>
-<td data-label="Tarea">Actualizar Cómo funciona la Software Factory</td>
-<td data-label="Tipo">documentar</td>
-<td data-label="Qué hace">Paso «Reflejar «Liberar al agente principal» (358)»: la pieza <code>agents/</code> y las dos órdenes.</td>
-</tr>
-<tr>
-<td data-label="Tarea">Actualizar la metodología, la plantilla y el CLAUDE.md</td>
-<td data-label="Tipo">documentar</td>
-<td data-label="Qué hace">El mismo paso, con el texto del anexo.</td>
+<td data-label="Tarea">Probar un subagente de la cola</td>
+<td data-label="Tipo">investigar</td>
+<td data-label="Qué hace">Solo si se elige la C en la <a href="#p1">pregunta 1</a>: medir la espera con y sin él en una sesión real.</td>
 </tr>
 </tbody>
-</table></div></details><details class="seccion" id="anexo"><summary class="seccion-titulo"><span class="etiqueta">08 / Anexo</span><h2>Texto propuesto para los documentos compartidos</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Para las tareas «Actualizar…», una vez hechas la 360 y la 304.</p>
-<h4>Cómo funciona la Software Factory (piezas del plugin)</h4>
-<aside class="recuadro"><p class="recuadro-etiqueta">Agentes del plugin</p><code>agents/</code> trae un agente por familia de tarea: <code>sf:codigo</code>, <code>sf:deliberativa</code> y <code>sf:documental</code>. Cada uno lleva en su prompt las reglas fijas del encargo y sus skills precargadas, y lee lo variable con <code>cola.py encargo N</code>. El principal los lanza al poner la tarea en curso con <code>cola.py en-curso N</code>, que deja hechos la rama, el worktree y la rama auxiliar, y los recoge con <code>cola.py recoger N</code>.</p></aside>
-<h4>CLAUDE.md de la SF (regla «Orquestación con subagentes»)</h4>
-<blockquote class="destacado"><p>Orquestación con subagentes: el principal habla con el propietario y lleva la cola; toda tarea en curso tiene su subagente, el agente del plugin de su familia, que hace todo su trabajo. Poner en curso una tarea y recoger su subagente son una orden de <code>cola.py</code> cada uno (<code>en-curso N</code>, <code>recoger N</code>). Las reglas, en <code>sf:orquestacion</code>.</p></blockquote>
+</table>
+<p>Los agentes del plugin por familia de tarea quedan fuera de esta tarea: en «Agentes especializados, uno por familia de tarea» (304), con la decisión 282.</p></div></details><details class="seccion" id="anexo"><summary class="seccion-titulo"><span class="etiqueta">08 / Anexo</span><h2>Texto propuesto para los documentos compartidos</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Para la tarea «Actualizar la metodología, la plantilla y el CLAUDE.md», una vez hecha la 360.</p>
 <h4>Metodología («Ramas y subagentes»)</h4>
-<blockquote class="destacado"><p>Cada tarea en curso se trabaja con el agente del plugin de su familia (código, deliberativas o documentales). <code>cola.py en-curso N</code> la pone en curso con su rama, su worktree y su rama auxiliar, y da el encargo; <code>cola.py recoger N</code> trae el trabajo, anota el informe y marca los pasos.</p></blockquote>
+<blockquote class="destacado"><p><code>cola.py en-curso N</code> pone la tarea en curso con su rama, su worktree y su rama auxiliar, y la deja lista para lanzar su subagente; <code>cola.py recoger N</code>, con la orden que deja el subagente al final de su informe, trae su trabajo, anota el informe y marca los pasos.</p></blockquote>
+<h4><code>sf:orquestacion</code> (si se acepta la pregunta 4)</h4>
+<blockquote class="destacado"><p>En un turno, lo que no necesita respuesta (añadir o marcar pasos, informes, listos) va después de contestar al propietario.</p></blockquote>
 <div class="fuentes">
 <p id="src-E1"><strong>Sub-agents.</strong> Claude Code Docs, consultado el 04/11/2026. code.claude.com/docs/en/sub-agents</p>
-<p id="src-E2"><strong>Plugin components y manifest reference.</strong> Claude Code Docs, consultado el 04/11/2026. code.claude.com/docs/en/plugins/components</p>
-<p id="src-E3"><strong>Agent teams.</strong> Claude Code Docs, consultado el 04/11/2026. code.claude.com/docs/en/agent-teams</p>
-<p id="src-E4"><strong>Prompt caching y worktrees.</strong> Claude Code Docs, consultado el 04/11/2026. code.claude.com/docs/en/prompt-caching, code.claude.com/docs/en/worktrees</p>
+<p id="src-E2"><strong>Prompt caching.</strong> Claude Code Docs, consultado el 04/11/2026. code.claude.com/docs/en/prompt-caching</p>
 </div></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Informe de análisis · Versión 2.0 · 04/11/2026 · Decidido · Tarea 358</p><p>Informe de la tarea «Liberar antes al agente principal: deliberar qué delegar en agentes del plugin y qué en órdenes de cola.py» (358). Parte de sf:orquestacion, sf:flujo_tareas, cola.py y los avisos del mod en develop (sf 1.8.0), del historial de la cola, de las cinco últimas sesiones del principal en la SF y de la documentación oficial de Claude Code. Decidido por el propietario de la Software Factory (decisiones 282 y 283). La versión 1.0, titulada «Liberar al agente principal», está en _respaldo/.</p><p class="procedencia">Generado el 04/11/2026 18:43 · fuente Liberar al agente principal.md · huella 0036edb5cdb2 · commit b574b99 (con cambios sin commit)</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Informe de análisis · Versión 3.0 · 04/11/2026 · Propuesta · Tarea 358</p><p>Informe de la tarea «Liberar antes al agente principal: deliberar qué delegar en agentes del plugin y qué en órdenes de cola.py» (358). Parte de sf:orquestacion, sf:flujo_tareas, cola.py y los avisos del mod en develop, de las cinco últimas sesiones largas del principal en la SF y de la documentación oficial de Claude Code. Decide el propietario de la Software Factory. Las versiones anteriores, más amplias, están en _respaldo/.</p><p class="procedencia">Generado el 04/11/2026 18:47 · fuente Liberar al agente principal.md · huella 528b54a93640 · commit 811ede9 (con cambios sin commit)</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
