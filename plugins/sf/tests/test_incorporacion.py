@@ -125,9 +125,9 @@ class Incorporacion(unittest.TestCase):
             self.assertEqual(self.orden('ver')[0], 0)
 
     def test_clave_como_la_del_mod(self):
-        self.assertEqual(inc.clave(r'D:\Projectes\Contador/'), 'd__projectes_contador')
+        self.assertEqual(inc.clave(r'C:\Proyectos\Ejemplo/'), 'c__proyectos_ejemplo')
         self.assertEqual(inc.clave('/sf'), '_sf')
-        self.assertEqual(inc.clave('/home/Año'), '_home_a_o')
+        self.assertEqual(inc.clave('/srv/Año'), '_srv_a_o')
 
     def test_pasos_propios(self):
         self.orden('empezar', 'otro', '--pasos', 'Uno', 'Dos', '--raiz', str(self.proyecto))

@@ -6659,7 +6659,7 @@ test('Incorporación: una terminada de antes de cargar el mod se conserva, sin p
 })
 
 test('Incorporación: la clave del archivo de progreso es la de incorporacion.py (por proyecto)', () => {
-  expect(claveIncorporacion('D:\\Projectes\\Contador/')).toBe('d__projectes_contador')
+  expect(claveIncorporacion('C:\\Proyectos\\Ejemplo/')).toBe('c__proyectos_ejemplo')
   expect(claveIncorporacion('/sf')).toBe('_sf')
-  expect(claveIncorporacion('/home/Año')).toBe('_home_a_o')
+  expect(claveIncorporacion('/srv/Año')).toBe('_srv_a_o')
 })
