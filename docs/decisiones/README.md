@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 283 | 2026-11-04 | [Poner en curso y recoger una tarea con una sola orden](283-2026-11-04-poner-en-curso-y-recoger-una-tarea-con-una-sola-orden.md) |
 | 282 | 2026-11-04 | [Agentes del plugin, uno por familia de tarea](282-2026-11-04-agentes-del-plugin-uno-por-familia-de-tarea.md) |
 | 281 | 2026-11-04 | [Preguntas legibles: pregunta corta, el detalle antes en el chat en palabras llanas y opciones que dicen qué hacen](281-2026-11-04-preguntas-legibles-pregunta-corta-el-detalle-antes-en-el-chat-en-palabras-llanas-y-opciones-que-dicen-que-hacen.md) |
 | 280 | 2026-11-04 | [Migración al repositorio público: develop público, ramas de tarea locales y _respaldo/ públicos](280-2026-11-04-migracion-al-repositorio-publico-develop-publico-ramas-de-tarea-locales-y-respaldo-publicos.md) |
