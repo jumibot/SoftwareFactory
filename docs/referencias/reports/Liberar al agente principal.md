@@ -1,30 +1,35 @@
 ---
 antetitulo: Software Factory · Informe de análisis · Noviembre 2026
-lema: Menos idas y vueltas del principal; // órdenes antes que agentes.
-subtitulo: Dónde se le va el tiempo al agente principal al abrir, lanzar y recoger una tarea, qué permite Claude Code a los agentes de un plugin, qué ganaría cada opción (órdenes compuestas, agentes por familia, agente de la cola siempre vivo, orquestador delegado) y qué hay que decidir.
-version: Versión 1.0 · 04/11/2026
-estado: Propuesta · Tarea 358
+lema: Que el principal conteste antes; // órdenes para la cola, agentes para las tareas.
+subtitulo: El principal tarda en contestar al propietario porque se le va el tiempo en la cola, git y los encargos. Qué se midió, qué se puede delegar en agentes del plugin y qué en órdenes de cola.py, y lo que decidió el propietario.
+version: Versión 2.0 · 04/11/2026
+estado: Decidido · Tarea 358
 portada: oscura
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
 menu: secciones
 tipo: Informe de análisis
-pie: Informe de la tarea «Liberar antes al agente principal: deliberar qué delegar en agentes del plugin y qué en órdenes de cola.py» (358). Parte de sf:orquestacion, sf:flujo_tareas, cola.py y los avisos del mod en develop (sf 1.8.0), del historial de la cola, de las cinco últimas sesiones del principal en la SF y de la documentación oficial de Claude Code. Decide el propietario de la Software Factory.
+pie: Informe de la tarea «Liberar antes al agente principal: deliberar qué delegar en agentes del plugin y qué en órdenes de cola.py» (358). Parte de sf:orquestacion, sf:flujo_tareas, cola.py y los avisos del mod en develop (sf 1.8.0), del historial de la cola, de las cinco últimas sesiones del principal en la SF y de la documentación oficial de Claude Code. Decidido por el propietario de la Software Factory (decisiones 282 y 283). La versión 1.0, titulada «Liberar al agente principal», está en _respaldo/.
 ---
-# Liberar al agente principal
+# Que el principal responda antes: qué delegar en agentes y qué en órdenes
 
-## Resumen | Órdenes compuestas primero, agentes por familia después | Resumen {#resumen}
+## Resumen | El problema, la pregunta y lo decidido | Resumen {#resumen}
 
-Se propone liberar al principal con dos piezas, en este orden. Primero, dos órdenes compuestas en `cola.py`: `abrir N`, que hace de una vez lo que hoy son seis o siete llamadas, y `recoger N`, que hace las cuatro o cinco de la recogida. Después, tres agentes del plugin, uno por familia de tarea (código, deliberativas y documentales), con el encargo fijo dentro, para que el principal solo pase lo propio de la tarea.
+El agente principal tarda en contestar al propietario. Cada vez que pone una tarea en curso o recoge el trabajo de un subagente, encadena varias órdenes de la cola y de git, y en cada lanzamiento vuelve a escribir un encargo casi igual al anterior. Mientras tanto, el propietario espera, o su conversación se corta para que el principal acabe esas operaciones, y la SF pierde agilidad.
 
-El tiempo del principal no se va en `cola.py`, que tarda 1,4 s, sino en las idas y vueltas del modelo: cada llamada le cuesta unos 5 s de pensar y escribir, y la mitad de sus llamadas son de la cola. Un agente de la cola, aunque viva toda la sesión, no quita esas idas y vueltas: añade otra, la suya. Por eso la recomendación inicial se mantiene, también con el agente siempre vivo. Un orquestador delegado tampoco sirve: un subagente no puede preguntar al propietario.
+Medido en las últimas sesiones largas, la mitad de las llamadas del principal son a la cola, y abrir y recoger una tarea le cuestan entre medio minuto y un minuto de idas y vueltas. Lo que se quiere es que el principal quede libre antes, para contestar y atender al propietario mientras las tareas avanzan.
 
-Quedan seis preguntas, todas abiertas; salen dos tareas nuevas, la de «Agentes especializados, uno por familia de tarea» (304) pasa a ser la que los implementa, y la de la incorporación (353) se mantiene, detrás de ella.
+> **La pregunta que se delibera**
+> El propietario preguntó si un agente del plugin liberaría al principal: uno para las operaciones de la cola, o un orquestador completo, vivo durante toda la sesión, y si podía especializarse. ¿Qué conviene sacar del principal, y adónde: a agentes del plugin o a órdenes de `cola.py` que hagan de una vez lo que hoy son varias?
+
+Lo decidido son dos piezas. Poner en curso una tarea lo hace todo de una vez, y recoger el trabajo de su subagente es una sola orden, que el subagente deja escrita al final de su informe («Poner en curso y recoger una tarea con una sola orden», decisión 283). Y el plugin lleva un agente por familia de tarea, con el encargo fijo dentro y sus skills precargadas («Agentes del plugin, uno por familia de tarea», decisión 282).
+
+Se descartan el agente de la cola siempre vivo y el orquestador fuera del principal. El tiempo no se va en `cola.py` (1,4 s), sino en los turnos del modelo entre una orden y otra; un agente en medio no los quita, añade los suyos, y un subagente no puede preguntar al propietario. No queda ninguna pregunta abierta: sale la tarea «Poner en curso y recoger una tarea con una sola orden» (360), la 304 pasa a implementar los agentes y la 353 sigue en cola, detrás.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 590" width="100%" role="img" aria-label="Abrir una tarea de código: hoy siete llamadas (en-curso, choques, rama sin activar, worktree, subagente, encargo y lanzar con encargo largo); propuesto, cola.py abrir N y lanzar el agente de su familia. Recoger: hoy revisar el diff, merge ff-only, informe, marcar pasos y listo; propuesto, revisar el diff y cola.py recoger N." style="font-family:var(--fuente-texto);display:block">
+<svg viewBox="0 0 560 590" width="100%" role="img" aria-label="Abrir una tarea de código: hoy siete llamadas (en-curso, choques, rama sin activar, worktree, subagente, encargo y lanzar con encargo largo); decidido, cola.py en-curso N, que lo hace todo, y lanzar el agente de su familia. Recoger: hoy revisar el diff, merge ff-only, informe, marcar pasos y listo; decidido, revisar el diff y cola.py recoger N." style="font-family:var(--fuente-texto);display:block">
 <text x="10" y="24" font-size="18" font-weight="700" style="fill:var(--oscuro)">Hoy</text>
-<text x="300" y="24" font-size="18" font-weight="700" style="fill:var(--texto-suave)">Propuesto</text>
+<text x="300" y="24" font-size="18" font-weight="700" style="fill:var(--texto-suave)">Decidido</text>
 <text x="10" y="62" font-size="15" font-weight="700" style="fill:var(--texto-suave)">Abrir una tarea de código</text>
 <g font-size="15" style="fill:var(--texto)">
 <rect x="10" y="75" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="95">en-curso N</text>
@@ -34,7 +39,7 @@ Quedan seis preguntas, todas abiertas; salen dos tareas nuevas, la de «Agentes 
 <rect x="10" y="227" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="247">subagente N --worktree …</text>
 <rect x="10" y="265" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="285">encargo N</text>
 <rect x="10" y="303" width="250" height="30" rx="6" fill="none" style="stroke:var(--primario)" stroke-width="1.5"/><text x="22" y="323">lanzar, con encargo largo</text>
-<rect x="300" y="75" width="250" height="220" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="425" y="180" text-anchor="middle" font-weight="700">cola.py abrir N</text><text x="425" y="202" text-anchor="middle" style="fill:var(--texto-suave)">una llamada, sin modelo</text>
+<rect x="300" y="75" width="250" height="220" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="425" y="180" text-anchor="middle" font-weight="700">cola.py en-curso N</text><text x="425" y="202" text-anchor="middle" style="fill:var(--texto-suave)">lo hace todo, sin modelo</text>
 <rect x="300" y="303" width="250" height="30" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="312" y="323">lanzar sf:codigo, encargo corto</text>
 </g>
 <text x="10" y="372" font-size="15" font-weight="700" style="fill:var(--texto-suave)">Recoger su trabajo</text>
@@ -48,10 +53,10 @@ Quedan seis preguntas, todas abiertas; salen dos tareas nuevas, la de «Agentes 
 <rect x="300" y="423" width="250" height="144" rx="6" fill="none" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="6 4"/><text x="425" y="490" text-anchor="middle" font-weight="700">cola.py recoger N</text><text x="425" y="512" text-anchor="middle" style="fill:var(--texto-suave)">la línea la deja el subagente</text>
 </g>
 </svg>
-<figcaption>Lo que hace hoy el principal al abrir y al recoger una tarea de código, y lo que quedaría con las dos órdenes compuestas y el agente de su familia.</figcaption>
+<figcaption>Lo que hace hoy el principal al abrir y al recoger una tarea de código, y lo que queda con lo decidido: una orden para cada momento y el agente de su familia.</figcaption>
 </figure>
 
-[Ver las seis preguntas](#por-decidir){: .salto} [Ver las tareas que salen](#tareas){: .salto}
+[Ver lo decidido](#decidido){: .salto} [Ver las tareas que salen](#tareas){: .salto}
 
 ## Medición | Dónde se le va el tiempo al principal | Medición {#medicion}
 
@@ -84,10 +89,10 @@ Un encargo mide 2.243 caracteres de mediana (134 lanzamientos); la parte que da 
 
 El historial confirma que el principal ya encadena las órdenes de la cola en una sola llamada cuando puede: entre poner en curso y anotar el subagente pasan 4,5 s de mediana, y entre el informe y `listo`, 1 s. Lo caro no es esperar a `cola.py`, sino componer cada vez la cadena correcta, leer su salida y, cuando falla, repetirla.
 
-| Momento | Órdenes hoy | Llamadas del principal | Con la propuesta |
+| Momento | Órdenes hoy | Llamadas del principal | Con lo decidido |
 | --- | --- | --- | --- |
-| Abrir una de código | `en-curso`, `choques`, `rama --sin-activar`, `git worktree add -b sub-N`, `subagente`, `encargo`, lanzar | 4 a 7, más un encargo de ≈ 600 tokens | `abrir N` y lanzar con un encargo corto: 2 |
-| Abrir una deliberativa | `en-curso`, `encargo`, lanzar | 2 o 3 | `abrir N` y lanzar: 2 |
+| Abrir una de código | `en-curso`, `choques`, `rama --sin-activar`, `git worktree add -b sub-N`, `subagente`, `encargo`, lanzar | 4 a 7, más un encargo de ≈ 600 tokens | `en-curso N` y lanzar con un encargo corto: 2 |
+| Abrir una deliberativa | `en-curso`, `encargo`, lanzar | 2 o 3 | `en-curso N` y lanzar: 2 |
 | Recoger | revisar el diff, `merge --ff-only`, `informe`, `paso marcar` por paso, `listo` | 3 a 6 | revisar el diff y `recoger N …`: 2 |
 | Cerrar | `cerrar` (ya recoge worktree y rama auxiliar) | 1 | igual |
 | Encargos sobre la tarea | `SendMessage` al subagente vivo | 1 | igual |
@@ -141,6 +146,9 @@ Las órdenes compuestas quitan idas y vueltas sin poner ningún modelo en medio;
 
 `abrir N` (en curso, choques, rama sin activar, worktree y rama `sub-N`, anotar el subagente y dar el encargo; en una deliberativa, solo en curso y encargo) y `recoger N --pasos 2,3 --listo "qué mirar"` (traer `sub-N` con `--ff-only`, anotar el informe, marcar pasos y dejar lista).
 
+Decidido
+:   Sin orden nueva para abrir: lo hace `en-curso N`. `recoger N` sí es nueva (decisión 283).
+
 Gana
 :   De 4-7 llamadas a 1 al abrir y de 3-6 a 1 al recoger; sin errores de sintaxis en cadenas largas; lo mismo sirve al panel.
 
@@ -150,6 +158,9 @@ Cuesta
 ### Agentes del plugin por familia {icono=rama} {: #o-familias}
 
 `sf:codigo`, `sf:deliberativa` y `sf:documental`, con las reglas fijas del encargo en su cuerpo, sus skills precargadas y, como primer paso, leer `cola.py encargo N` para lo variable (worktree, coautoría, convenciones, Python).
+
+Decidido
+:   Sí: tres agentes, uno por familia (decisión 282).
 
 Gana
 :   El encargo del principal baja de ≈ 2.200 a ≈ 400 caracteres; las reglas viven en un sitio y se versionan con el plugin; cada familia, su forma de trabajar (decisión «Siete tipos de tarea en tres familias», 223).
@@ -161,6 +172,9 @@ Cuesta
 
 Un subagente lanzado al empezar la sesión que recibe por `SendMessage` cada operación de la cola y la ejecuta.
 
+Decidido
+:   No: descartado (decisiones 282 y 283).
+
 Gana
 :   Sin coste de arrancar ni de explicarle el contexto en cada operación; puede trabajar en segundo plano mientras el principal habla.
 
@@ -170,6 +184,9 @@ Cuesta
 ### Orquestador delegado {icono=lupa} {: #o-orquestador}
 
 Un subagente que lleva la cola, lanza los de las tareas y los recoge; el principal solo conversa.
+
+Decidido
+:   No: el principal sigue orquestando (decisión 282).
 
 Gana
 :   El principal tendría el contexto limpio para el propietario.
@@ -183,7 +200,7 @@ Cuesta
 
 Que el agente esté vivo todo el rato quita su arranque y la explicación del contexto, que era la objeción más fácil. No quita la objeción de fondo: entre el principal y `cola.py` sigue habiendo un modelo más.
 
-| | `cola.py abrir N` | Agente de la cola vivo |
+| | `cola.py en-curso N` | Agente de la cola vivo |
 | --- | --- | --- |
 | Llamadas del principal | 1 | 1 (`SendMessage`) y leer la notificación |
 | Turnos de modelo en medio | 0 | 1 o 2 del agente |
@@ -193,19 +210,28 @@ Que el agente esté vivo todo el rato quita su arranque y la explicación del co
 | Trabajar mientras el principal habla | sí, si se lanza en segundo plano | sí |
 | Reglas de la cola | igual que hoy | cambia quién escribe la cola |
 
-Su única ventaja propia, trabajar en segundo plano, no compensa: casi toda operación de la cola da algo que el principal necesita al momento (el número nuevo, un choque, un rechazo), y una orden de 1,4 s no merece ir aparte. La recomendación inicial del principal se mantiene.
+Su única ventaja propia, trabajar en segundo plano, no compensa: casi toda operación de la cola da algo que el principal necesita al momento (el número nuevo, un choque, un rechazo), y una orden de 1,4 s no merece ir aparte. La recomendación inicial del principal se mantuvo, y el propietario la aceptó.
 
 ### El principal como agente del plugin
 
 Hay una variante que no delega nada: fijar en el `settings.json` del plugin el ajuste `agent`, para que el principal arranque como un agente `sf:orquestador` con la orquestación en su prompt. Ahorraría que el mod la entregue al empezar, tras `/clear` y tras compactar. Pero sustituye el prompt de sistema de Claude Code, se impondría en todos los proyectos que instalen la SF y no está documentado del todo: si se quiere, es una investigación aparte, no parte de esta propuesta.
 
-## Por decidir | Las preguntas para el propietario | Por decidir {#por-decidir}
+## Decidido | Lo que fija esta tarea | Decidido {#decidido}
 
-Seis preguntas, por importancia. Las dos primeras dan las tareas que salen; las otras fijan sus límites.
+El propietario aceptó las recomendaciones de las seis preguntas. Dos decisiones las recogen; la de las tareas 304 y 353 se aplica en la cola.
+
+| Nº | Decisión | Qué fija aquí |
+| --- | --- | --- |
+| 282 | Agentes del plugin, uno por familia de tarea | Tres agentes (código, deliberativa y documental) con el encargo fijo dentro y sus skills; leen lo propio con `cola.py encargo N` ([pregunta 2](#p2)). Descarta el agente de la cola y el orquestador aparte ([preguntas 4](#p4) y [5](#p5)). |
+| 283 | Poner en curso y recoger una tarea con una sola orden | `en-curso N` hace todo, sin orden nueva; `recoger N` trae el trabajo, anota el informe, marca los pasos y deja la tarea lista; el subagente deja la orden escrita ([preguntas 1](#p1) y [3](#p3)). |
+
+## Preguntas | Las preguntas y lo que se eligió | Preguntas {#por-decidir}
+
+Las seis preguntas, por importancia, todas decididas con la opción recomendada. La primera, con un matiz: no hay orden nueva para abrir.
 
 ::: preguntas 2 plegables
 
-### 1 · Órdenes compuestas para abrir y recoger {recomendada=A icono=codigo} {: #p1}
+### 1 · Órdenes compuestas para abrir y recoger {estado=decidida elegida=A recomendada=A icono=codigo} {: #p1}
 
 Hoy abrir una tarea de código son 4-7 llamadas del principal y recogerla, 3-6.
 
@@ -221,7 +247,10 @@ Opción C
 Recomendación
 :   **A.** Es lo que más tiempo libera y no pone ningún modelo en medio («Comandos antes que inferencia»). Revisar el diff sigue antes de `recoger`.
 
-### 2 · Agentes del plugin por familia de tarea {recomendada=A icono=rama} {: #p2}
+Decisión
+:   **A, con un matiz:** no hay orden nueva para abrir; `en-curso N` lo hace todo (estado, rama, worktree con su rama auxiliar y anotar el subagente). Recoger, `cola.py recoger N`. Decisión 283.
+
+### 2 · Agentes del plugin por familia de tarea {estado=decidida elegida=A recomendada=A icono=rama} {: #p2}
 
 El encargo fijo es el 84 % de lo que el principal escribe al lanzar.
 
@@ -237,7 +266,10 @@ Opción C
 Recomendación
 :   **A.** Es lo decidido en «Siete tipos de tarea en tres familias» (223) y permite skills y modelo propios de cada familia.
 
-### 3 · La línea de recogida, del subagente {recomendada=A icono=check} {: #p3}
+Decisión
+:   **A.** Tres agentes, uno por familia. Decisión 282.
+
+### 3 · La línea de recogida, del subagente {estado=decidida elegida=A recomendada=A icono=check} {: #p3}
 
 Para recoger, el principal tiene que deducir qué pasos marcar y qué probar.
 
@@ -250,7 +282,10 @@ Opción B
 Recomendación
 :   **A.** El subagente sabe qué hizo; el principal solo comprueba el diff y la línea.
 
-### 4 · Un agente de la cola siempre vivo {recomendada=A icono=dialogo} {: #p4}
+Decisión
+:   **A.** El subagente deja la orden de recogida al final de su informe; el principal revisa el diff y la lanza. Decisión 283.
+
+### 4 · Un agente de la cola siempre vivo {estado=decidida elegida=A recomendada=A icono=dialogo} {: #p4}
 
 Lanzado al empezar la sesión y vivo hasta el final, recibiría cada operación por mensaje.
 
@@ -263,7 +298,10 @@ Opción B
 Recomendación
 :   **A.** Cada operación sería de 2 a 3 veces más lenta y su contexto crecería sin aportar nada que el CLI no dé.
 
-### 5 · Un orquestador fuera del principal {recomendada=A icono=lupa} {: #p5}
+Decisión
+:   **A, no.** Descartado en las decisiones 282 y 283.
+
+### 5 · Un orquestador fuera del principal {estado=decidida elegida=A recomendada=A icono=lupa} {: #p5}
 
 El principal sigue hablando con el propietario en cualquier caso.
 
@@ -279,7 +317,10 @@ Opción C
 Recomendación
 :   **A.** Un subagente no puede preguntar al propietario; la B no libera tiempo, solo cambia cómo llegan las reglas.
 
-### 6 · Qué hacer con las tareas 304 y 353 {recomendada=A icono=documento} {: #p6}
+Decisión
+:   **A, no.** El principal sigue orquestando. Descartado en la decisión 282.
+
+### 6 · Qué hacer con las tareas 304 y 353 {estado=decidida elegida=A recomendada=A icono=documento} {: #p6}
 
 «Agentes especializados, uno por familia de tarea» (304) y «Valorar un agente del plugin para la incorporación de proyectos a la SF» (353) están en cola, las dos de deliberar.
 
@@ -295,36 +336,39 @@ Opción C
 Recomendación
 :   **A.** La 304 ya tiene su deliberación aquí; la 353 es otro alcance (sin tarea y con menús al propietario, que un agente no puede hacer).
 
+Decisión
+:   **A.** La 304 pasa a implementar los agentes; la 353 sigue en cola, detrás de ella.
+
 :::
 
 ## Tareas | Las tareas que salen | Tareas {#tareas}
 
-Si se aceptan las recomendaciones, salen estas tareas. Van en este orden: los agentes leen el encargo que da la primera.
+Salen de lo decidido, en este orden: los agentes leen el encargo que deja la primera.
 
 | Tarea | Tipo | Qué hace |
 | --- | --- | --- |
-| Abrir y recoger una tarea con una sola orden | implementar | `cola.py abrir N` y `recoger N --pasos --listo` ([pregunta 1](#p1)); el encargo pide al subagente la línea de recogida ([pregunta 3](#p3)); pone al día `sf:flujo_tareas`, `estados.md`, `sf:orquestacion` y el aviso del mod que dice cómo recoger. |
+| Poner en curso y recoger una tarea con una sola orden (360) | implementar | `en-curso N` hace todo y `recoger N --pasos --listo` es nueva ([pregunta 1](#p1)); el encargo pide al subagente la línea de recogida ([pregunta 3](#p3)); pone al día `sf:flujo_tareas`, `estados.md`, `sf:orquestacion` y el aviso del mod que dice cómo recoger. |
 | Agentes especializados, uno por familia de tarea (304) | implementar | Pasa de deliberar a implementar: `agents/codigo.md`, `deliberativa.md` y `documental.md`; `cola.py encargo` da solo lo variable; la orquestación lanza el de la familia ([pregunta 2](#p2)). |
-| Valorar un agente del plugin para la incorporación de proyectos a la SF (353) | deliberar | Sigue, detrás de la 304 ([pregunta 6](#p6)). |
+| Valorar un agente del plugin para la incorporación de proyectos a la SF (353) | deliberar | Sigue en cola, detrás de la 304 ([pregunta 6](#p6)). |
 | Actualizar Cómo funciona la Software Factory | documentar | Paso «Reflejar «Liberar al agente principal» (358)»: la pieza `agents/` y las dos órdenes. |
 | Actualizar la metodología, la plantilla y el CLAUDE.md | documentar | El mismo paso, con el texto del anexo. |
 
 ## Anexo | Texto propuesto para los documentos compartidos | Anexo {#anexo}
 
-Para las tareas «Actualizar…», una vez hechas las dos de implementar.
+Para las tareas «Actualizar…», una vez hechas la 360 y la 304.
 
 #### Cómo funciona la Software Factory (piezas del plugin)
 
 > **Agentes del plugin**
-> `agents/` trae un agente por familia de tarea: `sf:codigo`, `sf:deliberativa` y `sf:documental`. Cada uno lleva en su prompt las reglas fijas del encargo y sus skills precargadas, y lee lo variable con `cola.py encargo N`. El principal los lanza al poner la tarea en curso, con `cola.py abrir N`, y los recoge con `cola.py recoger N`.
+> `agents/` trae un agente por familia de tarea: `sf:codigo`, `sf:deliberativa` y `sf:documental`. Cada uno lleva en su prompt las reglas fijas del encargo y sus skills precargadas, y lee lo variable con `cola.py encargo N`. El principal los lanza al poner la tarea en curso con `cola.py en-curso N`, que deja hechos la rama, el worktree y la rama auxiliar, y los recoge con `cola.py recoger N`.
 
 #### CLAUDE.md de la SF (regla «Orquestación con subagentes»)
 
-> Orquestación con subagentes: el principal habla con el propietario y lleva la cola; toda tarea en curso tiene su subagente, el agente del plugin de su familia, que hace todo su trabajo. Abrir y recoger una tarea son una orden de `cola.py` cada uno (`abrir N`, `recoger N`). Las reglas, en `sf:orquestacion`.
+> Orquestación con subagentes: el principal habla con el propietario y lleva la cola; toda tarea en curso tiene su subagente, el agente del plugin de su familia, que hace todo su trabajo. Poner en curso una tarea y recoger su subagente son una orden de `cola.py` cada uno (`en-curso N`, `recoger N`). Las reglas, en `sf:orquestacion`.
 
 #### Metodología («Ramas y subagentes»)
 
-> Cada tarea en curso se trabaja con el agente del plugin de su familia (código, deliberativas o documentales). `cola.py abrir N` la pone en curso con su rama, su worktree y su rama auxiliar, y da el encargo; `cola.py recoger N` trae el trabajo, anota el informe y marca los pasos.
+> Cada tarea en curso se trabaja con el agente del plugin de su familia (código, deliberativas o documentales). `cola.py en-curso N` la pone en curso con su rama, su worktree y su rama auxiliar, y da el encargo; `cola.py recoger N` trae el trabajo, anota el informe y marca los pasos.
 
 ::: fuentes
 
