@@ -8,6 +8,8 @@ Una skill ayuda a fijar esos parámetros. Cuando un proyecto necesita documentos
 
 El estilo se puede seguir afinando a medida que avanza el proyecto.
 
+El generador es una pieza que evoluciona: gana parámetros y refinamientos a lo largo de su uso.
+
 En la Software Factory, el estilo de partida es el del informe deliberativo «Un estilo de documentos por proyecto» (385).
 
 Tarea: «Que cada proyecto tenga un solo estilo de documentos: una base común de maquetación para todas las skills de documentos» (385).
