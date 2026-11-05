@@ -370,6 +370,12 @@ async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = 
         guardar()
         return { ok: true, mensaje: `Limpiadas ${String(salen.length)}.` }
       }
+      case 'en-curso':
+        if (t?.estado !== 'en-cola') return no(`La ${String(n)} no está en cola.`)
+        t.estado = 'en-curso'
+        anotar(t, 'en-curso')
+        guardar()
+        return { ok: true, mensaje: `La ${String(n)}, en curso.` }
       case 'probar': {
         const rama = t!.rama as string
         archivos['/sf/.git/HEAD'] = `ref: refs/heads/${rama}\n`
@@ -2548,6 +2554,55 @@ test('A propuesta: si entretanto le han puesto rama, no la pasa', async (...m) =
   await ui.press({ key: 'propuesta-tarea:cola:7' })
   expect(colas).toEqual([])
   expect(idsCola(archivos)).toEqual([1, 6, 7, 8, 2])
+  await ui.unmount()
+})
+
+// Poner en curso (tarea 373): en Pendientes, en las en cola; un clic, cola.py en-curso y el encargo a Claude de lanzar
+// su subagente.
+test('Poner en curso: solo en las en cola de Pendientes, y la primera de su fila', async (...m) => {
+  await preparar(m, { desplegadas: true, cola: ELIMINABLES, reloj: true })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  for (const k of ['cola:7', 'cola:8']) expect(await hay(ui, { type: 'Button', key: `en-curso-tarea:${k}`, text: /^ Poner en curso $/ })).toBe(true)
+  for (const k of ['arriba:1', 'arriba:6', 'observacion:2']) expect(await ui.find({ type: 'Button', key: `en-curso-tarea:${k}` })).toBe(undefined)
+  const botones = ((await ui.findAll({ type: 'Button' })) as { props: { key?: string } }[]).map(b => String(b.props.key ?? '')).filter(k => k.endsWith('-tarea:cola:7'))
+  expect(botones[0]).toBe('en-curso-tarea:cola:7')
+  await ui.unmount()
+})
+
+test('desktop: Poner en curso, en una caja llena de verde con su texto como label', async (...m) => {
+  await preparar(m, { desplegadas: true, cola: ELIMINABLES, reloj: true })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  expect((await cajaDe(ui, 'en-curso-tarea:cola:7'))?.props.backgroundColor).toBe('#15803d')
+  expect(((await ui.find({ type: 'Button', key: 'en-curso-tarea:cola:7' })) as { props: { label?: string } } | undefined)?.props.label).toBe('Poner en curso')
+  await ui.unmount()
+})
+
+test('Poner en curso: un clic la pasa a en curso con cola.py y pide a Claude que lance su subagente', async (...m) => {
+  const { archivos, colas, toasts, prompts, reloj } = await preparar(m, { desplegadas: true, cola: ELIMINABLES, reloj: true })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  await ui.press({ key: 'en-curso-tarea:cola:7' })
+  expect(colas).toEqual(['en-curso 7'])
+  expect(estadoEnCola(archivos, 7)).toBe('en-curso')
+  expect(eventosDe(archivos, 7)).toEqual(['en-curso'])
+  expect(toasts).toContain('La 7, en curso. Le pido a Claude que lance su subagente.')
+  await reloj!.advance(100)
+  const pedido = prompts.find(t => t.startsWith('He puesto en curso la 7 («En cola sin empezar») desde el panel. Mira antes los choques'))
+  expect(pedido).toContain('cola.py" choques 7`')
+  expect(pedido).toContain('lanza ahora su subagente («Tarea 7: …»)')
+  // Ya en curso, sale de Pendientes y su botón se va.
+  expect(await ui.find({ type: 'Button', key: 'en-curso-tarea:cola:7' })).toBe(undefined)
+  await ui.unmount()
+})
+
+test('Poner en curso: si entretanto ya no está en cola, no llama a cola.py ni a Claude', async (...m) => {
+  const { archivos, colas, toasts, prompts, reloj } = await preparar(m, { desplegadas: true, cola: ELIMINABLES, reloj: true })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  archivos[COLA] = JSON.stringify({ peticiones: ELIMINABLES.map(p => (p.id === 7 ? { ...p, estado: 'en-curso' } : p)) })
+  await ui.press({ key: 'en-curso-tarea:cola:7' })
+  await reloj!.advance(100)
+  expect(colas).toEqual([])
+  expect(prompts).toHaveLength(0)
+  expect(toasts.some(t => t.includes('La 7 ya no está en cola'))).toBe(true)
   await ui.unmount()
 })
 
@@ -5893,6 +5948,19 @@ test('Avisos de subagentes: el de lanzar va el primero, antes de lo cambiado des
   const c = contextos.at(-1)!
   expect(c[0]).toMatch(/^ANTES DE NADA, en este turno y antes de contestar: lanza el subagente de cada tarea en curso que no lo tiene: la 13 /)
   expect(c[1]).toMatch(/^Desde el panel: /)
+})
+
+test('Avisos de subagentes: tras Poner en curso del panel, el siguiente mensaje manda lanzar el de esa tarea (373)', async (...m) => {
+  const agentes: Agente[] = [{ description: 'Tarea 1: panel', status: 'running' }, { description: 'Tarea 6: algo', status: 'running' }]
+  const { contextos, reloj } = await preparar(m, { desplegadas: true, cola: ELIMINABLES, reloj: true, agentes })
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)).toBe(undefined)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  await ui.press({ key: 'en-curso-tarea:cola:7' })
+  await reloj!.advance(100)
+  await escribe(m, 'sigue')
+  expect(contextos.at(-1)?.[0]).toBe(LANZA([7]))
+  await ui.unmount()
 })
 
 test('Avisos de subagentes: el que termina pide recogerlo, en su notificación; con el informe anotado, nada; si vuelve a trabajar y termina, otra vez', async (...m) => {

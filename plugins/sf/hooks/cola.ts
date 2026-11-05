@@ -277,6 +277,29 @@ export async function aPropuestaTarea($: $, id: number, textoTarea: string): Pro
   return { ok: r.ok, mensaje: r.ok ? r.mensaje : `A propuesta: ${r.mensaje}` }
 }
 
+// Poner en curso (tarea 373): una tarea en cola pasa a en curso desde Pendientes con un clic, sin confirmar (se
+// deshace con «cola.py en-cola»), con «cola.py en-curso». Después se le pide a Claude que mire los choques, como al
+// ponerla en curso él, y que lance su subagente: el aviso
+// del mod de las en curso sin subagente va con cada mensaje del propietario, y el encargo no lo lleva (el mod no ve
+// los prompts que envía); si Claude no lo atiende, ese aviso lo recuerda en el siguiente mensaje.
+export function ponibleEnCurso(p: { estado?: unknown }): boolean {
+  return p.estado === 'en-cola'
+}
+export async function enCursoTarea($: $, id: number, textoTarea: string): Promise<Resultado> {
+  if (!(await tareaVigente($, id, textoTarea, ponibleEnCurso)))
+    return { ok: false, mensaje: `La ${String(id)} ya no está en cola: ha cambiado en la cola.` }
+  const r = await cambiarCola($, ['en-curso', String(id)])
+  if (!r.ok) return { ok: false, mensaje: `Poner en curso: ${r.mensaje}` }
+  const pedido =
+    `He puesto en curso la ${String(id)} («${textoTarea}») desde el panel. ` +
+    `Mira antes los choques con \`${ordenColaClaude()} choques ${String(id)}\`: si comparte archivos con otra en curso o en observación, dime con cuál y espera mi OK. ` +
+    `Si no, lanza ahora su subagente («Tarea ${String(id)}: …») y dime en una línea qué va a hacer.`
+  $.clock.after(50, () => {
+    void encargarAClaude($, pedido).catch(err => emergenteError($, `Poner en curso: no se pudo avisar a Claude (${String(err)}).`))
+  })
+  return { ok: true, mensaje: `${r.mensaje} Le pido a Claude que lance su subagente.` }
+}
+
 // Se cierra con la C una tarea en curso que tiene «Cerrar la tarea» y ningún otro paso sin hacer, salvo el de prueba,
 // que la C marca hecho, y las ayudas de prueba, que no se exigen; sin pasos, no hay C (decisiones del propietario,
 // 2026-10-29, 172 y 184). Con rama, la rama debe existir; sin rama, también, sin squash ni commit (188).

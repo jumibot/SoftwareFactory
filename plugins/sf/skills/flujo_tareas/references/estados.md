@@ -97,8 +97,8 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 #### 03 · Poner en curso
 
 - **De → a:** `en-cola` → `en-curso`, con los pasos de cierre, «Activar rama para poder probar» y «Cerrar la tarea», pendientes (174): se añaden al final los que falten, sin repetirlos. Una deliberativa (investigar, deliberar, diseñar) sin rama, solo con «Cerrar la tarea»: no se prueba (218, 278).
-- **Cuándo:** el propietario pregunta por ella o la elige; o pulsa Activar rama en una tarea en cola; o pulsa TURBO y la tarea se puede hacer sin interactuar con él (160).
-- **Quién:** principal; panel con Activar rama.
+- **Cuándo:** el propietario pregunta por ella o la elige; o pulsa Poner en curso (373) o Activar rama en una tarea en cola; o pulsa TURBO y la tarea se puede hacer sin interactuar con él (160).
+- **Quién:** principal; panel con Poner en curso o Activar rama. Con Poner en curso, el panel pide al principal que mire los choques y lance el subagente; si no lo hace, el aviso de las en curso sin subagente se lo recuerda en cada mensaje.
 - **Autorización:** la pregunta del propietario basta, salvo choque: antes, el principal ejecuta `cola.py choques 87` (con `--archivos` y los previstos si aún no tiene rama); si comparte archivos con otra en curso o en observación, dice con cuál y cuáles, recomienda esperar o fusionarlas y sigue solo con el OK del propietario. No al lanzar subagentes de tareas ya en curso.
 - **Repositorio:** nada; con Activar rama, `git switch` (ver 15).
 - **Panel:** sube arriba, en amarillo; conserva A o H.

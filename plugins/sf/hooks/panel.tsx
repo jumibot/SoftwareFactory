@@ -1,7 +1,7 @@
 import { atom, read, update } from 'claude-code'
 import type { Register, RenderChildren } from 'claude-code'
 import type { Actualizacion, Cerrada, Estado, FuenteVersion, Incorporacion, Paso, Peticion, Prueba, Sesion, VistaIncorporacion } from '../types'
-import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, observable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, refrescar, eliminable, eliminarTarea, enCursoOObservando, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
+import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, observable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, refrescar, eliminable, eliminarTarea, enCursoOObservando, enCursoTarea, ponibleEnCurso, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
 import { CLAVE_PLEGADO, COLORES, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO, RGB } from './constantes'
 import { COLOR_MARCA, COLOR_MARCA_CLARO, DESPUES, LEMA, LETRA_MARCA, NOMBRE, NOMBRE_ANCHO, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
 import { ANCHO_LOGO, COLOR_BARRA, COLOR_LETRAS, logoSvg, logoTexto } from './logo'
@@ -579,7 +579,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Las órdenes de una tarea, en un menú de etiquetas en la primera fila de la tarea desplegada (decisión 168;
     // antes, letras a la derecha de la línea plegada). Cada una, con el estilo de las etiquetas de la cabecera: su
     // nombre, con mayúscula inicial, sin negrita (las de la cabecera, sí), sobre su fondo propio (FONDO_ORDEN); las de la tarea en verde, salvo las
-    // que destruyen, en rojo. Si no caben en una fila, siguen en la siguiente. Primero las de la tarea: Activar rama,
+    // que destruyen, en rojo. Si no caben en una fila, siguen en la siguiente. Primero las de la tarea: Poner en curso
+    // (373), Activar rama,
     // Cerrar, A observación (o Cerrar en observación, 241), Redescribir, «?» (254), A propuesta (243) y la que destruye (Eliminar, Descartar o Revertir); después, las de sus pasos: Separar pasos
     // y Paso +, al final y con la letra atenuada, para distinguirlas de las de la tarea (decisión 168, precisada por el
     // propietario el 2026-11-01).
@@ -688,6 +689,14 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           .then(r => emergenteRespuesta($, r))
           .catch(err => emergenteError($, `No se pudo activar la rama de la ${String(p.id)}: ${String(err)}`))
       })
+    // Poner en curso (tarea 373), en Pendientes, en las en cola: la pasa a en curso con cola.py, con un clic y sin
+    // confirmar, como Activar rama (se deshace devolviéndola a la cola), y pide a Claude que lance su subagente.
+    const botonEnCurso = (p: Peticion, donde: string) =>
+      etiquetaOrden(`en-curso-tarea:${donde}:${p.id}`, 'success', 'Poner en curso', () => {
+        void enCursoTarea($, p.id, p.texto)
+          .then(r => emergenteRespuesta($, r))
+          .catch(err => emergenteError($, `No se pudo poner en curso la ${String(p.id)}: ${String(err)}`))
+      })
     // Redescribir y Paso +, las órdenes que antes solo eran comandos (decisión 168): las dos acaban en Claude. Redescribir, en las que tienen descripción: lo mismo que /sf_redescribir N. Paso +, en las en
     // curso o en prueba, las de arriba: deja «/sf_paso N » en el prompt para escribir el paso, como /sf_paso N texto.
     const botonRedescribir = (p: Peticion, donde: string) =>
@@ -730,6 +739,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       // Dos filas: la de las órdenes de la tarea y, debajo, la de las de sus pasos (petición del propietario,
       // 2026-11-01). Una fila sin órdenes no se pinta.
       const deTarea = [
+        donde === 'cola' && ponibleEnCurso(p) ? botonEnCurso(p, donde) : null,
         conProbar(p) ? botonProbar(p, donde) : null,
         enCola && conCerrar(p) ? botonAccion(p, donde, 'cerrar') : null,
         enCola && conCerrar(p) && observable(p) ? botonAccion(p, donde, 'aObservacion') : null,
