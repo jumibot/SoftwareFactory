@@ -59,6 +59,8 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 - **Descartes con contexto** (propietario, 2026-11-03, tarea 324): se proponía descartar una tarea duplicada citándola por su número, y el propietario no recuerda cada tarea por su número; con qué pedía, dónde quedó hecha y qué supone, decide sin buscarla.
 - **«Ciérrala» sin número, la rama activa** (095): se cerró otra tarea tras un cambio de rama.
 - **La pregunta de «¿Cómo va?»** por las en observación (050, 051, 204): el menú anterior mezclaba tareas y no decía qué era cada una; se cierra o se revierte, en el lenguaje de la SF.
+- **Cambios, comprobaciones y pendientes reales al acabar** (regla del `CLAUDE.md` de la SF y del informe de los subagentes): no viajaba al principal de los proyectos, que daba por hechas operaciones y verificaciones sin confirmarlas.
+- **Cada comprobación, paso hecho de su tarea** («Las comprobaciones y pruebas hechas se anotan como pasos de su tarea», 288): el propietario quiere ver en el panel, mirando la tarea, qué se ha comprobado de verdad, sin buscarlo en los informes ni fiarse de un resumen. Por eso el encargo pide «Lo comprobado» en lista, una línea por comprobación, lista para pasar a pasos. Una sola orden, `comprobado`, añade el paso ya hecho y no devuelve a pendiente «Activar rama para poder probar»: anotarlo tras la prueba del propietario no le obliga a probar otra vez. El campo `comprobado` de la tarea se retiró: un solo sitio, sin dos versiones.
 - **Un cierre que falla pasa a Claude** (111).
 
 ## Fusionar, separar y redescribir

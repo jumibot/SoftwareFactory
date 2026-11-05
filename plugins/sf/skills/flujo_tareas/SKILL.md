@@ -39,6 +39,7 @@ El CLI aplica las condiciones de cada cambio (estado de partida, rama, pasos, gi
 - **La firma de los commits** («La firma del commit de cierre es configurable; sin configurar, sin línea», 238): el squash de `cerrar` y `a-observacion`, el commit de `decision` y el de la versión de RELEASE llevan la línea de `coautor` de `.sf/proyecto.json` (en la propia SF, que no tiene ese archivo, la suya: `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`). `cerrar`, `a-observacion`, `decision` y `encargo` aceptan `--coautor "…"`, que manda sobre la configurada. Sin ninguna, los commits van sin línea de coautoría, y el encargo lo dice así al subagente.
 - **Decisiones del propietario**: `decision "Título" --archivo RUTA|--texto T [--numero NNN] [--coautor "Co-Authored-By: …"] [--push]` no toca la cola. Da el siguiente número de `docs/decisiones/` en `develop` y el nombre `NNN-AAAA-MM-DD-titulo.md` (con `--numero`, reescribe esa sin cambiarle el nombre); escribe el archivo (el texto, con `# Título` delante si no lo lleva; si lo lleva, ha de coincidir), rehace el `README.md` y hace el commit «Decisión NNN: Título» en `develop`, también con otra rama activa, sin cambiarla ni tocar su copia de trabajo, como `a-propuesta` (tarea 273). No lo hace si `develop` está en otro worktree o, siendo la activa, `docs/decisiones/` tiene cambios sin commit. Con `develop` activa rehace también `README.html`. `--push` sube `develop`; dice el número y el hash. Sin git o sin `develop`, solo escribe los archivos y lo avisa (tarea 283).
 - **Subir develop**: `subir` sube `develop` con la revisión antes de publicar; tras un cierre que no la subió. No toca la cola. Con el remoto público revisa antes lo que sale (`revision_publica.py`, decisión 259), como RELEASE: con algo nuevo sospechoso no sube; con algo ya subido, sube si se repite `subir` (o el cierre) en 10 minutos. Lanzar `revision_publica.py` a mano solo mira: sin `--accion` no anota intentos ni da permiso (tarea 332).
+- **Comprobaciones, pasos hechos**: cada comprobación o prueba hecha en una tarea (pruebas, validación, revisión a mano) se anota como paso hecho, con lo comprobado y su resultado, con `comprobado N "texto"`: una orden, el paso «Comprobado: …» ya hecho, antes de los de cierre, sin devolver a pendiente «Activar rama para poder probar». La tarea no tiene campo `comprobado`: el de antes pasa a sus pasos al cargar la cola. Lo no comprobado se dice como tal («Las comprobaciones y pruebas hechas se anotan como pasos de su tarea», 288).
 - **Fusionar y separar** las escribe el propietario (`/sf_fusionar`, `/sf_split` en el panel); el principal, con `fusionar`, solo dos tareas de actualizar el mismo documento («Una tarea por documento que actualizar», 142).
 
 ## Órdenes por momento
@@ -46,8 +47,8 @@ El CLI aplica las condiciones de cada cambio (estado de partida, rama, pasos, gi
 | Momento | Órdenes |
 | --- | --- |
 | Alta y arranque | `crear`, `choques`, `en-curso`, `en-cola`, `rama` |
-| Durante el trabajo | `paso añadir`, `paso marcar`, `paso quitar`, `renombrar`, `tipo`, `subagente`, `informe` |
-| Prueba | `listo`, `comprobado`, `probar` |
+| Durante el trabajo | `paso añadir`, `paso marcar`, `paso quitar`, `comprobado`, `renombrar`, `tipo`, `subagente`, `informe` |
+| Prueba | `listo`, `probar` |
 | Cierre | `cerrar`, `a-observacion` |
 | En observación | `observando`, `seguir`, `cerrar`, `reobservar` y, si va mal, `revertir` |
 | Deshacer | `descartar`, `limpiar`, `revertir`, `reabrir`, `eliminar`, `restaurar`, `a-propuesta` |

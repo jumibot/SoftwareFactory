@@ -223,7 +223,7 @@ class Pasos(Base):
             {'id': 13, 'texto': 'En cola', 'estado': 'en-cola'}]})
         self.assertEqual([(p['n'], p['texto']) for p in json.loads(self.orden('ver', '11'))['pasos']][2:],
                          [(3, 'Activar rama para poder probar'), (4, 'Cerrar la tarea')])
-        self.orden('comprobado', '13', 'nada')  # cualquier escritura los guarda
+        self.orden('renombrar', '13', 'En cola, renombrada')  # cualquier escritura los guarda
         self.assertEqual([p['texto'] for p in self.tarea(11)['pasos']],
                          ['Hecho', 'Quitada la negrita', 'Activar rama para poder probar', 'Cerrar la tarea'])
         self.assertEqual([(p['texto'], p['estado']) for p in self.tarea(12)['pasos']],  # queda el primero, con su estado
@@ -264,7 +264,7 @@ class Pasos(Base):
         self.escribir({'ultimo': 11, 'peticiones': [{'id': 11, 'texto': 'Vieja', 'estado': 'en-curso', 'pasos': [
             {'texto': 'Mirar', 'estado': 'pendiente', 'ayuda': True}, {'texto': 'Hacer', 'estado': 'hecho'},
             {'texto': 'Cerrar la tarea', 'estado': 'pendiente'}]}]})
-        self.orden('comprobado', '11', 'nada')
+        self.orden('renombrar', '11', 'Vieja, renombrada')  # cualquier escritura los guarda
         self.assertEqual([p['texto'] for p in self.tarea(11)['pasos']],
                          ['Hacer', 'Activar rama para poder probar', 'Mirar', 'Cerrar la tarea'])
 
@@ -290,7 +290,9 @@ class Pasos(Base):
         self.orden('subagente', '11', '--worktree', '.claude/worktrees/x', '--rama', 'feature/11-a-cli')
         self.orden('informe', '11', '--interrumpido', 'falta una decisión')
         t = self.tarea(11)
-        self.assertEqual((t['texto'], t['comprobado']), ('Nombre nuevo', 'test pasa'))
+        self.assertEqual(t['texto'], 'Nombre nuevo')
+        self.assertNotIn('comprobado', t)
+        self.assertIn({'texto': 'Comprobado: test pasa', 'estado': 'hecho'}, t['pasos'])
         self.assertEqual(self.eventos(t)[-4:], ['renombrada', 'comprobado', 'subagente', 'informe'])
         self.assertEqual(t['historial'][-1]['detalle'], 'interrumpido: falta una decisión')
 
@@ -951,6 +953,32 @@ class Migracion215(Base):
     SALIDA = {'id': 9, 'texto': 'Salida', 'estado': 'cerrada', 'historial': [
         {'evento': 'a-testing', 'fecha': 'f', 'quien': 'principal', 'via': 'cli', 'detalle': 'develop def5678'},  # migración 215
         {'evento': 'probada', 'fecha': 'f', 'quien': 'propietario', 'via': 'panel'}]}  # migración 215
+
+    def test_comprobado_es_un_paso_hecho_sin_volver_a_probar(self):  # decisión 288
+        self.escribir({'ultimo': 11, 'peticiones': [{'id': 11, 'texto': 'Ya vista', 'estado': 'en-curso', 'pasos': [
+            {'texto': 'Hacer', 'estado': 'hecho'}, {'texto': 'Activar rama para poder probar', 'estado': 'hecho'},
+            {'texto': 'Mirar', 'estado': 'pendiente', 'ayuda': True}, {'texto': 'Cerrar la tarea', 'estado': 'pendiente'}]}]})
+        m = self.orden('comprobado', '11', '300 pruebas de Python, sin fallos')
+        self.assertIn('Paso 2 de 5 de la 11, hecho: «Comprobado: 300 pruebas de Python, sin fallos»', m)
+        self.orden('comprobado', '11', 'Comprobado en el navegador: se ve')  # ya con la palabra, no la repite
+        self.assertEqual([(p['texto'], p['estado']) for p in self.tarea(11)['pasos']], [
+            ('Hacer', 'hecho'), ('Comprobado: 300 pruebas de Python, sin fallos', 'hecho'),
+            ('Comprobado en el navegador: se ve', 'hecho'), ('Activar rama para poder probar', 'hecho'),
+            ('Mirar', 'pendiente'), ('Cerrar la tarea', 'pendiente')])
+        self.assertEqual(self.eventos(self.tarea(11))[-1], 'comprobado')
+        self.orden('comprobado', '11', '  ', ok=False)
+
+    def test_el_campo_comprobado_pasa_a_los_pasos_al_cargar(self):  # decisión 288
+        self.escribir({'ultimo': 12, 'peticiones': [
+            {'id': 11, 'texto': 'Vieja', 'estado': 'en-observacion', 'comprobado': 'lo abrí',
+             'pasos': [{'texto': 'Hacer', 'estado': 'hecho'}, {'texto': 'Cerrar la tarea', 'estado': 'hecho'}]},
+            {'id': 12, 'texto': 'Vacía', 'estado': 'en-cola', 'comprobado': ''}]})
+        self.orden('renombrar', '12', 'Vacía, renombrada')  # cualquier escritura la guarda
+        t11, t12 = self.tarea(11), self.tarea(12)
+        self.assertNotIn('comprobado', t11)
+        self.assertNotIn('comprobado', t12)
+        self.assertEqual([p['texto'] for p in t11['pasos']], ['Hacer', 'Comprobado: lo abrí', 'Cerrar la tarea'])
+        self.assertEqual(t12.get('pasos', []), [])
 
     def comprobar_nueva(self, t: dict) -> None:
         self.assertEqual(t['estado'], 'en-observacion')
@@ -2181,6 +2209,12 @@ class Encargo(Base):
                       'sin línea de coautoría', 'decisión del propietario', 'Qué mirar en la prueba'):
             self.assertIn(texto, m)
         self.assertEqual((r['encargo'], r['worktree'], r['rama_auxiliar']), (m, 'D:/wt-11', 'sub-11'))
+
+    def test_lo_comprobado_en_lista_para_pasos(self):
+        self.orden('crear', 'Deliberar', '--tipo', 'deliberar', '--en-curso')
+        for n in ('11', '12'):  # con rama y deliberativa
+            self.assertIn('- Lo comprobado: una línea por comprobación, con su resultado («Comprobado: 300 pruebas de '
+                          'Python, sin fallos»), lista para pasar a pasos hechos; lo no comprobado, como tal.', self.orden('encargo', n))
 
     def test_no_escribe_la_cola(self):
         antes = self.archivo.read_bytes()

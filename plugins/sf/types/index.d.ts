@@ -9,7 +9,6 @@ export type Peticion = {
   // descartada: con la D del panel o pidiéndoselo a Claude; se ve en Cerradas con D hasta que se limpian
   estado: 'en-curso' | 'en-cola' | 'en-observacion' | 'descartada'
   prueba: string | null // qué debe mirar el propietario (en curso o en observación)
-  comprobado: string | null // lo que Claude ha comprobado él mismo: su OK, que no la saca de En observación
   descripcion: string | null // los detalles de la petición; el panel la muestra al desplegarla
   tipo?: string | null // deliberar, documentar, diseñar, implementar, especificar, corregir o investigar; tras el título
   commit: string | null

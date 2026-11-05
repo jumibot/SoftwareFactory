@@ -58,7 +58,6 @@ Fuera de la cola, la letra es el estado con que salió, en `.sf/historial.jsonl`
 - **Rojo en Pendientes**: el número de las H (054).
 - **Rojo en Cerradas**: reabierta, A o H, hasta volver a cerrarse (061, 064).
 - **Verde en Cerradas**: C; «●» si tiene commit (044).
-- **«✓» verde en En observación**: tiene `comprobado` de Claude (050).
 - **Cuenta «3/5»**: pasos hechos de todos (067).
 
 ### Lo que el panel lee del historial
@@ -222,14 +221,14 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 #### 14 · Anotar lo comprobado
 
-- **De → a:** sin cambio; `comprobado` con lo que Claude ha visto él mismo.
-- **Cuándo:** Claude prueba algo (una captura, un test).
+- **De → a:** sin cambio; un paso hecho «Comprobado: …», con lo comprobado y su resultado, antes de los de cierre. No devuelve a pendiente «Activar rama para poder probar».
+- **Cuándo:** se comprueba algo en la tarea (las pruebas, la validación, una captura, una prueba a mano), también lo que trae el informe de un subagente.
 - **Quién:** principal.
 - **Autorización:** ninguna. No saca la tarea de En observación.
 - **Repositorio:** nada.
-- **Panel:** «✓» verde en En observación.
-- **CLI:** `cola.py comprobado 92 "texto"`.
-- **Sale de:** 050.
+- **Panel:** el paso, en «Pasos».
+- **CLI:** `cola.py comprobado 92 "300 pruebas de Python, sin fallos"`.
+- **Sale de:** 050, 288 (retira el campo `comprobado`: el de antes pasa a los pasos al cargar).
 
 #### 15 · Probar en su rama (Activar rama)
 
@@ -493,7 +492,6 @@ Fuera de git. Lo escriben el principal y el panel, con el CLI; nunca un subagent
 - `pasos`: lista de `{texto, estado}`, con estado `hecho`, `en-curso` o `pendiente`.
 - `rama`: `feature/NN-nombre`, desde que se crea.
 - `prueba`: qué debe comprobar el propietario.
-- `comprobado`: lo que Claude ha comprobado él mismo.
 - `observando`: `true` mientras el propietario la mira, en observación.
 - `reabierta`: `true` si vuelve a la cola tras haber salido.
 - `commit`: hash del squash o versión del cierre; lo pone `a-observacion` (o `reobservar`). La C guarda el commit en el historial y saca la tarea.

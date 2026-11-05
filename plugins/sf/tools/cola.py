@@ -59,7 +59,8 @@ paso, cuenta desde 1, como en los mensajes y en el «n» de cada paso de «ver»
 ni se repiten: quedan al final, una vez cada uno; una en curso sin ellos los recibe al cargar la cola. Un paso de
 trabajo nuevo deja otra vez pendiente el de prueba (decisión 174). Una ayuda de prueba («paso añadir --prueba») va
 entre los dos de cierre, no la exige ningún cierre, que la deja como esté, ni devuelve el de prueba a pendiente
-(decisión 184). Los números no se reutilizan. Sale con 0 si hace el
+(decisión 184). «comprobado» añade lo comprobado como paso hecho («Comprobado: …»), sin devolver el de prueba a
+pendiente; el campo «comprobado» de antes pasa así a sus pasos al cargar (decisión 288). Los números no se reutilizan. Sale con 0 si hace el
 cambio, 1 si no lo hace (y dice por qué) y 2 si la orden está mal escrita. «choques», de consulta,
 sale con 0 si la tarea no comparte archivos con las en curso o en observación y con 3 si los comparte (decisión 130).
 """
@@ -439,7 +440,27 @@ def migrar_tarea(t) -> bool:
             if e['evento'] == 'probada' and not e.get('detalle'):  # migración 215
                 e['detalle'] = 'en observación'
             e['evento'], cambio = EVENTOS_VIEJOS[e['evento']], True
+    if 'comprobado' in t:
+        # El campo «comprobado» se retira: lo que tenga pasa a un paso hecho (decisión 288).
+        valor = t.pop('comprobado')
+        if isinstance(valor, str) and valor.strip():
+            anadir_comprobado(t, valor)
+        cambio = True
     return cambio
+
+
+def texto_comprobado(texto: str) -> str:
+    texto = texto.strip()
+    return texto if texto.lower().startswith('comprobado') else f'Comprobado: {texto}'
+
+
+def anadir_comprobado(t: dict, texto: str) -> int:
+    """Añade lo comprobado como paso hecho, antes de los de cierre y de las ayudas de prueba, sin devolver a pendiente
+    «Activar rama para poder probar» (decisión 288). Da su número."""
+    p = pasos(t)
+    sitio = next((i for i, x in enumerate(p) if isinstance(x, dict) and (es_de_cierre(x.get('texto')) or es_ayuda(x))), len(p))
+    p.insert(sitio, {'texto': texto_comprobado(texto), 'estado': 'hecho'})
+    return sitio + 1
 
 
 def ahora() -> str:
@@ -1205,11 +1226,15 @@ def o_listo(cola: Cola, a) -> str:
 
 
 def o_comprobado(cola: Cola, a) -> str:
-    t = cola.tarea(a.n)
-    t['comprobado'] = a.texto
-    cola.anotar(t, 'comprobado', a.texto)
+    # Un paso hecho, en una sola orden y sin volver a pedir la prueba (decisión 288).
+    t = cola.tarea(a.n, 'en-cola', 'en-curso', 'en-observacion')
+    if not a.texto.strip():
+        raise Rechazo('Lo comprobado necesita un texto, con su resultado.')
+    i = anadir_comprobado(t, a.texto)
+    texto = pasos(t)[i - 1]['texto']
+    cola.anotar(t, 'comprobado', f'{i}: {texto}')
     cola.guardar()
-    return f'Comprobado en la {a.n}: {a.texto}'
+    return f'Paso {i} de {len(pasos(t))} de la {a.n}, hecho: «{texto}».'
 
 
 def auxiliares_de(repo: Path, t: dict) -> list:
@@ -2500,7 +2525,8 @@ def o_encargo(cola: Cola, a) -> str:
         '',
         'Informe final, breve:',
         '- Lo hecho.',
-        '- Lo comprobado.',
+        '- Lo comprobado: una línea por comprobación, con su resultado («Comprobado: 300 pruebas de Python, sin '
+        'fallos»), lista para pasar a pasos hechos; lo no comprobado, como tal.',
         '- Lo que debe decidir el propietario.',
         '- Documentos compartidos a actualizar, con el texto propuesto.',
         *([] if deliberativa else ['- Qué mirar en la prueba.']),
@@ -2569,7 +2595,7 @@ def analizador() -> argparse.ArgumentParser:
     s.add_argument('texto', nargs='?')
     s = orden('listo', o_listo, 'pasos de cierre y qué probar', 'n')
     s.add_argument('--prueba', required=True)
-    orden('comprobado', o_comprobado, 'lo que Claude ha comprobado', 'n', 'texto')
+    orden('comprobado', o_comprobado, 'lo comprobado y su resultado, como paso hecho (decisión 288)', 'n', 'texto')
     orden('probar', o_probar, 'integra develop en la rama de la tarea, la activa (o la deja, si ya lo está) y marca '
           'hecho el paso de prueba', 'n')
     orden('observando', o_observando, 'en observación, el propietario la mira ahora', 'n')

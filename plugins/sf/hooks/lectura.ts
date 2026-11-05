@@ -67,11 +67,10 @@ export async function leerPeticiones($: $, raiz: string): Promise<{ peticiones: 
         texto: txt,
         estado: est,
         prueba: texto(p.prueba),
-        comprobado: texto(p.comprobado),
         descripcion: texto(p.descripcion),
         tipo: texto(p.tipo),
         observando: p.observando === true || p[CAMPO_VIEJO] === true,
-        pasos: leerPasos(p.pasos),
+        pasos: conComprobado(leerPasos(p.pasos), texto(p.comprobado)),
         reabierta: p.reabierta === true,
         commit: texto(p.commit),
         rama: texto(p.rama),
@@ -647,6 +646,15 @@ export function leerPasos(v: unknown): Paso[] {
     if (!t || !e) return []
     return [o.ayuda === true ? { texto: t, estado: e, ayuda: true as const } : { texto: t, estado: e }]
   })
+}
+// El campo «comprobado» de antes se lee como un paso hecho, antes de los de cierre y de las ayudas de prueba, como lo
+// deja cola.py al cargar la cola (decisión 288).
+const CIERRE = ['Activar rama para poder probar', 'Cerrar la tarea']
+export function conComprobado(pasos: Paso[], comprobado: string | null): Paso[] {
+  if (!comprobado) return pasos
+  const paso: Paso = { texto: /^comprobado/i.test(comprobado) ? comprobado : `Comprobado: ${comprobado}`, estado: 'hecho' }
+  const i = pasos.findIndex(x => x.ayuda || CIERRE.includes(x.texto))
+  return i < 0 ? [...pasos, paso] : [...pasos.slice(0, i), paso, ...pasos.slice(i)]
 }
 // «3/5»: hechos de todos, sin las ayudas de prueba, que no se exigen (decisión 184).
 export const cuentaPasos = (pasos: Paso[]) => {

@@ -49,7 +49,7 @@ const INICIAL: Pet[] = [
 // Se cierran las dos en curso: la 1 con commit (pasa a observación) y la 4 sin commit (sale de la cola: CERRADA_4).
 const CERRADAS: Pet[] = [
   { id: 1, texto: 'Panel lateral', estado: 'en-observacion', commit: 'sf 1.0', prueba: 'mirar', historial: [ev('a-observacion', 'sf 1.0')] },
-  // Comprobada por Claude: sigue en observación, con «✓».
+  // Con el campo «comprobado» de antes, que se lee como un paso hecho (decisión 288).
   { id: 2, texto: 'Secciones plegables', estado: 'en-observacion', prueba: 'pulsar la cabecera', comprobado: 'prueba del panel' },
   { id: 3, texto: LARGA, estado: 'en-observacion', commit: 'sf 0.8.0', observando: true },
   // Añadida y cerrada entre dos lecturas: también cuenta como cerrada.
@@ -944,7 +944,7 @@ test('Orden: en Cerradas, una tocada después de su cierre sube arriba', async (
 
 test('En prueba: solo arriba, ni en Pendientes ni en observación; desplegada, su commit y cómo probarla', async (...m) => {
   const { cambiarCola } = await preparar(m)
-  await cambiarCola(CERRADAS.map(p => (p.id === 3 ? { ...p, prueba: 'abrir otra sesión', comprobado: 'el bloqueo' } : p)))
+  await cambiarCola(CERRADAS.map(p => (p.id === 3 ? { ...p, prueba: 'abrir otra sesión' } : p)))
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   expect(await hay(ui, { type: 'Box', text: /^3 Un proyecto por sesión/ })).toBe(true)
   // Pendientes, vacía, se ve con 0.
@@ -956,30 +956,30 @@ test('En prueba: solo arriba, ni en Pendientes ni en observación; desplegada, s
   await ui.press({ key: 'arriba:3' })
   expect(await ui.findAll({ type: 'Text', text: /^Commit: sf 0\.8\.0$/ })).toHaveLength(1)
   await ui.press({ key: 'prueba:arriba:3' })
-  expect(await hay(ui, { type: 'Text', text: /^El bloqueo$/ })).toBe(true)
   expect(await hay(ui, { type: 'Text', text: /^Abrir otra sesión$/ })).toBe(true)
   await ui.unmount()
 })
 
-test('En curso: arriba, desplegada, cómo probarla y el OK de Claude, como en observación (266)', async (...m) => {
+test('En curso: arriba, desplegada, cómo probarla, como en observación, y lo comprobado en sus pasos (266, 288)', async (...m) => {
   const cola: Pet[] = [
-    { id: 18, texto: 'Lista en su rama', estado: 'en-curso', prueba: 'abrir el panel', comprobado: 'lo abrí',
-      pasos: [{ texto: 'Mirar la C', estado: 'pendiente', ayuda: true }] },
+    { id: 18, texto: 'Lista en su rama', estado: 'en-curso', prueba: 'abrir el panel',
+      pasos: [{ texto: 'Comprobado: lo abrí', estado: 'hecho' }, { texto: 'Mirar la C', estado: 'pendiente', ayuda: true }] },
   ]
   await preparar(m, { cola })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   await ui.press({ key: 'arriba:18' })
   // En «Prueba», plegada al empezar, como en observación (tarea 237).
-  expect(await hay(ui, { type: 'Button', key: 'prueba:arriba:18', text: /^Prueba ✓$/ })).toBe(true)
+  expect(await hay(ui, { type: 'Button', key: 'prueba:arriba:18', text: /^Prueba$/ })).toBe(true)
   await ui.press({ key: 'prueba:arriba:18' })
   expect(await hay(ui, { type: 'Text', text: /^Abrir el panel$/ })).toBe(true)
-  expect(await hay(ui, { type: 'Text', text: /^Lo abrí$/ })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: /Lo abrí/ })).toBe(false)
   await ui.press({ key: 'pasos:arriba:18' })
+  expect(await hay(ui, { type: 'Text', text: /^Comprobado: lo abrí$/ })).toBe(true)
   expect(await hay(ui, { type: 'Text', text: /^Mirar la C \(opcional\)$/ })).toBe(true)
   await ui.unmount()
 })
 
-test('En observación: la comprobada por Claude, plegada sin ✓; desplegada, con lo que comprobó', async (...m) => {
+test('En observación: el campo «comprobado» de antes, como un paso hecho; sin ✓ ni apartado en «Prueba» (288)', async (...m) => {
   const { cambiarCola } = await preparar(m)
   await cambiarCola(CERRADAS)
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
@@ -987,7 +987,9 @@ test('En observación: la comprobada por Claude, plegada sin ✓; desplegada, co
   expect(await hay(ui, { type: 'Text', text: /✓/ })).toBe(false)
   await ui.press({ key: 'pet:observacion:2' })
   await ui.press({ key: 'prueba:observacion:2' })
-  expect(await hay(ui, { type: 'Text', text: /^Prueba del panel$/ })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: /Comprobado por Claude/ })).toBe(false)
+  await ui.press({ key: 'pasos:observacion:2' })
+  expect(await hay(ui, { type: 'Text', text: /^Comprobado: prueba del panel$/ })).toBe(true)
   await ui.unmount()
 })
 
@@ -4961,7 +4963,6 @@ const COMPLETA: Pet = {
   rama: 'feature/7-completa',
   commit: 'develop abc1234',
   prueba: 'abrir el panel',
-  comprobado: 'lo abrí',
   pasos: [
     { texto: 'Hacer', estado: 'hecho' },
     { texto: 'Probar la tarea', estado: 'pendiente' },
@@ -5013,7 +5014,6 @@ test('En observación y en la que se prueba, la línea de la rama, como en las d
   expect(lineas).toEqual(Array(3).fill('Rama: feature/7-completa (no existe) · Commit: develop abc1234'))
   expect(await sangrias(ui, /^Rama: feature\/7-completa/)).toEqual([])
   // En observación y arriba: los apartados, en la columna del título («  7 », 4), como la descripción; en Pendientes, no salen.
-  expect(await sangrias(ui, /^Comprobado por Claude$/)).toEqual([4, 4])
   expect(await sangrias(ui, /^Qué mirar$/)).toEqual([4, 4])
   expect(await sangrias(ui, /^Su descripción\.$/)).toEqual([4, 4, 4])
   await ui.unmount()
@@ -5026,7 +5026,7 @@ test('En observación: plegadas y desplegadas, alineadas y sangradas como en Pen
   await preparar(m, {
     cola: [
       { id: 6, texto: `${larga} (cola)`, estado: 'en-cola', rama: 'feature/6-x', commit: 'c6', descripcion: 'Desc seis.', pasos: [{ texto: 'Uno', estado: 'pendiente' }] },
-      { id: 8, texto: `${larga} (observada)`, estado: 'en-observacion', rama: 'feature/8-x', commit: 'c8', descripcion: 'Desc ocho.', prueba: 'abrirlo', comprobado: 'lo abrí', pasos: [{ texto: 'Uno', estado: 'hecho' }] },
+      { id: 8, texto: `${larga} (observada)`, estado: 'en-observacion', rama: 'feature/8-x', commit: 'c8', descripcion: 'Desc ocho.', prueba: 'abrirlo', pasos: [{ texto: 'Uno', estado: 'hecho' }] },
     ],
   })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
@@ -5053,18 +5053,18 @@ test('En observación: plegadas y desplegadas, alineadas y sangradas como en Pen
   expect(await sangrias(ui, /^Rama: feature\/[68]-x/)).toEqual([])
   expect(await sangrias(ui, /^(Pasos|Prueba)/)).toEqual([])
   expect(await sangrias(ui, /^Desc (seis|ocho)\.$/)).toEqual([4, 4])
-  expect(await sangrias(ui, /^(Comprobado por Claude|Qué mirar)$/)).toEqual([4, 4])
+  expect(await sangrias(ui, /^Qué mirar$/)).toEqual([4])
   await ui.unmount()
 })
 
 // Tarea 237 (petición del propietario, tras la decisión 179): el OK de Claude y la prueba, en un desplegable propio,
-// «Prueba», plegado al empezar, con «✓» tras la cabecera si Claude comprobó algo; su estado se guarda como el de
-// Descripción y Pasos. En observación y en la que se prueba arriba; en Pendientes, no sale.
-test('Prueba: desplegable propio, plegado al empezar, con ✓ si Claude comprobó algo, guardado como los demás', async (...m) => {
+// «Prueba», plegado al empezar; su estado se guarda como el de Descripción y Pasos. En observación y en la que se prueba
+// arriba; en Pendientes, no sale. Lo comprobado, sin ✓ ni apartado: va en los pasos (decisión 288).
+test('Prueba: desplegable propio, plegado al empezar, guardado como los demás', async (...m) => {
   const { guardado } = await preparar(m, {
     cola: [
       COMPLETA,
-      { ...COMPLETA, id: 8, observando: true, comprobado: null },
+      { ...COMPLETA, id: 8, observando: true },
       { ...COMPLETA, id: 9, estado: 'en-cola' },
     ],
     extra: GIT('ref: refs/heads/develop\n'),
@@ -5074,11 +5074,11 @@ test('Prueba: desplegable propio, plegado al empezar, con ✓ si Claude comprob�
   await ui.press({ key: 'pet:observacion:7' })
   await ui.press({ key: 'arriba:8' })
   await ui.press({ key: 'pet:cola:9' })
-  // Plegado: solo la cabecera, subrayada y atenuada como «Pasos»; con «✓» si Claude comprobó algo.
-  expect(await hay(ui, { type: 'Button', key: 'prueba:observacion:7', text: /^Prueba ✓$/ })).toBe(true)
+  // Plegado: solo la cabecera, subrayada y atenuada como «Pasos».
+  expect(await hay(ui, { type: 'Button', key: 'prueba:observacion:7', text: /^Prueba$/ })).toBe(true)
   expect(await hay(ui, { type: 'Button', key: 'prueba:arriba:8', text: /^Prueba$/ })).toBe(true)
   expect(await ui.find({ type: 'Button', key: 'prueba:cola:9' })).toBe(undefined)
-  expect(await ui.find({ type: 'Text', text: /^(Comprobado por Claude|Qué mirar|Lo abrí|Abrir el panel)$/ })).toBe(undefined)
+  expect(await ui.find({ type: 'Text', text: /^(Qué mirar|Abrir el panel)$/ })).toBe(undefined)
   const cabecera = (await ui.find({ type: 'Text', text: /^Prueba$/ })) as { props: { underline?: boolean; dimColor?: boolean } }
   expect([cabecera.props.underline, cabecera.props.dimColor]).toEqual([true, true])
   // Va tras la línea de la rama y antes de «Descripción».
@@ -5087,9 +5087,8 @@ test('Prueba: desplegable propio, plegado al empezar, con ✓ si Claude comprob�
   expect(fila.indexOf('Prueba') < fila.indexOf('Descripción')).toBe(true)
   // Desplegado: sus apartados, en la columna del título; la Descripción, que seguía sin tocar, se guarda abierta.
   await ui.press({ key: 'prueba:observacion:7' })
-  expect(await sangrias(ui, /^Comprobado por Claude$/)).toEqual([4])
   expect(await sangrias(ui, /^Qué mirar$/)).toEqual([4])
-  expect(await hay(ui, { type: 'Text', text: /^Lo abrí$/ })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: /^Abrir el panel$/ })).toBe(true)
   const plegado = guardado.plegado as Record<string, boolean>
   expect([plegado['prueba:observacion:7'], plegado['desc:observacion:7']]).toEqual([false, false])
   // Y se vuelve a plegar.
@@ -5098,14 +5097,13 @@ test('Prueba: desplegable propio, plegado al empezar, con ✓ si Claude comprob�
   await ui.unmount()
 })
 
-// Tarea 237: lo que mirar y lo que comprobó Claude, estructurado: un rótulo atenuado por apartado y, debajo, un punto
+// Tarea 237: lo que mirar, estructurado: un rótulo atenuado por apartado y, debajo, un punto
 // por línea, con guion y sangría colgante; el contexto del principio («Tras publicar:»), antes de los puntos.
-test('Prueba: «Comprobado por Claude» y «Qué mirar», un punto por línea, con el contexto aparte', async (...m) => {
+test('Prueba: «Qué mirar», un punto por línea, con el contexto aparte', async (...m) => {
   await preparar(m, {
     cola: [
       {
         ...COMPLETA,
-        comprobado: '262 del plugin y validate pasan',
         prueba: 'Tras publicar: la sesión en modo prueba no muestra ACTUALIZAR; con dos sesiones, la otra muestra REFRESCAR',
       },
     ],
@@ -5116,12 +5114,12 @@ test('Prueba: «Comprobado por Claude» y «Qué mirar», un punto por línea, c
   await ui.press({ key: 'pet:observacion:7' })
   await ui.press({ key: 'prueba:observacion:7' })
   const fila = String(((await ui.find({ type: 'Box', text: /^7 Completa/ })) as { text?: unknown } | undefined)?.text ?? '')
-  const orden = ['Prueba ✓', 'Comprobado por Claude', '262 del plugin y validate pasan', 'Qué mirar', 'Tras publicar:', 'La sesión en modo prueba no muestra ACTUALIZAR', 'Con dos sesiones, la otra muestra REFRESCAR', 'Descripción']
+  const orden = ['Prueba', 'Qué mirar', 'Tras publicar:', 'La sesión en modo prueba no muestra ACTUALIZAR', 'Con dos sesiones, la otra muestra REFRESCAR', 'Descripción']
   const pos = orden.map(t => fila.indexOf(t))
   expect(pos.every(x => x >= 0)).toBe(true)
   expect([...pos].sort((a, b) => a - b)).toEqual(pos)
   // Rótulos y contexto, atenuados; cada punto, con su guion en una columna de 2 y el texto encogible (sangría colgante).
-  for (const t of [/^Comprobado por Claude$/, /^Qué mirar$/, /^Tras publicar:$/])
+  for (const t of [/^Qué mirar$/, /^Tras publicar:$/])
     expect(((await ui.find({ type: 'Text', text: t })) as { props: { dimColor?: boolean } }).props.dimColor).toBe(true)
   const punto = fila_(await ui.drawn(), 'Con dos sesiones, la otra muestra REFRESCAR')
   expect(punto).toEqual([2, 0, 1])
@@ -5466,7 +5464,7 @@ test('Tipo: tras el título entero, sin romper la sangría colgante', async (...
 })
 
 // Plegadas, las tareas de Pendientes, En observación y Cerradas, como las de arriba (decisión del propietario, 2026-10-31):
-// solo «número título (tipo)», con el título entero; ni la cuenta de pasos ni la ✓ de Claude delante.
+// solo «número título (tipo)», con el título entero; ni la cuenta de pasos ni una ✓ delante.
 test('Secciones: la tarea plegada muestra solo número, título entero y tipo', async (...m) => {
   const larga = 'Una tarea observada con un título muy largo que no cabe en una sola línea del panel'
   await preparar(m, {
@@ -5476,7 +5474,6 @@ test('Secciones: la tarea plegada muestra solo número, título entero y tipo', 
         texto: larga,
         estado: 'en-observacion',
         tipo: 'investigar',
-        comprobado: 'lo abrí',
         pasos: [
           { texto: 'A', estado: 'hecho' },
           { texto: 'B', estado: 'pendiente' },
@@ -5491,10 +5488,8 @@ test('Secciones: la tarea plegada muestra solo número, título entero y tipo', 
   expect(await hay(ui, { type: 'Text', text: /…/ })).toBe(false)
   expect(await hay(ui, { type: 'Text', text: /1\/2/ })).toBe(false)
   expect(await hay(ui, { type: 'Text', text: /✓/ })).toBe(false)
-  // Desplegada, la ✓ en «Prueba» y la cuenta en «Pasos».
+  // Desplegada, la cuenta en «Pasos».
   await ui.press({ key: 'pet:observacion:8' })
-  await ui.press({ key: 'prueba:observacion:8' })
-  expect(await hay(ui, { type: 'Text', text: /^Lo abrí$/ })).toBe(true)
   expect(await hay(ui, { type: 'Text', text: /1\/2/ })).toBe(true)
   await ui.unmount()
 })

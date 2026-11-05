@@ -802,7 +802,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       )
     }
     const bloquePrueba = (p: Peticion, donde: string, columna: number, fijar: Record<string, boolean> = {}) => {
-      if (p.comprobado === null && !p.prueba) return null
+      if (!p.prueba) return null
       const k = `prueba:${donde}:${p.id}`
       return (
         <Box flexDirection="column">
@@ -810,9 +810,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
             <Text dimColor underline>
               Prueba
             </Text>
-            {p.comprobado !== null ? <Text color="success"> ✓</Text> : ''}
           </Button>
-          {abierta(k) && p.comprobado !== null && apartadoPrueba('Comprobado por Claude', p.comprobado, 'success', columna)}
           {abierta(k) && p.prueba && apartadoPrueba('Qué mirar', p.prueba, undefined, columna)}
         </Box>
       )
@@ -861,7 +859,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // desplegable propio. Lo que la tarea no tiene, no sale.
     // Con órdenes, la primera fila es su menú (decisión 168): toda tarea con alguna orden se despliega.
     const hayDetalle = (p: Peticion, conPrueba: boolean, ordenes: RenderChildren = null) =>
-      ordenes !== null || p.descripcion !== null || p.rama !== null || p.commit !== null || p.pasos.length > 0 || (conPrueba && (p.prueba !== null || p.comprobado !== null))
+      ordenes !== null || p.descripcion !== null || p.rama !== null || p.commit !== null || p.pasos.length > 0 || (conPrueba && p.prueba !== null)
     const detalleTarea = (p: Peticion, donde: string, conPrueba: boolean, columna: number, ordenes: RenderChildren = null) => {
       const kDesc = `desc:${donde}:${p.id}`
       // Con todas sus partes sin tocar, la Descripción sale desplegada; en cuanto el propietario despliega o pliega
