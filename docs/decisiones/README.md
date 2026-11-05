@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 297 | 2026-11-05 | [Una sesión con la SF apagada, y /sf_forzar_inactiva, dejan Claude Code sin más](297-2026-11-05-una-sesion-con-la-sf-apagada-y-sf-forzar-inactiva-dejan-claude-code-sin-mas.md) |
 | 296 | 2026-11-05 | [Sin la SF activa no hay panel: se avisa al apagarla porque ya hay latido en el proyecto](296-2026-11-05-sin-la-sf-activa-no-hay-panel-se-avisa-al-apagarla-porque-ya-hay-latido-en-el-proyecto.md) |
 | 295 | 2026-11-05 | [La sesión apagada avisa y propone /sf_forzar_activa cuando la activa deja de latir, y avisa de que se trabaja sin la SF](295-2026-11-05-la-sesion-apagada-avisa-y-propone-sf-forzar-activa-cuando-la-activa-deja-de-latir-y-avisa-de-que-se-trabaja-sin-la-sf.md) |
 | 294 | 2026-11-05 | [Manda el proyecto salvo en cómo se lleva el repositorio: ramas, commits, push, cola y publicación](294-2026-11-05-manda-el-proyecto-salvo-en-como-se-lleva-el-repositorio-ramas-commits-push-cola-y-publicacion.md) |
