@@ -35,7 +35,7 @@ Cerrar antes que abrir (157): antes de proponer poner en curso una tarea nueva, 
 1. Si el enunciado no basta, lo que falte va como primeros pasos («Concretar …», «Decidir …») y se pregunta como paso de la tarea.
 2. `cola.py choques N`; con choques, decir con cuál y qué archivos, recomendar esperar o fusionar y seguir solo con el OK.
 3. Planificar los pasos con cuidado y anotarlos en la cola, sin pedir aprobación; el propietario los corrige cuando quiera.
-4. Si cambiará un documento compartido, el paso en su tarea (abajo).
+4. Si cambiará un documento compartido o, siendo de código, cualquier documento, el paso en su tarea documental (abajo).
 5. Rama y subagente, avisando con los pasos en pocas líneas: toda tarea en curso tiene el suyo, también las de diseño.
 
 ## Pasos
@@ -44,6 +44,7 @@ Cerrar antes que abrir (157): antes de proponer poner en curso una tarea nueva, 
 - Concretar, deliberar, definir, diseñar y decidir son pasos. En infinitivo; hechos, en participio; con el verbo del oficio.
 - Tareas de definición: su subagente analiza y propone con pros y contras; el principal lo lleva al propietario, deja madurar, no corre a implementar y registra cada decisión al tomarse.
 - Mejorar la skill que se usa es un paso de la tarea.
+- Una tarea de código (implementar, corregir) no lleva pasos de documentación: van a una documental, como dice «Documentos compartidos».
 - Una tarea en curso que tiene que esperar y no puede volver a la cola lleva un paso «Esperar a …»; su subagente no trabaja hasta que se cumpla. Cumplido, se marca hecho y se sigue.
 - `/sf_paso` llega como mensaje del propietario: pasarlo a su subagente.
 
@@ -53,7 +54,7 @@ Cerrar antes que abrir (157): antes de proponer poner en curso una tarea nueva, 
 - **Al abrir una sesión**, y cada vez que el mod avise de en curso sin subagente, lanzar los que faltan es lo primero del turno, antes de contestar: los de la anterior ya no viven. El mod lo avisa el primero, en cada mensaje mientras falten; y, aparte, los terminados sin recoger.
 - **Un subagente vivo por tarea** hasta su cierre: cada encargo sobre ella, también en la prueba, se le pasa a él (SendMessage). Si un paso espera al propietario, el subagente queda vivo esperando.
 - **Todo el trabajo de la tarea, a su subagente**: cambios, y también leer, clasificar, analizar, investigar y proponer en las de diseño o deliberación. Lo que devuelve para decidir, el principal lo lleva al propietario y registra la decisión; aplicarla es trabajo de la tarea. El principal solo escribe la cola y las decisiones; el resto, solo con instrucción expresa del propietario.
-- **El encargo** lleva: su worktree y su rama auxiliar `sub-NN` (nunca la rama de la tarea; en una deliberativa, ninguno: `cola.py encargo` da el suyo, 278); no escribir la cola; no cargar `sf:orquestacion`; no tocar documentos compartidos salvo encargo; las reglas de «Cómo escribir»; commits con la marca del número según el formato del proyecto (lo dice el encargo); informe breve con lo hecho, lo comprobado (una línea por comprobación, con su resultado), lo que el principal o el propietario deben decidir y qué documentos compartidos hay que actualizar.
+- **El encargo** lleva: su worktree y su rama auxiliar `sub-NN` (nunca la rama de la tarea; en una deliberativa, ninguno: `cola.py encargo` da el suyo, 278); no escribir la cola; no cargar `sf:orquestacion`; no tocar documentos compartidos salvo encargo y, en una de código, ningún documento; las reglas de «Cómo escribir»; commits con la marca del número según el formato del proyecto (lo dice el encargo); informe breve con lo hecho, lo comprobado (una línea por comprobación, con su resultado), lo que el principal o el propietario deben decidir y qué documentos hay que actualizar.
 - **Al volver, en cuanto termina**: revisar el diff, `git merge --ff-only`, `cola.py informe`, marcar sus pasos, anotar cada línea de «Lo comprobado» con `cola.py comprobado N "…"`, que la deja como paso hecho (288), y llevar al propietario lo que pide.
 
 ## Probar y cerrar
@@ -81,6 +82,8 @@ Cerrar antes que abrir (157): antes de proponer poner en curso una tarea nueva, 
 ## Documentos compartidos
 
 Una tarea que necesita cambiar «Cómo funciona…», la metodología, la plantilla `claude-sf.md` o el `CLAUDE.md` no los cambia: añade el paso «Reflejar «<título>» (NN)» a la tarea «Actualizar <documento>» (si no existe, se crea) y anota en la suya, hecho, «Creada la tarea NN para actualizar la documentación». Dos tareas del mismo documento se fusionan directamente. La metodología, la plantilla y el CLAUDE.md de la SF comparten una. Se hacen de una en una, cada una con su subagente.
+
+Una tarea de código (implementar, corregir) tampoco cambia ningún otro documento: ni la especificación, ni un manual, ni el material de un curso. Ese trabajo va a una documental (especificar, documentar): a la «Actualizar <documento>» si existe, con el paso «Reflejar «<título>» (NN)», o a una nueva; en la de código queda, hecho, «Creada la tarea NN para …» o «Añadido el paso a la NN». Vale al poner la tarea en curso y al anotar cada paso. Los comentarios del código y la documentación técnica que va con él (docstrings, el README del módulo) sí son de la tarea de código.
 
 ## Libre
 

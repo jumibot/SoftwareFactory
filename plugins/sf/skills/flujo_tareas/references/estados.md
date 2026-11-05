@@ -132,7 +132,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 #### 06 · Añadir un paso
 
 - **De → a:** sin cambio de estado; paso nuevo `pendiente`, antes de los de cierre; si «Activar rama para poder probar» estaba hecho, vuelve a pendiente: hay que probar otra vez (174). Con `--prueba`, una ayuda de prueba (`ayuda: true`): va tras «Activar rama para poder probar» y antes de «Cerrar la tarea», no la exige ningún cierre y no devuelve «Activar rama» a pendiente; se marca y se quita como cualquier paso (184).
-- **Cuándo:** surge al trabajar, el propietario lo da en el chat (menú de alta, 01) o escribe `/sf_paso`. Definir, diseñar y decidir también son pasos.
+- **Cuándo:** surge al trabajar, el propietario lo da en el chat (menú de alta, 01) o escribe `/sf_paso`. Definir, diseñar y decidir también son pasos. En una de código (implementar, corregir), nunca uno de documentación: va a una documental (240).
 - **Quién:** principal; panel con `/sf_paso`, que además se lo pide a Claude: el principal se lo pasa al subagente de la tarea.
 - **Autorización:** con un encargo nuevo en el chat, el menú de alta (01) pregunta si se añade como paso a la tarea en la que encaja.
 - **Repositorio:** nada.

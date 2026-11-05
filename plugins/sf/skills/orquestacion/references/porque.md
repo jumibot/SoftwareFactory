@@ -74,6 +74,7 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 
 - **Tarea aparte** (112, 116): cada cierre chocaba en esos documentos; el paso de documentar bloqueaba la C, y ahora es «Creada la tarea NN…», hecho.
 - **También por subagente, de una en una** («Documentos compartidos, también por subagente», 152, que precisa la 112): de una en una para no tener dos en paralelo sobre el mismo documento, no para que las hiciera el principal.
+- **Las de código, sin pasos de documentación** («Las tareas de código no llevan pasos de documentación», 240): en sprite_animation, «Hacer el código de la demo más legible para los alumnos» acabó con un paso para explicar algo en el material del curso. Una documental solo toca su documento; una de código, solo el código y lo que va con él.
 - **Una tarea por documento, con un paso por tarea** (142, 147): la de «Cómo funciona el panel» llegó a 19 pasos casi iguales. **Las reglas del método, en una sola** (148): los tres documentos repetían lo mismo.
 
 ## Libre
