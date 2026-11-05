@@ -14,4 +14,4 @@ El panel, `cola.py` y el cierre dan por hecho esa forma de llevar el repositorio
 
 ## Aplicada en
 
-Pendiente: plantilla `plugins/sf/templates/claude-sf.md` y metodología, «Reglas del proyecto» (tarea 316).
+Plantilla `plugins/sf/templates/claude-sf.md`, «Reglas del proyecto», y metodología, «Incorporación» (tarea 316).
