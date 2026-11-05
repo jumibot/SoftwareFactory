@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 312 | 2026-11-06 | [La web comercial comparte los colores y la letra del estilo de la SF, con su propia forma de página](312-2026-11-06-la-web-comercial-comparte-los-colores-y-la-letra-del-estilo-de-la-sf-con-su-propia-forma-de-pagina.md) |
 | 311 | 2026-11-05 | [El color de sesión de la SF no se reserva: un proyecto puede salir del mismo color](311-2026-11-05-el-color-de-sesion-de-la-sf-no-se-reserva-un-proyecto-puede-salir-del-mismo-color.md) |
 | 310 | 2026-11-05 | [El color de sesión se deriva del color primario del estilo del proyecto](310-2026-11-05-el-color-de-sesion-se-deriva-del-color-primario-del-estilo-del-proyecto.md) |
 | 309 | 2026-11-05 | [Cada documento se migra al generador único cuando se vuelve a tocar](309-2026-11-05-cada-documento-se-migra-a-la-maquetacion-comun-cuando-se-vuelve-a-tocar.md) |
