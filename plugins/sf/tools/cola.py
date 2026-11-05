@@ -2515,6 +2515,8 @@ def o_encargo(cola: Cola, a) -> str:
            else 'sin línea de coautoría (Co-Authored-By): el proyecto no la tiene configurada.'),
         *([] if deliberativa else ['- Antes de terminar, pasa las pruebas y la validación del proyecto.']),
         '- Si algo exige una decisión del propietario, para y devuélvela con opciones.',
+        '- Si un hook o un permiso te bloquea, no lo sortees (otra herramienta, un script, otra ruta): para y dilo en'
+        ' el informe, con lo que bloqueó y por qué.',
         f'- {convenciones(conf)}',
     ]
     py = orden_python()

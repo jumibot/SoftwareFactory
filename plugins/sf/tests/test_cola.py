@@ -2206,7 +2206,7 @@ class Encargo(Base):
         self.assertTrue(m.startswith('Tarea 11 de proyecto: «Encargo fijo».'))
         self.assertIn('Worktree: D:/wt-11, rama auxiliar sub-11', m)
         for texto in ('No escribas la cola', 'No cargues sf:orquestacion', 'claude-sf.md', '«(11)»',
-                      'sin línea de coautoría', 'decisión del propietario', 'Qué mirar en la prueba'):
+                      'sin línea de coautoría', 'decisión del propietario', 'no lo sortees', 'Qué mirar en la prueba'):
             self.assertIn(texto, m)
         self.assertEqual((r['encargo'], r['worktree'], r['rama_auxiliar']), (m, 'D:/wt-11', 'sub-11'))
 
