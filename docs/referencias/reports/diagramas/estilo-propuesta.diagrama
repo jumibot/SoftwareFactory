@@ -1,27 +1,27 @@
 tipo: arquitectura
-titulo: Lo decidido: una skill de maquetación y el estilo del proyecto
-descripcion: Las skills de tipo dan el contenido; la skill de maquetación compone con el estilo del proyecto, que el desarrollador elige con muestras y afina, y del que salen los diagramas y el color de sesión.
-pie: SF · DOCUMENTOS | DECISIONES 305 A 310
-foco: maq
+titulo: Lo decidido: un generador único y el estilo como parámetros
+descripcion: Las skills de tipo dan el contenido; el generador único y determinista maqueta todo documento con los parámetros del estilo del proyecto, que una skill ayuda a fijar con muestras y afinado.
+pie: SF · DOCUMENTOS | DECISIONES 305 A 311
+foco: gen
 nodos:
   perf: Skills de tipo | contenido y estructura
   diag: diagramas | estilo del documento
-  maq: Skill de maquetación | motor, catálogo, kit
+  gen: Generador único | determinista
   html: Documentos | un solo estilo
-  estilo: Estilo del proyecto | docs/identidad/
-  mues: Muestras | elegir y afinar | externo
+  param: Estilo del proyecto | parámetros
+  skill: Skill de estilo | muestras y afinado | externo
 zonas:
   skills: SKILLS DE TIPO | perf, diag
-  maqz: MAQUETACIÓN COMÚN | maq, html
-  proyecto: PROYECTO | estilo, mues
+  genz: GENERADOR ÚNICO | gen, html
+  proyecto: ESTILO DEL PROYECTO | param, skill
 flechas:
-  perf > maq: USA
-  estilo > maq: DA ESTILO
-  mues > estilo: ELIGE Y AFINA
-  maq > html: GENERA | verde
+  perf > gen: USA
+  param > gen: PARÁMETROS
+  skill > param: FIJA Y AFINA
+  gen > html: GENERA | verde
   diag > html: SU ESTILO
 notas:
-  COLOR DE SESIÓN: el de /color más cercano al primario del estilo (310)
+  LA SKILL DE ESTILO NO MAQUETA: sus muestras las hace el generador; el color de sesión sale del primario (310)
 fichas:
   perf: Visión, explicativo, fundacional, informe, técnica e interfaz.
     - dan: contenido, estructura, tono y procedimiento
@@ -31,19 +31,22 @@ fichas:
     - toma: papel, colores, acento y letra del documento
     - tinta: en el selector de la herramienta y en las páginas sueltas
     - contraste: el estilo tiene que dar 4,5:1 en el texto tenue
-  maq: La skill común que dirige la maquetación (305).
-    - motor: documento_a_html.py, el único; doc_to_html.py pasa a envoltorio
+  gen: El único generador de documentos, determinista (305).
+    - es: documento_a_html.py; doc_to_html.py pasa a envoltorio y se retira la carcasa
+    - maqueta: todo lo común; cualquier documento, con los parámetros del estilo
     - catálogo: todos los recursos, también los de la visión (308)
     - kit: herramientas, lectura, edicion y diagramas.js, como hoy
-    - estilo: pregunta por él, enseña muestras y lo afina
+    - evoluciona: gana parámetros y refinamientos con el uso; cada uno, con su valor por defecto y su prueba
   html: Todos los documentos del proyecto con el mismo aspecto.
-    - migrar: cada uno cuando se vuelve a tocar (309)
+    - migrar: cada uno al generador único cuando se vuelve a tocar (309)
     - secciones: sin etiqueta, número y título hasta que el estilo diga otra cosa (306)
-  estilo: Es del proyecto, no de cada documento (305).
+  param: Es del proyecto, no de cada documento, y lo lee el generador.
     - lleva: tema (colores, letra, serie) y forma (portada, secciones, escala, ancho, pie)
-    - se afina: a medida que avanza el proyecto
+    - dónde: docs/identidad/
     - SF: parte del estilo del informe 385, con el amarillo de la 382
-    - color de sesión: el de /color más cercano a su primario (310); hoy purple es de la SF y los proyectos eligen entre siete
-  mues: Varias muestras del mismo documento, cada una con un estilo.
+    - color de sesión: el de /color más cercano a su primario (310), sin reserva para la SF (311)
+  skill: Ayuda a fijar los parámetros; no maqueta.
     - cuándo: la primera vez que el proyecto necesita documentos
-    - afinado: vueltas sucesivas, como en la skill de diagramas
+    - muestras: varias, del mismo contenido, hechas por el generador con parámetros distintos
+    - afinado: vueltas sucesivas, como en la skill de diagramas, y después con el uso
+    - si no sabe: lo que el generador no hace se pide como parámetro nuevo, nunca como excepción en un documento
