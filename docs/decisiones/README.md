@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 302 | 2026-11-05 | [Opciones de los diagramas: todas ajustables, con los favoritos del propietario por defecto, cabecera y pie configurables y vertical forzable](302-2026-11-05-opciones-de-los-diagramas-todas-ajustables-con-los-favoritos-del-propietario-por-defecto-cabecera-y-pie-configurables-y-vertical-forzable.md) |
 | 301 | 2026-11-05 | [Las etiquetas de las flechas, al estilo de diagram-design: texto separado de la línea, con el color del botón solo en el texto](301-2026-11-05-las-etiquetas-de-las-flechas-al-estilo-de-diagram-design-texto-separado-de-la-linea-con-el-color-del-boton-solo-en-el-texto.md) |
 | 300 | 2026-11-05 | [Una skill propia de diagramas: la estética y los tipos de diagram-design, adaptada, con vertical y croquetas](300-2026-11-05-una-skill-propia-de-diagramas-la-estetica-y-los-tipos-de-diagram-design-adaptada-con-vertical-y-croquetas.md) |
 | 299 | 2026-11-05 | [La SF se lleva como los demás proyectos: .sf/proyecto.json, documentos en sf/ y sin excepciones](299-2026-11-05-la-sf-se-lleva-como-los-demas-proyectos-sf-proyecto-json-documentos-en-sf-y-sin-excepciones.md) |
