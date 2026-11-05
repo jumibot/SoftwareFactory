@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 304 | 2026-11-05 | [El amarillo del botón de la web pasa a ser el color y la identidad de la SF](304-2026-11-05-el-amarillo-del-boton-de-la-web-pasa-a-ser-el-color-y-la-identidad-de-la-sf.md) |
 | 303 | 2026-11-05 | [Botón «Poner en curso» en las tareas de PENDIENTES: un clic, y Claude mira los choques después](303-2026-11-05-boton-poner-en-curso-en-las-tareas-de-pendientes-un-clic-y-claude-mira-los-choques-despues.md) |
 | 302 | 2026-11-05 | [Opciones de los diagramas: todas ajustables, con los favoritos del propietario por defecto, cabecera y pie configurables y vertical forzable](302-2026-11-05-opciones-de-los-diagramas-todas-ajustables-con-los-favoritos-del-propietario-por-defecto-cabecera-y-pie-configurables-y-vertical-forzable.md) |
 | 301 | 2026-11-05 | [Las etiquetas de las flechas, al estilo de diagram-design: texto separado de la línea, con el color del botón solo en el texto](301-2026-11-05-las-etiquetas-de-las-flechas-al-estilo-de-diagram-design-texto-separado-de-la-linea-con-el-color-del-boton-solo-en-el-texto.md) |
