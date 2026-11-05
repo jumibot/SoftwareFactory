@@ -20,7 +20,7 @@ El principal marca los estados con este juego fijo de emojis, el mismo en todos 
 
 El rojo es «terminado», como el punto de los subagentes en el panel; por eso un fallo va con ❌. ✅ solo marca lo comprobado; lo hecho no lleva emoji. Juego corto: muchos emojis restan.
 
-Para el antes y el después de un texto, y para los pasos y tareas que se añaden o se quitan, un bloque diff: las líneas con «+» salen en verde y las de «-» en rojo. Solo para eso.
+Para el antes y el después de un texto, y para los pasos y tareas que se añaden o se quitan, un bloque diff: las líneas con «+» salen en verde y las de «-» en rojo. Solo para eso, y sin emojis en esas líneas: el color ya marca el estado.
 
 Porqué: en el chat no hay colores, y el propietario quiere ver de un vistazo el estado de lo que se le cuenta, con los mismos significados que el panel.
 
