@@ -7,6 +7,7 @@ Fecha: 2026-11-05. Decidida por el propietario de la Software Factory.
 - El foco termina al acabar la tarea o cuando hace rato que el propietario no habla de ella. Sin foco, la línea FOCUS no va.
 - Con un foco, el principal no interrumpe al propietario con actualizaciones ni mensajes de otras tareas, y menos mientras escribe: lo de las demás espera a que el foco acabe o a que él pregunte.
 - Cuando la tarea del foco espera (a un subagente, a otra cosa) y al propietario no le toca nada en ella, el principal le propone una sola cosa que puede hacer entretanto entre las tareas en curso, la mejor de lo que le espera para probar, decidir o contestar; no una lista.
+- El principal solo lleva al propietario de vuelta a una tarea, o la deja como foco, cuando tiene algo que hacer en ella (probar, decidir, contestar). Si solo espera a su subagente, no se le cuenta que sigue trabajando: el foco pasa a la propuesta, y la tarea vuelve cuando le toque algo.
 - Es la primera regla de la SF que propuso Claude por iniciativa propia y que el propietario hizo suya.
 
 Porqué: el propietario estuvo escribiendo en la vista de un subagente sin darse cuenta; que el principal le dijera en qué tarea estaba concentrado le devolvió el foco, y pidió que fuera una regla, con este formato. Después precisó qué es el foco y que, con él, el principal no le interrumpa: antes le llegaban actualizaciones de otras tareas incluso mientras escribía.
