@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 299 | 2026-11-05 | [La SF se lleva como los demás proyectos: .sf/proyecto.json, documentos en sf/ y sin excepciones](299-2026-11-05-la-sf-se-lleva-como-los-demas-proyectos-sf-proyecto-json-documentos-en-sf-y-sin-excepciones.md) |
 | 298 | 2026-11-05 | [En la SF, las reglas y sf:orquestacion las entrega el mod, como en los demás proyectos](298-2026-11-05-en-la-sf-las-reglas-y-sf-orquestacion-las-entrega-el-mod-como-en-los-demas-proyectos.md) |
 | 297 | 2026-11-05 | [Una sesión con la SF apagada, y /sf_forzar_inactiva, dejan Claude Code sin más](297-2026-11-05-una-sesion-con-la-sf-apagada-y-sf-forzar-inactiva-dejan-claude-code-sin-mas.md) |
 | 296 | 2026-11-05 | [Sin la SF activa no hay panel: se avisa al apagarla porque ya hay latido en el proyecto](296-2026-11-05-sin-la-sf-activa-no-hay-panel-se-avisa-al-apagarla-porque-ya-hay-latido-en-el-proyecto.md) |
