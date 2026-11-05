@@ -1355,7 +1355,7 @@ test('/clear: la duración, los prompts y las Cerradas empiezan de cero; /reload
   await reloj!.advance(3 * 60_000)
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   const pintado = async () => JSON.stringify(await ui.drawn())
-  const prompts = async () => (await ui.find({ type: 'Text', text: /^\d+$/, weight: 'bold' }))?.text
+  const prompts = async () => ((await ui.findAll({ type: 'Text', text: /^\d+$/ })) as { text?: string; props: Record<string, unknown> }[]).find(x => x.props.weight === 'bold')?.text
   expect(await pintado()).toMatch(/ 3m /)
   expect(await prompts()).toBe('1')
   expect(await colores(ui, 4)).toEqual(['success'])
@@ -1380,7 +1380,7 @@ test('Reanudar: la duración, los prompts y las Cerradas empiezan de cero (tarea
   await reloj!.advance(3 * 60_000)
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   const pintado = async () => JSON.stringify(await ui.drawn())
-  const prompts = async () => (await ui.find({ type: 'Text', text: /^\d+$/, weight: 'bold' }))?.text
+  const prompts = async () => ((await ui.findAll({ type: 'Text', text: /^\d+$/ })) as { text?: string; props: Record<string, unknown> }[]).find(x => x.props.weight === 'bold')?.text
   expect(await colores(ui, 4)).toEqual(['success'])
   await m[0].classic.SessionStart({ source: 'resume' })
   expect(await pintado()).toMatch(/ 0m /)
@@ -6623,6 +6623,11 @@ test('desktop: Bienvenida sin espacios de relleno, centrada por su caja, y la or
   const textos = ((await ui.findAll({ type: 'Text' })) as Nodo337[]).map(x => String(x.text ?? ''))
   for (const t of [/^Tu fábrica de software/, /^Claude te hará/, /^Para empezar/]) expect(textos.some(x => t.test(x))).toBe(true)
   expect(textos.filter(x => /^ {2,}\S/.test(x))).toEqual([])
+  // Centrada por su caja: cada línea, el logo y la orden, en una fila que centra lo que lleva.
+  for (const t of [/^Tu fábrica de software/, /^Claude te hará/, /^Para empezar/])
+    expect(await conProps(ui, { type: 'Box', text: t }, { flexDirection: 'row', justifyContent: 'center' })).toBe(true)
+  for (const key of ['bienvenida:logo', 'bienvenida:orden'])
+    expect(await conProps(ui, { type: 'Box', key }, { flexDirection: 'row', justifyContent: 'center' })).toBe(true)
   expect(((await ui.findAll({ type: 'Box' })) as Nodo337[]).some(x => x.props.backgroundColor === '#827dbd')).toBe(true)
   expect(((await ui.find({ type: 'Button', key: 'incorporar' })) as Nodo337 | undefined)?.props.label).toBe('incorpora este proyecto a la SF')
   await ui.unmount()
@@ -6693,10 +6698,10 @@ test('Incorporación: sin SF, bajo la bienvenida sin su invitación, todos los p
   expect(await hay(ui, { type: 'Text', text: /Para empezar/ })).toBe(false)
   expect(await hay(ui, { type: 'Text', text: /unas pocas preguntas/ })).toBe(false)
   expect(await hay(ui, { type: 'Text', text: 'paso 3 de 10' })).toBe(true)
-  expect(await hay(ui, { type: 'Text', text: ' En curso ', backgroundColor: '#827dbd', color: '#000000' })).toBe(true)
+  expect(await conProps(ui, { type: 'Text', text: ' En curso ' }, { backgroundColor: '#827dbd', color: '#000000' })).toBe(true)
   expect(await hay(ui, { type: 'Text', text: 'falta .sf/ y develop' })).toBe(true)
   // El actual, en el morado de la marca y negrita, no en amarillo.
-  expect(await hay(ui, { type: 'Text', text: 'Identidad ◂', color: '#827dbd', weight: 'bold' })).toBe(true)
+  expect(await conProps(ui, { type: 'Text', text: 'Identidad ◂' }, { color: '#827dbd', weight: 'bold' })).toBe(true)
   // Caben los diez: ni plegados ni flechas.
   for (const t of ['Caso', 'Aplicar', 'CLAUDE.md', 'Comprobación']) expect(await hay(ui, { type: 'Text', text: t })).toBe(true)
   expect(await hay(ui, { type: 'Button', key: 'incorporacion:arriba' })).toBe(false)
@@ -6831,9 +6836,9 @@ test('Incorporación en pausa: lista atenuada con Continuar, que lo pasa a Claud
   await cambiarCola(INICIAL)
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   // La cabecera (tarea 333): el nombre en el morado de la marca, el estado como etiqueta en morado claro y la cuenta, atenuada.
-  expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN', color: '#827dbd', weight: 'bold' })).toBe(true)
-  expect(await hay(ui, { type: 'Text', text: ' En pausa ', backgroundColor: '#b3aee6', color: '#000000' })).toBe(true)
-  expect(await hay(ui, { type: 'Text', text: 'paso 3 de 10', dimColor: true })).toBe(true)
+  expect(await conProps(ui, { type: 'Text', text: 'INCORPORACIÓN' }, { color: '#827dbd', weight: 'bold' })).toBe(true)
+  expect(await conProps(ui, { type: 'Text', text: ' En pausa ' }, { backgroundColor: '#b3aee6', color: '#000000' })).toBe(true)
+  expect(await conProps(ui, { type: 'Text', text: 'paso 3 de 10' }, { dimColor: true })).toBe(true)
   expect(await hay(ui, { type: 'Text', text: 'Identidad ◂' })).toBe(false)
   // Continuar, como la orden de la bienvenida (morado de la marca, letra negra en negrita); Abandonar, en el morado
   // claro sin fondo; ninguno en amarillo ni en rojo, centrados con espacios en el terminal (tarea 333).
