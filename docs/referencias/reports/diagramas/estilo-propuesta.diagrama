@@ -1,40 +1,49 @@
 tipo: arquitectura
-titulo: Propuesta: un motor, el estilo del proyecto
-descripcion: Las skills de tipo solo dan contenido y perfil; el motor común maqueta con la identidad del proyecto, y los diagramas heredan su tema.
-pie: SF · DOCUMENTOS | PROPUESTA
-foco: motor
+titulo: Lo decidido: una skill de maquetación y el estilo del proyecto
+descripcion: Las skills de tipo dan el contenido; la skill de maquetación compone con el estilo del proyecto, que el desarrollador elige con muestras y afina, y del que salen los diagramas y el color de sesión.
+pie: SF · DOCUMENTOS | DECISIONES 305 A 310
+foco: maq
 nodos:
-  perf: Perfiles de tipo | contenido y recursos
-  motor: documento_a_html.py | una maqueta y el kit
-  diag: diagramas | sin tema propio
-  html: HTML del proyecto | un solo estilo
-  iden: identidad.json | tema y su estilo
+  perf: Skills de tipo | contenido y estructura
+  diag: diagramas | estilo del documento
+  maq: Skill de maquetación | motor, catálogo, kit
+  html: Documentos | un solo estilo
+  estilo: Estilo del proyecto | docs/identidad/
+  mues: Muestras | elegir y afinar | externo
 zonas:
-  skills: SKILLS | perf, diag
-  motorz: MOTOR COMÚN | motor, html
-  proyecto: PROYECTO · DOCS/IDENTIDAD | iden
+  skills: SKILLS DE TIPO | perf, diag
+  maqz: MAQUETACIÓN COMÚN | maq, html
+  proyecto: PROYECTO | estilo, mues
 flechas:
-  perf > motor: USA
-  iden > motor: DA ESTILO
-  motor > html: GENERA | verde
-  diag > html: TEMA DEL DOC
+  perf > maq: USA
+  estilo > maq: DA ESTILO
+  mues > estilo: ELIGE Y AFINA
+  maq > html: GENERA | verde
+  diag > html: SU ESTILO
+notas:
+  COLOR DE SESIÓN: el de /color más cercano al primario del estilo (310)
 fichas:
-  perf: Una skill por tipo, con su perfil.json.
-    - orden única: la elige por el tipo de la cabecera o por la carpeta (paso 2 de la 297)
-    - visión: con escena, caso, expediente y aviso de ficción como CSS y JS propios
-    - explicativo: los «Cómo funciona…», con portada compacta
-    - fundacional e informe: como hoy
-    - técnica e interfaz: un perfil sencillo cada una
-  diag: El fragmento sale sin data-d-tema.
-    - hereda: colores, letra y papel del documento
-    - tinta: solo en páginas sueltas y, si se quiere, en el selector de la herramienta
-  motor: El único generador, con el kit de siempre.
+  perf: Visión, explicativo, fundacional, informe, técnica e interfaz.
+    - dan: contenido, estructura, tono y procedimiento
+    - eligen: qué recursos del catálogo les convienen (308)
+    - perfil.json: tipo y recursos, como hoy el fundacional y el informe
+  diag: El fragmento sale sin tema propio (307).
+    - toma: papel, colores, acento y letra del documento
+    - tinta: en el selector de la herramienta y en las páginas sueltas
+    - contraste: el estilo tiene que dar 4,5:1 en el texto tenue
+  maq: La skill común que dirige la maquetación (305).
+    - motor: documento_a_html.py, el único; doc_to_html.py pasa a envoltorio
+    - catálogo: todos los recursos, también los de la visión (308)
     - kit: herramientas, lectura, edicion y diagramas.js, como hoy
-    - suma: estilo del tema, código coloreado, colores de los SVG al tema, tablas anchas en fichas
-    - acepta: las opciones en comentarios de la visión mientras dura la migración
-    - retira: doc_to_html.py, carcasa.py y estilo_base.css
-  iden: Lo que da el estilo del proyecto.
-    - tema: colores, serie, tipografías y estilo (cabecera, etiqueta, marcador, esquinas)
-    - más: logo, producto y CSS propio
+    - estilo: pregunta por él, enseña muestras y lo afina
   html: Todos los documentos del proyecto con el mismo aspecto.
-    - migrar: respaldo, conversor de cabecera, comparación de palabras y capturas
+    - migrar: cada uno cuando se vuelve a tocar (309)
+    - secciones: sin etiqueta, número y título hasta que el estilo diga otra cosa (306)
+  estilo: Es del proyecto, no de cada documento (305).
+    - lleva: tema (colores, letra, serie) y forma (portada, secciones, escala, ancho, pie)
+    - se afina: a medida que avanza el proyecto
+    - SF: parte del estilo del informe 385, con el amarillo de la 382
+    - color de sesión: el de /color más cercano a su primario (310); hoy purple es de la SF y los proyectos eligen entre siete
+  mues: Varias muestras del mismo documento, cada una con un estilo.
+    - cuándo: la primera vez que el proyecto necesita documentos
+    - afinado: vueltas sucesivas, como en la skill de diagramas
