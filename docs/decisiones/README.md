@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 307 | 2026-11-05 | [Los diagramas toman el estilo del documento; tinta, en el selector y en páginas sueltas](307-2026-11-05-los-diagramas-toman-el-estilo-del-documento-tinta-en-el-selector-y-en-paginas-sueltas.md) |
 | 306 | 2026-11-05 | [Las secciones sin etiqueta salen con número y título hasta que el estilo del proyecto diga otra cosa](306-2026-11-05-las-secciones-sin-etiqueta-salen-con-numero-y-titulo-hasta-que-el-estilo-del-proyecto-diga-otra-cosa.md) |
 | 305 | 2026-11-05 | [Una skill común de maquetación: el estilo es del proyecto, se elige con muestras y se afina con el uso](305-2026-11-05-una-skill-comun-de-maquetacion-el-estilo-es-del-proyecto-se-elige-con-muestras-y-se-afina-con-el-uso.md) |
 | 304 | 2026-11-05 | [El amarillo del botón de la web pasa a ser el color y la identidad de la SF](304-2026-11-05-el-amarillo-del-boton-de-la-web-pasa-a-ser-el-color-y-la-identidad-de-la-sf.md) |
