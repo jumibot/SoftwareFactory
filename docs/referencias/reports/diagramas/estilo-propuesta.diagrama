@@ -1,39 +1,56 @@
 tipo: arquitectura
 titulo: Lo decidido: un generador único y el estilo como parámetros
-descripcion: Las skills de tipo dan el contenido; el generador único y determinista maqueta todo documento con los parámetros del estilo del proyecto, que una skill ayuda a fijar con muestras y afinado.
+descripcion: Las skills de tipo eligen recursos del catálogo; el generador único y determinista maqueta todo documento con los parámetros del estilo del proyecto, que una skill ayuda a fijar con muestras y afinado.
 pie: SF · DOCUMENTOS | DECISIONES 305 A 311
 foco: gen
 nodos:
   perf: Skills de tipo | contenido y estructura
+  info: Infografía técnica | toma el estilo | externo
   diag: diagramas | estilo del documento
+  cat: Catálogo de recursos | crear_documentos
   gen: Generador único | determinista
   html: Documentos | un solo estilo
-  param: Estilo del proyecto | parámetros
   skill: Skill de estilo | muestras y afinado | externo
+  param: Estilo e identidad | parámetros, logo
+  comp: Componentes propios | al lado del estilo
 zonas:
-  skills: SKILLS DE TIPO | perf, diag
-  genz: GENERADOR ÚNICO | gen, html
-  proyecto: ESTILO DEL PROYECTO | param, skill
+  skills: SKILLS | perf, info, diag
+  genz: GENERADOR ÚNICO | cat, gen, html
+  proyecto: PROYECTO | skill, param, comp
 flechas:
-  perf > gen: USA
-  param > gen: PARÁMETROS
+  perf > cat: ELIGE
+  cat > gen: RECURSOS
   skill > param: FIJA Y AFINA
+  param > gen: ESTILO
   gen > html: GENERA | verde
   diag > html: SU ESTILO
+  comp > html: DENTRO
 notas:
   LA SKILL DE ESTILO NO MAQUETA: fija los parámetros; las muestras y los documentos los hace el generador
+  LA INFOGRAFÍA: lee los parámetros del estilo sin pasar por el generador (tarea 8)
 fichas:
   perf: Una por tipo de documento: visión, explicativo, fundacional, informe, técnica, interfaz.
     - dan: contenido, estructura, tono y procedimiento
     - eligen: qué recursos del catálogo usan
+  info: La página three.js de la infografía técnica.
+    - estilo: página, panel y HUD con los parámetros del proyecto (tarea 8)
+    - no cambia: los colores con significado del modelo
   diag: Se pintan con el estilo del documento en el que van (307).
+  cat: Los recursos con su sintaxis y cuándo usar cada uno.
+    - también: los de la visión (308)
+    - lo dibuja: el generador; las skills de tipo solo eligen
   gen: El único generador de documentos, determinista (305).
     - maqueta: cualquier documento, con los parámetros del estilo
+    - herramientas: añade las de lectura del kit (buscador, notas, lectura, Diagramas) según el documento
+    - calidad: comprueba la salida en escritorio y móvil, y la impresión A4
     - evoluciona: gana parámetros con el uso, en lugar de excepciones
   html: Todos los documentos del proyecto, con el mismo aspecto.
-  param: Es del proyecto, no de cada documento, y lo lee el generador.
-    - lleva: los colores, la letra y la forma de las páginas
-    - de él sale: también el color de sesión (310)
   skill: Ayuda a fijar los parámetros; no maqueta.
     - muestras: el desarrollador elige entre varias, hechas por el generador
     - afinado: en vueltas, y después con el uso
+  param: Es del proyecto, no de cada documento, y lo lee el generador.
+    - estilo: colores, letra y forma de las páginas
+    - identidad: logo y nombre del producto, que se ven en portada y pie
+    - de él sale: también el color de sesión (310)
+  comp: CSS y JS de los componentes del proyecto, como una calculadora.
+    - no es estilo: no los fija la skill, pero usan sus variables
