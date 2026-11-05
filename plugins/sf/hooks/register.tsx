@@ -349,7 +349,7 @@ export const register: Register = on => {
       marcarTurno(null)
       // Una incorporación a medias queda en pausa al acabar o interrumpirse el turno (tarea 333, decisión 258); si pidió
       // recargar los plugins, el mod los recarga y no la pausa: sigue sola tras recargar (tarea 366).
-      if (!(await recargarSiPedido($).catch(() => false))) await pausarIncorporacion($).catch(() => undefined)
+      if (!(await recargarSiPedido($, () => void refrescar($).catch(() => undefined)).catch(() => false))) await pausarIncorporacion($).catch(() => undefined)
     }
     await refrescar($)
     return next(e)

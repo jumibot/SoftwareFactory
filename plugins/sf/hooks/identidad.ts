@@ -17,20 +17,25 @@ export function nombreSesion(e: Estado): string | null {
 
 // Si Claude Code no deja lanzar /color o /rename, se avisa una vez y queda el motivo en el registro de depuración.
 export let avisoIdentidad = false
-export function lanzar($: $, command: string, args: string): void {
-  $.command.run({ command, args }).catch(err => {
-    $.ui.log(`/${command} ${args}: ${String(err)}`, { to: 'debug' })
-    if (!avisoIdentidad) {
-      avisoIdentidad = true
-      emergenteError($, `El mod no pudo lanzar /${command}: ${String(err)}`)
-    }
-  })
+// Devuelve si se ha ejecutado (Claude Code lo ejecuta cuando la sesión queda libre); no hace falta esperarlo.
+export function lanzar($: $, command: string, args: string): Promise<boolean> {
+  return $.command.run({ command, args }).then(
+    () => true,
+    err => {
+      $.ui.log(`/${command} ${args}: ${String(err)}`, { to: 'debug' })
+      if (!avisoIdentidad) {
+        avisoIdentidad = true
+        emergenteError($, `El mod no pudo lanzar /${command}: ${String(err)}`)
+      }
+      return false
+    },
+  )
 }
 
 export async function ponerIdentidad($: $, e: Estado): Promise<void> {
   const puesta = await read($, identidadPuesta)
   const nombre = nombreSesion(e)
-  if (e.color && e.color !== puesta.color) lanzar($, 'color', e.color)
-  if (nombre && nombre !== puesta.nombre) lanzar($, 'rename', nombre)
+  if (e.color && e.color !== puesta.color) void lanzar($, 'color', e.color)
+  if (nombre && nombre !== puesta.nombre) void lanzar($, 'rename', nombre)
   await update($, identidadPuesta, () => ({ color: e.color ?? puesta.color, nombre: nombre ?? puesta.nombre }))
 }

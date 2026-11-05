@@ -666,7 +666,7 @@ export async function actualizarPlugin($: $, a: Actualizacion): Promise<Resultad
     const falta = await instalarDependencias($, raiz, null, correr, 'REFRESCAR')
     if (falta) return { ok: false, mensaje: falta }
     await update($, actualizacion, () => null)
-    lanzar($, 'reload-plugins', '')
+    void lanzar($, 'reload-plugins', '')
     return { ok: true, mensaje: `REFRESCAR: sf v${a.version} ya instalada, recargando los plugins` }
   }
   const c = await correr(['claude', 'plugin', 'marketplace', 'update', CATALOGO])

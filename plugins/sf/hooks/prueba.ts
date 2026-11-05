@@ -87,7 +87,7 @@ export async function apagarAlEntrar($: EngineInterface): Promise<void> {
   if (!(await read($, prueba)).disponible) return
   await $.fs.write(MARCA_PRUEBA, JSON.stringify({ sesion: id }) + '\n')
   // La sesión arrancó con la copia de trabajo (la anterior se cerró sin apagarlo): vuelve al publicado.
-  if (await desdeCopia($)) lanzar($, 'reload-plugins', '')
+  if (await desdeCopia($)) void lanzar($, 'reload-plugins', '')
 }
 
 // Al cerrar la sesión, el modo prueba se desactiva, solo en la SF: la siguiente entra con el plugin publicado.
@@ -111,8 +111,8 @@ export async function cambiarPrueba($: EngineInterface, activar: boolean, motivo
   await ponerPrueba($, activar, motivo)
   const texto = `Modo prueba ${activar ? 'encendido' : 'apagado'}: recargo ${turno ? 'al acabar el turno de Claude' : 'ahora'}.`
   if (turno) emergente($, `${texto} Mientras, sigue este panel.`, false)
-  if (diferido) $.clock.after(0, () => lanzar($, 'reload-plugins', ''))
-  else lanzar($, 'reload-plugins', '')
+  if (diferido) $.clock.after(0, () => void lanzar($, 'reload-plugins', ''))
+  else void lanzar($, 'reload-plugins', '')
   return texto
 }
 

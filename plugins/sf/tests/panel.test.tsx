@@ -6993,7 +6993,8 @@ test('Incorporación (366): un turno en marcha quita la pausa (un menú esperand
 })
 
 test('Incorporación (366): pedida la recarga, al acabar el turno el mod lanza /reload-plugins y no la pausa', async (...m) => {
-  const { archivos, comandos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  // Con el reloj quieto: el respaldo de la 371 aún no ha saltado.
+  const { archivos, comandos, cambiarCola } = await preparar(m, { sinMarca: true, reloj: true, extra: GIT('ref: refs/heads/develop\n') })
   archivos[PROGRESO] = conMarcas(1, [], { recargar: true })
   const antes = comandos.filter(c => c === 'reload-plugins').length
   await acabaTurno(m, 't1')
@@ -7017,6 +7018,52 @@ test('Incorporación (366): tras la recarga pedida, el mod la retoma solo, pasá
   expect(prompts).toContain('continúa la incorporación a la SF')
   const d = JSON.parse(archivos[PROGRESO]!)
   expect([d.retomar, d.pausa]).toEqual([undefined, undefined])
+})
+
+// Tarea 371: Claude Code solo vuelve a cargar los módulos que cambian. Si /reload-plugins no cambia el código del mod
+// (en la app de escritorio, con el mod ya al día), no hay session.start y la incorporación se quedaba parada.
+test('Incorporación (371): si /reload-plugins no recarga el mod, el mismo mod la retoma solo, una vez', async (...m) => {
+  const { archivos, comandos, prompts, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = conMarcas(1, [], { recargar: true })
+  await acabaTurno(m, 't1')
+  expect(comandos).toContain('reload-plugins')
+  await reloj!.advance(1000)
+  expect(prompts).not.toContain('continúa la incorporación a la SF')
+  await reloj!.advance(3000)
+  expect(prompts.filter(p => p === 'continúa la incorporación a la SF').length).toBe(1)
+  const d = JSON.parse(archivos[PROGRESO]!)
+  expect([d.recargar, d.retomar, d.pausa]).toEqual([undefined, undefined, undefined])
+  await reloj!.advance(10_000)
+  expect(prompts.filter(p => p === 'continúa la incorporación a la SF').length).toBe(1)
+})
+
+test('Incorporación (371): si la recarga cambia el mod y el nuevo ya la retomó, el viejo no la retoma otra vez', async (...m) => {
+  let archivosCaso: Record<string, string> = {}
+  m[1]('command.run', { command: 'reload-plugins' }, () => {
+    // El mod nuevo, al cargarse, quita "retomar" y pasa la orden a Claude.
+    const { retomar: _t, ...d } = JSON.parse(archivosCaso[PROGRESO]!)
+    archivosCaso[PROGRESO] = JSON.stringify(d)
+    return { text: '' }
+  })
+  const { archivos, prompts, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivosCaso = archivos
+  archivos[PROGRESO] = conMarcas(1, [], { recargar: true })
+  await acabaTurno(m, 't1')
+  await reloj!.advance(5000)
+  expect(prompts).not.toContain('continúa la incorporación a la SF')
+})
+
+test('Incorporación (371): si no se puede lanzar /reload-plugins, queda en pausa, con Continuar, y no dice que recarga', async (...m) => {
+  m[1]('command.run', { command: 'reload-plugins' }, () => {
+    throw new Error('no disponible')
+  })
+  const { archivos, prompts, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: GIT('ref: refs/heads/develop\n') })
+  archivos[PROGRESO] = conMarcas(1, [], { recargar: true })
+  await acabaTurno(m, 't1')
+  await reloj!.advance(5000)
+  const d = JSON.parse(archivos[PROGRESO]!)
+  expect([d.recargar, d.retomar, d.pausa]).toEqual([undefined, undefined, true])
+  expect(prompts).not.toContain('continúa la incorporación a la SF')
 })
 
 test('Incorporación (366): una recarga de hace mucho no se retoma sola: queda en pausa', async (...m) => {

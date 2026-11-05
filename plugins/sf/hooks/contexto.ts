@@ -209,35 +209,62 @@ export async function reanudarIncorporacion($: $): Promise<boolean> {
 // ── Recargar los plugins sin que el propietario escriba la orden (tarea 366) ──
 // Cuando la incorporación necesita la versión instalada de la SF (está instalada una más nueva que la que corre),
 // Claude lo pide con `incorporacion.py recargar` ("recargar": true). Al acabar ese turno, el mod lanza /reload-plugins
-// (Claude Code lo hace en cuanto la sesión queda libre) y deja "retomar" con la hora. El mod recargado, al cargarse, ve
-// "retomar" reciente y pasa a Claude «continúa la incorporación a la SF»: el propietario no escribe nada.
+// (Claude Code lo hace en cuanto la sesión queda libre) y deja "retomar" con la hora. Quien lo vea primero pasa a
+// Claude «continúa la incorporación a la SF» y lo quita: el propietario no escribe nada.
+// - El mod recargado, al cargarse (session.start), si la recarga cambió su código.
+// - Si no lo cambió, el mismo mod, RESPALDO_RECARGA_MS después de ejecutarse /reload-plugins: Claude Code solo vuelve a
+//   cargar (y a lanzar session.start) los módulos que han cambiado, y la incorporación se quedaba parada (tarea 371:
+//   en la app de escritorio, con el código del mod ya al día y solo las skills y herramientas por recargar). Si la
+//   recarga lo cambió, el mod viejo ya no está y su temporizador no salta; si saltara, "retomar" ya no está.
 export const RETOMAR_HASTA_MS = 10 * 60_000
-export async function recargarSiPedido($: $): Promise<boolean> {
+export const RESPALDO_RECARGA_MS = 3000
+// `alRedibujar`: redibuja el panel cuando cambia lo que enseña (retomada, o en pausa si no se pudo recargar).
+export async function recargarSiPedido($: $, alRedibujar?: () => void): Promise<boolean> {
   const ruta = await hayIncorporacion($)
   if (!ruta) return false
   const d = await leerJson($, ruta)
   if (d.recargar !== true) return false
   const { recargar: _r, pausa: _p, ...resto } = d
   await $.fs.write(ruta, JSON.stringify({ ...resto, retomar: await $.clock.now() }, null, 2) + '\n')
-  lanzar($, 'reload-plugins', '')
+  void lanzar($, 'reload-plugins', '').then(async hecha => {
+    // Sin recarga, en pausa, con Continuar: el aviso de que no se pudo lanzar ya lo da `lanzar`.
+    if (!hecha) {
+      const { retomar: _t, ...sin } = await leerJson($, ruta)
+      await $.fs.write(ruta, JSON.stringify(sin, null, 2) + '\n')
+      await pausarIncorporacion($)
+      alRedibujar?.()
+      return
+    }
+    $.clock.after(RESPALDO_RECARGA_MS, () => {
+      void retomarIncorporacion($, 0)
+        .then(r => {
+          if (r) alRedibujar?.()
+        })
+        .catch(err => $.ui.log(`retomar la incorporación tras recargar: ${String(err)}`, { to: 'debug' }))
+    })
+  })
+  return true
+}
+// Con "retomar" reciente (hace menos de RETOMAR_HASTA_MS), lo quita y, `espera` ms después, pasa a Claude
+// ORDEN_CONTINUAR. Sin él, o pasado el plazo, no hace nada (lo de hace mucho lo quita) y devuelve false.
+async function retomarIncorporacion($: $, espera: number): Promise<boolean> {
+  const ruta = await hayIncorporacion($)
+  if (!ruta) return false
+  const d = await leerJson($, ruta)
+  if (typeof d.retomar !== 'number') return false
+  const { retomar, pausa: _p, recargar: _r, ...resto } = d
+  await $.fs.write(ruta, JSON.stringify(resto, null, 2) + '\n')
+  if ((await $.clock.now()) - (retomar as number) > RETOMAR_HASTA_MS) return false
+  const pasar = () => void encargarAClaude($, ORDEN_CONTINUAR).catch(err => $.ui.log(`retomar la incorporación: ${String(err)}`, { to: 'debug' }))
+  if (espera > 0) $.clock.after(espera, pasar)
+  else pasar()
   return true
 }
 // Al cargarse el mod: tras una recarga pedida (hace menos de RETOMAR_HASTA_MS), la incorporación sigue sola; si no,
 // queda en pausa, como siempre (decisión 258).
 export async function alCargarIncorporacion($: $): Promise<'retomada' | 'pausa' | null> {
-  const ruta = await hayIncorporacion($)
-  if (!ruta) return null
-  const d = await leerJson($, ruta)
-  if (typeof d.retomar === 'number') {
-    const { retomar, pausa: _p, recargar: _r, ...resto } = d
-    await $.fs.write(ruta, JSON.stringify(resto, null, 2) + '\n')
-    if ((await $.clock.now()) - (retomar as number) <= RETOMAR_HASTA_MS) {
-      $.clock.after(1500, () => {
-        void encargarAClaude($, ORDEN_CONTINUAR).catch(err => $.ui.log(`retomar la incorporación: ${String(err)}`, { to: 'debug' }))
-      })
-      return 'retomada'
-    }
-  }
+  if (!(await hayIncorporacion($))) return null
+  if (await retomarIncorporacion($, 1500)) return 'retomada'
   await pausarIncorporacion($)
   return 'pausa'
 }
