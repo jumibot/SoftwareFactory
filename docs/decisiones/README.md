@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 311 | 2026-11-05 | [El color de sesión de la SF no se reserva: un proyecto puede salir del mismo color](311-2026-11-05-el-color-de-sesion-de-la-sf-no-se-reserva-un-proyecto-puede-salir-del-mismo-color.md) |
 | 310 | 2026-11-05 | [El color de sesión se deriva del color primario del estilo del proyecto](310-2026-11-05-el-color-de-sesion-se-deriva-del-color-primario-del-estilo-del-proyecto.md) |
 | 309 | 2026-11-05 | [Cada documento se migra a la maquetación común cuando se vuelve a tocar](309-2026-11-05-cada-documento-se-migra-a-la-maquetacion-comun-cuando-se-vuelve-a-tocar.md) |
 | 308 | 2026-11-05 | [Todos los recursos de la visión pasan al catálogo común](308-2026-11-05-todos-los-recursos-de-la-vision-pasan-al-catalogo-comun.md) |
