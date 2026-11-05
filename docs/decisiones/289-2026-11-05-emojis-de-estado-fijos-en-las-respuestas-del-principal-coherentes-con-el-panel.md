@@ -18,6 +18,8 @@ El principal marca los estados con este juego fijo de emojis, el mismo en todos 
 - ⚠️ aviso o riesgo
 - ❌ algo falla
 
+❓ solo en una pregunta que espera una decisión del propietario sobre una tarea, no en cualquier pregunta, y al final, en lugar del signo de cierre: «¿La pongo en curso con su subagente❓».
+
 El rojo es «terminado», como el punto de los subagentes en el panel; por eso un fallo va con ❌. ✅ solo marca lo comprobado; lo hecho no lleva emoji. Juego corto: muchos emojis restan.
 
 Para el antes y el después de un texto, y para los pasos y tareas que se añaden o se quitan, un bloque diff: las líneas con «+» salen en verde y las de «-» en rojo. Solo para eso, y sin emojis en esas líneas: el color ya marca el estado.
