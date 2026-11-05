@@ -9,4 +9,4 @@ Fecha: 2026-11-05. Decidida por el propietario de la Software Factory.
 
 Porqué: el propietario quiere saber, mirando la tarea en el panel, qué se ha comprobado de verdad, sin tener que buscarlo en los informes ni fiarse de un resumen. Con una orden y un solo sitio, cuesta menos y no hay dos versiones.
 
-Aplicada en: pendiente, tarea «Que Claude cierre con cambios, comprobaciones y pendientes reales…» (340).
+Aplicada en: sf:orquestacion («Probar y cerrar», «Al volver», «El encargo»), sf:flujo_tareas («Comprobaciones, pasos hechos»), la orden «cola.py comprobado» y el encargo de cola.py; el campo «comprobado» retirado de cola.py y del panel (340).
