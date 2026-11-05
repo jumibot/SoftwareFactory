@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 287 | 2026-11-05 | [El principal dice en qué tarea está concentrado el propietario, con «FOCUS: <título corto> (T NN)»](287-2026-11-05-el-principal-dice-en-que-tarea-esta-concentrado-el-propietario-con-focus-titulo-corto-t-nn.md) |
 | 286 | 2026-11-04 | [La SF recarga sola los plugins en la incorporación; ACTUALIZAR recarga si basta y Abandonar lo borra todo](286-2026-11-04-la-sf-recarga-sola-los-plugins-en-la-incorporacion-actualizar-recarga-si-basta-y-abandonar-lo-borra-todo.md) |
 | 285 | 2026-11-04 | [La SF gestiona el repositorio a su manera: la incorporación no lo deja a elección](285-2026-11-04-la-sf-gestiona-el-repositorio-a-su-manera-la-incorporacion-no-lo-deja-a-eleccion.md) |
 | 284 | 2026-11-04 | [Sin subagente de la cola: órdenes compuestas, la cola en el contexto y contestar primero](284-2026-11-04-sin-subagente-de-la-cola-ordenes-compuestas-la-cola-en-el-contexto-y-contestar-primero.md) |
