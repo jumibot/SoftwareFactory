@@ -72,6 +72,8 @@ Sin tarea en curso no se trabaja. La excepción es incorporar el proyecto a la S
 
 **Toda escritura de la cola pasa por el CLI** `cola.py` del plugin, con una orden fija, la misma que usa el panel (acuerdo del propietario, 2026-11-01). La cola nunca se edita a mano.
 
+Las órdenes de Python de la SF usan el intérprete que el mod detecta en la máquina: el primero de `python`, `python3` o `py` que sea 3.9 o posterior (acuerdo del propietario, 2026-11-02).
+
 **Tipos de tarea** (acuerdo del propietario, 2026-11-02). Hay siete tipos en tres familias:
 
 - **Código:** implementar y corregir.
@@ -80,7 +82,9 @@ Sin tarea en curso no se trabaja. La excepción es incorporar el proyecto a la S
 
 El tipo decide cómo se maneja el repositorio. Una tarea de código tiene su rama, el worktree de su subagente, el squash en `develop` al cerrar y la observación.
 
-Un documento nuevo, también el informe de una deliberativa, no tiene rama: cada vuelta se copia a `develop`, con su respaldo previo, y se cierra con la aprobación del propietario, sin observación. Un cambio de documentos existentes tiene su rama y su squash, con la aprobación del propietario.
+Una deliberativa no tiene rama, y su subagente trabaja sin worktree ni rama auxiliar: solo escribe su documento (su informe y, si la hay, su visión), que va directo a `develop` en cada vuelta, con el respaldo de la versión anterior. Lo demás que haga falta cambiar, como realimentar una skill con lo aprendido, va a una tarea propia, con rama. Su único paso de cierre es «Cerrar la tarea»: se cierra sin squash ni observación (acuerdos del propietario, 2026-11-04).
+
+En una documental, un documento nuevo no tiene rama: cada vuelta se copia a `develop`, con su respaldo previo, y se cierra con la aprobación del propietario, sin observación. Un cambio de documentos existentes tiene su rama y su squash, con la aprobación del propietario.
 
 Una deliberativa da un informe y las tareas que salgan de él; sus dilemas viven en el informe (skill `informe_deliberativa`).
 
@@ -89,6 +93,7 @@ Una deliberativa da un informe y las tareas que salgan de él; sus dilemas viven
 - **Pasos.** Concretar, definir, diseñar y decidir son pasos, y se anotan en cuanto empiezan. Pendiente o en curso, en infinitivo; hecho, en participio, con el verbo del oficio. Los dos pasos de cierre los pone `cola.py` desde que la tarea entra en curso (acuerdo del propietario, 2026-11-01).
 - **Probar y cerrar.** Al terminar una tarea, Claude enseña lo hecho y propone probarla, con cómo. Si no tiene nada que probar (deliberar, investigar, documentar, especificar…), propone cerrarla directamente, enseñando el resultado (acuerdo del propietario, 2026-10-31).
 - **En observación.** Una tarea cerrada que espera el OK del propietario queda «en observación». Se cierra si va bien o se revierte si va mal (acuerdo del propietario, 2026-11-02).
+- **Comprobaciones, pasos hechos.** Cada comprobación o prueba hecha en una tarea se anota como paso hecho, con lo comprobado y su resultado (`cola.py comprobado`); lo no comprobado se dice como tal (acuerdo del propietario, 2026-11-05).
 - **El OK.** El cierre, el paso a observación y la publicación esperan el OK del propietario; los commits de trabajo en la rama de la tarea, no.
 - **Cerrar antes que abrir.** El principal empuja primero a cerrar las tareas en curso que se pueden cerrar, llevando al propietario lo que necesitan para probar, decidir o cerrar. Solo después propone poner en curso tareas nuevas. Las peticiones y los defectos nuevos se siguen anotando al llegar (acuerdo del propietario, 2026-10-31).
 - **Guiar, no solo ejecutar.** La SF organiza el desarrollo: observa las tareas, el proyecto y al propietario, y sugiere por iniciativa propia cómo avanzar mejor. Por ejemplo, partir o cerrar una tarea que crece mucho en pasos. Sugerir no es hacer: nada se parte ni se cierra sin el OK del propietario (acuerdo del propietario, 2026-11-02).
@@ -96,6 +101,7 @@ Una deliberativa da un informe y las tareas que salgan de él; sus dilemas viven
 - **Mejorar la skill que se usa.** En una tarea de documentos, mejorar la skill que los hace con lo aprendido es un paso de esa tarea.
 - **Propuestas.** Una petición que solo anota una propuesta se cierra al anotarla, sin observación.
 - **Preguntas.** Con la herramienta de preguntas de Claude Code: una pregunta por tarea, cuatro como mucho cada vez.
+- **Preguntas legibles.** La pregunta es corta, de una línea. El detalle va antes, en el chat, en palabras llanas: cada cosa en su línea y con para qué sirve; si hay cambios, agrupados en Crea, Cambia, Sube a GitHub y No toca. Cada opción dice lo que hará Claude, y su descripción, la consecuencia. Sin jerga interna ni nombres de campos; los valores, legibles («color verde»). Al pedir el OK para aplicar, además de Aplicar y No aplicar, «Cambiar algo antes» (acuerdo del propietario, 2026-11-04).
 - **Textos.** El nombre de una tarea y el título de un commit empiezan por lo que cambia, en pocas palabras, sin prefijos. Las descripciones, sin origen ni autor, y cada idea en su párrafo.
 - **Sin referencias por número que no se vean en pantalla.** En los textos para el propietario (mensajes, tareas, pasos, documentos), una sección, una decisión o una tarea se nombra por su título, con el número entre paréntesis si ayuda (acuerdo del propietario, 2026-10-31).
 - **No dejar anotado lo que no aporta.** Podar es quitar: ni remisiones a lo que ya está en una skill o un documento, ni rastro de lo borrado. Para recuperar algo están git y los respaldos (acuerdo del propietario, 2026-10-31).
@@ -103,6 +109,8 @@ Una deliberativa da un informe y las tareas que salgan de él; sus dilemas viven
 **Documentos compartidos** (acuerdos del propietario, 2026-10-31). Los documentos que describen la SF se actualizan cada uno en su tarea, «Actualizar <documento>».
 
 Una tarea que necesita cambiar uno de ellos no lo cambia: añade a la tarea del documento un solo paso, «Reflejar «<título de la tarea>» (NN)», al ponerse en curso o en cuanto se ve que le afecta. Quien actualiza el documento mira lo que hizo la tarea.
+
+Una tarea de código (implementar, corregir) no lleva pasos de documentación, sea cual sea el documento: lo que haga falta escribir o cambiar por lo que hace va a una tarea documental (especificar, documentar), la de su documento si existe o una nueva. Los comentarios del código y la documentación técnica que va con él (docstrings, README del módulo) son de la tarea de código (acuerdo del propietario, 2026-11-02).
 
 Dos tareas del mismo documento se fusionan directamente. La metodología, la plantilla de reglas y el `CLAUDE.md` de la SF comparten una sola tarea.
 
@@ -114,9 +122,11 @@ Las tareas de documentos tienen su subagente, como cualquier otra, y se hacen de
 
 Al poner en curso una tarea que lleva rama (las de código y las que cambian documentos existentes), Claude crea su rama `feature/NN-nombre` desde `develop` y avisa, sin pedir autorización. Una rama es de una sola tarea.
 
-La tarea entra en `develop` al cerrarla, con el OK del propietario, por **squash**: un solo commit por tarea, con sus pasos en el cuerpo, que se revierte con un `git revert`. Los commits los hace siempre Claude.
+La tarea entra en `develop` al cerrarla, con el OK del propietario, por **squash**: un solo commit por tarea, con sus pasos en el cuerpo, que se revierte con un `git revert`. Los commits los hace siempre Claude. Una rama sin cambios respecto a `develop` se cierra sin commit: el cierre la borra, con su worktree y su rama auxiliar, y saca la tarea de la cola (acuerdo del propietario, 2026-11-04).
 
 **Publicar** es pasar `develop` a `main` con el tag `vX.Y.Z`, con el botón RELEASE del panel. La versión se sube solo al publicar, nunca en una feature.
+
+**Revisión antes de publicar** (acuerdos del propietario, 2026-11-03 y 2026-11-04). RELEASE revisa lo que sale en esa versión (archivos y mensajes de los commits) en busca de secretos, datos personales, rutas de la máquina o documentos internos. En un repositorio público, si encuentra algo nuevo no publica: se corrige, o se apunta como permitido en `.sf/publicable.txt`, y se vuelve a pulsar; la misma revisión corre al subir `develop` al cerrar cada tarea. En uno privado, enseña lo encontrado y pregunta si seguir. Lo que ya está subido no bloquea: se enseña y se pide permiso para continuar.
 
 **Cómo se prueba una tarea en su rama.** Con la rama activa en la carpeta principal: «Activar rama» del panel integra `develop` en ella, la activa y adelanta la rama auxiliar del subagente, sin pisar cambios sin commit. Si choca o encuentra trabajo sin traer, pasa el fallo a Claude (acuerdo del propietario, 2026-11-01).
 
@@ -132,7 +142,7 @@ Toda tarea en curso tiene su subagente desde que se pone en curso, también las 
 
 El principal lanza el subagente sin preguntar, avisando en una línea. El botón TURBO del panel pone en curso, cada una con su subagente, las tareas de la cola que no necesitan al propietario; las demás esperan a que él las ponga en curso (acuerdo del propietario, 2026-10-31).
 
-El subagente trabaja en su propio worktree, en una rama auxiliar desde la de la tarea. El principal trae sus commits con `git merge --ff-only`. Solo el principal escribe la cola: el mod bloquea que lo haga un subagente.
+El subagente trabaja en su propio worktree, en una rama auxiliar desde la de la tarea; el de una deliberativa, sin ninguno de los dos («Tareas y cola»). El principal trae sus commits con `git merge --ff-only`. Solo el principal escribe la cola: el mod bloquea que lo haga un subagente.
 
 Las reglas completas, en la skill `sf:orquestacion`.
 
@@ -146,6 +156,8 @@ Claude las guía con menús en la línea de prompts: dice qué va a crear, mover
 
 Lo mínimo que añade es `.sf/proyecto.json`, la carpeta `sf/` y, si faltan, `develop`, `main` y el remoto en GitHub. Sin `develop` ni remoto en GitHub no hay SF: se explica y, si el propietario lo reconfirma, no se incorpora.
 
+**La SF lleva el repositorio a su manera** (acuerdo del propietario, 2026-11-04): `develop`, `main` y una rama por tarea, los commits de Claude, el cierre por squash en `develop`, la subida a GitHub y la publicación con el OK del propietario. La incorporación lo explica una sola vez, en palabras llanas y antes de pedir nada, con lo que hace el propietario (probar y dar el OK). No ofrece opciones que dejen la SF sin poder trabajar, como que los commits los haga el propietario: si no acepta esa forma de trabajar, no se incorpora. Lo aceptado no se vuelve a preguntar: las reglas del proyecto que choquen con ella se adaptan, avisando de qué cambia.
+
 La única excepción a no mover nada son los documentos de la SF que ya tuviera el proyecto (sus propuestas, sus decisiones y los informes de la SF): pasan a `sf/`, con el OK del propietario.
 
 **La skill `incorporar_proyecto_a_sf`** cubre cuatro casos: proyecto nuevo, proyecto existente anterior a la SF, poner al día uno ya incorporado y diagnosticar sin cambiar nada.
@@ -154,7 +166,7 @@ Poner al día empieza por el plugin: si hay una versión publicada más nueva, C
 
 **La configuración** se cambia después con la skill `configurar_proyecto`, pidiéndoselo a Claude o con la orden `/sf_config`. Poner al día también la ofrece.
 
-Si el `CLAUDE.md` de un proyecto es complejo (por ejemplo, el de OncoCore), revisar lo que choca con la SF es una tarea aparte, que estudia cada cambio antes de hacerlo; hasta entonces mandan sus reglas. Si una regla del `CLAUDE.md` del proyecto choca con la SF, manda la del proyecto, y el choque se anota en sus decisiones.
+Si el `CLAUDE.md` de un proyecto es complejo (por ejemplo, con muchas reglas propias sobre ramas, commits o documentos), revisar lo que choca con la SF es una tarea aparte, que estudia cada cambio antes de hacerlo. Si una regla del `CLAUDE.md` del proyecto choca con la SF, manda la del proyecto, y el choque se anota en sus decisiones. La excepción es cómo se lleva el repositorio: ramas, commits, push, cola y publicación. Ahí manda la SF, como se aceptó al incorporarlo. El formato de los commits sigue siendo el de `.sf/proyecto.json` (acuerdo del propietario, 2026-11-05).
 
 **Proyectos anteriores a la SF.** Se incorporan sin rehacer lo que ya funciona:
 
@@ -352,7 +364,7 @@ proyecto/
 Las dos carpetas de la SF conviven con una regla clara: `.sf/` es la máquina y `sf/` los documentos (acuerdo del propietario, 2026-11-02).
 
 - `.sf/`: lo que la SF necesita del proyecto para funcionar, fuera de `docs/` porque no es documentación (acuerdo del propietario, 2026-10-27). Lo lee el mod del plugin `sf`.
-  - `proyecto.json`, versionado: dice que el proyecto está bajo la SF y guarda su configuración, en campos sueltos (acuerdo del propietario, 2026-11-02). Son `proyecto` (nombre), `descripcion` (una línea de 120 caracteres como mucho), `color` (el de sus sesiones de Claude Code; `purple` es de la SF), `sf` (versión de la SF con que se incorporó o se puso al día), `metodologia`, `idioma`, `commits` (su formato), `remoto`, `rama_main`, `manifiesto` y, si se apaga alguna, `automatizaciones`. El kanban es opcional y, por defecto, ninguno: si se elige, `kanban` dice su proveedor y su proyecto en él (acuerdo del propietario, 2026-11-02). Lo que falta vale lo de por defecto. Se cambia con `/sf_config` (skill `configurar_proyecto`).
+  - `proyecto.json`, versionado: dice que el proyecto está bajo la SF y guarda su configuración, en campos sueltos (acuerdo del propietario, 2026-11-02). Son `proyecto` (nombre), `descripcion` (una línea de 120 caracteres como mucho), `color` (el de sus sesiones de Claude Code; `purple` es de la SF), `sf` (versión de la SF con que se incorporó o se puso al día), `metodologia`, `idioma`, `commits` (su formato), `coautor` (la línea de coautoría de los commits; sin ella, van sin firma), `remoto`, `rama_main`, `manifiesto` y, si se apaga alguna, `automatizaciones`. El kanban es opcional y, por defecto, ninguno: si se elige, `kanban` dice su proveedor y su proyecto en él (acuerdo del propietario, 2026-11-02). Lo que falta vale lo de por defecto. Se cambia con `/sf_config` (skill `configurar_proyecto`).
   - `estado.json`, fuera de git, solo con metodología: el estado en el método. Campos: `fase` (`vision`, `especificacion`, `tecnica`, `planificacion`, `preparacion`, `desarrollo` o `cierre`, una por apartado de «Ciclo de creación y desarrollo»), `detalle`, `devslice` (nombre descriptivo de la devslice en curso), `hechas` (fases cubiertas; si falta, se dan por hechas las anteriores a la actual), `actualizado` (fecha) y `pendientes` (lista). Se actualiza al cambiar de fase o de devslice.
   - `peticiones.json`, fuera de git: la cola de tareas del proyecto. Su formato, sus copias y su historial están en la skill `sf:flujo_tareas`; solo se escribe con `cola.py`.
   - `subagentes.json`, fuera de git: la memoria del mod sobre los subagentes de la sesión y los avisos que ya ha dado.

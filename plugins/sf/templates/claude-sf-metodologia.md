@@ -6,4 +6,3 @@ Este proyecto sigue la metodología de la SF (`"metodologia": true` en `.sf/proy
 
 - **Método:** la skill `sf:metodologia`, que dice qué parte del método leer en cada momento.
 - **Estado:** `.sf/estado.json` se actualiza al cambiar de fase o de devslice.
-- **Documentos:** se generan con la skill `crear_documentos` y la de su tipo; los diagramas, en SVG inline, nunca en ASCII ni en mermaid.
