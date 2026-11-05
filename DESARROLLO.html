@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SoftwareFactory</title>
+  <title>SoftwareFactory: guía de desarrollo</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <style data-kit="skills/documento_vision/assets/estilo_base.css">
@@ -876,7 +876,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 
     <header class="site-header">
       <div class="institution">
-        <div class="institution-name">SoftwareFactory</div>
+        <div class="institution-name">SoftwareFactory: guía de desarrollo</div>
         <div class="institution-sub">SoftwareFactory</div>
       </div>
     </header>
@@ -886,7 +886,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     </div>
 
     <div class="report-body">
-      <p>Una fábrica de software personal sobre Claude Code. Reúne el método y las herramientas con los que una sola persona, el «hombre orquesta», lleva a término muchos proyectos a la vez. Esa persona cada día desarrolla, investiga, crea proyectos y visiones, enseña, aprende y se mantiene al día.</p>
+      <p>Este índice es para quien trabaja en la SF: el propietario y Claude Code. La presentación para quien la usa está en el <a href="README.md">README</a> (en inglés; <a href="README.es.md">en castellano</a>) y en la <a href="https://jumibot.github.io/SoftwareFactory/" class="externo" target="_blank" rel="noopener noreferrer">página web</a>, generada desde <code>site/</code>.</p>
+<p>Una fábrica de software personal sobre Claude Code. Reúne el método y las herramientas con los que una sola persona, el «hombre orquesta», lleva a término muchos proyectos a la vez. Esa persona cada día desarrolla, investiga, crea proyectos y visiones, enseña, aprende y se mantiene al día.</p>
 <p>La SF no parte de cero: integra todo lo que ya existe y sirve, entero o en parte. Claude Code es su sistema nervioso central. Su objetivo no es producir más, sino pedir menos atención.</p>
 <p>Los documentos distinguen acuerdos, propuestas y pendientes.</p>
 <details id="instalar" class="bloque bloque-1" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Instalar</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
@@ -1036,7 +1037,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </details><details id="estructura" class="bloque bloque-6" open><summary class="bloque-summary"><span class="bloque-chip"><span class="bloque-title">Estructura</span><button type="button" class="bloque-btn" data-action="expand" title="Expandir el bloque y todas sus subsecciones">Expandir</button><button type="button" class="bloque-btn" data-action="collapse" title="Contraer el bloque y todas sus subsecciones">Contraer</button></span></summary>
 <pre><code class="language-text">SoftwareFactory/
 ├── CLAUDE.md                 entrada para Claude Code
-├── README.md                 este índice (y README.html, para leerlo en local)
+├── README.md, README.es.md  presentación, en inglés y en castellano
+├── DESARROLLO.md             este índice (y DESARROLLO.html, para leerlo en local)
 ├── docs/
 │   ├── identidad/            tema visual de la SF
 │   ├── specs/
@@ -1051,6 +1053,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 │   ├── decisiones/           decisiones tomadas, una por archivo, con su índice
 │   └── propuestas.md         propuestas de mejora sin decidir
 ├── plugins/sf/               el plugin de la SF: skills, kit de documentos, plantillas y mods, con las licencias de terceros
+├── site/                     la página web (GitHub Pages), con los pantallazos de site/img/
+├── .github/workflows/        el flujo que publica site/ en GitHub Pages
 └── scripts/                  utilidades del repositorio
 </code></pre>
 <p>Las carpetas <code>_respaldo/</code> guardan versiones anteriores de documentos y skills antes de cambios grandes.</p>
@@ -1063,9 +1067,14 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </code></pre>
 <p>El script encuentra solo la identidad de <code>docs/identidad/</code>. El <code>.html</code> no se edita a mano.</p>
 <ul>
-<li><strong>Regenerar README.html</strong> cada vez que cambie el README:</li>
+<li><strong>Regenerar DESARROLLO.html</strong> cada vez que cambie este índice:</li>
 </ul>
 <pre><code class="language-bash"><span class="sx-f">python</span> <span class="sx-a">-I</span> <span class="sx-a">-X</span> utf8 scripts/readme_a_html.py
+</code></pre>
+<ul>
+<li><strong>Regenerar los pantallazos</strong> de la página y del README (<code>site/img/</code>) cada vez que cambien sus textos o el panel:</li>
+</ul>
+<pre><code class="language-bash"><span class="sx-f">python</span> <span class="sx-a">-I</span> <span class="sx-a">-X</span> utf8 scripts/capturas_web.py
 </code></pre>
 <ul>
 <li>
@@ -1099,7 +1108,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 
     <footer class="site-footer">
       SoftwareFactory · Índice
-    <p class="procedencia">Generado el 02/11/2026 19:05 · fuente Índice de la SoftwareFactory.md · huella 8395b4849c70 · sin commit</p></footer>
+    <p class="procedencia">Generado el 04/11/2026 20:15 · fuente Índice de la SoftwareFactory.md · huella 1646c6c4469c · sin commit</p></footer>
 
   </div>
 <script>

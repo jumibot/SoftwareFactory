@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 458" width="560" height="458" role="img" aria-label="Testing and closing a task: every step done, test it on its branch, then one click closes it into develop" font-family="ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace">
+<title>Testing and closing a task: every step done, test it on its branch, then one click closes it into develop</title>
+<rect width="560" height="458" rx="14" fill="#191512"/>
+<circle cx="22" cy="20" r="5.5" fill="#ff5f57"/>
+<circle cx="40" cy="20" r="5.5" fill="#febc2e"/>
+<circle cx="58" cy="20" r="5.5" fill="#28c840"/>
+<text x="280.0" y="25.0" font-size="12" fill="#a6a19c" text-anchor="middle" xml:space="preserve">pantry — claude</text>
+<line x1="0" y1="38" x2="560" y2="38" stroke="#312d2a"/>
+<rect x="22.0" y="52.0" width="66.6" height="21.0" rx="3" fill="#827dbd"/>
+<text x="55.3" y="67.0" font-size="13" fill="#000" text-anchor="middle" font-weight="700" xml:space="preserve">RELEASE</text>
+<rect x="94.6" y="52.0" width="51.0" height="21.0" rx="3" fill="#334155"/>
+<text x="120.1" y="67.0" font-size="13" fill="#22d3ee" text-anchor="middle" font-weight="700" xml:space="preserve">TURBO</text>
+<rect x="463.6" y="52.0" width="74.4" height="21.0" rx="3" fill="#827dbd"/>
+<text x="500.8" y="67.0" font-size="13" fill="#000" text-anchor="middle" font-weight="700" xml:space="preserve">SF 1.8.1</text>
+<rect x="22.0" y="79.0" width="72.0" height="22.0" rx="3" fill="#383532"/>
+<text x="58.0" y="95.0" font-size="13" fill="#a6a19c" text-anchor="middle" xml:space="preserve">2h 05m</text>
+<rect x="100.0" y="79.0" width="104.0" height="22.0" rx="3" fill="#383532"/>
+<text x="108.0" y="95.0" font-size="13" xml:space="preserve"><tspan fill="#ece8e2" font-weight="700">31</tspan><tspan fill="#a6a19c"> prompts</tspan></text>
+<rect x="414.8" y="79.0" width="123.2" height="22.0" rx="3" fill="#383532"/>
+<text x="421.8" y="95.0" font-size="13" fill="#f4bf36" xml:space="preserve">feature/47-csv</text>
+<text x="22.0" y="132.0" font-size="14" xml:space="preserve"><tspan fill="#f4bf36">47</tspan><tspan fill="#b8963a">T</tspan><tspan fill="#f4bf36"> Fix accents in the CSV export</tspan></text>
+<text x="538.0" y="132.0" font-size="14" fill="#f4bf36" text-anchor="end" font-weight="700" xml:space="preserve">D</text>
+<text x="519.6" y="132.0" font-size="14" fill="#6ed889" text-anchor="end" font-weight="700" xml:space="preserve">C</text>
+<text x="38.0" y="153.0" font-size="14" fill="#a6a19c" text-decoration="underline" xml:space="preserve">5/6</text>
+<text x="38.0" y="174.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#77726d">Reproduce with a real file</tspan></text>
+<text x="38.0" y="194.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#77726d">Write the test with “Muñoz”</tspan></text>
+<text x="38.0" y="214.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#77726d">Export as UTF-8 with BOM</tspan></text>
+<text x="38.0" y="234.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#77726d">Check it opens in Excel</tspan></text>
+<text x="38.0" y="254.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#77726d">Test the task</tspan></text>
+<text x="38.0" y="274.0" font-size="14" xml:space="preserve"><tspan fill="#ece8e2">▸ </tspan><tspan fill="#ece8e2">Close the task</tspan></text>
+<text x="538.0" y="298.0" font-size="12" fill="#a6a19c" text-anchor="end" xml:space="preserve">TASKS</text>
+<rect x="22.0" y="306.0" width="516.0" height="30.0" rx="0" fill="#383532"/>
+<text x="32.0" y="326.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c">▸ </tspan><tspan fill="#ece8e2" font-weight="700">In review</tspan><tspan fill="#a6a19c">  1</tspan></text>
+<rect x="22.0" y="362.0" width="516.0" height="76.0" rx="8" fill="#1a2a1e" stroke="#3b6b49" stroke-width="1.2"/>
+<rect x="18.0" y="358.0" width="524.0" height="84.0" rx="8" fill="#f4bf36" fill-opacity=".07" stroke="#f4bf36" stroke-width="1.6"/>
+<text x="36.0" y="390.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889" font-weight="700">✓ </tspan><tspan fill="#ece8e2" font-weight="700">47 closed: squashed into develop</tspan></text>
+<text x="56.0" y="414.0" font-size="13" fill="#a6a19c" xml:space="preserve">One clean commit. Branch deleted. develop ↑1</text>
+</svg>

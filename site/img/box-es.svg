@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 315" width="560" height="315" role="img" aria-label="Sin pantalla completa, una caja pequeña sobre el prompt enseña el proyecto, las tareas en curso y las cuentas" font-family="ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace">
+<title>Sin pantalla completa, una caja pequeña sobre el prompt enseña el proyecto, las tareas en curso y las cuentas</title>
+<rect width="560" height="315" rx="14" fill="#191512"/>
+<circle cx="22" cy="20" r="5.5" fill="#ff5f57"/>
+<circle cx="40" cy="20" r="5.5" fill="#febc2e"/>
+<circle cx="58" cy="20" r="5.5" fill="#28c840"/>
+<text x="280.0" y="25.0" font-size="12" fill="#a6a19c" text-anchor="middle" xml:space="preserve">pantry — claude</text>
+<line x1="0" y1="38" x2="560" y2="38" stroke="#312d2a"/>
+<text x="22.0" y="66.0" font-size="14" xml:space="preserve"><tspan fill="#ece8e2" font-weight="700">● </tspan><tspan fill="#ece8e2">La 47 está lista para que la pruebes en su rama.</tspan></text>
+<text x="40.0" y="90.0" font-size="13" fill="#a6a19c" xml:space="preserve">Pasos 1 a 5 hechos.</text>
+<rect x="42.0" y="118.0" width="496.0" height="123.0" rx="10" fill="#191512" stroke="#4a4540" stroke-width="1.2"/>
+<text x="56.0" y="144.0" font-size="13" fill="#ece8e2" font-weight="700" xml:space="preserve">SF 1.8 · Pantry · 6/7 Desarrollo y verificación · devslice 2</text>
+<text x="56.0" y="165.0" font-size="13" fill="#f4bf36" xml:space="preserve">▶ 47 Arreglar los acentos del CSV</text>
+<text x="56.0" y="186.0" font-size="13" fill="#f4bf36" xml:space="preserve">▶ 48 Modo oscuro en Ajustes</text>
+<text x="56.0" y="207.0" font-size="13" fill="#a6a19c" xml:space="preserve">3 en cola · 1 en observación</text>
+<text x="56.0" y="228.0" font-size="13" fill="#a6a19c" xml:space="preserve">/sf abre el panel</text>
+<rect x="16.0" y="257.0" width="528.0" height="40.0" rx="8" fill="#1f1c19" stroke="#3d3934" stroke-width="1.2"/>
+<text x="30.0" y="282.0" font-size="14" xml:space="preserve"><tspan fill="#f4bf36" font-weight="700">&gt; </tspan><tspan fill="#a6a19c">Pruébala ahora…</tspan></text>
+</svg>

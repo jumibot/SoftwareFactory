@@ -1,4 +1,4 @@
-"""Genera README.html para leer el README en local con el estilo de la SF.
+"""Genera DESARROLLO.html para leer la guía de desarrollo (DESARROLLO.md) en local con el estilo de la SF.
 
 Los enlaces a un .md que tiene .html al lado pasan a apuntar al .html.
 Uso: python -I -X utf8 scripts/readme_a_html.py
@@ -46,7 +46,7 @@ def adaptar(md):
 
 
 def main():
-    md = adaptar((RAIZ / "README.md").read_text(encoding="utf-8"))
+    md = adaptar((RAIZ / "DESARROLLO.md").read_text(encoding="utf-8"))
     # Carpeta temporal dentro del repo, para que el generador encuentre la identidad.
     tmp = RAIZ / "_tmp_readme"
     tmp.mkdir(exist_ok=True)
@@ -58,10 +58,10 @@ def main():
         html = tmp_md.with_suffix(".html").read_text(encoding="utf-8")
         # En un índice todas las secciones empiezan abiertas.
         html = re.sub(r'(<details id="[^"]*" class="bloque[^"]*")(?! open)>', r"\1 open>", html)
-        (RAIZ / "README.html").write_text(html, encoding="utf-8")
+        (RAIZ / "DESARROLLO.html").write_text(html, encoding="utf-8")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
-    print("README.html generado")
+    print("DESARROLLO.html generado")
 
 
 if __name__ == "__main__":

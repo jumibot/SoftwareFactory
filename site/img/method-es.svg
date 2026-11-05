@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 448" width="560" height="448" role="img" aria-label="Con la metodología: las siete fases, con la actual destacada, y los documentos del proyecto según se escriben" font-family="ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace">
+<title>Con la metodología: las siete fases, con la actual destacada, y los documentos del proyecto según se escriben</title>
+<rect width="560" height="448" rx="14" fill="#191512"/>
+<circle cx="22" cy="20" r="5.5" fill="#ff5f57"/>
+<circle cx="40" cy="20" r="5.5" fill="#febc2e"/>
+<circle cx="58" cy="20" r="5.5" fill="#28c840"/>
+<text x="280.0" y="25.0" font-size="12" fill="#a6a19c" text-anchor="middle" xml:space="preserve">pantry — claude</text>
+<line x1="0" y1="38" x2="560" y2="38" stroke="#312d2a"/>
+<text x="22.0" y="66.0" font-size="13" fill="#a6a19c" xml:space="preserve">SF 1.8 · Pantry · 3/7 Definición técnica</text>
+<text x="28.0" y="98.0" font-size="14" xml:space="preserve"><tspan fill="#c8c3bc" font-weight="700">1  </tspan><tspan fill="#6ed889">✓ </tspan><tspan fill="#77726d">Visión</tspan></text>
+<text x="28.0" y="124.0" font-size="14" xml:space="preserve"><tspan fill="#c8c3bc" font-weight="700">2  </tspan><tspan fill="#6ed889">✓ </tspan><tspan fill="#77726d">Especificación e interfaz</tspan></text>
+<rect x="16.0" y="132.0" width="528.0" height="28.0" rx="8" fill="#f4bf36" fill-opacity=".07" stroke="#f4bf36" stroke-width="1.6"/>
+<text x="28.0" y="150.0" font-size="14" xml:space="preserve"><tspan fill="#c8c3bc" font-weight="700">3  </tspan><tspan fill="#ece8e2">▸ </tspan><tspan fill="#f4bf36" font-weight="700">Definición técnica</tspan></text>
+<text x="28.0" y="176.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c" font-weight="700">4  </tspan><tspan fill="#a6a19c">· </tspan><tspan fill="#a6a19c">Planificación de devslices</tspan></text>
+<text x="28.0" y="202.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c" font-weight="700">5  </tspan><tspan fill="#a6a19c">· </tspan><tspan fill="#a6a19c">Preparación de la devslice</tspan></text>
+<text x="28.0" y="228.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c" font-weight="700">6  </tspan><tspan fill="#a6a19c">· </tspan><tspan fill="#a6a19c">Desarrollo y verificación</tspan></text>
+<text x="28.0" y="254.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c" font-weight="700">7  </tspan><tspan fill="#a6a19c">· </tspan><tspan fill="#a6a19c">Cierre</tspan></text>
+<rect x="22.0" y="290.0" width="516.0" height="30.0" rx="0" fill="#383532"/>
+<text x="32.0" y="310.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c">▾ </tspan><tspan fill="#ece8e2" font-weight="700">Documentos</tspan><tspan fill="#a6a19c">  3/4</tspan></text>
+<text x="528.0" y="310.0" font-size="12" fill="#a6a19c" text-anchor="end" xml:space="preserve">PROYECTO</text>
+<text x="34.0" y="342.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#ece8e2">Visión de Pantry</tspan></text>
+<text x="34.0" y="366.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#ece8e2">Especificación funcional</tspan></text>
+<text x="34.0" y="390.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#ece8e2">Diseño de la interfaz</tspan></text>
+<text x="34.0" y="414.0" font-size="14" xml:space="preserve"><tspan fill="#f4bf36">▸ </tspan><tspan fill="#f4bf36">Definición técnica</tspan></text>
+</svg>

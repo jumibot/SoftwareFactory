@@ -1,0 +1,985 @@
+<!doctype html>
+<html lang="en" data-lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SoftwareFactory, a new mod for Claude Code</title>
+<meta name="description" content="A new mod for Claude Code, in the terminal and the desktop app. It adds a live panel, a task queue and a way of working: every request becomes a task with its own agent and branch, and every release is checked for private data.">
+<meta property="og:title" content="SoftwareFactory, a new mod for Claude Code">
+<meta property="og:description" content="Go fast with Claude Code. Stay in control. A panel, a queue and subagents, in the terminal and the desktop app.">
+<meta property="og:image" content="img/panel-en.svg">
+<meta name="theme-color" content="#191512">
+<link rel="icon" href="img/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script>
+  // The language before painting: English, unless the visitor chose Spanish with the ES button.
+  (function () {
+    var l = 'en';
+    try { if (localStorage.getItem('sf-lang') === 'es') l = 'es'; } catch (e) {}
+    document.documentElement.setAttribute('data-lang', l);
+    document.documentElement.lang = l;
+  })();
+</script>
+<style>
+  /* Tokens (OKLCH). A workshop palette: graphite ink on neutral paper, amber for "what is happening now" (the colour
+     of a task in progress in the panel) and green for "done". The SF purple stays in the logo and the panel's own tags. */
+  :root {
+    --paper: oklch(0.972 0.002 85);
+    --paper-2: oklch(0.935 0.004 80);
+    --card: oklch(0.99 0.002 85);
+    --ink: oklch(0.23 0.012 65);
+    --ink-soft: oklch(0.42 0.012 65);
+    --ink-faint: oklch(0.5 0.01 65);
+    --line: oklch(0.87 0.006 80);
+    --slab: oklch(0.89 0.035 85);
+    --accent: oklch(0.83 0.155 86);
+    --accent-ink: oklch(0.5 0.105 70);
+    --accent-deep: oklch(0.62 0.13 75);
+    --accent-wash: oklch(0.83 0.155 86 / .14);
+    --on-accent: oklch(0.23 0.012 65);
+    --ok: oklch(0.8 0.15 150);
+    --ok-ink: oklch(0.5 0.12 150);
+    --band: oklch(0.2 0.01 65);
+    --on-band: oklch(0.95 0.008 85);
+    --brand: #827dbd;
+    --term: oklch(0.2 0.008 65);
+    --term-2: oklch(0.245 0.006 65);
+    --term-3: oklch(0.33 0.006 65);
+    --term-line: oklch(0.3 0.008 65);
+    --term-text: oklch(0.92 0.006 85);
+    --term-dim: oklch(0.71 0.008 70);
+    --shadow: oklch(0.2 0.02 65 / .45);
+    --display: 'Bricolage Grotesque', 'DM Sans', system-ui, sans-serif;
+    --text: 'DM Sans', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Menlo, Consolas, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: oklch(0.19 0.008 65);
+      --paper-2: oklch(0.235 0.009 65);
+      --card: oklch(0.225 0.009 65);
+      --ink: oklch(0.95 0.008 85);
+      --ink-soft: oklch(0.82 0.01 80);
+      --ink-faint: oklch(0.7 0.01 80);
+      --line: oklch(0.33 0.01 65);
+      --slab: oklch(0.29 0.025 80);
+      --accent-ink: oklch(0.85 0.14 86);
+      --ok-ink: oklch(0.8 0.15 150);
+      --band: oklch(0.245 0.01 65);
+      --shadow: oklch(0.05 0.01 65 / .7);
+      color-scheme: dark;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 400 18px/1.6 var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  html[data-lang="en"] .es, html[data-lang="es"] .en { display: none !important; }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--accent-ink); text-underline-offset: 3px; }
+  :focus-visible { outline: 3px solid var(--accent-deep); outline-offset: 3px; border-radius: 6px; }
+  .wrap { width: 100%; max-width: 1180px; margin: 0 auto; padding: 0 16px; }
+  @media (min-width: 760px) { .wrap { padding: 0 40px; } }
+  h1, h2, h3 { font-family: var(--display); font-weight: 800; letter-spacing: -.025em; margin: 0; }
+  p { margin: 0; }
+  section { padding: 88px 0; }
+  .h2 { font-size: clamp(34px, 4.6vw, 54px); line-height: 1.04; max-width: 19em; }
+  .sub { color: var(--ink-soft); margin: 14px 0 0; max-width: 36em; font-size: 19px; }
+  .ico { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+  /* A ruler as the section divider: the workshop's own measuring tool. */
+  .ruler { height: 16px; max-width: 1100px; margin: 0 auto; opacity: .55;
+    background:
+      repeating-linear-gradient(90deg, var(--ink-faint) 0 1px, transparent 1px 10px) bottom / 100% 6px no-repeat,
+      repeating-linear-gradient(90deg, var(--ink-faint) 0 1.5px, transparent 1.5px 50px) bottom / 100% 14px no-repeat; }
+
+  /* Header */
+  .top { position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: saturate(1.4) blur(12px); -webkit-backdrop-filter: saturate(1.4) blur(12px); }
+  .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 64px; }
+  .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font: 800 19px var(--display); letter-spacing: -.02em; white-space: nowrap; }
+  .brand img { width: 42px; }
+  .top nav { display: flex; align-items: center; gap: 20px; }
+  .top nav a.link { color: var(--ink-soft); text-decoration: none; font-size: 15px; font-weight: 500; }
+  .top nav a.link:hover { color: var(--ink); }
+  @media (max-width: 860px) { .top nav a.link { display: none; } }
+  .lang { display: inline-flex; padding: 3px; border-radius: 999px; background: var(--paper-2); border: 1px solid var(--line); }
+  .lang button { border: 0; background: none; color: var(--ink-soft); font: 700 13px var(--text); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .lang button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+  /* Buttons and chips */
+  .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 52px; padding: 0 24px; border-radius: 14px; font: 700 17px var(--text); text-decoration: none; transition: transform .15s ease, box-shadow .15s ease; }
+  .btn.solid { background: var(--accent); color: var(--on-accent); box-shadow: 0 6px 0 -1px var(--accent-deep); }
+  .btn.solid:hover { transform: translateY(-2px); box-shadow: 0 8px 0 -1px var(--accent-deep); }
+  .btn.line { color: var(--ink); border: 2px solid var(--ink); }
+  .btn.line:hover { background: var(--ink); color: var(--paper); }
+  .btn svg { width: 20px; height: 20px; flex: none; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: 14px; color: var(--ink-soft); }
+  .chip b { color: var(--ink); }
+  .chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+
+  /* Hero */
+  .hero { padding: 40px 0 80px; }
+  .hero .wrap { display: grid; gap: 56px; align-items: center; }
+  @media (min-width: 1000px) { .hero .wrap { grid-template-columns: 1.08fr 1fr; gap: 48px; } .hero { padding: 64px 0 104px; } }
+  .badge { display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 7px 14px 7px 8px; border-radius: 999px; background: var(--card); border: 1px solid var(--line); font-size: 15px; color: var(--ink-soft); margin-bottom: 22px; }
+  .badge b { display: inline-block; background: var(--accent); color: var(--on-accent); padding: 2px 10px; border-radius: 999px; font-size: 13px; }
+  h1 { font-size: clamp(44px, 7.4vw, 86px); line-height: .98; letter-spacing: -.04em; }
+  h1 .second { display: block; color: var(--ink-faint); }
+  .lead { margin: 26px 0 30px; font-size: clamp(18px, 2vw, 21px); color: var(--ink-soft); max-width: 31em; }
+  .lead strong { color: var(--ink); font-weight: 700; }
+  .hero .chips { margin-top: 26px; }
+
+  /* The live panel */
+  .stage { position: relative; max-width: 540px; width: 100%; justify-self: center; }
+  .stage::before { content: ""; position: absolute; inset: 22px -14px -18px 26px; background: var(--slab); border-radius: 22px; transform: rotate(2.2deg); }
+  .term { position: relative; background: var(--term); color: var(--term-text); border-radius: 16px; font: 400 13.5px/1.55 var(--mono); box-shadow: 0 30px 60px -24px var(--shadow); overflow: hidden; }
+  .stage .term { transform: rotate(-1.2deg); }
+  .term .bar { display: flex; align-items: center; gap: 7px; padding: 12px 14px; border-bottom: 1px solid var(--term-line); }
+  .term .bar i { width: 11px; height: 11px; border-radius: 50%; display: block; }
+  .term .bar span { flex: 1; text-align: center; color: var(--term-dim); font-size: 12px; margin-right: 50px; }
+  .term .body { padding: 16px 18px 18px; }
+  .stage .term .body { min-height: 410px; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .tag { display: inline-block; padding: 1px 7px; border-radius: 3px; font-weight: 700; font-size: 12.5px; }
+  .tag.rel, .tag.ver { background: var(--brand); color: #000; }
+  .tag.tur { background: #334155; color: #22d3ee; }
+  .tag.mut { background: var(--term-3); color: var(--term-dim); font-weight: 400; }
+  .tag.mut b { color: var(--term-text); }
+  .tag.mut .up { color: var(--ok); font-weight: 700; }
+  .head2 { margin-top: 6px; margin-bottom: 14px; }
+  .task { padding: 6px 8px; margin: 0 -8px 4px; border-radius: 8px; border: 1.5px solid transparent; transition: border-color .4s, background-color .4s, opacity .5s, transform .5s; }
+  .task .t { color: var(--accent); }
+  .task .t em { font-style: normal; color: oklch(0.68 0.11 86); }
+  .task .s { color: var(--term-dim); padding-left: 16px; }
+  .task .btns { color: var(--term-dim); white-space: nowrap; }
+  .task .btns .c { color: var(--ok); } .task .btns .tt { color: #22d3ee; }
+  .task.now { border-color: var(--accent); background: oklch(0.83 0.155 86 / .08); }
+  .task.enter { opacity: 0; transform: translateY(-8px); }
+  .tasks-label { text-align: right; color: var(--term-dim); font-size: 11.5px; margin: 10px 0 4px; }
+  .block { background: var(--term-3); padding: 5px 10px; margin-bottom: 6px; }
+  .block b { color: var(--term-text); }
+  .block .n { color: var(--term-dim); }
+  .block .n.ok { color: var(--ok); }
+  .queue { padding: 2px 10px 8px 24px; background: var(--term-2); margin: -6px 0 6px; }
+  .queue div { color: var(--term-dim); transition: color .4s; }
+  .queue div.pick { color: var(--accent); }
+  .toast { margin-top: 12px; padding: 8px 12px; border-radius: 8px; border: 1px solid oklch(0.45 0.08 150); background: oklch(0.24 0.03 150); color: var(--term-text); font-size: 12.5px; opacity: 0; transition: opacity .4s; }
+  .toast.on { opacity: 1; }
+  .toast b { color: var(--ok); }
+  @media (max-width: 480px) { .term { font-size: 11.5px; } .term .body { padding: 14px 12px; } .stage .term .body { min-height: 360px; } .stage::before { inset: 16px -6px -12px 14px; } }
+
+  /* Before / after */
+  .ledger { display: grid; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); margin-top: 36px; }
+  @media (min-width: 860px) { .ledger { grid-template-columns: 1fr 1fr; } }
+  .col { padding: 26px 24px 30px; }
+  @media (min-width: 760px) { .col { padding: 34px 40px 38px; } }
+  .col h3 { font-size: 22px; margin-bottom: 18px; }
+  .col ul { list-style: none; margin: 0; padding: 0; }
+  .col li { position: relative; padding: 13px 0 13px 34px; border-top: 1px solid var(--line); font-size: 17px; line-height: 1.45; }
+  .col li:first-child { border-top: 0; }
+  .col li::before { position: absolute; left: 0; top: 12px; font: 700 17px var(--mono); }
+  .col.before { background: var(--paper-2); color: var(--ink-soft); }
+  .col.before li::before { content: "✕"; color: var(--ink-faint); }
+  .col.after { background: var(--term); color: var(--term-text); }
+  .col.after h3 { color: var(--on-band); }
+  .col.after h3 .mark { color: var(--accent); }
+  .col.after li { border-color: var(--term-line); }
+  .col.after li::before { content: "✓"; color: var(--ok); }
+  .after-ctas { margin-top: 32px; }
+
+
+  /* Parallel lanes: several tasks moving at once */
+  .orch { display: grid; gap: 44px; align-items: center; }
+  @media (min-width: 980px) { .orch { grid-template-columns: 5fr 6fr; gap: 64px; } }
+  .orch h2 { font-size: clamp(40px, 5.6vw, 70px); line-height: .98; }
+  .orch h2 em { font-style: normal; color: var(--accent-ink); }
+  .orch .copy > p { margin: 18px 0 0; color: var(--ink-soft); font-size: 19px; max-width: 28em; }
+  .orch ul { list-style: none; margin: 24px 0 0; padding: 0; }
+  .orch li { position: relative; padding: 7px 0 7px 26px; font-size: 17px; }
+  .orch li::before { content: ""; position: absolute; left: 0; top: 17px; width: 12px; height: 3px; border-radius: 2px; background: var(--accent); }
+  .lanes { background: var(--term); color: var(--term-text); border: 1px solid var(--term-line); border-radius: 18px; padding: 18px; font: 400 13px/1.45 var(--mono); box-shadow: 0 30px 60px -24px var(--shadow); display: grid; gap: 10px; }
+  .lanes .you { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; border: 1px dashed var(--term-3); }
+  .lanes .you b { background: var(--accent); color: var(--on-accent); border-radius: 6px; padding: 1px 8px; font-size: 12px; }
+  .lanes .you > span { color: var(--term-dim); }
+  .lanes .you i { margin-left: auto; display: inline-flex; gap: 4px; }
+  .dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); display: inline-block; animation: blink 1.2s infinite; }
+  .dots span:nth-child(2) { animation-delay: .2s; } .dots span:nth-child(3) { animation-delay: .4s; }
+  @keyframes blink { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+  .lane { background: var(--term-2); border-radius: 12px; padding: 12px 14px; display: grid; gap: 6px; }
+  .lane .row { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .lane .id { color: var(--accent); font-weight: 700; }
+  .lane .t { color: var(--term-text); font-weight: 700; flex: 1 1 12em; min-width: 0; }
+  .lane .br { margin-left: auto; color: var(--term-dim); font-size: 12px; }
+  .lane .st { color: var(--term-dim); font-size: 12px; }
+  .lane .meter { height: 6px; border-radius: 4px; background: var(--term-3); overflow: hidden; }
+  .lane .meter b { display: block; height: 100%; width: var(--w); border-radius: 4px; background: repeating-linear-gradient(115deg, var(--accent) 0 10px, oklch(0.76 0.15 84) 10px 20px); background-size: 200% 100%; animation: crawl 2.4s linear infinite, grow 9s ease-in-out infinite alternate; }
+  .lane:nth-child(3) .meter b { animation-duration: 2.4s, 7s; }
+  .lane:nth-child(4) .meter b { animation-duration: 2.4s, 11s; }
+  @keyframes crawl { to { background-position: -40px 0; } }
+  @keyframes grow { from { width: calc(var(--w) - 14%); } to { width: var(--w); } }
+  .lane.ready { background: color-mix(in oklch, var(--ok) 14%, var(--term-2)); }
+  .lane.ready .id, .lane.ready .st b { color: var(--ok); }
+  .lane.ready .meter b { background: var(--ok); animation: none; }
+  .lanes .foot { color: var(--term-dim); font-size: 12px; text-align: right; padding: 0 4px; }
+
+
+  /* Gate: what goes out and what stays home */
+  .gate { display: grid; gap: 14px; margin-top: 36px; align-items: stretch; }
+  @media (min-width: 900px) { .gate { grid-template-columns: 1fr auto 1fr; gap: 18px; } }
+  .gate .side { border-radius: 20px; padding: 22px 24px; border: 1px solid var(--line); background: var(--card); min-width: 0; }
+  .gate h3 { display: flex; align-items: center; gap: 10px; font-size: 22px; }
+  .gate .ico { width: 24px; height: 24px; }
+  .gate .ok h3 { color: var(--ok-ink); }
+  .gate .no { background: var(--term); border: 2px solid var(--accent); color: var(--term-text); }
+  .gate .no h3 { color: var(--accent); }
+  .gate ul { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+  .gate li { display: flex; flex-wrap: wrap; gap: 4px 12px; align-items: baseline; padding: 9px 12px; border-radius: 10px; background: var(--paper-2); }
+  .gate li .k { font-size: 13px; color: var(--ink-faint); min-width: 7.5em; }
+  .gate li code { font: 400 13px var(--mono); color: var(--ink); word-break: break-all; }
+  .gate .ok li code::before { content: "✓ "; color: var(--ok-ink); }
+  .gate .no li { background: var(--term-2); }
+  .gate .no li .k { color: var(--term-dim); }
+  .gate .no li code { color: var(--term-text); text-decoration: line-through; text-decoration-color: var(--accent); text-decoration-thickness: 2px; }
+  .gate .verdict { margin: 14px 0 0; padding: 10px 12px; border-radius: 10px; background: var(--accent); color: var(--on-accent); font-weight: 700; font-size: 15px; }
+  .gate .check { display: grid; place-items: center; align-content: center; gap: 6px; color: var(--ink-faint); font: 700 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; }
+  .gate .check .ico { width: 40px; height: 40px; padding: 10px; box-sizing: content-box; border-radius: 50%; background: var(--accent-wash); color: var(--accent-ink); }
+
+
+  /* Timeline */
+  .flow { list-style: none; margin: 48px 0 0; padding: 0; display: grid; gap: 0; position: relative; }
+  .flow li { position: relative; padding: 0 0 30px 64px; }
+  .flow li::before { content: ""; position: absolute; left: 23px; top: 48px; bottom: 0; width: 2px; background: var(--line); }
+  .flow li:last-child::before { display: none; }
+  .flow .node { position: absolute; left: 0; top: 0; width: 48px; height: 48px; border-radius: 14px; display: grid; place-items: center; background: var(--card); border: 1.5px solid var(--line); color: var(--ink); }
+  .flow li.hot .node { background: var(--accent); border-color: var(--accent-deep); color: var(--on-accent); }
+  .flow li.done .node { color: var(--ok-ink); }
+  .flow h3 { font-size: 20px; padding-top: 10px; }
+  .flow p { color: var(--ink-soft); font-size: 16px; margin-top: 4px; }
+  .flow .who { display: inline-block; margin-top: 8px; font: 700 12px var(--mono); padding: 2px 8px; border-radius: 6px; background: var(--paper-2); color: var(--ink-soft); }
+  .flow .who.you { background: var(--accent-wash); color: var(--accent-ink); }
+  @media (min-width: 980px) {
+    .flow { grid-template-columns: repeat(6, 1fr); gap: 16px; }
+    .flow li { padding: 70px 0 0; }
+    .flow li::before { left: 56px; right: -16px; top: 23px; bottom: auto; width: auto; height: 2px; }
+    .flow li:last-child::before { display: none; }
+    .flow h3 { padding-top: 0; }
+  }
+
+  /* Feature rows */
+  .feature { display: grid; gap: 40px; align-items: center; }
+  .feature + .feature { margin-top: 96px; }
+  @media (min-width: 960px) { .feature { grid-template-columns: 5fr 6fr; gap: 72px; } .feature.flip .copy { order: 2; } }
+  .feature h2 { font-size: clamp(34px, 4.4vw, 52px); line-height: 1.02; }
+  .feature .copy > p { margin: 18px 0 0; color: var(--ink-soft); font-size: 19px; max-width: 28em; }
+  .feature ul { list-style: none; margin: 24px 0 0; padding: 0; }
+  .feature li { position: relative; padding: 7px 0 7px 26px; font-size: 17px; }
+  .feature li::before { content: ""; position: absolute; left: 0; top: 17px; width: 12px; height: 3px; border-radius: 2px; background: var(--accent); }
+  .shot { position: relative; justify-self: center; width: 100%; max-width: 600px; margin: 0; }
+  .shot::before { content: ""; position: absolute; inset: 20px -12px -16px 22px; background: var(--slab); border-radius: 22px; transform: rotate(2deg); }
+  .shot img { position: relative; width: 100%; border-radius: 14px; box-shadow: 0 30px 60px -26px var(--shadow); transform: rotate(-1deg); }
+  .flip .shot::before { inset: 20px 22px -16px -12px; transform: rotate(-2deg); }
+  .flip .shot img { transform: rotate(1deg); }
+  @media (max-width: 600px) { .shot::before { inset: 12px -4px -10px 10px; } .flip .shot::before { inset: 12px 10px -10px -4px; } }
+
+  /* Pull quote */
+  .quote { background: var(--band); color: var(--on-band); padding: 96px 0; }
+  .quote blockquote { margin: 0; max-width: 21em; font: 800 clamp(34px, 5vw, 64px)/1.04 var(--display); letter-spacing: -.03em; }
+  .quote blockquote::before { content: "“"; display: block; color: var(--accent); font-size: 1.6em; line-height: .6; margin-bottom: 8px; }
+  .quote p { margin-top: 26px; max-width: 38em; color: color-mix(in srgb, var(--on-band) 78%, transparent); font-size: 18px; }
+
+  /* Tabs */
+  .tabs-wrap { display: grid; gap: 40px; align-items: start; margin-top: 40px; }
+  @media (min-width: 960px) { .tabs-wrap { grid-template-columns: 4fr 6fr; gap: 64px; } }
+  [role="tablist"] { display: inline-flex; padding: 4px; border-radius: 14px; background: var(--paper-2); border: 1px solid var(--line); gap: 4px; flex-wrap: wrap; }
+  [role="tab"] { border: 0; background: none; color: var(--ink-soft); font: 700 15px var(--text); padding: 9px 12px; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+  [role="tab"][aria-selected="true"] { background: var(--card); color: var(--ink); box-shadow: 0 1px 2px var(--shadow); }
+  [role="tab"] .ico { width: 18px; height: 18px; }
+  .tab-copy p { color: var(--ink-soft); margin-top: 18px; }
+  .tab-copy ul { list-style: none; padding: 0; margin: 22px 0 0; }
+  .tab-copy li { position: relative; padding: 6px 0 6px 26px; font-size: 17px; }
+  .tab-copy li::before { content: ""; position: absolute; left: 0; top: 16px; width: 12px; height: 3px; border-radius: 2px; background: var(--accent); }
+  [role="tabpanel"] .shot img { transform: none; }
+  [role="tabpanel"] .shot::before { transform: rotate(1.5deg); }
+
+  /* Bento */
+  .bento { display: grid; gap: 16px; margin-top: 40px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .bento { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1040px) { .bento { grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(170px, auto); } }
+  .tile { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 24px; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  .tile h3 { font-size: 22px; line-height: 1.15; }
+  .tile p { color: var(--ink-soft); font-size: 16px; }
+  .tile .ico { color: var(--accent-ink); width: 28px; height: 28px; }
+  .tile.big { padding: 0; overflow: hidden; background: var(--term); border-color: var(--term-line); }
+  .tile.big img { width: 100%; }
+  .tile.dark { background: var(--term); color: var(--term-text); border-color: var(--term-line); }
+  .tile.dark p { color: var(--term-dim); }
+  .tile.dark h3 { color: var(--on-band); }
+  .tile.amber { background: var(--accent); border-color: var(--accent-deep); color: var(--on-accent); }
+  .tile.amber p { color: var(--on-accent); opacity: .85; }
+  .tile .num { font: 800 clamp(48px, 6vw, 72px)/1 var(--display); letter-spacing: -.04em; }
+  .tile pre { margin: 6px 0 0; font: 400 13px/1.7 var(--mono); white-space: pre-wrap; word-break: break-word; color: var(--term-text); }
+  .tile pre .c { color: var(--term-dim); }
+  .tile pre .p { color: var(--accent); }
+  .tile .chips { margin-top: auto; padding-top: 6px; }
+  @media (min-width: 1040px) {
+    .t-big { grid-column: span 2; grid-row: span 2; }
+    .t-wide { grid-column: span 2; }
+    .t-3 { grid-column: span 3; }
+  }
+
+  /* Cards */
+  .cards { display: grid; gap: 14px; margin-top: 40px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px 22px 24px; }
+  .card .ic { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 12px; background: var(--paper-2); color: var(--ink); margin-bottom: 14px; }
+  .card:nth-child(4n+1) .ic { background: var(--accent-wash); color: var(--accent-ink); }
+  .card h3 { font-size: 19px; margin-bottom: 4px; }
+  .card p { color: var(--ink-soft); font-size: 16px; line-height: 1.5; }
+
+  /* Method track */
+  .method { display: grid; gap: 40px; align-items: center; }
+  @media (min-width: 960px) { .method { grid-template-columns: 5fr 6fr; gap: 64px; } }
+  .track { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; counter-reset: f; }
+  .track li { counter-increment: f; display: flex; align-items: center; gap: 14px; padding: 12px 16px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); font-weight: 500; }
+  .track li::before { content: counter(f); display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--paper-2); font: 800 15px var(--display); color: var(--ink-soft); flex: none; }
+  .track li.done { color: var(--ink-soft); }
+  .track li.done::before { content: "✓"; color: var(--ok-ink); }
+  .track li.now { border-color: var(--accent-deep); background: var(--accent-wash); }
+  .track li.now::before { background: var(--accent); color: var(--on-accent); }
+  .track li:nth-child(2) { margin-left: 4%; } .track li:nth-child(3) { margin-left: 8%; } .track li:nth-child(4) { margin-left: 12%; }
+  .track li:nth-child(5) { margin-left: 16%; } .track li:nth-child(6) { margin-left: 20%; } .track li:nth-child(7) { margin-left: 24%; }
+
+  /* FAQ */
+  .faq { margin-top: 36px; border-top: 1px solid var(--line); max-width: 860px; }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary { list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 22px 4px; font: 700 20px/1.3 var(--display); letter-spacing: -.01em; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; flex: none; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; background: var(--paper-2); font: 700 20px var(--text); color: var(--ink-soft); transition: transform .2s; }
+  .faq details[open] summary::after { content: "–"; background: var(--accent); color: var(--on-accent); }
+  .faq .a { padding: 0 4px 24px; color: var(--ink-soft); max-width: 46em; }
+
+  /* Closing: install */
+  .install { background: var(--band); color: var(--on-band); padding: 96px 0; }
+  .install .h2 { color: var(--on-band); }
+  .install .sub { color: color-mix(in srgb, var(--on-band) 80%, transparent); }
+  .install-grid { display: grid; gap: 24px; margin-top: 40px; }
+  @media (min-width: 960px) { .install-grid { grid-template-columns: 7fr 5fr; gap: 32px; } }
+  .install .term { box-shadow: none; border: 1px solid var(--term-line); }
+  .install .term .body { min-height: 190px; font-size: 14px; line-height: 1.8; position: relative; }
+  .typed .c { color: var(--term-dim); }
+  .typed .p { color: var(--accent); }
+  .cursor { display: inline-block; width: 8px; height: 1.1em; background: var(--accent); vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .copy-btn { position: absolute; top: 10px; right: 10px; border: 1px solid var(--term-3); background: var(--term-2); color: var(--term-text); border-radius: 8px; font: 700 12px var(--text); padding: 5px 10px; cursor: pointer; }
+  .next { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; counter-reset: n; }
+  .next li { counter-increment: n; display: grid; grid-template-columns: 38px 1fr; gap: 14px; align-items: start; padding: 18px; border-radius: 16px; border: 1px solid color-mix(in srgb, var(--on-band) 16%, transparent); background: color-mix(in srgb, var(--on-band) 5%, transparent); }
+  .next li::before { content: counter(n); display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font: 800 17px var(--display); }
+  .next h3 { font-size: 19px; color: var(--on-band); }
+  .next p { font-size: 16px; color: color-mix(in srgb, var(--on-band) 80%, transparent); margin-top: 4px; }
+  .next code { font: 400 .9em var(--mono); background: color-mix(in srgb, var(--on-band) 12%, transparent); padding: 1px 6px; border-radius: 6px; }
+  .install .reqs { margin-top: 28px; font-size: 16px; color: color-mix(in srgb, var(--on-band) 80%, transparent); max-width: 52em; }
+  .install .reqs code { font: 400 .9em var(--mono); background: color-mix(in srgb, var(--on-band) 12%, transparent); padding: 1px 6px; border-radius: 6px; }
+  .install .ctas { margin-top: 32px; }
+  .install .btn.ghost { color: var(--on-band); border: 2px solid var(--on-band); }
+
+  footer { padding: 36px 0 48px; color: var(--ink-faint); font-size: 15px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: space-between; }
+  footer a { color: var(--ink-soft); }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Stroke icons, drawn once and reused. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-ask" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 9.5h8M8 12.5h5"/></symbol>
+  <symbol id="i-queue" viewBox="0 0 24 24"><path d="M4 6h12M4 12h12M4 18h8"/><path d="M18 15v6M15 18h6"/></symbol>
+  <symbol id="i-agent" viewBox="0 0 24 24"><rect x="5" y="7" width="14" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9.5 15.5h5M2 12v3M22 12v3"/></symbol>
+  <symbol id="i-test" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L5 19a1.5 1.5 0 0 0 1.3 2h11.4A1.5 1.5 0 0 0 19 19l-5-10V3"/><path d="M7.5 15h9"/></symbol>
+  <symbol id="i-merge" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="19" r="2"/><path d="M6 7v10M6 9c0 5 6 6 10 9"/></symbol>
+  <symbol id="i-ship" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M4 15v4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-4"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="19" r="2"/><circle cx="18" cy="7" r="2"/><path d="M6 7v10M18 9c0 5-7 4-11.5 8.5"/></symbol>
+  <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M14 4v16M16.5 8h2M16.5 11.5h2M16.5 15h2"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M12 10.5v5M9.5 13h5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3.5 8-7 10-3.5-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></symbol>
+  <symbol id="i-steps" viewBox="0 0 24 24"><path d="M3 20h5v-5h5v-5h5V5h3"/></symbol>
+  <symbol id="i-app" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+  <symbol id="i-term" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><rect x="11" y="10" width="7" height="6" rx="1.5"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top"><img src="img/logo.svg" alt="" width="108" height="60">SoftwareFactory</a>
+    <nav>
+      <a class="link" href="#how"><span class="en">How it works</span><span class="es">Cómo funciona</span></a>
+      <a class="link" href="#inside"><span class="en">What's inside</span><span class="es">Qué incluye</span></a>
+      <a class="link" href="#faq"><span class="en">FAQ</span><span class="es">Preguntas</span></a>
+      <a class="link" href="#install"><span class="en">Install</span><span class="es">Instalar</span></a>
+      <div class="lang" role="group" aria-label="Language / Idioma">
+        <button type="button" data-set-lang="en" aria-pressed="true">EN</button>
+        <button type="button" data-set-lang="es" aria-pressed="false">ES</button>
+      </div>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <!-- 1. Hero -->
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <p class="badge"><b><span class="en">New</span><span class="es">Nuevo</span></b><span class="en">A mod for Claude Code, in the terminal and the desktop app</span><span class="es">Un mod para Claude Code, en la terminal y en la app de escritorio</span></p>
+        <h1>
+          <span class="en">Go fast with Claude&nbsp;Code. <span class="second">Stay in control.</span></span>
+          <span class="es">Ve rápido con Claude&nbsp;Code. <span class="second">Sin perder el control.</span></span>
+        </h1>
+        <p class="lead">
+          <span class="en">A mod plugs into Claude Code and changes how it works, <strong>without switching tools</strong>. SoftwareFactory adds a live panel, a task queue and a way of working: every request gets its own task, agent and branch, and nothing goes public without a privacy check.</span>
+          <span class="es">Un mod se instala en Claude Code y cambia cómo trabaja, <strong>sin cambiar de herramienta</strong>. SoftwareFactory le añade un panel en vivo, una cola de tareas y una forma de trabajar: cada petición tiene su tarea, su agente y su rama, y nada se publica sin revisar los datos privados.</span>
+        </p>
+        <div class="ctas">
+          <a class="btn solid" href="#install"><span class="en">Install in 2 commands</span><span class="es">Instálalo con 2 órdenes</span></a>
+          <a class="btn line" href="https://github.com/jumibot/SoftwareFactory"><svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span class="en">See it on GitHub</span><span class="es">Míralo en GitHub</span></a>
+        </div>
+        <ul class="chips">
+          <li class="chip"><b>MIT</b><span class="en">free and open source</span><span class="es">libre y abierto</span></li>
+          <li class="chip">Windows, macOS, Linux</li>
+          <li class="chip"><span class="dot"></span><b>290+</b><span class="en">automated tests</span><span class="es">pruebas automáticas</span></li>
+        </ul>
+      </div>
+
+      <div class="stage">
+        <div class="term" id="live" role="img" aria-label="The SoftwareFactory panel: a queued task moves to in progress and its steps tick off">
+          <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span>pantry — claude</span></div>
+          <div class="body" aria-hidden="true">
+            <div class="row"><span><span class="tag rel">RELEASE</span> <span class="tag tur">TURBO</span></span><span class="tag ver">SF 1.8.1</span></div>
+            <div class="row head2"><span><span class="tag mut">2h 05m</span> <span class="tag mut"><b>31</b> prompts</span></span><span class="tag mut">develop <span class="up">↑2</span></span></div>
+            <div id="live-tasks"></div>
+            <div class="tasks-label" data-t="tasks"></div>
+            <div class="block">▾ <b data-t="queued"></b> <span class="n" data-k="qn"></span></div>
+            <div class="queue" id="live-queue"></div>
+            <div class="block">▸ <b data-t="review"></b> <span class="n">1</span></div>
+            <div class="block">▸ <b data-t="closed"></b> <span class="n ok">4</span></div>
+            <div class="toast" id="live-toast"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ruler" aria-hidden="true"></div>
+
+  <!-- 1b. Parallel subagents -->
+  <section id="parallel">
+    <div class="wrap orch">
+      <div class="copy">
+        <h2><span class="en">Don’t wait.<br><em>Orchestrate.</em></span><span class="es">No esperes.<br><em>Orquesta.</em></span></h2>
+        <p><span class="en">Every task gets its own subagent, working in the background on its own branch. While they work, you keep talking to Claude: ask for more, or test another task. You never wait for one to finish before starting the next.</span><span class="es">Cada tarea tiene su propio subagente, trabajando en segundo plano en su propia rama. Mientras trabajan, tú sigues hablando con Claude: pides más cosas o pruebas otra tarea. Nunca esperas a que termine una para empezar la siguiente.</span></p>
+        <ul>
+          <li><span class="en">Several subagents in parallel, one per task.</span><span class="es">Varios subagentes en paralelo, uno por tarea.</span></li>
+          <li><span class="en">Each on its own branch: they never step on each other.</span><span class="es">Cada uno en su rama: no se pisan.</span></li>
+          <li><span class="en">The panel shows every step as it happens.</span><span class="es">El panel enseña cada paso según ocurre.</span></li>
+        </ul>
+      </div>
+      <div class="lanes" role="img" data-es="Tres subagentes trabajando a la vez en las tareas 47, 48 y 52, cada uno en su rama, mientras la tarea 46 espera a que la pruebes y tú sigues hablando con Claude" data-en="Three subagents working at the same time on tasks 47, 48 and 52, each on its own branch, while task 46 waits for you to test it and you keep talking to Claude" aria-label="Three subagents working at the same time on tasks 47, 48 and 52, each on its own branch, while task 46 waits for you to test it and you keep talking to Claude">
+        <div class="you"><b><span class="en">you</span><span class="es">tú</span></b><span><span class="en">“…and invoices should export to PDF”</span><span class="es">«…y que las facturas se exporten a PDF»</span></span><i class="dots" aria-hidden="true"><span></span><span></span><span></span></i></div>
+          <div class="lane">
+            <div class="row"><span class="id">47A</span><span class="t"><span class="en">Fix accents in the CSV export</span><span class="es">Arreglar los acentos del CSV</span></span><span class="br">feature/47-csv</span></div>
+            <div class="meter"><b style="--w:62%"></b></div>
+            <div class="st"><span class="en">3/5 · Check it opens in Excel</span><span class="es">3/5 · Comprobar que abre en Excel</span></div>
+          </div>
+          <div class="lane">
+            <div class="row"><span class="id">48A</span><span class="t"><span class="en">Dark mode in Settings</span><span class="es">Modo oscuro en Ajustes</span></span><span class="br">feature/48-dark-mode</span></div>
+            <div class="meter"><b style="--w:30%"></b></div>
+            <div class="st"><span class="en">1/4 · Pick the colour tokens</span><span class="es">1/4 · Elegir los colores</span></div>
+          </div>
+          <div class="lane">
+            <div class="row"><span class="id">52A</span><span class="t"><span class="en">Export invoices to PDF</span><span class="es">Exportar las facturas a PDF</span></span><span class="br">feature/52-pdf</span></div>
+            <div class="meter"><b style="--w:18%"></b></div>
+            <div class="st"><span class="en">1/6 · Lay out the invoice</span><span class="es">1/6 · Maquetar la factura</span></div>
+          </div>
+          <div class="lane ready">
+            <div class="row"><span class="id">46</span><span class="t"><span class="en">Search by tag</span><span class="es">Buscar por etiqueta</span></span><span class="br">feature/46-tags</span></div>
+            <div class="meter"><b style="--w:100%"></b></div>
+            <div class="st"><b><span class="en">Ready to test</span><span class="es">Lista para probar</span></b> · <span class="en">your turn, whenever you like</span><span class="es">te toca, cuando quieras</span></div>
+          </div>
+        <div class="foot"><span class="en">3 subagents working · 0 waiting on you to finish</span><span class="es">3 subagentes trabajando · ninguno te hace esperar</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ruler" aria-hidden="true"></div>
+
+  <!-- 2. Before / after -->
+  <section id="why">
+    <div class="wrap">
+      <h2 class="h2"><span class="en">Same Claude. A very different day.</span><span class="es">El mismo Claude. Un día muy distinto.</span></h2>
+      <p class="sub"><span class="en">Claude Code is brilliant at writing code. Keeping track of everything around it is still your job, unless something keeps it for you.</span><span class="es">Claude Code escribe código de maravilla. Llevar la cuenta de todo lo demás sigue siendo cosa tuya, salvo que algo la lleve por ti.</span></p>
+      <div class="ledger">
+        <div class="col before">
+          <h3><span class="en">Claude Code on its own</span><span class="es">Claude Code a pelo</span></h3>
+          <ul>
+            <li><span class="en">You ask for five things. Three get lost in the scroll.</span><span class="es">Pides cinco cosas. Tres se pierden en el scroll.</span></li>
+            <li><span class="en">Every change piles up on the branch you happen to be on.</span><span class="es">Todos los cambios se amontonan en la rama en la que estés.</span></li>
+            <li><span class="en">The to-do list lives in your head.</span><span class="es">La lista de pendientes vive en tu cabeza.</span></li>
+            <li><span class="en">You push and hope nothing private slipped in.</span><span class="es">Subes y cruzas los dedos para que no se cuele nada privado.</span></li>
+            <li><span class="en">Each project means setting things up again.</span><span class="es">Cada proyecto, a preparar todo otra vez.</span></li>
+          </ul>
+        </div>
+        <div class="col after">
+          <h3><span class="en">With <span class="mark">SoftwareFactory</span></span><span class="es">Con <span class="mark">SoftwareFactory</span></span></h3>
+          <ul>
+            <li><span class="en">Every request lands in a queue the moment you say it.</span><span class="es">Cada petición entra en una cola en cuanto la dices.</span></li>
+            <li><span class="en">Each task works on its own branch, with its own agent, all at once.</span><span class="es">Cada tarea trabaja en su rama, con su agente, todas a la vez.</span></li>
+            <li><span class="en">One panel shows what is running, waiting and done.</span><span class="es">Un panel enseña lo que está en marcha, lo que espera y lo hecho.</span></li>
+            <li><span class="en">Every release is checked for secrets and personal data.</span><span class="es">Cada publicación se revisa en busca de secretos y datos personales.</span></li>
+            <li><span class="en">Any project is ready after a few questions.</span><span class="es">Cualquier proyecto queda listo tras unas pocas preguntas.</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="ctas after-ctas">
+        <a class="btn solid" href="#install"><span class="en">Install in 2 commands</span><span class="es">Instálalo con 2 órdenes</span></a>
+        <a class="btn line" href="https://github.com/jumibot/SoftwareFactory"><span class="en">See it on GitHub</span><span class="es">Míralo en GitHub</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Timeline -->
+  <section id="how" style="background:var(--paper-2)">
+    <div class="wrap">
+      <h2 class="h2"><span class="en">From an idea to a release, one task at a time.</span><span class="es">De una idea a una versión publicada, tarea a tarea.</span></h2>
+      <p class="sub"><span class="en">You only step in twice: to test, and to say OK. The rest moves on its own.</span><span class="es">Solo intervienes dos veces: para probar y para dar el OK. Lo demás avanza solo.</span></p>
+      <ol class="flow">
+        <li class="hot"><span class="node"><svg class="ico"><use href="#i-ask"/></svg></span><h3><span class="en">You ask</span><span class="es">Pides</span></h3><p><span class="en">In the chat, in your own words.</span><span class="es">En el chat, con tus palabras.</span></p><span class="who you"><span class="en">you</span><span class="es">tú</span></span></li>
+        <li><span class="node"><svg class="ico"><use href="#i-queue"/></svg></span><h3><span class="en">It's queued</span><span class="es">Se anota</span></h3><p><span class="en">A task with its steps, at once.</span><span class="es">Una tarea con sus pasos, al momento.</span></p><span class="who">Claude</span></li>
+        <li><span class="node"><svg class="ico"><use href="#i-agent"/></svg></span><h3><span class="en">Its agent works</span><span class="es">Su agente trabaja</span></h3><p><span class="en">On its own branch, step by step.</span><span class="es">En su rama, paso a paso.</span></p><span class="who"><span class="en">subagent</span><span class="es">subagente</span></span></li>
+        <li class="hot"><span class="node"><svg class="ico"><use href="#i-test"/></svg></span><h3><span class="en">You test</span><span class="es">Pruebas</span></h3><p><span class="en">On the task's branch, for real.</span><span class="es">En la rama de la tarea, de verdad.</span></p><span class="who you"><span class="en">you</span><span class="es">tú</span></span></li>
+        <li class="done"><span class="node"><svg class="ico"><use href="#i-merge"/></svg></span><h3><span class="en">You close it</span><span class="es">La cierras</span></h3><p><span class="en">One click, one clean commit.</span><span class="es">Un clic, un commit limpio.</span></p><span class="who"><span class="en">panel</span><span class="es">panel</span></span></li>
+        <li class="done"><span class="node"><svg class="ico"><use href="#i-ship"/></svg></span><h3><span class="en">You publish</span><span class="es">Publicas</span></h3><p><span class="en">Checked, versioned and tagged.</span><span class="es">Revisada, con versión y tag.</span></p><span class="who">RELEASE</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 4. Two feature rows -->
+  <section>
+    <div class="wrap">
+      <article class="feature">
+        <div class="copy">
+          <h2><span class="en">No idea gets lost.</span><span class="es">Ninguna idea se pierde.</span></h2>
+          <p class="en">Say it in the chat, in your own words. Before any work starts, it is in the queue as a task with its steps.</p>
+          <p class="es">Dilo en el chat, con tus palabras. Antes de empezar nada, ya está en la cola como tarea con sus pasos.</p>
+          <ul>
+            <li><span class="en">Three requests in one message become three tasks.</span><span class="es">Tres peticiones en un mensaje son tres tareas.</span></li>
+            <li><span class="en">Bugs Claude runs into go to the queue too.</span><span class="es">Los errores que encuentra Claude también van a la cola.</span></li>
+            <li><span class="en">TURBO hands Claude every task that does not need you.</span><span class="es">TURBO pasa a Claude todas las tareas que no te necesitan.</span></li>
+          </ul>
+        </div>
+        <figure class="shot">
+          <img class="en" src="img/request-en.svg" width="560" height="581" alt="You ask in the chat, Claude creates tasks 47 and 48, and a subagent works through the steps of task 47">
+          <img class="es" src="img/request-es.svg" width="560" height="581" alt="Pides en el chat, Claude crea las tareas 47 y 48, y un subagente hace los pasos de la 47">
+        </figure>
+      </article>
+      <article class="feature flip">
+        <div class="copy">
+          <h2><span class="en">You decide. Claude does the work.</span><span class="es">Tú decides. Claude trabaja.</span></h2>
+          <p class="en">Each task gets its own agent and its own branch. Nothing touches your stable code until you have tested it and said OK.</p>
+          <p class="es">Cada tarea tiene su propio agente y su propia rama. Nada toca tu código estable hasta que lo pruebas y das el OK.</p>
+          <ul>
+            <li><span class="en">Several agents in parallel, one per task.</span><span class="es">Varios agentes en paralelo, uno por tarea.</span></li>
+            <li><span class="en">Close, discard or revert a task with a click.</span><span class="es">Cierra, descarta o revierte una tarea con un clic.</span></li>
+            <li><span class="en">One clean commit per task, easy to undo.</span><span class="es">Un commit limpio por tarea, fácil de deshacer.</span></li>
+          </ul>
+        </div>
+        <figure class="shot">
+          <img class="en" src="img/test-en.svg" width="560" height="458" alt="Task 47 with all its steps done, on its branch, and the notice that it was squashed into develop">
+          <img class="es" src="img/test-es.svg" width="560" height="458" alt="La tarea 47 con todos sus pasos hechos, en su rama, y el aviso de su squash en develop">
+        </figure>
+      </article>
+    </div>
+  </section>
+
+  <!-- 5. Pull quote -->
+  <section class="quote">
+    <div class="wrap">
+      <blockquote><span class="en">Commands before inference.</span><span class="es">Comandos antes que inferencia.</span></blockquote>
+      <p><span class="en">A working principle of SoftwareFactory. What a plain command can do, a command does: closing a task, publishing, checking for private data. Claude is kept for what needs judgment, so you spend fewer tokens and get the same result every time.</span><span class="es">Un principio de trabajo de SoftwareFactory. Lo que puede hacer una orden lo hace una orden: cerrar una tarea, publicar, revisar los datos privados. Claude queda para lo que pide criterio: gastas menos tokens y el resultado es siempre el mismo.</span></p>
+    </div>
+  </section>
+
+  <!-- 6. Tabs: terminal / desktop app / compact box -->
+  <section id="glance">
+    <div class="wrap">
+      <h2 class="h2"><span class="en">Everything at a glance, wherever you use Claude Code.</span><span class="es">Todo de un vistazo, uses Claude Code donde lo uses.</span></h2>
+      <div class="tabs-wrap">
+        <div class="tab-copy">
+          <div role="tablist" aria-label="Where the panel shows / Dónde sale el panel">
+            <button role="tab" id="tab-term" aria-controls="pane-term" aria-selected="true" tabindex="0"><svg class="ico" aria-hidden="true"><use href="#i-term"/></svg><span class="en">Terminal</span><span class="es">Terminal</span></button>
+            <button role="tab" id="tab-app" aria-controls="pane-app" aria-selected="false" tabindex="-1"><svg class="ico" aria-hidden="true"><use href="#i-app"/></svg><span class="en">Desktop app</span><span class="es">App de escritorio</span></button>
+            <button role="tab" id="tab-box" aria-controls="pane-box" aria-selected="false" tabindex="-1"><svg class="ico" aria-hidden="true"><use href="#i-box"/></svg><span class="en">Compact</span><span class="es">Compacto</span></button>
+          </div>
+          <p><span class="en">The same panel in the terminal and in the Claude Code desktop app: what is running, which step it is on, what is waiting and what is done. Not in full screen? A small box above the prompt keeps the essentials.</span><span class="es">El mismo panel en la terminal y en la app de escritorio de Claude Code: qué está en marcha, en qué paso va, qué espera y qué está hecho. ¿Sin pantalla completa? Una caja pequeña sobre el prompt guarda lo esencial.</span></p>
+          <ul>
+            <li><span class="en">Buttons run plain commands, without spending tokens.</span><span class="es">Los botones lanzan órdenes, sin gastar tokens.</span></li>
+            <li><span class="en">The current step of every task, always in sight.</span><span class="es">El paso actual de cada tarea, siempre a la vista.</span></li>
+            <li><span class="en">Commits waiting to be pushed, one click away.</span><span class="es">Los commits por subir, a un clic.</span></li>
+          </ul>
+        </div>
+        <div>
+          <div role="tabpanel" id="pane-term" aria-labelledby="tab-term">
+            <figure class="shot">
+              <img class="en" src="img/panel-en.svg" width="560" height="455" alt="The panel in the terminal, with tasks 47, 48 and 51 in progress and the Queued, In review, Closed and Proposals blocks">
+              <img class="es" src="img/panel-es.svg" width="560" height="455" alt="El panel en la terminal, con las tareas 47, 48 y 51 en curso y los bloques Pendientes, En observación, Cerradas y Propuestas">
+            </figure>
+          </div>
+          <div role="tabpanel" id="pane-app" aria-labelledby="tab-app" hidden>
+            <figure class="shot">
+              <img class="en" src="img/app-en.svg" width="560" height="420" alt="The same panel in the desktop app, beside the chat, with tasks 47 and 48 in progress">
+              <img class="es" src="img/app-es.svg" width="560" height="420" alt="El mismo panel en la app de escritorio, junto al chat, con las tareas 47 y 48 en curso">
+            </figure>
+          </div>
+          <div role="tabpanel" id="pane-box" aria-labelledby="tab-box" hidden>
+            <figure class="shot">
+              <img class="en" src="img/box-en.svg" width="560" height="315" alt="Outside full screen, a small box above the prompt shows the project, tasks 47 and 48 in progress and the counts">
+              <img class="es" src="img/box-es.svg" width="560" height="315" alt="Sin pantalla completa, una caja sobre el prompt enseña el proyecto, las tareas 47 y 48 en curso y las cuentas">
+            </figure>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ruler" aria-hidden="true"></div>
+
+  <!-- 7. Bento: publishing and onboarding -->
+  <section id="safe">
+    <div class="wrap">
+      <h2 class="h2"><span class="en">Publish without fear.</span><span class="es">Publica sin miedo.</span></h2>
+      <p class="sub"><span class="en">Before anything goes up to a public repository, SoftwareFactory checks what is leaving: secrets and keys, e-mails, paths from your machine, your user and machine name, local files. If it finds something, it stops. When it is clean, the version and its tag go out on their own, with one button.</span><span class="es">Antes de subir nada a un repositorio público, SoftwareFactory revisa lo que sale: secretos y claves, correos, rutas de tu máquina, tu usuario y el nombre del equipo, archivos locales. Si encuentra algo, para. Cuando está limpio, la versión y su tag salen solas, con un botón.</span></p>
+      <div class="gate" role="group" data-en="What goes out and what stays home" data-es="Lo que sale y lo que no sale" aria-label="What goes out and what stays home">
+        <div class="side ok">
+          <h3><svg class="ico" aria-hidden="true"><use href="#i-ship"/></svg><span class="en">Goes out</span><span class="es">Sale</span></h3>
+          <ul><li><span class="k">src/export.py</span><code>+ encode('utf-8-sig')</code></li><li><span class="k">docs/manual.md</span><code><span class="en">+ CSV export section</span><span class="es">+ apartado de exportar a CSV</span></code></li><li><span class="k">CHANGELOG.md</span><code>+ v1.3.0</code></li><li><span class="k"><span class="en">tag</span><span class="es">tag</span></span><code>v1.3.0 → main</code></li></ul>
+        </div>
+        <div class="check" aria-hidden="true"><svg class="ico"><use href="#i-shield"/></svg><span><span class="en">check</span><span class="es">revisión</span></span></div>
+        <div class="side no">
+          <h3><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg><span class="en">Stays home</span><span class="es">No sale</span></h3>
+          <ul><li><span class="k"><span class="en">token</span><span class="es">token</span></span><code>ghp_••••••••••••</code></li><li><span class="k"><span class="en">e-mail</span><span class="es">correo</span></span><code>ana@••••.com</code></li><li><span class="k"><span class="en">your machine's path</span><span class="es">ruta de tu máquina</span></span><code><span class="en">/home/you/notes/…</span><span class="es">/home/tu/notas/…</span></code></li><li><span class="k"><span class="en">local files</span><span class="es">archivos locales</span></span><code>.env · settings.local.json</code></li></ul>
+          <p class="verdict"><span class="en">Public repo + a new finding = release blocked. Nothing is pushed.</span><span class="es">Repositorio público + un hallazgo nuevo = publicación parada. No se sube nada.</span></p>
+        </div>
+      </div>
+      <div class="bento">
+        <div class="tile big t-big">
+          <img class="en" src="img/publish-en.svg" width="560" height="458" alt="RELEASE review: no secrets or e-mails, one personal path found, publishing blocked; then v1.3.0 published">
+          <img class="es" src="img/publish-es.svg" width="560" height="458" alt="Revisión de RELEASE: sin secretos ni correos, una ruta personal encontrada, publicación bloqueada; después, v1.3.0 publicada">
+        </div>
+        <div class="tile">
+          <svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg>
+          <h3><span class="en">Checked before it leaves</span><span class="es">Revisado antes de salir</span></h3>
+          <p><span class="en">Every new commit: keys, tokens, e-mails, personal paths, local settings.</span><span class="es">Cada commit nuevo: claves, tokens, correos, rutas personales, ajustes locales.</span></p>
+        </div>
+        <div class="tile amber">
+          <h3><span class="en">Only what is new counts.</span><span class="es">Solo cuenta lo nuevo.</span></h3>
+          <p><span class="en">What was already public is not flagged again, and what you accept is not asked twice.</span><span class="es">Lo que ya era público no se vuelve a señalar, y lo que aceptas no se pregunta dos veces.</span></p>
+        </div>
+        <div class="tile">
+          <svg class="ico" aria-hidden="true"><use href="#i-ship"/></svg>
+          <h3><span class="en">One click to release</span><span class="es">Un clic para publicar</span></h3>
+          <p><span class="en">develop to main, the version tag and the push. An update button appears when a new version is out.</span><span class="es">develop a main, el tag de la versión y la subida. Sale un botón para actualizar cuando hay versión nueva.</span></p>
+        </div>
+        <div class="tile dark">
+          <h3><span class="en">The queue is a file you own</span><span class="es">La cola es un archivo tuyo</span></h3>
+          <pre><span class="c"># <span class="en">every task, in your repository</span><span class="es">cada tarea, en tu repositorio</span></span>
+<span class="p">$</span> cola.py ver 47
+{ "id": 47, "estado": "en-curso",
+  "rama": "feature/47-csv" … }</pre>
+        </div>
+        <div class="tile t-wide t-3">
+          <svg class="ico" aria-hidden="true"><use href="#i-folder"/></svg>
+          <h3><span class="en">Your projects, as they are</span><span class="es">Tus proyectos de siempre, sin rehacerlos</span></h3>
+          <p><span class="en">Bring in a project you already have, or start from an empty folder. A few questions as menus and it is ready, without moving or renaming your code.</span><span class="es">Trae un proyecto que ya tengas, o empieza en una carpeta vacía. Unas pocas preguntas con menús y queda listo, sin mover ni renombrar tu código.</span></p>
+          <ul class="chips">
+            <li class="chip"><span class="en">Reads your branches</span><span class="es">Lee tus ramas</span></li>
+            <li class="chip"><span class="en">Keeps your commit style</span><span class="es">Respeta tus commits</span></li>
+            <li class="chip"><span class="en">Finds your version file</span><span class="es">Encuentra tu versión</span></li>
+            <li class="chip"><span class="en">Creates the GitHub repo if missing</span><span class="es">Crea el repositorio en GitHub si falta</span></li>
+          </ul>
+        </div>
+        <div class="tile">
+          <span class="num">0</span>
+          <p><span class="en">changes to your project without your OK.</span><span class="es">cambios en tu proyecto sin tu OK.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Cards: what's inside -->
+  <section id="inside" style="background:var(--paper-2)">
+    <div class="wrap">
+      <h2 class="h2"><span class="en">What's inside the mod.</span><span class="es">Qué trae el mod.</span></h2>
+      <p class="sub"><span class="en">One install. Everything works together, in every project.</span><span class="es">Una instalación. Todo funciona junto, en todos tus proyectos.</span></p>
+      <div class="cards">
+        <div class="card"><div class="ic"><svg class="ico" aria-hidden="true"><use href="#i-queue"/></svg></div><h3><span class="en">Task queue</span><span class="es">Cola de tareas</span></h3><p><span class="en">Every request and every bug, with steps and history.</span><span class="es">Cada petición y cada error, con pasos e historial.</span></p></div>
+        <div class="card"><div class="ic"><svg class="ico" aria-hidden="true"><use href="#i-agent"/></svg></div><h3><span class="en">Subagents</span><span class="es">Subagentes</span></h3><p><span class="en">One per task, in parallel, while you keep talking.</span><span class="es">Uno por tarea, en paralelo, mientras sigues hablando.</span></p></div>
+        <div class="card"><div class="ic"><svg class="ico" aria-hidden="true"><use href="#i-branch"/></svg></div><h3><span class="en">A branch per task</span><span class="es">Una rama por tarea</span></h3><p><span class="en">Into develop with one commit when you say OK.</span><span class="es">A develop con un commit cuando das el OK.</span></p></div>
+        <div class="card"><div class="ic"><svg class="ico" aria-hidden="true"><use href="#i-panel"/></svg></div><h3><span class="en">Live panel</span><span class="es">Panel en vivo</span></h3><p><span class="en">Tasks, steps and buttons beside the chat.</span><span class="es">Tareas, pasos y botones junto al chat.</span></p></div>
+        <div class="card"><div class="ic"><svg class="ico" aria-hidden="true"><use href="#i-app"/></svg></div><h3><span class="en">Terminal and desktop app</span><span class="es">Terminal y app de escritorio</span></h3><p><span class="en">The same mod, wherever you run Claude Code.</span><span class="es">El mismo mod, uses Claude Code donde lo uses.</span></p></div>
+        <div class="card"><div class="ic"><svg class="ico" aria-hidden="true"><use href="#i-folder"/></svg></div><h3><span class="en">Onboarding</span><span class="es">Incorporación</span></h3><p><span class="en">New or existing projects, through a few menus.</span><span class="es">Proyectos nuevos o existentes, con unos pocos menús.</span></p></div>
+        <div class="card"><div class="ic"><svg class="ico" aria-hidden="true"><use href="#i-shield"/></svg></div><h3><span class="en">Safe release</span><span class="es">Publicación segura</span></h3><p><span class="en">Privacy check, version and tag, in one click.</span><span class="es">Revisión de datos privados, versión y tag, en un clic.</span></p></div>
+        <div class="card"><div class="ic"><svg class="ico" aria-hidden="true"><use href="#i-doc"/></svg></div><h3><span class="en">Documents</span><span class="es">Documentos</span></h3><p><span class="en">Vision, specs and reports as HTML people read.</span><span class="es">Visión, especificaciones e informes en HTML que se leen.</span></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. Method -->
+  <section>
+    <div class="wrap method">
+      <div>
+        <h2 class="h2"><span class="en">A method, if you want one.</span><span class="es">Método, si lo quieres.</span></h2>
+        <p class="sub"><span class="en">The queue and the panel work on their own. Turn the method on and Claude guides the project from vision and spec to code, in small vertical slices, and keeps every decision on file with its reason.</span><span class="es">La cola y el panel funcionan solos. Con la metodología, Claude guía el proyecto de la visión y la especificación al código, en devslices pequeñas, y guarda cada decisión por escrito con su porqué.</span></p>
+      </div>
+      <ol class="track" aria-label="Seven phases / Siete fases">
+        <li class="done"><span class="en">Vision</span><span class="es">Visión</span></li>
+        <li class="done"><span class="en">Spec and interface</span><span class="es">Especificación e interfaz</span></li>
+        <li class="now"><span class="en">Technical definition</span><span class="es">Definición técnica</span></li>
+        <li><span class="en">Devslice planning</span><span class="es">Planificación de devslices</span></li>
+        <li><span class="en">Devslice preparation</span><span class="es">Preparación de la devslice</span></li>
+        <li><span class="en">Build and verify</span><span class="es">Desarrollo y verificación</span></li>
+        <li><span class="en">Wrap-up</span><span class="es">Cierre</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <div class="ruler" aria-hidden="true"></div>
+
+  <!-- 10. FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <h2 class="h2"><span class="en">Questions, answered.</span><span class="es">Preguntas, respondidas.</span></h2>
+      <div class="faq">
+        <details>
+          <summary><span class="en">Do I need the method?</span><span class="es">¿Necesito la metodología?</span></summary>
+          <div class="a"><span class="en">No. The queue, the subagents, the panel and safe publishing work on their own. The method is a switch you turn on, or off, per project.</span><span class="es">No. La cola, los subagentes, el panel y la publicación segura funcionan solos. La metodología se activa, o se quita, en cada proyecto.</span></div>
+        </details>
+        <details>
+          <summary><span class="en">Will it touch my code?</span><span class="es">¿Toca mi código?</span></summary>
+          <div class="a"><span class="en">Onboarding does not move or rename anything, and asks before each change. Afterwards, Claude works on a branch per task, and nothing reaches your main line until you test it and close it.</span><span class="es">La incorporación no mueve ni renombra nada y pregunta antes de cada cambio. Después, Claude trabaja en una rama por tarea, y nada llega a tu línea principal hasta que lo pruebas y lo cierras.</span></div>
+        </details>
+        <details>
+          <summary><span class="en">Does it work with my existing projects?</span><span class="es">¿Funciona con mis proyectos de siempre?</span></summary>
+          <div class="a"><span class="en">Yes, new or old, in any language. It reads your branches, your commit style and your version file, and adapts to them.</span><span class="es">Sí, nuevos o antiguos, en cualquier lenguaje. Lee tus ramas, tu forma de hacer commits y tu archivo de versión, y se adapta.</span></div>
+        </details>
+        <details>
+          <summary><span class="en">Windows, macOS or Linux?</span><span class="es">¿Windows, macOS o Linux?</span></summary>
+          <div class="a"><span class="en">All three, in the terminal and in the Claude Code desktop app. You need git, the GitHub CLI signed in and Python 3.9 or later.</span><span class="es">Los tres, en la terminal y en la app de escritorio de Claude Code. Necesitas git, la CLI de GitHub con la sesión iniciada y Python 3.9 o posterior.</span></div>
+        </details>
+        <details>
+          <summary><span class="en">What does it do with GitHub?</span><span class="es">¿Qué hace con GitHub?</span></summary>
+          <div class="a"><span class="en">Every project lives in a GitHub repository; if yours has none, onboarding creates it with your OK. Pushes and releases go through the privacy check first, and on a public repository a finding stops them.</span><span class="es">Cada proyecto vive en un repositorio de GitHub; si el tuyo no tiene, la incorporación lo crea con tu OK. Las subidas y las publicaciones pasan antes por la revisión de datos privados, y en un repositorio público un hallazgo las para.</span></div>
+        </details>
+        <details>
+          <summary><span class="en">Is it free?</span><span class="es">¿Es gratis?</span></summary>
+          <div class="a"><span class="en">Yes. SoftwareFactory is free software under the MIT licence. You use it with your own Claude Code.</span><span class="es">Sí. SoftwareFactory es software libre con licencia MIT. Lo usas con tu propio Claude Code.</span></div>
+        </details>
+        <details>
+          <summary><span class="en">What language does it speak?</span><span class="es">¿En qué idioma está?</span></summary>
+          <div class="a"><span class="en">Today the panel and the generated documents are in Spanish. Claude talks to you in your language.</span><span class="es">El panel y los documentos están en castellano. Claude te habla en tu idioma.</span></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. Install -->
+  <section class="install" id="install">
+    <div class="wrap">
+      <h2 class="h2"><span class="en">Two commands. Then just talk to Claude.</span><span class="es">Dos órdenes. Después, habla con Claude.</span></h2>
+      <p class="sub"><span class="en">Install once per computer and it works in every project, in the terminal and the desktop app.</span><span class="es">Se instala una vez por equipo y sirve en todos tus proyectos, en la terminal y en la app de escritorio.</span></p>
+      <div class="install-grid">
+        <div class="term" id="typer">
+          <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i><span><span class="en">terminal</span><span class="es">terminal</span></span></div>
+          <div class="body">
+            <button class="copy-btn" type="button" data-copy="claude plugin marketplace add jumibot/SoftwareFactory&#10;claude plugin install sf@softwarefactory --scope user"><span class="en">Copy</span><span class="es">Copiar</span></button>
+            <div class="typed" aria-hidden="true"></div>
+            <pre class="sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">claude plugin marketplace add jumibot/SoftwareFactory
+claude plugin install sf@softwarefactory --scope user</pre>
+          </div>
+        </div>
+        <ol class="next">
+          <li><div><h3><span class="en">Install</span><span class="es">Instala</span></h3><p><span class="en">Run the two commands, once per computer.</span><span class="es">Lanza las dos órdenes, una vez por equipo.</span></p></div></li>
+          <li><div><h3><span class="en">Check</span><span class="es">Comprueba</span></h3><p><span class="en">Ask Claude: “Check the SF installation”. It fixes what is missing, with your OK.</span><span class="es">Pide a Claude: «Comprueba la instalación de la SF». Arregla lo que falte, con tu OK.</span></p></div></li>
+          <li><div><h3><span class="en">Start</span><span class="es">Empieza</span></h3><p><span class="en">Open your project, go full screen with <code>/tui fullscreen</code> or open the desktop app, and press the button on the welcome screen.</span><span class="es">Abre tu proyecto, pon la pantalla completa con <code>/tui fullscreen</code> o abre la app de escritorio, y pulsa el botón de la bienvenida.</span></p></div></li>
+        </ol>
+      </div>
+      <p class="reqs"><span class="en">You need Claude Code, git, the GitHub CLI signed in (<code>gh auth login</code>) and Python 3.9 or later. Installing <code>sf</code> brings its three dependencies on its own.</span><span class="es">Necesitas Claude Code, git, la CLI de GitHub con la sesión iniciada (<code>gh auth login</code>) y Python 3.9 o posterior. Instalar <code>sf</code> trae solas sus tres dependencias.</span></p>
+      <div class="ctas">
+        <a class="btn solid" href="https://github.com/jumibot/SoftwareFactory"><span class="en">See it on GitHub</span><span class="es">Míralo en GitHub</span></a>
+        <a class="btn ghost" href="https://github.com/jumibot/SoftwareFactory/releases"><span class="en">Release notes</span><span class="es">Versiones publicadas</span></a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span><span class="en">SoftwareFactory is free software under the</span><span class="es">SoftwareFactory es software libre con licencia</span> <a href="https://github.com/jumibot/SoftwareFactory/blob/main/LICENSE">MIT</a><span class="en"> licence</span>.</span>
+    <a href="https://github.com/jumibot/SoftwareFactory">github.com/jumibot/SoftwareFactory</a>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var root = document.documentElement;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var titles = { en: 'SoftwareFactory, a new mod for Claude Code', es: 'SoftwareFactory, un nuevo mod para Claude Code' };
+    function lang() { return root.getAttribute('data-lang') === 'es' ? 'es' : 'en'; }
+    function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+    /* The live panel: task 52 leaves the queue, a subagent picks it up, steps tick off, 47 waits for you. */
+    var labels = {
+      en: { tasks: 'TASKS', queued: 'Queued', review: 'In review', closed: 'Closed', aria: 'The SoftwareFactory panel: a queued task moves to in progress and its steps tick off' },
+      es: { tasks: 'TAREAS', queued: 'Pendientes', review: 'En observación', closed: 'Cerradas', aria: 'El panel de SoftwareFactory: una tarea pendiente pasa a en curso y sus pasos se van marcando' }
+    };
+    var text = {
+      en: { 47: 'Fix accents in the CSV export', 48: 'Dark mode in Settings', 52: 'Export invoices to PDF', 53: 'Welcome e-mail for new users',
+        s47: ['Reproduce with a real file', 'Write the test with “Muñoz”', 'Export as UTF-8 with BOM', 'Check it opens in Excel', 'Test the task'],
+        s48: ['Pick the colour tokens', 'Apply them to Settings', 'Check the contrast', 'Test the task'],
+        s52: ['Read the invoice layout', 'Render the PDF', 'Add the download button', 'Test the task'],
+        toast: '<b>✓</b> 47 is ready for you to test' },
+      es: { 47: 'Arreglar los acentos del CSV', 48: 'Modo oscuro en Ajustes', 52: 'Exportar las facturas a PDF', 53: 'Correo de bienvenida',
+        s47: ['Reproducirlo con un archivo real', 'Escribir la prueba con «Muñoz»', 'Exportar en UTF-8 con BOM', 'Comprobar que abre en Excel', 'Probar la tarea'],
+        s48: ['Elegir los colores', 'Aplicarlos a Ajustes', 'Comprobar el contraste', 'Probar la tarea'],
+        s52: ['Leer el formato de factura', 'Generar el PDF', 'Añadir el botón de descarga', 'Probar la tarea'],
+        toast: '<b>✓</b> La 47, lista para que la pruebes' }
+    };
+    var frames = [
+      { run: [[47, 2], [48, 0]], queue: [52, 53], now: 47 },
+      { run: [[47, 3], [48, 0]], queue: [52, 53], pick: 52, now: 47 },
+      { run: [[52, 0], [47, 3], [48, 0]], queue: [53], now: 52, enter: 52 },
+      { run: [[52, 1], [47, 4], [48, 1]], queue: [53], now: 52 },
+      { run: [[52, 2], [47, 4], [48, 1]], queue: [53], now: 47, done47: true, toast: true },
+      { run: [[52, 3], [47, 4], [48, 2]], queue: [53], now: 52, done47: true, toast: true }
+    ];
+    var live = document.getElementById('live'), tasksEl = document.getElementById('live-tasks');
+    var queueEl = document.getElementById('live-queue'), toastEl = document.getElementById('live-toast');
+    var frame = reduce ? 5 : 0, visible = true;
+    function draw() {
+      var l = lang(), T = text[l], f = frames[frame], h = '';
+      f.run.forEach(function (r) {
+        var id = r[0], n = r[1], steps = T['s' + id], ready = id === 47 && f.done47;
+        h += '<div class="task' + (f.now === id ? ' now' : '') + (f.enter === id && !reduce ? ' enter' : '') + '">' +
+          '<div class="row"><span class="t">' + id + '<em>A</em> ' + esc(T[id]) + '</span><span class="btns">' +
+          (ready ? '<span class="tt">T</span> <span class="c">C</span>' : '⚙') + '</span></div>' +
+          '<div class="s">' + n + '/' + steps.length + ' ' + esc(steps[n]) + '</div></div>';
+      });
+      tasksEl.innerHTML = h;
+      var entering = tasksEl.querySelector('.enter');
+      if (entering) requestAnimationFrame(function () { requestAnimationFrame(function () { entering.classList.remove('enter'); }); });
+      queueEl.innerHTML = f.queue.map(function (id) { return '<div' + (f.pick === id ? ' class="pick"' : '') + '>' + id + ' ' + esc(T[id]) + '</div>'; }).join('');
+      live.querySelector('[data-k="qn"]').textContent = f.queue.length;
+      toastEl.innerHTML = T.toast;
+      toastEl.classList.toggle('on', !!f.toast);
+      var L = labels[l];
+      live.querySelectorAll('[data-t]').forEach(function (e) { e.textContent = L[e.getAttribute('data-t')]; });
+      live.setAttribute('aria-label', L.aria);
+    }
+    function tick() {
+      if (visible) { frame = (frame + 1) % frames.length; draw(); }
+      setTimeout(tick, frame === frames.length - 1 ? 3400 : 1800);
+    }
+    if (!reduce) {
+      setTimeout(tick, 1800);
+      if ('IntersectionObserver' in window) new IntersectionObserver(function (e) { visible = e[0].isIntersecting; }).observe(live);
+    }
+
+    /* The install terminal types the real commands once, when it comes into view. */
+    var typed = document.querySelector('#typer .typed');
+    var lines = {
+      en: [['c', '# once per computer'], ['p', 'claude plugin marketplace add jumibot/SoftwareFactory'], ['p', 'claude plugin install sf@softwarefactory --scope user'], ['c', '# then, in Claude Code:'], ['q', 'Check the SF installation']],
+      es: [['c', '# una vez por equipo'], ['p', 'claude plugin marketplace add jumibot/SoftwareFactory'], ['p', 'claude plugin install sf@softwarefactory --scope user'], ['c', '# después, en Claude Code:'], ['q', 'Comprueba la instalación de la SF']]
+    };
+    var typedOnce = false, typingTimer = null;
+    function lineHtml(kind, t) {
+      if (kind === 'c') return '<span class="c">' + esc(t) + '</span>';
+      if (kind === 'p') return '<span class="p">$</span> ' + esc(t);
+      return '<span class="p">&gt;</span> ' + esc(t);
+    }
+    function typeAll(instant) {
+      clearTimeout(typingTimer);
+      var L = lines[lang()];
+      if (instant) { typed.innerHTML = L.map(function (x) { return '<div>' + lineHtml(x[0], x[1]) + '</div>'; }).join(''); return; }
+      var i = 0, j = 0, done = [];
+      (function step() {
+        if (i >= L.length) { typed.innerHTML = done.join('') + '<span class="cursor"></span>'; return; }
+        var cur = L[i];
+        j += cur[0] === 'c' ? cur[1].length : 2;
+        if (j >= cur[1].length) { done.push('<div>' + lineHtml(cur[0], cur[1]) + '</div>'); i++; j = 0; typed.innerHTML = done.join(''); typingTimer = setTimeout(step, 260); return; }
+        typed.innerHTML = done.join('') + '<div>' + lineHtml(cur[0], cur[1].slice(0, j)) + '<span class="cursor"></span></div>';
+        typingTimer = setTimeout(step, 28);
+      })();
+    }
+    if (reduce || !('IntersectionObserver' in window)) typeAll(true);
+    else new IntersectionObserver(function (e, o) { if (e[0].isIntersecting && !typedOnce) { typedOnce = true; typeAll(false); o.disconnect(); } }, { threshold: .4 }).observe(typed);
+
+    /* Tabs, with arrow keys, Home and End. */
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+    function select(tab, focus) {
+      tabs.forEach(function (t) {
+        var on = t === tab;
+        t.setAttribute('aria-selected', String(on));
+        t.tabIndex = on ? 0 : -1;
+        document.getElementById(t.getAttribute('aria-controls')).hidden = !on;
+      });
+      if (focus) tab.focus();
+    }
+    tabs.forEach(function (t, i) {
+      t.addEventListener('click', function () { select(t, false); });
+      t.addEventListener('keydown', function (e) {
+        var k = e.key, n = tabs.length, to = null;
+        if (k === 'ArrowRight') to = tabs[(i + 1) % n];
+        else if (k === 'ArrowLeft') to = tabs[(i - 1 + n) % n];
+        else if (k === 'Home') to = tabs[0];
+        else if (k === 'End') to = tabs[n - 1];
+        if (to) { e.preventDefault(); select(to, true); }
+      });
+    });
+
+    /* Language. */
+    var buttons = document.querySelectorAll('[data-set-lang]');
+    function apply(l) {
+      document.querySelectorAll('[data-en][data-es]').forEach(function (n) { n.setAttribute('aria-label', n.dataset[l]); });
+      root.setAttribute('data-lang', l);
+      root.lang = l;
+      document.title = titles[l];
+      for (var i = 0; i < buttons.length; i++) buttons[i].setAttribute('aria-pressed', String(buttons[i].getAttribute('data-set-lang') === l));
+      draw();
+      if (typedOnce || reduce) typeAll(true);
+    }
+    apply(lang());
+    for (var i = 0; i < buttons.length; i++) buttons[i].addEventListener('click', function () {
+      var l = this.getAttribute('data-set-lang');
+      apply(l);
+      try { localStorage.setItem('sf-lang', l); } catch (e) {}
+    });
+
+    /* Copy buttons. */
+    document.querySelectorAll('[data-copy]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var old = b.innerHTML;
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(b.getAttribute('data-copy')).then(function () {
+          b.textContent = '✓'; setTimeout(function () { b.innerHTML = old; }, 1400);
+        }, function () {});
+      });
+    });
+  })();
+
+</script>
+</body>
+</html>

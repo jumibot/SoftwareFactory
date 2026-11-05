@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 634" width="560" height="634" role="img" aria-label="Onboarding a project: the welcome screen with the /SF logo and a one-click start, then Claude asking a few questions as menus" font-family="ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace">
+<title>Onboarding a project: the welcome screen with the /SF logo and a one-click start, then Claude asking a few questions as menus</title>
+<rect width="560" height="634" rx="14" fill="#191512"/>
+<circle cx="22" cy="20" r="5.5" fill="#ff5f57"/>
+<circle cx="40" cy="20" r="5.5" fill="#febc2e"/>
+<circle cx="58" cy="20" r="5.5" fill="#28c840"/>
+<text x="280.0" y="25.0" font-size="12" fill="#a6a19c" text-anchor="middle" xml:space="preserve">pantry — claude</text>
+<line x1="0" y1="38" x2="560" y2="38" stroke="#312d2a"/>
+<rect x="16.0" y="52.0" width="528.0" height="262.0" rx="6" fill="#22201d"/>
+<rect x="238.0" y="74.0" width="6.3" height="12.3" fill="#b3aee6"/>
+<rect x="244.0" y="74.0" width="6.3" height="12.3" fill="#b3aee6"/>
+<rect x="232.0" y="92.0" width="6.3" height="6.3" fill="#b3aee6"/>
+<rect x="238.0" y="86.0" width="6.3" height="12.3" fill="#b3aee6"/>
+<rect x="244.0" y="86.0" width="6.3" height="6.3" fill="#b3aee6"/>
+<rect x="232.0" y="98.0" width="6.3" height="12.3" fill="#b3aee6"/>
+<rect x="238.0" y="98.0" width="6.3" height="12.3" fill="#b3aee6"/>
+<rect x="226.0" y="116.0" width="6.3" height="6.3" fill="#b3aee6"/>
+<rect x="232.0" y="110.0" width="6.3" height="12.3" fill="#b3aee6"/>
+<rect x="238.0" y="110.0" width="6.3" height="6.3" fill="#b3aee6"/>
+<rect x="226.0" y="122.0" width="6.3" height="12.3" fill="#b3aee6"/>
+<rect x="232.0" y="122.0" width="6.3" height="12.3" fill="#b3aee6"/>
+<rect x="256.0" y="80.0" width="6.3" height="6.3" fill="#827dbd"/>
+<rect x="262.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="268.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="274.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="280.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="286.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="298.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="304.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="310.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="316.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="322.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="328.0" y="74.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="256.0" y="86.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="262.0" y="86.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="298.0" y="86.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="304.0" y="86.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="256.0" y="98.0" width="6.3" height="6.3" fill="#827dbd"/>
+<rect x="262.0" y="98.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="268.0" y="98.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="274.0" y="98.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="280.0" y="98.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="286.0" y="104.0" width="6.3" height="6.3" fill="#827dbd"/>
+<rect x="298.0" y="98.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="304.0" y="98.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="310.0" y="98.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="316.0" y="98.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="322.0" y="98.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="280.0" y="110.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="286.0" y="110.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="298.0" y="110.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="304.0" y="110.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="256.0" y="122.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="262.0" y="122.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="268.0" y="122.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="274.0" y="122.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="280.0" y="122.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="286.0" y="122.0" width="6.3" height="6.3" fill="#827dbd"/>
+<rect x="298.0" y="122.0" width="6.3" height="12.3" fill="#827dbd"/>
+<rect x="304.0" y="122.0" width="6.3" height="12.3" fill="#827dbd"/>
+<text x="280.0" y="164.0" font-size="14" fill="#b3aee6" text-anchor="middle" font-weight="700" xml:space="preserve">S O F T W A R E   F A C T O R Y</text>
+<text x="280.0" y="192.0" font-size="13" fill="#a6a19c" text-anchor="middle" xml:space="preserve">Your software factory on Claude Code:</text>
+<text x="280.0" y="210.0" font-size="13" fill="#a6a19c" text-anchor="middle" xml:space="preserve">from idea to code, task by task.</text>
+<rect x="142.0" y="230.0" width="276.0" height="28.0" rx="4" fill="#827dbd"/>
+<text x="280.0" y="249.0" font-size="14" fill="#000" text-anchor="middle" font-weight="700" xml:space="preserve">onboard this project to the SF</text>
+<text x="22.0" y="346.0" font-size="12" fill="#c8c3bc" font-weight="700" xml:space="preserve">CLAUDE ASKS A FEW QUESTIONS, AS MENUS</text>
+<rect x="16" y="358" width="528" height="256" rx="8" fill="#1f1c19" stroke="#4a4540" stroke-width="1.2"/>
+<text x="32.0" y="386.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c">☐ </tspan><tspan fill="#ece8e2" font-weight="700">Method</tspan></text>
+<text x="32.0" y="414.0" font-size="14" fill="#ece8e2" font-weight="700" xml:space="preserve">How do you want to work on Pantry?</text>
+<rect x="30.0" y="424.0" width="500.0" height="46.0" rx="8" fill="#f4bf36" fill-opacity=".07" stroke="#f4bf36" stroke-width="1.6"/>
+<text x="40.0" y="444.0" font-size="14" xml:space="preserve"><tspan fill="#f4bf36" font-weight="700">❯ 1. </tspan><tspan fill="#f4bf36" font-weight="700">Full method</tspan></text>
+<text x="76.0" y="463.0" font-size="12" fill="#a6a19c" xml:space="preserve">Vision, spec, design, then slices of code</text>
+<text x="40.0" y="492.0" font-size="14" xml:space="preserve"><tspan fill="#ece8e2">  2. </tspan><tspan fill="#ece8e2">Just the queue and the panel</tspan></text>
+<text x="76.0" y="511.0" font-size="12" fill="#a6a19c" xml:space="preserve">Tasks, branches and subagents, no documents</text>
+<text x="40.0" y="540.0" font-size="14" xml:space="preserve"><tspan fill="#ece8e2">  3. </tspan><tspan fill="#ece8e2">Decide later</tspan></text>
+<text x="76.0" y="559.0" font-size="12" fill="#a6a19c" xml:space="preserve">You can switch any time with /sf_config</text>
+<text x="32.0" y="594.0" font-size="12" fill="#a6a19c" xml:space="preserve">Nothing in your project changes without your OK.</text>
+</svg>

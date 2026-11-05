@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 458" width="560" height="458" role="img" aria-label="Publicar con revisión de datos privados: RELEASE pide la versión, revisa cada commit nuevo en busca de secretos y datos personales, y bloquea hasta que esté limpio" font-family="ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace">
+<title>Publicar con revisión de datos privados: RELEASE pide la versión, revisa cada commit nuevo en busca de secretos y datos personales, y bloquea hasta que esté limpio</title>
+<rect width="560" height="458" rx="14" fill="#191512"/>
+<circle cx="22" cy="20" r="5.5" fill="#ff5f57"/>
+<circle cx="40" cy="20" r="5.5" fill="#febc2e"/>
+<circle cx="58" cy="20" r="5.5" fill="#28c840"/>
+<text x="280.0" y="25.0" font-size="12" fill="#a6a19c" text-anchor="middle" xml:space="preserve">pantry — claude</text>
+<line x1="0" y1="38" x2="560" y2="38" stroke="#312d2a"/>
+<rect x="22.0" y="52.0" width="168.0" height="21.0" rx="3" fill="#827dbd"/>
+<text x="106.0" y="67.0" font-size="13" fill="#000" text-anchor="middle" font-weight="700" xml:space="preserve">¿Publicar v1.3.0? sí</text>
+<rect x="463.6" y="52.0" width="74.4" height="21.0" rx="3" fill="#827dbd"/>
+<text x="500.8" y="67.0" font-size="13" fill="#000" text-anchor="middle" font-weight="700" xml:space="preserve">SF 1.8.1</text>
+<rect x="22.0" y="79.0" width="72.0" height="22.0" rx="3" fill="#383532"/>
+<text x="58.0" y="95.0" font-size="13" fill="#a6a19c" text-anchor="middle" xml:space="preserve">2h 05m</text>
+<rect x="100.0" y="79.0" width="104.0" height="22.0" rx="3" fill="#383532"/>
+<text x="108.0" y="95.0" font-size="13" xml:space="preserve"><tspan fill="#ece8e2" font-weight="700">31</tspan><tspan fill="#a6a19c"> prompts</tspan></text>
+<rect x="469.4" y="79.0" width="68.6" height="22.0" rx="3" fill="#383532"/>
+<text x="476.4" y="95.0" font-size="13" fill="#a6a19c" xml:space="preserve">develop</text>
+<text x="22.0" y="134.0" font-size="12" fill="#c8c3bc" font-weight="700" xml:space="preserve">REVISIÓN PÚBLICA · 9 COMMITS NUEVOS</text>
+<rect x="22.0" y="146.0" width="516.0" height="196.0" rx="8" fill="#1f1c19" stroke="#3d3934" stroke-width="1.2"/>
+<text x="36.0" y="176.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889" font-weight="700">✓ </tspan><tspan fill="#ece8e2">Sin claves, tokens ni contraseñas</tspan></text>
+<text x="36.0" y="202.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889" font-weight="700">✓ </tspan><tspan fill="#ece8e2">Sin ajustes locales ni la cola</tspan></text>
+<text x="36.0" y="228.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889" font-weight="700">✓ </tspan><tspan fill="#ece8e2">Sin correos electrónicos</tspan></text>
+<rect x="28.0" y="236.0" width="504.0" height="27.0" rx="8" fill="#f4bf36" fill-opacity=".07" stroke="#f4bf36" stroke-width="1.6"/>
+<text x="36.0" y="254.0" font-size="14" xml:space="preserve"><tspan fill="#f87171" font-weight="700">✕ </tspan><tspan fill="#ece8e2">Una ruta de carpeta personal en docs/notas.md:14</tspan></text>
+<text x="36.0" y="280.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c" font-weight="700">· </tspan><tspan fill="#ece8e2">El remoto es público en GitHub</tspan></text>
+<text x="36.0" y="312.0" font-size="14" xml:space="preserve"><tspan fill="#f87171">⛔ </tspan><tspan fill="#f87171" font-weight="700">Bloqueado: no se ha publicado nada.</tspan></text>
+<text x="58.0" y="334.0" font-size="13" fill="#a6a19c" xml:space="preserve">Arréglalo y pulsa RELEASE otra vez.</text>
+<rect x="22.0" y="362.0" width="516.0" height="76.0" rx="8" fill="#1a2a1e" stroke="#3b6b49" stroke-width="1.2"/>
+<text x="36.0" y="390.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889" font-weight="700">✓ </tspan><tspan fill="#ece8e2" font-weight="700">v1.3.0 publicada</tspan></text>
+<text x="56.0" y="414.0" font-size="13" fill="#a6a19c" xml:space="preserve">develop → main y el tag, subidos. Ya se puede actualizar.</text>
+</svg>
