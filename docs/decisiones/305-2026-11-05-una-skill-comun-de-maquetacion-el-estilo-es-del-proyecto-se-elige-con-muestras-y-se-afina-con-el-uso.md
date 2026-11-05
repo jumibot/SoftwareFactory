@@ -1,10 +1,12 @@
-# Una skill común de maquetación: el estilo es del proyecto, se elige con muestras y se afina con el uso
+# Un solo generador determinista con el estilo del proyecto; una skill ayuda a fijar sus parámetros con muestras y afinado
 
-Todo lo común de la maquetación de documentos se extrae a una skill común, que dirige la maquetación de todas las skills de documentos.
+Un solo generador de documentos, determinista, para todas las skills de documentos. Todo lo común de la maquetación se extrae a ese generador, que maqueta cualquier documento con los parámetros del estilo del proyecto.
 
-Cuando un proyecto necesita documentos, la skill pregunta al desarrollador por su estilo y le enseña varias muestras para que elija. Después lo afina en vueltas sucesivas, como se hizo con la skill de diagramas.
+El estilo es del proyecto, no de cada documento: vale para todos sus documentos y se guarda como parámetros que lee el generador.
 
-El estilo es del proyecto, no de cada documento: vale para todos sus documentos y se puede seguir afinando a medida que avanza el proyecto.
+Una skill ayuda a fijar esos parámetros. Cuando un proyecto necesita documentos, pregunta al desarrollador por su estilo y le enseña varias muestras, hechas por el generador, para que elija. Después lo afina en vueltas sucesivas, como se hizo con la skill de diagramas. La skill no maqueta: el generador sigue haciendo su trabajo.
+
+El estilo se puede seguir afinando a medida que avanza el proyecto.
 
 En la Software Factory, el estilo de partida es el del informe deliberativo «Un estilo de documentos por proyecto» (385).
 
