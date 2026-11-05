@@ -15,7 +15,10 @@ main { max-width:62rem; margin:0 auto; }
  * con valores de reserva para una página suelta. Sin fondo propio: el modo oscuro de «Lectura» invierte la página
  * entera, y el diagrama con ella. Contrato del marcado, en references/interaccion.md. */
 
-.diagrama { --d-papel: var(--diagrama-papel, #fff); --d-fl: 1.2; container-type: inline-size; position: relative; margin: 1.8rem 0 1.4rem; }
+/* Rótulos: el texto tenue del tema, oscurecido para 4,5:1 (diagramas.js lo ajusta a lo justo con cualquier tema). */
+.diagrama { --d-rotulo: color-mix(in oklab, var(--texto-tenue, #666) 50%, var(--texto, #1a1a1a)); }
+/* El papel: el del tema de la figura (--diagrama-papel) o el de la página del documento; blanco si no hay ninguno. */
+.diagrama { --d-papel: var(--diagrama-papel, var(--pagina, #fff)); --d-fl: 1.2; container-type: inline-size; position: relative; margin: 1.8rem 0 1.4rem; }
 .diagrama text.d-etiqueta { font-family: ui-monospace, Consolas, monospace; letter-spacing: .04em; }
 .diagrama .d-mascara { fill: var(--d-papel); }   /* del color del papel: no se ve; no es una cápsula ni un botón */
 /* Una etiqueta que representa un botón del panel puede llevar su color, solo en el texto (decisión 301):
@@ -69,7 +72,7 @@ main { max-width:62rem; margin:0 auto; }
 .d-gen .d-cabecera { margin: 0 0 .5rem; }
 .d-gen .d-titulo { margin: 0; font: 650 1.15rem/1.3 var(--fuente-texto, system-ui, sans-serif); color: var(--texto, #1a1a1a); }
 .d-gen .d-desc { margin: .2rem 0 0; color: var(--texto-suave, #555); }
-.d-gen .d-antetitulo { margin: 0 0 .2rem; font: .66rem ui-monospace, Consolas, monospace; letter-spacing: .08em; color: var(--texto-tenue, #666); }
+.d-gen .d-antetitulo { margin: 0 0 .2rem; font: .66rem ui-monospace, Consolas, monospace; letter-spacing: .08em; color: var(--d-rotulo); }
 .d-gen .d-ayuda { margin: 0 0 .6rem; font-size: .875rem; color: var(--texto-suave, #555); }
 .d-gen .d-pie { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: .6rem; padding-top: .4rem;
                 font: .72rem ui-monospace, Consolas, monospace; letter-spacing: .04em; color: var(--texto-suave, #555); }
@@ -91,7 +94,7 @@ main { max-width:62rem; margin:0 auto; }
 .d-gen .d-b-morado, .d-gen text.d-b-morado { fill: var(--b-morado, #9333ea); color: var(--b-morado, #9333ea); }
 .d-gen text.d-b-acento { fill: var(--primario, #00726b); }
 .d-gen text.d-b-segundo { fill: var(--segundo, #2f5597); }
-.d-gen text.d-b-gris { fill: var(--texto-tenue, #666); }
+.d-gen text.d-b-gris { fill: var(--d-rotulo); }
 /* Color de la línea que dan los datos (linea=X); la punta toma el de su línea. */
 .d-gen .d-fl.d-l-acento { stroke: var(--primario, #00726b); }
 .d-gen .d-fl.d-l-segundo { stroke: var(--segundo, #2f5597); }
@@ -112,9 +115,10 @@ main { max-width:62rem; margin:0 auto; }
 .d-gen text.d-nota-t { fill: var(--texto-suave, #555); text-transform: uppercase; }
 .d-gen .d-nota-x { fill: var(--texto, #1a1a1a); }
 .d-gen .d-zona { fill: none; stroke: var(--texto-tenue, #666); stroke-width: 1.2; stroke-dasharray: 4 4; }
-.d-gen text.d-carril, .d-gen text.d-num { fill: var(--texto-tenue, #666); }
+.d-gen text.d-carril, .d-gen text.d-num { fill: var(--d-rotulo); }   /* nombres de zona y carriles */
 .d-gen .d-regla, .d-gen .d-vida { stroke: var(--texto-tenue, #666); stroke-width: var(--d-fl); }
 .d-gen .d-carril-g .d-regla { stroke-width: 1; }   /* el carril, de 1 como diagram-design */
+.d-gen :is(.d-regla.d-fase, .d-vida) { stroke: var(--d-rotulo); }   /* unen nodos: 3:1 como las flechas, con cualquier tema */
 .d-gen .d-vida { stroke-dasharray: 3 5; }
 .d-gen .d-estado rect { fill: var(--fondo-suave, #f5f5f5); stroke: var(--borde, #bbb); stroke-width: 1; }
 .d-hud .d-bt { font: .85em ui-monospace, Consolas, monospace; letter-spacing: .04em; }
@@ -243,7 +247,7 @@ main { max-width:62rem; margin:0 auto; }
 .d-gen[data-d-recorrido="grueso"] .foco.d-on > .d-caja { stroke: var(--primario, #00726b); }
 .d-gen[data-d-recorrido="grueso"] .d-punta-on { fill: var(--texto-suave, #555); }
 .d-gen:is([data-d-ayuda="debajo"], [data-d-ayuda="discreta"]) > .d-ayuda { order: 1; margin: .6rem 0 0; }
-.d-gen[data-d-ayuda="discreta"] > .d-ayuda { font-size: .78rem; color: var(--texto-tenue, #666); text-align: center; }
+.d-gen[data-d-ayuda="discreta"] > .d-ayuda { font-size: .78rem; color: var(--d-rotulo); text-align: center; }
 /* Pie */
 .d-gen[data-d-pie="centrado"] .d-pie { justify-content: center; text-align: center; }
 /* Todo a un lado: las dos partes juntas, separadas por « · » (si las dos tienen algo que se vea). */
@@ -281,7 +285,38 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
     c.querySelectorAll('.d-hud').forEach(x => x.remove());
     c.querySelectorAll('.d-resaltando').forEach(x => x.classList.remove('d-resaltando'));
     c.querySelectorAll('.d-on, .d-vecino').forEach(x => x.classList.remove('d-on', 'd-vecino'));
+    c.querySelectorAll('figure.d-gen').forEach(f => f.style.removeProperty('--d-rotulo'));
   });
+
+  // Rótulos (nombres de zona, carriles, antetítulo): el texto tenue del tema, oscurecido hacia el texto lo justo para
+  // 4,5:1 sobre el fondo de la figura, con cualquier tema. Sin JavaScript, la mezcla del CSS (a medias), que también llega.
+  const rgb = s => { const m = (s || '').match(/rgba?\(([^)]+)\)/); return m ? m[1].split(/[ ,/]+/).filter(Boolean).map(Number) : null; };
+  const lum = c => { const l = v => (v /= 255) <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; return .2126 * l(c[0]) + .7152 * l(c[1]) + .0722 * l(c[2]); };
+  const contraste = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + .05) / (y + .05); };
+  function fondo(el) {
+    for (let e = el; e; e = e.parentElement) { const c = rgb(getComputedStyle(e).backgroundColor); if (c && (c.length < 4 || c[3] > 0)) return c; }
+    return [255, 255, 255];
+  }
+  function rotulo(fig) {
+    const p = document.createElement('span');
+    p.style.cssText = 'position:absolute;visibility:hidden;color:var(--texto-tenue, #666)';
+    fig.appendChild(p);
+    const tenue = rgb(getComputedStyle(p).color);
+    p.style.color = 'var(--texto, #1a1a1a)';
+    const texto = rgb(getComputedStyle(p).color);
+    p.remove();
+    if (!tenue || !texto) return;
+    const bajo = fondo(fig);
+    let c = tenue;
+    for (let t = .05; contraste(c, bajo) < 4.6 && t <= 1.001; t += .05) c = tenue.map((v, i) => Math.round(v + (texto[i] - v) * t));
+    fig.style.setProperty('--d-rotulo', `rgb(${c[0]}, ${c[1]}, ${c[2]})`);
+  }
+  function rotulos(fig) {
+    rotulo(fig);
+    new MutationObserver(() => rotulo(fig)).observe(fig, { attributes: true, attributeFilter: ['data-d-tema', 'data-d-lienzo'] });
+  }
+  new MutationObserver(() => document.querySelectorAll('figure.d-gen').forEach(rotulo))
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-modo', 'class', 'style'] });
 
   const ANCHA = 800;  // px de figura desde los que se dibuja la forma horizontal (como @container en diagramas.css)
   let n = 0;
@@ -412,11 +447,12 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
     const rx = croq ? Math.min(H, W) / 2 : +r.getAttribute('rx') || 0;
     r.setAttribute('y', Y); r.setAttribute('height', H); if (croq) r.setAttribute('rx', rx);
     const dy = Y - y0;
-    const nn = g.querySelector('.d-nn'), subs = [...g.querySelectorAll('.d-sb')], fn = +nn.getAttribute('font-size');
-    const pn = +r.dataset.pn, ps = +r.dataset.ps;
-    const yn = cy - (fn + (abierta && subs.length ? pn + ps * (subs.length - 1) : 0)) / 2 + fn * .8;
-    nn.setAttribute('y', yn.toFixed(1));
-    subs.forEach((s, i) => { s.setAttribute('y', (yn + pn + ps * i).toFixed(1)); s.classList.toggle('d-plegado', !abierta); });
+    // el nombre, en una o dos líneas (data-pnn, el paso entre ellas), y el detalle debajo
+    const nns = [...g.querySelectorAll('.d-nn')], subs = [...g.querySelectorAll('.d-sb')], fn = +nns[0].getAttribute('font-size');
+    const pn = +r.dataset.pn, ps = +r.dataset.ps, extra = (+r.dataset.pnn || 0) * (nns.length - 1);
+    const yn = cy - (fn + extra + (abierta && subs.length ? pn + ps * (subs.length - 1) : 0)) / 2 + fn * .8;
+    nns.forEach((t, i) => t.setAttribute('y', (yn + (+r.dataset.pnn || 0) * i).toFixed(1)));
+    subs.forEach((s, i) => { s.setAttribute('y', (yn + extra + pn + ps * i).toFixed(1)); s.classList.toggle('d-plegado', !abierta); });
     const mueve = (e, a) => { const k = 'o' + a; if (!e.dataset[k]) e.dataset[k] = e.getAttribute(a); e.setAttribute(a, +e.dataset[k] + dy); };
     g.querySelectorAll('.d-fin-a, .d-fin').forEach(c => mueve(c, 'cy'));
     g.querySelectorAll('.d-chip, .d-chip-c').forEach(t => mueve(t, 'y'));
@@ -475,7 +511,7 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
     modo();
   }
 
-  const iniciar = () => { document.querySelectorAll('[data-diagrama]').forEach(montar); document.querySelectorAll('figure.d-gen').forEach(f => { esquinas(f); plegado(f); }); };
+  const iniciar = () => { document.querySelectorAll('[data-diagrama]').forEach(montar); document.querySelectorAll('figure.d-gen').forEach(f => { esquinas(f); plegado(f); rotulos(f); }); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();
 

@@ -7,7 +7,8 @@
  * lector se recuerda en su navegador, por documento; la copia guardada lleva lo del autor.
  * Grupos de lo general a lo fino: Aspecto general, Cabecera, Cajas, Flechas y etiquetas, Notas, Interacción y Pie;
  * empiezan plegados y se recuerda cuáles abre el lector. «Por defecto» pone los
- * favoritos del propietario (decisión 302); «Como el original», lo que hace diagram-design. */
+ * favoritos del propietario (decisión 302) y el tema con que se generó cada figura (decisión 307); «Como el
+ * original», lo que hace diagram-design, con tinta. */
 (function () {
   const api = window.herramientasDocumento;
   if (!api || !api.ACTIVAS.has('diagramas')) return;
@@ -34,7 +35,7 @@
     ['recuento', 'Recuento de nodos y flechas', 'pie', false, true],
   ];
   const SELECTORES = [
-    ['tema', 'Tema', 'aspecto', [['documento', 'El del documento']].concat(temas), 'tinta', 'tinta'],
+    ['tema', 'Tema', 'aspecto', [['documento', 'El del documento']].concat(temas), null, 'tinta'],   // por defecto: el de cada figura
     ['lienzo', 'Fondo', 'aspecto', [['ninguno', 'Sin fondo'], ['papel', 'Claro'], ['tintado', 'Tintado']], 'papel', 'papel'],
     ['orientacion', 'Orientación', 'aspecto', [['auto', 'Automática'], ['vertical', 'Vertical'], ['horizontal', 'Horizontal']], 'auto', 'horizontal'],
     ['antetitulo', 'Antetítulo', 'cabecera', [['oculto', 'Oculto'], ['encima', 'Encima del título'], ['lado', 'Al lado del título']], 'oculto', 'encima'],
@@ -59,7 +60,7 @@
   ];
   const GRUPOS = [['aspecto', 'Aspecto general'], ['cabecera', 'Cabecera'], ['cajas', 'Cajas'], ['flechas', 'Flechas y etiquetas'],
     ['notas', 'Notas'], ['interaccion', 'Interacción'], ['pie', 'Pie']];
-  if (!temas.some(t => t[0] === 'tinta')) SELECTORES[0][4] = SELECTORES[0][5] = 'documento';
+  if (!temas.some(t => t[0] === 'tinta')) SELECTORES[0][5] = 'documento';
 
   // Lo que eligió el autor en cada figura, para la copia guardada.
   const autor = figs.map(f => ({ clase: f.className, tema: f.getAttribute('data-d-tema'),
@@ -117,6 +118,9 @@
     pref = {};
     CASILLAS.forEach(x => { if (!(x[0] in hay) || hay[x[0]]) pref[x[0]] = x[orig ? 4 : 3]; });
     SELECTORES.forEach(x => { pref[x[0]] = x[orig ? 5 : 4]; });
+    // «Por defecto», el tema con que se generó cada figura (el del documento si no lleva ninguno: decisión 307);
+    // «Como el original», tinta, la piel de diagram-design.
+    if (!orig) { delete pref.tema; figs.forEach((f, i) => poner(f, 'tema', autor[i].tema || 'documento')); }
     escribir(CLAVE, pref); todo(); pintar();
   }));
   pintar();

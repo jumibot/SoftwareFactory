@@ -17,6 +17,7 @@ import re
 import subprocess
 import sys
 from html import escape
+from itertools import permutations, product
 from pathlib import Path
 
 AQUI = Path(__file__).resolve().parent
@@ -286,6 +287,26 @@ def seg_rect(a, b, m=0):
     return R(min(x1, x2) - m, min(y1, y2) - m, abs(x2 - x1) + 2 * m, abs(y2 - y1) + 2 * m)
 
 
+def sitios_etiqueta(puntos, w, h):
+    """Los sitios donde puede ir la etiqueta (w × h) de una flecha, de los mejores a los peores: junto al tramo más
+    largo, cerca de su mitad; al lado en los tramos verticales y encima o debajo en los horizontales."""
+    tramos = sorted(zip(puntos, puntos[1:]), key=lambda s: -(abs(s[1][0] - s[0][0]) + abs(s[1][1] - s[0][1])))
+    for a, b in tramos:
+        vertical = a[0] == b[0]
+        largo = abs(b[1] - a[1]) if vertical else abs(b[0] - a[0])
+        for t_ in (.5, .3, .7, .2, .8, .4, .6, .1, .9, .15, .85, .25, .75, .35, .65, .45, .55):
+            px, py = a[0] + (b[0] - a[0]) * t_, a[1] + (b[1] - a[1]) * t_
+            if vertical:
+                if largo < h + 16:
+                    continue
+                yield from (R(px + 8, py - h / 2, w, h), R(px - 8 - w, py - h / 2, w, h))
+            else:
+                x1, x2 = min(a[0], b[0]), max(a[0], b[0])
+                if largo >= w + 16:
+                    yield from (R(px - w / 2, py - 8 - h, w, h), R(px - w / 2, py + 8, w, h))
+                yield from (R(x1 + 8, py + 8, w, h), R(x1 + 8, py - 8 - h, w, h), R(x2 - 8 - w, py + 8, w, h), R(x2 - 8 - w, py - 8 - h, w, h))
+
+
 def codo(puntos, r=8):
     """Camino ortogonal con codos redondeados de radio r."""
     p = puntos
@@ -310,6 +331,8 @@ class Lienzo:
         medio = lambda v: round(v * e * 2) / 2
         self.fn, self.fs, self.fe, self.fc, self.fx = medio(12), medio(9), medio(8), medio(12), medio(10)
         self.pn, self.ps = round(15 * e), round(13 * e)   # de la línea del nombre a la del detalle, y entre detalles
+        self.pnn = round(self.fn * 1.35 * 2) / 2     # entre las dos líneas de un nombre partido (sin que se pisen)
+        self.partir_nombres = False                # solo la vertical de arquitectura y piezas, que les deja el alto
         self.variante = (cajas, forma)
         self.plegadas, self.croqueta = cajas == 'plegadas', forma == 'croqueta'
         # Cajas de diagram-design: 48 de alto mínimo (plegada, solo el nombre), 56 con una línea de detalle; con chips de
@@ -355,16 +378,25 @@ class Lienzo:
         # el chip de tipo, dentro de la caja arriba a la izquierda (7 en mono, como diagram-design): x, y, ancho, alto
         fch = round(7 * self.escala * 2) / 2
         chip = (rc.x + 8 + (self.radio.get(nid, 6) - 6) * .45, rc.y + 8, ancho_texto(n['chip'], fch, K_MONO + .1) + 12, fch + 8) if n['chip'] else None
-        if ancho_texto(n['nombre'], self.fn, K_NEGRITA) > rc.w - margen:
-            raise Error(f'el nombre «{n["nombre"]}» no cabe en su caja: acórtalo')
+        # el nombre, en una línea; si no cabe (solo en la vertical de arquitectura y piezas, que lo prevé), en dos
+        nombres = [n['nombre']] if ancho_texto(n['nombre'], self.fn, K_NEGRITA) <= rc.w - margen else None
+        if nombres is None:
+            try:
+                if not self.partir_nombres:
+                    raise Error('')
+                nombres = self.partir(n['nombre'], rc.w - margen, self.fn, K_NEGRITA)
+            except Error:
+                raise Error(f'el nombre «{n["nombre"]}» no cabe en su caja: acórtalo')
+        extra = self.pnn * (len(nombres) - 1)
         # El detalle va siempre en el marcado: en las plegadas, oculto, para que una caja se despliegue sola en su sitio.
         subs = self.partir(n['sub'], rc.w - margen - 8, self.fs, K_MONO) if n['sub'] else []
-        alto = self.fn + (self.pn + self.ps * (len(subs) - 1) if subs and not self.plegadas else 0)
+        alto = self.fn + extra + (self.pn + self.ps * (len(subs) - 1) if subs and not self.plegadas else 0)
         y = rc.cy - alto / 2 + self.fn * .8
         if subs and 'dec' not in n['clases']:
-            hd = rc.h if not self.plegadas else self.alto1 + self.ps * (len(subs) - 1)
-            hp = self.alto0 if not self.plegadas else rc.h
-            forma = forma.replace('<rect class="d-caja" ', f'<rect class="d-caja" data-hd="{hd:g}" data-hp="{hp:g}" data-pn="{self.pn}" data-ps="{self.ps}" ', 1)
+            hd = rc.h if not self.plegadas else self.alto1 + extra + self.ps * (len(subs) - 1)
+            hp = self.alto0 + extra if not self.plegadas else rc.h
+            pnn = f' data-pnn="{self.pnn:g}"' if extra else ''
+            forma = forma.replace('<rect class="d-caja" ', f'<rect class="d-caja" data-hd="{hd:g}" data-hp="{hp:g}" data-pn="{self.pn}" data-ps="{self.ps}"{pnn} ', 1)
             k = 11 + (self.radio.get(nid, 6) - 6) * .2          # en la croqueta, un poco más adentro de la curva
             px, py = rc.x + k, rc.y + k
             # con el chip a la vista, a su derecha (CSS lo mueve con translate; sin chip, en la esquina)
@@ -375,10 +407,11 @@ class Lienzo:
         if n['chip']:
             o.append(f'<g class="d-chip-g"><rect class="d-chip-c" x="{chip[0]:g}" y="{chip[1]:g}" width="{chip[2]:.1f}" height="{chip[3]:g}" rx="2"/>'
                      f'<text class="d-chip" x="{chip[0] + 6:g}" y="{chip[1] + chip[3] / 2 + fch * .36:.1f}" font-size="{fch}">{escape(n["chip"])}</text></g>')
-        o.append(f'<text class="d-nn" x="{rc.cx:g}" y="{y:.1f}" font-size="{self.fn}" text-anchor="middle">{escape(n["nombre"])}</text>')
+        for i, t in enumerate(nombres):
+            o.append(f'<text class="d-nn" x="{rc.cx:g}" y="{y + self.pnn * i:.1f}" font-size="{self.fn}" text-anchor="middle">{escape(t)}</text>')
         for i, s in enumerate(subs):
             oculto = ' d-plegado' if self.plegadas else ''
-            o.append(f'<text class="d-sb{oculto}" x="{rc.cx:g}" y="{y + self.pn + self.ps * i:.1f}" font-size="{self.fs}" text-anchor="middle">{escape(s)}</text>')
+            o.append(f'<text class="d-sb{oculto}" x="{rc.cx:g}" y="{y + extra + self.pn + self.ps * i:.1f}" font-size="{self.fs}" text-anchor="middle">{escape(s)}</text>')
         if 'fin' in n['clases']:
             o.append(f'<circle class="d-fin-a" cx="{rc.r - 14:g}" cy="{rc.y + 14:g}" r="6"/><circle class="d-fin" cx="{rc.r - 14:g}" cy="{rc.y + 14:g}" r="3"/>')
         self.nodos.append(''.join(o) + '</g>')
@@ -390,7 +423,8 @@ class Lienzo:
         pal = t.split()
         cortes = [(' '.join(pal[:i]), ' '.join(pal[i:])) for i in range(1, len(pal))]
         cortes = [c for c in cortes if all(ancho_texto(x, fs, k) <= w for x in c)]
-        lineas = list(min(cortes, key=lambda c: abs(len(c[0]) - len(c[1])))) if cortes else []
+        # el corte más equilibrado, sin empezar la segunda línea por un separador («·», «/», «→»)
+        lineas = list(min(cortes, key=lambda c: (c[1][:1] in '·/→|-', abs(len(c[0]) - len(c[1]))))) if cortes else []
         if not lineas:
             raise Error(f'«{t}» no cabe en {w:.0f} de ancho: acórtalo')
         return lineas
@@ -456,27 +490,10 @@ class Lienzo:
     def etiqueta(self, fl, puntos):
         t = fl['etiqueta']
         claude = 'cursiva' in fl['clases']
-        w = self.ancho_etq(fl)
-        h = self.fe + 8
-        tramos = sorted(zip(puntos, puntos[1:]), key=lambda s: -(abs(s[1][0] - s[0][0]) + abs(s[1][1] - s[0][1])))
-        for a, b in tramos:
-            vertical = a[0] == b[0]
-            largo = abs(b[1] - a[1]) if vertical else abs(b[0] - a[0])
-            for t_ in (.5, .3, .7, .2, .8):
-                px, py = a[0] + (b[0] - a[0]) * t_, a[1] + (b[1] - a[1]) * t_
-                if vertical:
-                    if largo < h + 16:
-                        continue
-                    cands = [R(px + 8, py - h / 2, w, h), R(px - 8 - w, py - h / 2, w, h)]
-                else:
-                    x1 = min(a[0], b[0])
-                    cands = [R(px - w / 2, py - 8 - h, w, h), R(px - w / 2, py + 8, w, h)] if largo >= w + 16 else []
-                    x2 = max(a[0], b[0])
-                    cands += [R(x1 + 8, py + 8, w, h), R(x1 + 8, py - 8 - h, w, h), R(x2 - 8 - w, py + 8, w, h), R(x2 - 8 - w, py - 8 - h, w, h)]
-                for c in cands:
-                    if self.libre(c):
-                        self.pon_etiqueta(fl, t, c, claude)
-                        return
+        for c in sitios_etiqueta(puntos, self.ancho_etq(fl), self.fe + 8):
+            if self.libre(c):
+                self.pon_etiqueta(fl, t, c, claude)
+                return
         raise Error(f'no hay sitio para la etiqueta «{t}» ({fl["de"]} > {fl["a"]}) en la {"vertical" if self.o == "v" else "horizontal"}: '
                     'acórtala, quita una flecha o pásala a una nota')
 
@@ -520,9 +537,10 @@ class Lienzo:
                               f'<line class="d-regla" x1="{x:g}" y1="{y + 6:g}" x2="{x + w:g}" y2="{y + 6:g}"/></g>')
             self.obst.append(R(x, y - self.fe, w, self.fe + 8))
 
-    def zona(self, rc, nombre, derecha=False):
+    def zona(self, rc, nombre, derecha=False, x=None):
         w = ancho_texto(nombre, self.fe, K_MONO) + 8
-        x = rc.r - 8 - w if derecha else rc.x + 8
+        if x is None:
+            x = rc.r - 8 - w if derecha else rc.x + 8
         self.fondo.append(f'<rect class="d-zona" x="{rc.x:g}" y="{rc.y:g}" width="{rc.w:g}" height="{rc.h:g}" rx="8"/>'
                           f'<text class="d-carril d-etiqueta" x="{x + 4:g}" y="{rc.y + 20:g}" font-size="{self.fe}">{escape(nombre)}</text>')
         self.obst.append(R(x, rc.y + 6, w, 20))
@@ -661,6 +679,225 @@ def columna(m, L):
             yb = cb.b - 14
             L.flecha(f, [(ca.cx, ca.b), (ca.cx, ca.b + 20), (cb.r + 24, ca.b + 20), (cb.r + 24, yb), (cb.r + 2, yb)]
                      if ca.b + 20 < yb else [(ca.x, ca.cy), (cb.r + 2, ca.cy)])
+    L.acabar()
+
+
+def grupos_zonas(m):
+    """Los nodos por zona, en el orden de los datos; los que no van en ninguna, en un grupo sin marco, delante si el
+    primero de ellos va antes que todos los de las zonas, y si no, detrás."""
+    zona_de = {n: z for z, (_, ids) in enumerate(m['zonas']) for n in ids}
+    grupos = [(nombre, [n for n in m['orden'] if zona_de.get(n) == z]) for z, (nombre, _) in enumerate(m['zonas'])]
+    sueltos = [n for n in m['orden'] if n not in zona_de]
+    if sueltos:
+        delante = m['orden'].index(sueltos[0]) < min((m['orden'].index(n) for n in zona_de), default=0)
+        grupos = [('', sueltos)] + grupos if delante else grupos + [('', sueltos)]
+    return [g for g in grupos if g[1]]
+
+
+def rutas_v(ca, cb, W, calles, margen):
+    """Caminos ortogonales posibles de la caja ca a la cb en la vertical, de los más cortos a los más largos: recto si
+    se miran, en Z por el hueco de una de las dos filas, en L, por una calle entre columnas y por un carril a la derecha
+    de las cajas (margen: su borde derecho)."""
+    cands = []
+    sx = max(ca.x, cb.x), min(ca.r, cb.r)
+    sy = max(ca.y, cb.y), min(ca.b, cb.b)
+    if sx[1] - sx[0] >= 24:
+        for x in ((sx[0] + sx[1]) / 2, sx[0] + 16, sx[1] - 16):
+            cands.append([(x, ca.b), (x, cb.y - 2)] if cb.y > ca.b else [(x, ca.y), (x, cb.b + 2)])
+    if sy[1] - sy[0] >= 24:
+        for yy in ((sy[0] + sy[1]) / 2, sy[0] + 14, sy[1] - 14):
+            cands.append([(ca.r, yy), (cb.x - 2, yy)] if cb.x > ca.r else [(ca.x, yy), (cb.r + 2, yy)])
+    baja = cb.cy > ca.cy
+    sale, entra = (ca.b, cb.y - 2) if baja else (ca.y, cb.b + 2)
+    xs_a = (ca.cx, ca.x + 24, ca.r - 24)
+    xs_b = (cb.cx, cb.x + 24, cb.r - 24)
+    if abs(cb.cy - ca.cy) > 8:
+        for d in (20, 12, 28):
+            for ym in ((ca.b + d, cb.y - d) if baja else (ca.y - d, cb.b + d)):
+                for xa in xs_a:
+                    for xb in xs_b:
+                        if abs(xa - xb) > 2:
+                            cands.append([(xa, sale), (xa, ym), (xb, ym), (xb, entra)])
+        derecha = cb.cx > ca.cx
+        lado_a = ca.r if derecha else ca.x
+        for xb in xs_b:
+            if (xb > lado_a) == derecha:
+                cands.append([(lado_a, ca.cy), (xb, ca.cy), (xb, entra)])
+        lado_b = cb.x - 2 if derecha else cb.r + 2
+        for xa in xs_a:
+            if (xa < lado_b) == derecha:
+                cands.append([(xa, sale), (xa, cb.cy), (lado_b, cb.cy)])
+        y1, y2 = (ca.b + 20, cb.y - 20) if baja else (ca.y - 20, cb.b + 20)
+        for xs in calles:
+            for xa in xs_a:
+                for xb in xs_b:
+                    cands.append([(xa, sale), (xa, y1), (xs, y1), (xs, y2), (xb, y2), (xb, entra)])
+    # por un carril a la derecha de las cajas, cada flecha el suyo, a 12 de la anterior
+    for j in range(8):
+        xm = margen + 16 + 12 * j
+        if xm > W - 14:
+            break
+        for ya in (ca.cy, ca.cy - 12, ca.cy + 12):
+            for yb in (cb.cy, cb.cy - 12, cb.cy + 12):
+                if xm > max(ca.r, cb.r) + 8:
+                    cands.append([(ca.r, ya), (xm, ya), (xm, yb), (cb.r + 2, yb)])
+
+    def largo(p):
+        return sum(abs(b[0] - a[0]) + abs(b[1] - a[1]) for a, b in zip(p, p[1:])) + 48 * (len(p) - 2)
+    return sorted(cands, key=largo), largo
+
+
+def ruta_libre(p, propias, cajas, usados, cruzar=False):
+    """Que el camino p no pase por otra caja ni toque otra flecha; con cruzar, puede cruzar otra en ángulo recto."""
+    otros = [c for n, c in cajas.items() if n not in propias]
+    tramos = list(zip(p, p[1:]))
+    if any(seg_rect(a, b, 4).corta(o) for a, b in tramos for o in otros):
+        return False
+    vertical = lambda a, b: a[0] == b[0]
+    return not any(seg_rect(a, b, 6).corta(seg_rect(c, d, .5)) for a, b in tramos for c, d in usados
+                   if not (cruzar and vertical(a, b) != vertical(c, d)
+                           and not seg_rect(a, b, 6).corta(seg_rect(c, c, .5)) and not seg_rect(a, b, 6).corta(seg_rect(d, d, .5))))
+
+
+def calles_de(cajas):
+    """Las calles verticales: el centro del hueco entre dos cajas vecinas de una misma fila."""
+    v = list(cajas.values())
+    return sorted({(c.r + d.x) / 2 for c in v for d in v if c.y == d.y and d.x > c.r
+                   and not any(e.y == c.y and c.r < e.x < d.x for e in v)})
+
+
+def enrutar_v(flechas, cajas, W, etq):
+    """Un camino para cada flecha, en orden; devuelve los caminos y su coste (lo que mide la colocación). Con etiqueta,
+    mejor un camino que le deje sitio junto a un tramo (etq(f): su ancho y su alto)."""
+    usados, caminos, coste = [], [], 0
+    calles = calles_de(cajas)
+
+    def sitio(f, p, segs):
+        w, h = etq(f)
+        return any(c.x >= 4 and c.r <= W - 4 and not any(c.corta(o.mas(4)) for o in cajas.values())
+                   and not any(c.corta(seg_rect(a, b, 5.5)) for a, b in segs) for c in sitios_etiqueta(p, w, h))
+
+    def cabe(f, p):
+        """Que su etiqueta tenga sitio, y que no se lo quite a las de las flechas ya puestas."""
+        segs = usados + list(zip(p, p[1:]))
+        return all(sitio(g, q, segs) for g, q in zip(flechas, caminos + [p]) if g['etiqueta'])
+
+    for f in flechas:
+        ca, cb = cajas[f['de']], cajas[f['a']]
+        # los carriles, a la derecha de las cajas que hay entre las dos filas
+        y0, y1 = min(ca.y, cb.y), max(ca.b, cb.b)
+        derecha = max(c.r for c in cajas.values() if c.b >= y0 and c.y <= y1)
+        cands, largo = rutas_v(ca, cb, W, calles, derecha)
+        libres = [p for p in cands if ruta_libre(p, (f['de'], f['a']), cajas, usados)]
+        pts = next((p for p in libres if cabe(f, p)), None) if etq else (libres[0] if libres else None)
+        k = largo(pts) if pts else 0
+        if pts is None and libres:
+            pts, k = libres[0], largo(libres[0]) + 150
+        if pts is None:     # si no hay otro, uno que cruce otra flecha en ángulo recto (lejos de sus extremos)
+            pts = next((p for p in cands if ruta_libre(p, (f['de'], f['a']), cajas, usados, True)), None)
+            k = largo(pts) + 300 if pts else 0
+        if pts is None:
+            pts, k = (cands[-1] if cands else [(ca.cx, ca.b), (cb.cx, cb.y - 2)]), 2000
+        usados.extend(zip(pts, pts[1:]))
+        caminos.append(pts)
+        coste += k
+    return caminos, coste
+
+
+def rejilla_v(m, L):
+    """Vertical para arquitectura y piezas: cada zona, una banda; dentro, sus nodos en filas de hasta tres cajas, tantas
+    como quepan con su nombre entero (el detalle puede ir en dos líneas). Si dos cajas de una zona se unen con una
+    flecha con etiqueta, el hueco entre columnas deja sitio a la etiqueta. Dentro de cada zona, las cajas se colocan
+    donde sus flechas salgan más cortas (a igualdad, en el orden de los datos): rectas si se miran, en L o en Z por los
+    huecos si no, por una calle entre columnas y, si no hay otro camino, por el margen derecho."""
+    L.pendientes = []
+    L.partir_nombres = True
+    flechas = [f for f in m['flechas'] if f['de'] != 'inicio']
+    etq = lambda f: (L.ancho_etq(f), L.fe + 8)
+    zonas = bool(m['zonas'])
+    xi = 24 if zonas else 16
+    dentro = L.W - 2 * xi
+
+    def reparto(ids, k, partir):
+        """Hueco entre columnas, ancho, líneas del nombre y del detalle con k cajas por fila; None si algo no cabe.
+        Con partir, un nombre que no cabe va en dos líneas."""
+        gx = 24
+        if k > 1:
+            gx = max([gx] + [L.ancho_etq(f) + 24 for f in flechas if f['etiqueta'] and f['de'] in ids and f['a'] in ids])
+        w = (dentro - gx * (k - 1)) / k
+        if k == 1:
+            w = min(dentro, max([L.medida_nodo(n) for n in ids] + [160]))
+        try:
+            margen = 16 + (12 if L.croqueta else 0)      # el de Lienzo.nodo, que parte el nombre
+            nombres = max(1 if L.medida_nodo(n, sub=False) <= w else
+                          len(L.partir(L.m['nodos'][n]['nombre'], w - margen, L.fn, K_NEGRITA)) if partir else 9 for n in ids)
+            lineas = max(L.lineas_sub(n, w) for n in ids)
+        except Error:
+            return None
+        return (gx, w, nombres, lineas) if lineas <= 2 and nombres <= 2 else None
+
+    grupos = grupos_zonas(m)
+    y = 16
+    hueco_fila, bandas, huecos = 40, [], []
+    for gi, (nombre, ids) in enumerate(grupos):
+        # tres por fila, dos, dos con algún nombre en dos líneas, o una
+        intentos = [(k, p) for k, p in ((3, False), (2, False), (2, True), (1, False)) if k <= len(ids)]
+        k, r = next(((k, x) for k, p in intentos for x in [reparto(ids, k, p)] if x), (0, None))
+        if r is None:
+            raise Error(f'los nodos de «{nombre or "fuera de las zonas"}» no caben en la vertical: acorta sus nombres')
+        gx, w, nombres, lineas = r
+        h = L.alto + L.pnn * (nombres - 1) + (0 if L.plegadas else L.ps * (lineas - 1))
+        y0 = y
+        # arriba, el sitio del nombre de la zona; sin zona, el de la etiqueta de la flecha que llega de la de encima
+        y += 32 if nombre else 24 if gi else 0
+        huecos.append([R(xi + (i % k) * (w + gx), y + (i // k) * (h + hueco_fila), w, h) for i in range(len(ids))])
+        y += ((len(ids) + k - 1) // k) * (h + hueco_fila) - hueco_fila
+        if nombre:
+            bandas.append((nombre, R(8, y0, L.W - 16, y + 16 - y0)))
+        y += (16 if nombre else 8) + (24 if gi < len(grupos) - 1 else 0)
+    y_fin = y - 8
+    # Colocación: la de las cajas de cada zona con las flechas más cortas y con sitio para sus etiquetas (a igualdad,
+    # en el orden de los datos). Todas las zonas a la vez si las combinaciones son pocas; si no, zona a zona.
+    def coste(puestas, perms, rapido=False):
+        fs = [f for f in flechas if f['de'] in puestas and f['a'] in puestas]
+        return enrutar_v(fs, puestas, L.W, None if rapido else etq)[1] + 4 * sum(abs(p[i] - i) for p in perms for i in range(len(p)))
+
+    def mejor(cands, perms):
+        """La de menor coste: primero sin mirar las etiquetas (rápido) y, entre las doce mejores, mirándolas."""
+        cands = sorted(cands, key=lambda c: coste(c, perms(c), True))[:12]
+        return min(cands, key=lambda c: coste(c, perms(c)))
+
+    def colocar(base, gs, perms):
+        out = dict(base)
+        for ((_, ids), sitios), perm in zip(gs, perms):
+            out.update({n: sitios[perm[i]] for i, n in enumerate(ids)})
+        return out
+
+    gs = list(zip(grupos, huecos))
+    opciones = [list(permutations(range(len(ids)))) if len(ids) <= 7 else [tuple(range(len(ids)))] for ids in (g[1] for g in grupos)]
+    total = 1
+    for o in opciones:
+        total *= len(o)
+    if total <= 150 and len(grupos) > 1:
+        orden = lambda pu: [tuple(sorted(range(len(ids)), key=lambda i: pu[ids[i]].y * 1000 + pu[ids[i]].x)) for _, ids in grupos]
+        puestas = mejor([colocar({}, gs, perms) for perms in product(*opciones)], orden)
+    else:
+        puestas = {}
+        for g, ops in zip(gs, opciones):
+            ids = g[0][1]
+            puestas = mejor([colocar(puestas, [g], [perm]) for perm in ops],
+                            lambda pu: [tuple(sorted(range(len(ids)), key=lambda i: pu[ids[i]].y * 1000 + pu[ids[i]].x))])
+    for n in m['orden']:
+        L.nodo(n, puestas[n])
+    L.H = L.notas(y_fin + 32) + 8
+    for f, pts in zip(flechas, enrutar_v(flechas, L.cajas, L.W, etq)[0]):
+        L.flecha(f, pts)
+    # el nombre de cada zona, arriba a la derecha si ninguna flecha lo cruza; si no, a la izquierda o donde quepa
+    for nombre, rc in bandas:
+        wz = ancho_texto(nombre, L.fe, K_MONO) + 8
+        xs = [rc.r - 8 - wz, rc.x + 8] + list(range(int(rc.r - 12 - wz), int(rc.x + 8), -4))
+        x = next((x for x in xs if not any(R(x, rc.y + 6, wz, 20).mas(2).corta(seg_rect(p, q, 1)) for p, q in L.segs)), xs[0])
+        L.zona(rc, nombre, x=x)
     L.acabar()
 
 
@@ -1018,7 +1255,7 @@ def dibujar(m, o, cajas='desplegadas', forma='redondeada', hueco=True):
     if t in ('estados', 'proceso'):
         (columna if o == 'v' else fila)(m, L)
     elif t in ('arquitectura', 'piezas'):
-        (columna if o == 'v' else rejilla)(m, L)
+        (rejilla_v if o == 'v' else rejilla)(m, L)
     elif t == 'secuencia':
         secuencia(m, L)
     else:

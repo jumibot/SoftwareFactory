@@ -9,10 +9,11 @@ La estética de diagram-design (editorial: papel limpio, tinta, un acento para e
 | tinta | `--texto` | Nombres de los nodos, inicio y fin |
 | suave | `--texto-suave` | Detalle, etiquetas de flecha, flechas por defecto, bordes de los nodos |
 | tenue | `--texto-tenue` | Borde de lo externo y de lo descartado (3:1 o más como trazo; no como texto) |
+| rótulo | `--d-rotulo` | Nombres de zona, carriles, antetítulo, líneas de fase y de vida: el tenue oscurecido hacia `--texto` lo justo para 4,5:1 sobre el fondo de la figura, con cualquier tema (lo calcula `diagramas.js`; sin él, mitad y mitad) |
 | línea | `--linea`, `--borde` | Separadores, zonas y la franja de la leyenda: decorativos, nunca lo único que lleva el significado |
 | foco | `--primario`, con `--fondo` de relleno y `--oscuro` en su nombre | Uno o dos elementos y el camino principal |
 | validado | `--acento` | Solo lo validado o la evidencia (guía común) |
-| papel | `--diagrama-papel` (blanco por defecto) | Máscaras de las etiquetas; el SVG no lleva fondo propio |
+| papel | `--diagrama-papel` (si no, `--pagina`, el papel del documento) | Fondo «Claro» del lienzo y máscaras de las etiquetas; el SVG no lleva fondo propio |
 
 - **Categorías**: los colores con significado de la guía común (turquesa `#1f7a7a`, naranja `#a6501a`, verde `#1f812d`, frambuesa `#be185d`), como mucho tres por figura además del foco, solo en trazos, títulos y etiquetas. Las flechas no toman el color de la pieza.
 - **Etiquetas de flecha**: texto mono, separado de su línea. La que representa un botón del panel puede llevar el color de ese botón, solo en el texto (`style="fill:<color>"`, 4,5:1 o más sobre el papel): sin cápsula, fondo ni forma de botón (decisión 301).

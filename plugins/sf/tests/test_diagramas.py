@@ -225,6 +225,35 @@ class Generador(unittest.TestCase):
                            capture_output=True, check=True)
             self.assertNotIn('skills/diagramas/assets/diagramas.css', md.with_suffix('.html').read_text(encoding='utf-8'))
 
+    def test_vertical_de_arquitectura_con_varias_cajas_por_fila(self):
+        for nombre in ('arquitectura', 'piezas'):
+            with self.subTest(nombre):
+                m = gd.modelo(gd.leer((SKILL / 'assets' / 'ejemplos' / f'{nombre}.diagrama').read_text(encoding='utf-8')))
+                m['id'] = 'p'
+                L = gd.dibujar(m, 'v')
+                filas = {}
+                for c in L.cajas.values():
+                    filas.setdefault(c.y, []).append(c)
+                self.assertTrue(any(len(f) > 1 for f in filas.values()))           # dos cajas en alguna fila
+                self.assertLess(len(filas), len(L.cajas))
+                for f in filas.values():                                          # sin pisarse ni salirse
+                    f.sort(key=lambda c: c.x)
+                    self.assertTrue(all(a.r + 24 <= b.x for a, b in zip(f, f[1:])))
+                    self.assertLessEqual(f[-1].r, 400 - 16)
+        # un nombre largo, en dos líneas antes que una caja por fila
+        texto = 'tipo: arquitectura\nnodos:\n  a: fundacional · informe | uno\n  b: Corto | dos\nzonas:\n  z: ZONA | a, b\n'
+        m = gd.modelo(gd.leer(texto))
+        m['id'] = 'p'
+        L = gd.dibujar(m, 'v')
+        self.assertEqual(L.cajas['a'].y, L.cajas['b'].y)
+        self.assertEqual(''.join(L.nodos).count('class="d-nn"'), 3)
+
+    def test_sin_tema_toma_el_del_documento(self):
+        with tempfile.TemporaryDirectory() as d:
+            frag = Path(d) / 'f.html'
+            self.assertEqual(gd.main([str(EJEMPLOS[0]), '--fragmento', '--tema', '', '-o', str(frag)]), 0)
+            self.assertNotIn('data-d-tema', frag.read_text(encoding='utf-8'))
+
     def test_pagina_con_el_tema(self):
         m = gd.modelo(gd.leer(EJEMPLOS[0].read_text(encoding='utf-8')))
         m['id'] = 'p'
@@ -270,6 +299,42 @@ class EnNavegador(unittest.TestCase):
                         self.assertEqual(m['interaccion'], [], (m['ancho'], m['modo']))
                         self.assertEqual(m['js'], [])
                         self.assertEqual([e for f in m['figuras'] for e in f['errores']], [], (m['ancho'], m['modo']))
+
+    def test_con_el_tema_del_documento(self):
+        """Una figura sin tema: «Por defecto» vuelve al del documento, el fondo «Claro» es su papel y los rótulos de
+        zona llegan a 4,5:1 aunque el texto tenue del tema no llegue (pool: 2,54:1)."""
+        import subprocess
+        import sys
+        from playwright.sync_api import sync_playwright
+        with tempfile.TemporaryDirectory() as d:
+            frag = Path(d) / 'f.html'
+            self.assertEqual(gd.main([str(SKILL / 'assets' / 'ejemplos' / 'arquitectura.diagrama'), '--fragmento', '--tema', '', '-o', str(frag)]), 0)
+            md = Path(d) / 'doc.md'
+            md.write_text('---\ndestino: proyecto\nherramientas: todas\n---\n# Prueba\n\n## Uno | Primera {#uno}\n\nTexto.\n\n'
+                          + frag.read_text(encoding='utf-8') + '\n', encoding='utf-8')
+            r = subprocess.run([sys.executable, '-X', 'utf8', str(DOCUMENTO), str(md), '--identidad', 'ninguna', '--logo', 'ninguno', '--tema', 'pool'],
+                               capture_output=True, text=True, encoding='utf-8')
+            self.assertEqual(r.returncode, 0, r.stderr + r.stdout)
+            html = md.with_suffix('.html')
+            for m in cd.comprobar(html, [375, 1440], 6.5, ('claro',)):
+                self.assertEqual([e for f in m['figuras'] for e in f['errores']], [], m['ancho'])
+            with sync_playwright() as pw:
+                b = cd.navegador(pw)
+                p = b.new_page(viewport={'width': 1440, 'height': 900})
+                p.goto(html.resolve().as_uri())
+                p.wait_for_timeout(500)
+                fondo = "() => [getComputedStyle(document.body).backgroundColor, getComputedStyle(document.querySelector('figure.diagrama')).backgroundColor]"
+                pagina, lienzo = p.evaluate(fondo)
+                self.assertEqual(lienzo, pagina)
+                p.evaluate("document.querySelectorAll('#herr-diagramas .dg-grupo').forEach(d => d.open = true)")
+                p.select_option('#herr-diagramas select[data-dg="tema"]', 'tinta')
+                self.assertEqual(p.evaluate("document.querySelector('figure.diagrama').dataset.dTema"), 'tinta')
+                p.click('#herr-diagramas [data-dg-poner="def"]')
+                self.assertIsNone(p.evaluate("document.querySelector('figure.diagrama').dataset.dTema || null"))
+                self.assertEqual(p.input_value('#herr-diagramas select[data-dg="tema"]'), 'documento')
+                p.click('#herr-diagramas [data-dg-poner="orig"]')
+                self.assertEqual(p.evaluate("document.querySelector('figure.diagrama').dataset.dTema"), 'tinta')
+                b.close()
 
     def test_el_documento_de_ejemplo_pasa_y_su_herramienta_cambia_todas(self):
         ruta = SKILL / 'assets' / 'ejemplo-documento.html'

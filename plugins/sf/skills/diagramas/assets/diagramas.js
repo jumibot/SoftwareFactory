@@ -14,7 +14,38 @@
     c.querySelectorAll('.d-hud').forEach(x => x.remove());
     c.querySelectorAll('.d-resaltando').forEach(x => x.classList.remove('d-resaltando'));
     c.querySelectorAll('.d-on, .d-vecino').forEach(x => x.classList.remove('d-on', 'd-vecino'));
+    c.querySelectorAll('figure.d-gen').forEach(f => f.style.removeProperty('--d-rotulo'));
   });
+
+  // Rótulos (nombres de zona, carriles, antetítulo): el texto tenue del tema, oscurecido hacia el texto lo justo para
+  // 4,5:1 sobre el fondo de la figura, con cualquier tema. Sin JavaScript, la mezcla del CSS (a medias), que también llega.
+  const rgb = s => { const m = (s || '').match(/rgba?\(([^)]+)\)/); return m ? m[1].split(/[ ,/]+/).filter(Boolean).map(Number) : null; };
+  const lum = c => { const l = v => (v /= 255) <= .04045 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4; return .2126 * l(c[0]) + .7152 * l(c[1]) + .0722 * l(c[2]); };
+  const contraste = (a, b) => { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return (x + .05) / (y + .05); };
+  function fondo(el) {
+    for (let e = el; e; e = e.parentElement) { const c = rgb(getComputedStyle(e).backgroundColor); if (c && (c.length < 4 || c[3] > 0)) return c; }
+    return [255, 255, 255];
+  }
+  function rotulo(fig) {
+    const p = document.createElement('span');
+    p.style.cssText = 'position:absolute;visibility:hidden;color:var(--texto-tenue, #666)';
+    fig.appendChild(p);
+    const tenue = rgb(getComputedStyle(p).color);
+    p.style.color = 'var(--texto, #1a1a1a)';
+    const texto = rgb(getComputedStyle(p).color);
+    p.remove();
+    if (!tenue || !texto) return;
+    const bajo = fondo(fig);
+    let c = tenue;
+    for (let t = .05; contraste(c, bajo) < 4.6 && t <= 1.001; t += .05) c = tenue.map((v, i) => Math.round(v + (texto[i] - v) * t));
+    fig.style.setProperty('--d-rotulo', `rgb(${c[0]}, ${c[1]}, ${c[2]})`);
+  }
+  function rotulos(fig) {
+    rotulo(fig);
+    new MutationObserver(() => rotulo(fig)).observe(fig, { attributes: true, attributeFilter: ['data-d-tema', 'data-d-lienzo'] });
+  }
+  new MutationObserver(() => document.querySelectorAll('figure.d-gen').forEach(rotulo))
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'data-modo', 'class', 'style'] });
 
   const ANCHA = 800;  // px de figura desde los que se dibuja la forma horizontal (como @container en diagramas.css)
   let n = 0;
@@ -145,11 +176,12 @@
     const rx = croq ? Math.min(H, W) / 2 : +r.getAttribute('rx') || 0;
     r.setAttribute('y', Y); r.setAttribute('height', H); if (croq) r.setAttribute('rx', rx);
     const dy = Y - y0;
-    const nn = g.querySelector('.d-nn'), subs = [...g.querySelectorAll('.d-sb')], fn = +nn.getAttribute('font-size');
-    const pn = +r.dataset.pn, ps = +r.dataset.ps;
-    const yn = cy - (fn + (abierta && subs.length ? pn + ps * (subs.length - 1) : 0)) / 2 + fn * .8;
-    nn.setAttribute('y', yn.toFixed(1));
-    subs.forEach((s, i) => { s.setAttribute('y', (yn + pn + ps * i).toFixed(1)); s.classList.toggle('d-plegado', !abierta); });
+    // el nombre, en una o dos líneas (data-pnn, el paso entre ellas), y el detalle debajo
+    const nns = [...g.querySelectorAll('.d-nn')], subs = [...g.querySelectorAll('.d-sb')], fn = +nns[0].getAttribute('font-size');
+    const pn = +r.dataset.pn, ps = +r.dataset.ps, extra = (+r.dataset.pnn || 0) * (nns.length - 1);
+    const yn = cy - (fn + extra + (abierta && subs.length ? pn + ps * (subs.length - 1) : 0)) / 2 + fn * .8;
+    nns.forEach((t, i) => t.setAttribute('y', (yn + (+r.dataset.pnn || 0) * i).toFixed(1)));
+    subs.forEach((s, i) => { s.setAttribute('y', (yn + extra + pn + ps * i).toFixed(1)); s.classList.toggle('d-plegado', !abierta); });
     const mueve = (e, a) => { const k = 'o' + a; if (!e.dataset[k]) e.dataset[k] = e.getAttribute(a); e.setAttribute(a, +e.dataset[k] + dy); };
     g.querySelectorAll('.d-fin-a, .d-fin').forEach(c => mueve(c, 'cy'));
     g.querySelectorAll('.d-chip, .d-chip-c').forEach(t => mueve(t, 'y'));
@@ -208,6 +240,6 @@
     modo();
   }
 
-  const iniciar = () => { document.querySelectorAll('[data-diagrama]').forEach(montar); document.querySelectorAll('figure.d-gen').forEach(f => { esquinas(f); plegado(f); }); };
+  const iniciar = () => { document.querySelectorAll('[data-diagrama]').forEach(montar); document.querySelectorAll('figure.d-gen').forEach(f => { esquinas(f); plegado(f); rotulos(f); }); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();
