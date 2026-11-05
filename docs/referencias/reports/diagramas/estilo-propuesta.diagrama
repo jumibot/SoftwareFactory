@@ -1,20 +1,19 @@
 tipo: arquitectura
 titulo: Lo decidido: un generador único y el estilo como parámetros
-descripcion: Las skills de tipo eligen recursos del catálogo; el generador único y determinista maqueta todo documento con los parámetros del estilo del proyecto, que una skill ayuda a fijar con muestras y afinado.
+descripcion: Las skills de tipo eligen recursos del catálogo, también el diagrama; el generador único y determinista maqueta todo documento con los parámetros del estilo del proyecto, que una skill ayuda a fijar con muestras y afinado.
 pie: SF · DOCUMENTOS | DECISIONES 305 A 313
 foco: gen
 nodos:
   perf: Skills de tipo | contenido y estructura
   info: Infografía técnica | toma el estilo | externo
-  diag: diagramas | estilo del documento
-  cat: Catálogo de recursos | crear_documentos
+  cat: Catálogo de recursos | también el diagrama
   gen: Generador único | determinista
   html: Documentos | un solo estilo
   skill: Skill de estilo | muestras y afinado | externo
   param: Estilo e identidad | parámetros, logo
   comp: Componentes propios | al lado del estilo
 zonas:
-  skills: SKILLS | perf, info, diag
+  skills: SKILLS | perf, info
   genz: GENERADOR ÚNICO | cat, gen, html
   proyecto: PROYECTO | skill, param, comp
 flechas:
@@ -23,11 +22,11 @@ flechas:
   skill > param: FIJA Y AFINA
   param > gen: ESTILO
   gen > html: GENERA | verde
-  diag > html: SU ESTILO
   comp > html: DENTRO
 notas:
   LA SKILL DE ESTILO NO MAQUETA: fija los parámetros; las muestras y los documentos los hace el generador
-  LA INFOGRAFÍA: lee los parámetros del estilo sin pasar por el generador (tarea 8)
+  EL DIAGRAMA, UN RECURSO MÁS: el .md nombra su .diagrama y el generador lo dibuja al generar, con el estilo del documento (pregunta 9)
+  LA INFOGRAFÍA: lee los parámetros del estilo sin pasar por el generador; si es también un recurso, pregunta 10
 fichas:
   perf: Una por tipo de documento: visión, explicativo, fundacional, informe, técnica, interfaz.
     - dan: contenido, estructura, tono y procedimiento
@@ -35,9 +34,9 @@ fichas:
   info: La página three.js de la infografía técnica.
     - estilo: página, panel y HUD con los parámetros del proyecto (tarea 8)
     - no cambia: los colores con significado del modelo
-  diag: Se pintan con el estilo del documento en el que van (307).
   cat: Los recursos con su sintaxis y cuándo usar cada uno.
     - también: los de la visión (308)
+    - el diagrama: un recurso más; el generador llama al motor de la skill de diagramas, con el estilo del documento (307; pregunta 9)
     - lo dibuja: el generador; las skills de tipo solo eligen
   gen: El único generador de documentos, determinista (305).
     - maqueta: cualquier documento, con los parámetros del estilo
