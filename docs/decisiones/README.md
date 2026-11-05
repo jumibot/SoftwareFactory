@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 290 | 2026-11-05 | [Botones del panel en la app de escritorio con el fondo de su color](290-2026-11-05-botones-del-panel-en-la-app-de-escritorio-con-el-fondo-de-su-color.md) |
 | 289 | 2026-11-05 | [Emojis de estado fijos en las respuestas del principal, coherentes con el panel](289-2026-11-05-emojis-de-estado-fijos-en-las-respuestas-del-principal-coherentes-con-el-panel.md) |
 | 288 | 2026-11-05 | [Las comprobaciones y pruebas hechas se anotan como pasos de su tarea](288-2026-11-05-las-comprobaciones-y-pruebas-hechas-se-anotan-como-pasos-de-su-tarea.md) |
 | 287 | 2026-11-05 | [El principal dice en qué tarea está concentrado el propietario, con «FOCUS: <título corto> (T NN)»](287-2026-11-05-el-principal-dice-en-que-tarea-esta-concentrado-el-propietario-con-focus-titulo-corto-t-nn.md) |
