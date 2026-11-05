@@ -4,6 +4,7 @@ Fecha: 2026-11-05. Decidida por el propietario de la Software Factory. Norma exc
 
 - La SF tiene un documento de arranque para Claude, compacto y con pocos tokens, con todo lo que necesita cargar al empezar una sesión en la SF. Es la única lectura de entrada del CLAUDE.md y enlaza al detalle.
 - Se mantiene al día con lo que haga falta para poder continuar el desarrollo de la SF: lo que se aprende o cambia en una sesión (piezas nuevas, dónde vive cada cosa, cómo se trabaja aquí) entra en él, como en esta sesión.
+- Para añadir o cambiar algo en él hace falta la autorización del propietario: se propone el texto y se espera su OK, como con el CLAUDE.md.
 - No viaja en el plugin ni repite lo que ya viaja en él: es el mapa para trabajar en la fuente de la SF.
 
 Porqué: la lectura de entrada mandaba leer cinco documentos grandes; con uno compacto, cada sesión arranca con lo necesario y gasta pocos tokens. Y si no se pone al día, la siguiente sesión empieza sin lo aprendido en la anterior.
