@@ -8,4 +8,4 @@
   3. En un proyecto que aún tiene la línea `@.sf/claude-sf.md`, el mod no entrega las reglas pero sí la orquestación, y el panel avisa de que el proyecto va atrasado. El caso «actualizar» de `sf:incorporar_proyecto_a_sf` quita la línea y la copia, en una sesión abierta en cada proyecto.
   La propia SF no recibe la inyección: su `CLAUDE.md` dice las reglas desde la fuente.
 - **Consecuencias:** sin copias que regenerar y siempre la versión instalada; cargar la orquestación ya no depende de Claude. Unos 3.000 tokens más por arranque y por compactación. Los subagentes no deben recibirla.
-- **Aplicada en:** pendiente: el mod (248), `sf:incorporar_proyecto_a_sf`, `sf:orquestacion` y los documentos compartidos (208, 198, 219).
+- **Aplicada en:** el mod (`hooks/contexto.ts`, `register.tsx`; el aviso de proyecto atrasado en `panel.tsx` y `lectura.ts`); `sf:incorporar_proyecto_a_sf` («Reglas de la SF, sin tocar el CLAUDE.md»); `sf:orquestacion`; metodología, «Qué pertenece a cada proyecto consumidor»; `CLAUDE.md`; «Cómo funciona la Software Factory»; «Mejora continua a la Software Factory».

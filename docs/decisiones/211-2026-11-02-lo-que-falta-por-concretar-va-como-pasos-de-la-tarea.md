@@ -4,4 +4,4 @@
 - **Contexto:** la orquestación manda anotar toda petición en cuanto llega, pero en «Poner en curso» dice «Si el enunciado no basta, preguntar». Leído así, Claude esperaba a tener el detalle para anotarla, y la petición quedaba en la conversación, donde se pierde.
 - **Decisión:** toda petición se anota en la cola al llegar, aunque esté sin concretar. Lo que falte para poder hacerla (concretar, deliberar, decidir o diseñar cómo hacerla) se añade como pasos de esa tarea, y se trabaja como el resto de los pasos: se pregunta al propietario dentro de la tarea, no antes de crearla.
 - **Consecuencias:** `sf:orquestacion` cambia «Si el enunciado no basta, preguntar» por anotar primero y poner lo que falte como pasos. Ninguna petición queda pendiente solo en la conversación.
-- **Aplicada en:** pendiente; en la 295.
+- **Aplicada en:** `sf:orquestacion` («Con cada mensaje» y «Poner en curso») y `references/porque.md`; `templates/claude-sf.md` («Cola de peticiones»); `sf:metodologia` y metodología, «Tareas y cola»; `CLAUDE.md` («Cola de peticiones»).

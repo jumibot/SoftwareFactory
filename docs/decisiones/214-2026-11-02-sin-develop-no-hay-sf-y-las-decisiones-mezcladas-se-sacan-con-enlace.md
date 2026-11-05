@@ -6,4 +6,4 @@
   - Un archivo que mezcla decisiones con otras cosas: las decisiones pasan a `sf/decisiones/`, una por archivo, y su sección del archivo original se cambia por un enlace a ellas; el resto (pendientes y demás) se queda donde está.
   - Si el desarrollador no quiere crear `develop`, Claude le explica que la SF no se puede usar sin `develop` y le pide que lo reconfirme con un menú. Si lo reconfirma, la incorporación se para sin cambiar nada.
 - **Consecuencias:** ninguna decisión queda duplicada. Nunca hay un proyecto a medio incorporar sin `develop`.
-- **Aplicada en:** pendiente; en la 222 (`sf:incorporar_proyecto_a_sf`).
+- **Aplicada en:** `sf:incorporar_proyecto_a_sf` («Decisiones en otra forma» y «Si no se acepta»); metodología, «Incorporación»; «Cómo funciona la Software Factory», «Lo fijo, lo detectado y lo elegido».

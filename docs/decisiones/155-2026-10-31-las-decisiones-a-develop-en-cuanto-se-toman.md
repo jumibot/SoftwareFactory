@@ -4,4 +4,4 @@
 - **Contexto:** si el principal escribe una decisión en la rama de una tarea mientras su subagente trabaja, chocan las ramas; si la escribe el subagente, la decisión espera al cierre de la tarea para llegar a develop.
 - **Decisión:** el principal registra cada decisión en su archivo de docs/decisiones/ y la lleva a develop en cuanto se toma, con el índice regenerado. Aplicarla a la metodología, las skills o los documentos sigue siendo trabajo de la tarea, en su subagente.
 - **Consecuencias:** las decisiones están en develop al momento y no chocan con las ramas de los subagentes.
-- **Aplicada en:** pendiente, tarea «La orquestación deja todo el trabajo de la tarea al subagente, también el análisis» (215).
+- **Aplicada en:** `plugins/sf/tools/cola.py` (`decision`) y sus pruebas; `sf:orquestacion` («Preguntar») y su `references/porque.md`; plantilla `claude-sf.md`; metodología, «Estructura documental común»; `CLAUDE.md`; «Cómo funciona la Software Factory».

@@ -5,4 +5,4 @@
 - **Decisión:** en esos proyectos, el prefijo del título del squash sale del tipo de tarea: implementar → `feat`, corregir → `fix`, documentar y especificar → `docs`; el resto, el que mejor case. Le sigue el título de la tarea.
 - **Precisada el mismo día:** una tarea sin tipo lleva `chore`. Si hay dudas sobre qué tipo es, Claude pregunta el tipo al propietario y lo anota en la tarea antes de cerrarla; si se cierra desde el panel sin tipo, `chore` (propietario: «chore está bien o preguntar por el tipo si hay dudas»).
 - **Consecuencias:** cerrar sigue sin pedir nada, también con la C del panel. Los títulos de las tareas no cambian de forma.
-- **Aplicada en:** pendiente; en «Implementar la configuración inicial» (193).
+- **Aplicada en:** `plugins/sf/tools/cola.py` (`PREFIJO_POR_TIPO`, `mensaje_de_tarea`) y sus pruebas; `sf:orquestacion` («Probar y cerrar»); `sf:flujo_tareas` (`references/estados.md`); `sf:incorporar_proyecto_a_sf` y `sf:configurar_proyecto` (`commits`); «Cómo funciona la Software Factory», «Estructura de un proyecto bajo la SF».

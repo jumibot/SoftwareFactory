@@ -4,4 +4,4 @@
 - **Contexto:** Testing no es una fase de prueba, sino una cuarentena: la tarea ya está en `develop` y se vigila cómo funciona. Decir que una tarea de Testing se «da por probada» describe mal lo que pasa y mezcla el lenguaje de la SF con el habitual de otras herramientas.
 - **Decisión:** al hablar del flujo de tareas y de sus cambios de estado se usa el lenguaje propio de la SF. Una tarea de Testing se **cierra** (funciona bien y se da por buena) o se **revierte** (funciona mal). No se dice que se «da por probada» ni se usan otros términos ajenos para lo mismo.
 - **Consecuencias:** hay que revisar el lenguaje de `sf:flujo_tareas`, `sf:orquestacion`, la ayuda y los mensajes de `cola.py` (la orden `probada`), los botones y avisos del panel y los documentos que describen el flujo, y alinearlos con este vocabulario.
-- **Aplicada en:** pendiente.
+- **Aplicada en:** `sf:orquestacion` («Probar y cerrar»); `sf:flujo_tareas` (`references/estados.md`); `plugins/sf/tools/cola.py` (sin `probada`: una en observación se cierra con `cerrar`); `hooks/panel.tsx` («Revertir», «A observación»); especificación; pendiente: «Cómo funciona el panel», que aún dice «probada».

@@ -8,4 +8,4 @@
   - **Cambio de documentos existentes:** rama de la tarea y squash al cerrar, con la aprobación del propietario.
   - El modelo de ramas del proyecto (`develop`, `main`) no cambia («El manejo del repositorio no se negocia: siempre develop», 205); lo que cambia es cómo lo usa cada tipo.
 - **Consecuencias:** `cola.py` (la rama al poner en curso, el encargo del subagente, la recogida y los pasos de cierre) y `sf:flujo_tareas` tienen que distinguir el tipo. Es la base de la propuesta de familias de la 274, cuyas preguntas lo concretan.
-- **Aplicada en:** pendiente; en la 274 y en «Documentos nuevos a develop en cada vuelta, y abrirlos en el navegador» (297).
+- **Aplicada en:** metodología, «Tareas y cola» («El tipo decide cómo se maneja el repositorio»); `plugins/sf/tools/cola.py` (`TIPOS`, `DELIBERATIVAS`, `PREFIJO_POR_TIPO`, el encargo según el tipo); `sf:flujo_tareas` («Deliberativas sin rama»); `sf:orquestacion` («Probar y cerrar»); pendiente: el camino propio de las tareas documentales y «Cómo funciona la Software Factory».

@@ -8,4 +8,4 @@
   - El historial de versiones de los documentos y las decisiones antiguas no se tocan: son historia.
   - Lo garantizan pruebas automáticas, entre ellas una que falla si reaparece el nombre viejo en lo que está en el alcance.
 - **Consecuencias:** las colas ya guardadas en otros proyectos se convierten una vez al cargarlas, porque sin eso dejarían de abrirse; es una migración, no un alias, y la prueba lo cubre. Lo que llame a las órdenes viejas (skills, panel, documentos) se cambia en la misma tarea. Preferencia general: al principio del proyecto, limpieza completa antes que compatibilidad con nombres viejos.
-- **Aplicada en:** pendiente; en la 291.
+- **Aplicada en:** `plugins/sf/tools/cola.py` (sin alias; los nombres viejos se convierten al cargar: `ESTADOS_VIEJOS`, `CAMPOS_VIEJOS`, `EVENTOS_VIEJOS`) y `hooks/constantes.ts`; `tests/test_sin_nombres_viejos.py`; `sf:flujo_tareas` (`references/estados.md`, «No hay alias»); pendiente: «Cómo funciona el panel», `docs/como-funcionan-los-estados.md` y `docs/uso-del-panel.md`.

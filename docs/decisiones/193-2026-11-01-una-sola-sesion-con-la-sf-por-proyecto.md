@@ -8,4 +8,4 @@
   3. `/sf_forzar_activa` activa la SF en la sesión donde se escribe y la apaga en la otra. Sirve para probar en una sesión nueva o tras un cuelgue. `/sf_forzar_inactiva` apaga la SF en la sesión donde se escribe, que deja de dar latido, para que otra la tome.
   4. El mismo latido de cada minuto es el que comprueba si hay que ofrecer REFRESCAR (decisión 177).
 - **Consecuencias:** no hay avisos ni órdenes de la SF cruzados entre sesiones. Probar en una sesión nueva exige `/sf_forzar_activa`. Un cuelgue deja la SF bloqueada como mucho unos 3 minutos.
-- **Aplicada en:** pendiente: el mod (281); «Cómo funciona el panel» (198).
+- **Aplicada en:** pendiente: el mod (una sola sesión activa, `/sf_forzar_activa`, `/sf_forzar_inactiva`), «Cómo funciona el panel» y la metodología.

@@ -6,4 +6,4 @@
   1. `sf:incorporar_proyecto_a_sf` crea `docs/propuestas.md` con su «## Propuestas pendientes» vacía, en proyectos nuevos y al actualizar uno que no lo tenga.
   2. El índice de decisiones en HTML no vuelve al panel: se genera a mano con `indice_decisiones.py` si hace falta (KISS).
 - **Consecuencias:** todo proyecto incorporado tiene dónde anotar sus propuestas y su sección en el panel.
-- **Aplicada en:** pendiente: `sf:incorporar_proyecto_a_sf` (282).
+- **Aplicada en:** `sf:incorporar_proyecto_a_sf` (crea `sf/propuestas.md` desde `templates/propuestas.md`) y sus pruebas; «Cómo funciona la Software Factory», «Incorporación de un proyecto a la SF».

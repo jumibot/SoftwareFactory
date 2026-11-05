@@ -8,4 +8,4 @@
   - **Documentales:** especificar y documentar.
   Deliberativas y documentales comparten el manejo del repositorio (218, 219), pero son familias distintas porque su trabajo es distinto: las deliberativas dialogan, deciden y separan temas; las documentales escriben un documento acordado. La razón de mantener tres es que cada familia tenga en el plugin su propio agente especializado.
 - **Consecuencias:** el plugin tendrá un agente (subagente) por familia, con su encargo, sus herramientas y sus skills; el principal lanza el de la familia de la tarea. `cola.py` y el panel distinguen la familia por el tipo. Cómo son esos agentes queda para su propia tarea.
-- **Aplicada en:** pendiente; en la 274 (la agrupación) y en una tarea por crear para los agentes especializados.
+- **Aplicada en:** metodología, «Tareas y cola» («Tipos de tarea»); `CLAUDE.md` («Tipos de tarea»); `plugins/sf/tools/cola.py` (`TIPOS`, `DELIBERATIVAS`, `es_deliberativa`) y `hooks/cola.ts`; `sf:informe_deliberativa`; pendiente: los agentes por familia y distinguir las documentales en `cola.py` y el panel.

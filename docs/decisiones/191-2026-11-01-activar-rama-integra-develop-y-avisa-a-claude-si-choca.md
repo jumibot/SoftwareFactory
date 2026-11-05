@@ -6,4 +6,4 @@
   1. Si «Activar rama» choca o encuentra trabajo sin traer, el panel pasa el fallo a Claude, como ya hace «Cerrar», para que lo resuelva el subagente de la tarea.
   2. Tras integrar, `probar` adelanta la rama auxiliar: fast-forward en el worktree del subagente, o `branch -f` si no tiene, sin pisar cambios sin commit. Si no puede, avisa.
 - **Consecuencias:** el principal sigue trayendo el trabajo con `git merge --ff-only` y probar no depende de pedírselo a Claude. `probar` toca el worktree del subagente, solo con fast-forward.
-- **Aplicada en:** `cola.py probar` (270); el aviso del panel, pendiente (270); metodología y «Cómo funciona el panel», pendientes (208, 198).
+- **Aplicada en:** `plugins/sf/tools/cola.py` (`probar`, `adelantar_auxiliares`) y sus pruebas; el mod (`hooks/cola.ts`, el fallo se pasa a Claude); `sf:flujo_tareas` (`references/estados.md`); metodología, «Tareas y cola»; pendiente: «Cómo funciona el panel».

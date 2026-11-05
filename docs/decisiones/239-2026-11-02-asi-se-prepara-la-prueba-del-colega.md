@@ -9,4 +9,4 @@
   - Primera tarea: en una carpeta vacía, con un repositorio privado nuevo en GitHub que crea la incorporación.
 - **Corregida el mismo día:** el propietario: «Prepara para dejar el repo público ya». En lugar de invitar al colega, el repositorio de la SF se hace público, después de revisar secretos, datos privados e historia y de poner licencia («Dejar público el repositorio de la SF», 317). Cambiar la visibilidad necesita su OK.
 - **Consecuencias:** la guía de arranque pide cuenta de GitHub, `gh` con la sesión iniciada y aceptar la invitación.
-- **Aplicada en:** pendiente; en la 289.
+- **Aplicada en:** el repositorio público `jumibot/SoftwareFactory`, con `LICENSE`, `README.md` y `README.es.md`; `plugins/sf/README.md` («Requisitos»); `sf:comprobar_instalacion`; `hooks/lectura.ts` (configuración desechable con `CLAUDE_CONFIG_DIR`); `sf:metodologia` y metodología, «Automejora durante el uso de la SF»; pendiente: recorrer la conversación como usuario nuevo y la primera tarea en una carpeta vacía.

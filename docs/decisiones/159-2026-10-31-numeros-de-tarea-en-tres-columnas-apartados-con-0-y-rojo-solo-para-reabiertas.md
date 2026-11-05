@@ -7,4 +7,4 @@
   - Pendientes y Testing se ven siempre, también con 0, como Cerradas.
   - El rojo marca solo las tareas reabiertas, no las que vienen de sesiones anteriores.
 - **Consecuencias:** precisa «Código de tarea más ligero: 74C» (066) en el ancho de los números y en el significado del rojo, y amplía a Pendientes y Testing lo que ya valía para Cerradas.
-- **Aplicada en:** pendiente en el panel (tarea 236) y en «Cómo funciona el panel».
+- **Aplicada en:** el panel (`plugins/sf/hooks/panel.tsx`) y sus pruebas; pendiente: «Cómo funciona el panel» y la especificación, que aún dicen otra cosa.

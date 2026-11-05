@@ -4,4 +4,4 @@
 - **Contexto:** en la sesión se crearon 17 tareas y se cerró una; con muchas tareas en curso a la vez, cada una con su subagente, sus decisiones y su estado, la orquestación se equivoca más. Crear una tarea por cada defecto sigue siendo lo correcto: la cola larga no es el problema, sí las que hay en curso.
 - **Decisión:** el principal empuja primero a cerrar las tareas en curso que se pueden cerrar (llevar al propietario lo que necesitan para probar, decidir o cerrar) y solo después propone poner en curso tareas nuevas. Las peticiones y los defectos nuevos se siguen anotando en la cola en cuanto llegan.
 - **Consecuencias:** menos tareas en curso a la vez y menos errores de orquestación; al estar libre, lo primero es desbloquear y cerrar lo que está en curso.
-- **Aplicada en:** pendiente, sf:orquestacion y la metodología.
+- **Aplicada en:** `sf:orquestacion` («Poner en curso» y «Libre»); metodología, «Tareas y cola».

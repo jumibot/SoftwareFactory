@@ -4,4 +4,4 @@
 - **Contexto:** los títulos empiezan por lo que cambia («Cómo escribir», `sf:orquestacion`). Un título en presente de indicativo («El panel muestra…») puede leerse como el estado actual y no como el objetivo.
 - **Decisión:** el título de una tarea dice el resultado buscado de forma que no se confunda con el estado actual: con un verbo de acción en infinitivo («Mostrar…», «Corregir…») o con «Que …» y subjuntivo («Que el panel muestre…»), nunca en presente de indicativo como si ya ocurriera.
 - **Consecuencias:** la regla va a «Cómo escribir» de `sf:orquestacion`, que viaja con el plugin (247). Los títulos existentes se cambian cuando se toquen.
-- **Aplicada en:** pendiente; en «Títulos de tarea que dicen el resultado buscado, sin confundirse con el estado actual».
+- **Aplicada en:** `sf:orquestacion` («Cómo escribir») y `references/porque.md`.

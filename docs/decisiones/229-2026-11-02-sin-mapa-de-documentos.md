@@ -4,4 +4,4 @@
 - **Contexto:** la 201 dice que la SF mapea los documentos de un proyecto que no se reorganiza. La 263 proponía no guardar nada (Claude los busca y, si no, pregunta) o un bloque `documentos` en `.sf/proyecto.json` con sus rutas.
 - **Decisión:** no hay mapa de documentos. Si el proyecto sigue la estructura documental de la SF, sus documentos están donde la SF los busca. Si no la sigue, la SF no los mapea.
 - **Consecuencias:** `.sf/proyecto.json` no lleva un bloque `documentos`, y la incorporación no pregunta rutas de documentos. Corrige lo que la 201 decía sobre mapear.
-- **Aplicada en:** pendiente; en la 263 (el informe) y en `sf:incorporar_proyecto_a_sf` («Implementar la configuración inicial», 193).
+- **Aplicada en:** `sf:incorporar_proyecto_a_sf` (sin preguntar rutas de documentos); «Cómo funciona la Software Factory», «Estructura de un proyecto bajo la SF».

@@ -60,7 +60,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | 256 | 2026-11-04 | [Las tareas de investigar no tienen rama](256-2026-11-04-las-tareas-de-investigar-no-tienen-rama.md) |
 | 255 | 2026-11-04 | [Logo «/SF»: barra estrecha y empinada en morado claro](255-2026-11-04-logo-sf-barra-estrecha-y-empinada-en-morado-claro.md) |
 | 254 | 2026-11-04 | [En la app, /sf disponible antes del primer mensaje y solo órdenes al escribir /sf](254-2026-11-04-en-la-app-sf-disponible-antes-del-primer-mensaje-y-solo-ordenes-al-escribir-sf.md) |
-| 253 | 2026-11-04 | [Botones del panel en la app de escritorio, con contorno de color](253-2026-11-04-botones-del-panel-en-la-app-de-escritorio-con-contorno-de-color.md) |
+| 253 | 2026-11-04 | [Botones del panel en la app de escritorio, con contorno de color](253-2026-11-04-botones-del-panel-en-la-app-de-escritorio-con-contorno-de-color.md) (sustituida) |
 | 252 | 2026-11-03 | [La SF se trabaja en el repositorio público, con revisión antes de publicar](252-2026-11-03-la-sf-se-trabaja-en-el-repositorio-publico-con-revision-antes-de-publicar.md) |
 | 251 | 2026-11-03 | [El título de una tarea dice el resultado buscado, sin ambigüedad](251-2026-11-03-el-titulo-de-una-tarea-dice-el-resultado-buscado-sin-ambiguedad.md) |
 | 250 | 2026-11-03 | [No interrumpir mientras se prueba o se está en otra tarea](250-2026-11-03-no-interrumpir-mientras-se-prueba-o-se-esta-en-otra-tarea.md) |
@@ -121,7 +121,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | 195 | 2026-11-01 | [Fuera la sección Documentos del panel](195-2026-11-01-fuera-la-seccion-documentos-del-panel.md) |
 | 194 | 2026-11-01 | [Sin registro ni mejoras de la SF desde otros proyectos](194-2026-11-01-sin-registro-ni-mejoras-de-la-sf-desde-otros-proyectos.md) |
 | 193 | 2026-11-01 | [Una sola sesión con la SF por proyecto](193-2026-11-01-una-sola-sesion-con-la-sf-por-proyecto.md) |
-| 192 | 2026-11-01 | [La mejora desde otro proyecto se escribe con Edit o Write](192-2026-11-01-la-mejora-desde-otro-proyecto-se-escribe-con-edit-o-write.md) |
+| 192 | 2026-11-01 | [La mejora desde otro proyecto se escribe con Edit o Write](192-2026-11-01-la-mejora-desde-otro-proyecto-se-escribe-con-edit-o-write.md) (sustituida) |
 | 191 | 2026-11-01 | [Activar rama integra develop, avisa a Claude si choca y adelanta la rama del subagente](191-2026-11-01-activar-rama-integra-develop-y-avisa-a-claude-si-choca.md) |
 | 190 | 2026-11-01 | [La orden fija de cola.py pasa por el lanzador real, también con CLAUDE_CONFIG_DIR](190-2026-11-01-la-orden-fija-de-cola-py-pasa-por-el-lanzador-real.md) |
 | 189 | 2026-11-01 | [Descartar borra también la rama del subagente](189-2026-11-01-descartar-borra-tambien-la-rama-del-subagente.md) |
