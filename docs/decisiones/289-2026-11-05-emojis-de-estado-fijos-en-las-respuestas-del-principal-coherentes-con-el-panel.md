@@ -20,6 +20,8 @@ El principal marca los estados con este juego fijo de emojis, el mismo en todos 
 
 🟡 solo al poner una tarea en curso, no al mencionar una que ya lo está.
 
+✅ y ⭐ van al final de su línea, no delante: «Comprobado: 303 pruebas de Python, sin fallos ✅», «Dejarla fuera ⭐».
+
 ❓ solo en una pregunta que espera una decisión del propietario sobre una tarea, no en cualquier pregunta, y al final, en lugar del signo de cierre: «¿La pongo en curso con su subagente❓».
 
 El rojo es «terminado», como el punto de los subagentes en el panel; por eso un fallo va con ❌. ✅ solo marca lo comprobado; lo hecho no lleva emoji. Juego corto: muchos emojis restan.
