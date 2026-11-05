@@ -21,7 +21,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | --- | --- | --- |
 | 311 | 2026-11-05 | [El color de sesión de la SF no se reserva: un proyecto puede salir del mismo color](311-2026-11-05-el-color-de-sesion-de-la-sf-no-se-reserva-un-proyecto-puede-salir-del-mismo-color.md) |
 | 310 | 2026-11-05 | [El color de sesión se deriva del color primario del estilo del proyecto](310-2026-11-05-el-color-de-sesion-se-deriva-del-color-primario-del-estilo-del-proyecto.md) |
-| 309 | 2026-11-05 | [Cada documento se migra a la maquetación común cuando se vuelve a tocar](309-2026-11-05-cada-documento-se-migra-a-la-maquetacion-comun-cuando-se-vuelve-a-tocar.md) |
+| 309 | 2026-11-05 | [Cada documento se migra al generador único cuando se vuelve a tocar](309-2026-11-05-cada-documento-se-migra-a-la-maquetacion-comun-cuando-se-vuelve-a-tocar.md) |
 | 308 | 2026-11-05 | [Todos los recursos de la visión pasan al catálogo común](308-2026-11-05-todos-los-recursos-de-la-vision-pasan-al-catalogo-comun.md) |
 | 307 | 2026-11-05 | [Los diagramas toman el estilo del documento; tinta, en el selector y en páginas sueltas](307-2026-11-05-los-diagramas-toman-el-estilo-del-documento-tinta-en-el-selector-y-en-paginas-sueltas.md) |
 | 306 | 2026-11-05 | [Las secciones sin etiqueta salen con número y título hasta que el estilo del proyecto diga otra cosa](306-2026-11-05-las-secciones-sin-etiqueta-salen-con-numero-y-titulo-hasta-que-el-estilo-del-proyecto-diga-otra-cosa.md) |
