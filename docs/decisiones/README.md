@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 292 | 2026-11-05 | [En la SF, la memoria de Claude no lleva nada que viaje en el plugin, y cambiarla pide autorización del propietario](292-2026-11-05-en-la-sf-la-memoria-de-claude-no-lleva-nada-que-viaje-en-el-plugin-y-cambiarla-pide-autorizacion-del-propietario.md) |
 | 291 | 2026-11-05 | [El CLAUDE.md de la SF no lleva nada que viaje en el plugin, y cambiarlo pide autorización del propietario](291-2026-11-05-el-claude-md-de-la-sf-no-lleva-nada-que-viaje-en-el-plugin-y-cambiarlo-pide-autorizacion-del-propietario.md) |
 | 290 | 2026-11-05 | [Botones del panel en la app de escritorio con el fondo de su color](290-2026-11-05-botones-del-panel-en-la-app-de-escritorio-con-el-fondo-de-su-color.md) |
 | 289 | 2026-11-05 | [Emojis de estado fijos en las respuestas del principal, coherentes con el panel](289-2026-11-05-emojis-de-estado-fijos-en-las-respuestas-del-principal-coherentes-con-el-panel.md) |
