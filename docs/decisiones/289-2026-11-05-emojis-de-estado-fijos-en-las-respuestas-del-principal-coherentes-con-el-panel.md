@@ -8,7 +8,7 @@ El principal marca los estados con este juego fijo de emojis, el mismo en todos 
 - 🟢 subagente trabajando
 - 🔴 subagente terminado
 - ⚪ en cola
-- 🧪 lista para probar
+- ▶️ lista para probar (te toca ponerla en marcha)
 - 👀 en observación
 - 🔒 cerrada
 - ✅ comprobado (pruebas pasadas, algo verificado)
