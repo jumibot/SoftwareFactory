@@ -3,6 +3,7 @@
 Fecha: 2026-11-05. Decidida por el propietario de la Software Factory.
 
 - El principal le dice al propietario en qué tarea está concentrado, con una línea al principio de su respuesta: «FOCUS: <título corto de la tarea> (T <número>)», por ejemplo «FOCUS: Retoques en el readme (T 368)».
+- La palabra FOCUS se escribe con letras de fondo negro, «🅵🅾🅲🆄🆂: <título corto> (T NN)», que en la terminal se ven como etiqueta y no forman banderas.
 - El foco es la tarea sobre la que el propietario más está escribiendo. Las interrupciones para anotar otras tareas no lo cambian. A veces lo dice él («vamos a probar la …»), y de ahí se deduce.
 - El foco termina al acabar la tarea o cuando hace rato que el propietario no habla de ella. Sin foco, la línea FOCUS no va.
 - Con un foco, el principal no interrumpe al propietario con actualizaciones ni mensajes de otras tareas, y menos mientras escribe: lo de las demás espera a que el foco acabe o a que él pregunte.
