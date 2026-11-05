@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 294 | 2026-11-05 | [Manda el proyecto salvo en cómo se lleva el repositorio: ramas, commits, push, cola y publicación](294-2026-11-05-manda-el-proyecto-salvo-en-como-se-lleva-el-repositorio-ramas-commits-push-cola-y-publicacion.md) |
 | 293 | 2026-11-05 | [Un documento de arranque de Claude en la SF, al día con lo que hace falta para seguir desarrollándola](293-2026-11-05-un-documento-de-arranque-de-claude-en-la-sf-al-dia-con-lo-que-hace-falta-para-seguir-desarrollandola.md) |
 | 292 | 2026-11-05 | [En la SF, la memoria de Claude no lleva nada útil para los usuarios del plugin, y cambiarla pide autorización del propietario](292-2026-11-05-en-la-sf-la-memoria-de-claude-no-lleva-nada-que-viaje-en-el-plugin-y-cambiarla-pide-autorizacion-del-propietario.md) |
 | 291 | 2026-11-05 | [El CLAUDE.md de la SF no lleva nada útil para los usuarios del plugin, y cambiarlo pide autorización del propietario](291-2026-11-05-el-claude-md-de-la-sf-no-lleva-nada-que-viaje-en-el-plugin-y-cambiarlo-pide-autorizacion-del-propietario.md) |
