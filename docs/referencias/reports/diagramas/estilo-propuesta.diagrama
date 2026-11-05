@@ -1,7 +1,7 @@
 tipo: arquitectura
 titulo: Lo decidido: un generador único y el estilo como parámetros
 descripcion: Las skills de tipo eligen recursos del catálogo; el generador único y determinista maqueta todo documento con los parámetros del estilo del proyecto, que una skill ayuda a fijar con muestras y afinado.
-pie: SF · DOCUMENTOS | DECISIONES 305 A 311
+pie: SF · DOCUMENTOS | DECISIONES 305 A 313
 foco: gen
 nodos:
   perf: Skills de tipo | contenido y estructura
