@@ -1,0 +1,40 @@
+tipo: arquitectura
+titulo: Propuesta: un motor, el estilo del proyecto
+descripcion: Las skills de tipo solo dan contenido y perfil; el motor común maqueta con la identidad del proyecto, y los diagramas heredan su tema.
+pie: SF · DOCUMENTOS | PROPUESTA
+foco: motor
+nodos:
+  perf: Perfiles de tipo | contenido y recursos
+  motor: documento_a_html.py | una maqueta y el kit
+  diag: diagramas | sin tema propio
+  html: HTML del proyecto | un solo estilo
+  iden: identidad.json | tema y su estilo
+zonas:
+  skills: SKILLS | perf, diag
+  motorz: MOTOR COMÚN | motor, html
+  proyecto: PROYECTO · DOCS/IDENTIDAD | iden
+flechas:
+  perf > motor: USA
+  iden > motor: DA ESTILO
+  motor > html: GENERA | verde
+  diag > html: TEMA DEL DOC
+fichas:
+  perf: Una skill por tipo, con su perfil.json.
+    - orden única: la elige por el tipo de la cabecera o por la carpeta (paso 2 de la 297)
+    - visión: con escena, caso, expediente y aviso de ficción como CSS y JS propios
+    - explicativo: los «Cómo funciona…», con portada compacta
+    - fundacional e informe: como hoy
+    - técnica e interfaz: un perfil sencillo cada una
+  diag: El fragmento sale sin data-d-tema.
+    - hereda: colores, letra y papel del documento
+    - tinta: solo en páginas sueltas y, si se quiere, en el selector de la herramienta
+  motor: El único generador, con el kit de siempre.
+    - kit: herramientas, lectura, edicion y diagramas.js, como hoy
+    - suma: estilo del tema, código coloreado, colores de los SVG al tema, tablas anchas en fichas
+    - acepta: las opciones en comentarios de la visión mientras dura la migración
+    - retira: doc_to_html.py, carcasa.py y estilo_base.css
+  iden: Lo que da el estilo del proyecto.
+    - tema: colores, serie, tipografías y estilo (cabecera, etiqueta, marcador, esquinas)
+    - más: logo, producto y CSS propio
+  html: Todos los documentos del proyecto con el mismo aspecto.
+    - migrar: respaldo, conversor de cabecera, comparación de palabras y capturas

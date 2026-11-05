@@ -1,0 +1,65 @@
+tipo: arquitectura
+titulo: Hoy: dos generadores, dos maquetas
+descripcion: Cada skill de tipo usa uno de los dos generadores; los dos comparten temas, identidad y kit, pero solo el común carga los diagramas.
+pie: SF · DOCUMENTOS | HOY, EN DEVELOP
+foco: dtoh
+nodos:
+  vis: documento_vision | visión y Cómo funciona…
+  env: fundacional · informe | envoltorios con perfil
+  tec: técnica · interfaz | sin generador | externo
+  dtoh: doc_to_html.py | maqueta de barras
+  dah: documento_a_html.py | maqueta editorial | foco
+  tema: tema_identidad.py | temas e identidad
+  kit: kit_documentos | lectura y notas
+  diag: diagramas | fragmento en tinta
+zonas:
+  tipos: SKILLS DE TIPO | vis, env, tec
+  gen: GENERADORES | dtoh, dah
+  comun: LO COMPARTIDO | tema, kit, diag
+flechas:
+  vis > dtoh: GENERA
+  env > dah: GENERA
+  dtoh > tema: TEMA Y KIT
+  dah > kit: TEMA Y KIT
+  diag > dah: SOLO AQUÍ | rojo
+notas:
+  LOS DOS GENERADORES: leen tema_identidad.py y cargan el kit; técnica e interfaz no dicen con cuál se generan
+fichas:
+  vis: Visión, «Cómo funciona…», índice de decisiones y DESARROLLO.html.
+    - maqueta: carcasa.py y estilo_base.css, más 150 líneas de CSS en el script
+    - propios: escena, caso conductor, expediente, aviso de ficción, ficha acordada, comparativa, tablas anchas en fichas
+    - opciones: en comentarios del .md, no en cabecera
+    - en la SF: 17 HTML, también los fundacionales e informes antiguos
+  env: fundacional_to_html.py e informe_to_html.py, 18 líneas cada uno.
+    - perfil.json: tipo y recursos elegidos; el informe añade las preguntas
+    - css y js propios: ninguno
+    - en la SF: 4 informes y el ejemplo de diagramas; en SpriteAnimation, el fundacional
+  tec: definicion_tecnica y diseno_interfaz escriben .md con SVG.
+    - generador: ninguno nombrado, ni perfil
+    - bocetos: HTML autocontenidos y neutros a propósito
+    - fuera: infografia_tecnica, página three.js propia sin kit
+  dtoh: La maqueta de la visión.
+    - cabecera: franja con logo, nombre y producto; barra de estado
+    - secciones: barras plegables con chip; ### y #### también plegables
+    - escala: página de 980 px abierta a todo el ancho; h2 de 1,05 rem
+    - pie: oscuro, con producto y tipo
+    - tiene: estilo del tema, código coloreado, colores de los SVG al tema
+    - falta: diagramas y su herramienta
+  dah: El motor común de crear_documentos.
+    - cabecera: portada editorial blanca, oscura o compacta (rama 308)
+    - secciones: «01 / ETIQUETA» y h2 de hasta 2,2 rem, plegables
+    - escala: hoja de 1240 px y letra de 17 px
+    - pie: producto, tipo, versión, estado, pie y procedencia
+    - recursos: tarjetas, columnas, fichas, preguntas, fuentes, lector
+    - falta: estilo del tema, código coloreado, colores de los SVG al tema
+  tema: Temas de assets/temas e identidad.json del proyecto.
+    - identidad: tema, logo, producto, tipo, css, js, iconos, destino, herramientas
+    - estilo del tema: cabecera, etiqueta, marcador, esquinas; solo lo aplica la visión
+    - SF: tema-azul.json; pasará al amarillo
+  kit: tools/kit_documentos, común a los dos.
+    - piezas: herramientas, lectura, edicion, diagramas.js
+    - copias: actualizar_copia.py y extraer_notas.py
+  diag: generar_diagrama.py --fragmento.
+    - tema: tinta por defecto, grabado como data-d-tema
+    - efecto: el motor pinta la figura con tinta y su papel, no con el tema del documento
+    - sin tema: la figura toma el del documento
