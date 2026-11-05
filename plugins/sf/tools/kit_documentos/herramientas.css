@@ -350,3 +350,25 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .nt-sitio-inicio .nt-ir { width: 100%; text-align: left; font-weight: 400; color: var(--texto); }
 @media print { .nt-sitio, .nt-sitio-inicio { display: none; } }
 .abrir-herramienta[hidden] { display: none !important; }
+
+/* ── Diagramas (diagramas.js): ajustes de las figuras, por grupos plegables; los botones, fijos arriba ── */
+.dg-ajustes { display: flex; flex-direction: column; gap: .35rem; }
+.dg-acciones { position: sticky; top: 0; z-index: 1; display: flex; gap: .5rem; flex-wrap: wrap; padding: .2rem 0 .5rem;
+  background: inherit; border-bottom: 1px solid var(--linea); }
+.herramienta.herr-diagramas .dg-acciones { background: #fff; }
+.dg-acciones .lc-tablas { margin: 0; }
+.dg-grupo { border-bottom: 1px solid var(--linea); padding: .1rem 0 .35rem; }
+.dg-grupo > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: .45rem; min-height: 2rem;
+  font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--texto-suave); }
+.dg-grupo > summary::-webkit-details-marker { display: none; }
+.dg-grupo > summary::before { content: ""; width: .4rem; height: .4rem; border: solid currentColor; border-width: 0 2px 2px 0;
+  transform: rotate(-45deg); transition: transform .15s; }
+.dg-grupo[open] > summary::before { transform: rotate(45deg); }
+.dg-grupo > summary:focus-visible { outline: 3px solid var(--primario); outline-offset: 2px; border-radius: 4px; }
+/* Una rejilla para toda la herramienta: etiqueta corta a la izquierda, de ancho fijo, y desplegable con el resto de la fila,
+   del mismo ancho en todos los grupos. */
+.dg-ajustes .dg-sel { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: center; gap: .6rem; }
+.dg-ajustes .dg-sel > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dg-ajustes .dg-sel select { width: 100%; min-width: 0; }
+.dg-ajustes .lc-fila { margin: .3rem 0; min-height: 24px; }
+.dg-ajustes label:has(input:disabled) { opacity: .55; cursor: default; }

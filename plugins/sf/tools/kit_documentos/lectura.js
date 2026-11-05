@@ -275,6 +275,7 @@
     if (ACTIVAS.has('notas')) items.push([null, 'Notas: selecciona un texto y pulsa «Anotar». Quedan en tu navegador; «Guardar» las lleva a un archivo.']);
     if (ACTIVAS.has('edicion')) items.push([null, 'Editar: el lápiz junto a un párrafo lo abre para cambiarlo aquí mismo; «Modificado» dice cuándo y qué ponía antes.']);
     if (ACTIVAS.has('lectura')) items.push([null, 'Lectura: el engranaje junto a «Guardar» abre el modo oscuro y las demás preferencias.']);
+    if (ACTIVAS.has('diagramas') && document.querySelector('figure.diagrama')) items.push([null, 'Diagramas: pulsa un elemento para ver su ficha; «Diagramas», en las herramientas, cambia cómo se ven todas las figuras.']);
     const ley = document.createElement('details');
     ley.className = 'leyenda-doc';
     ley.innerHTML = '<summary>Cómo leer este documento</summary><dl></dl>';

@@ -1,0 +1,23 @@
+tipo: secuencia
+titulo: De la petición al cierre
+descripcion: Quién habla con quién y qué orden de cola.py cambia el estado de la tarea.
+foco: prin
+actores:
+  prop: Propietario
+  prin: Principal
+  sub: Subagente
+  cola: cola.py
+mensajes:
+  prop > prin: PIDE
+  prin > cola: CREAR | estado=Pendientes
+  prin > cola: EN-CURSO · RAMA | estado=En curso
+  prin > sub: ENCARGA
+  sub > prin: INFORME | discontinua
+  prin > prop: ¿OK? · PRUEBA
+  prop > prin: OK | verde
+  prin > cola: CERRAR | estado=Cerradas
+fichas:
+  prop: Pide, prueba y da el OK; nada se cierra sin él.
+  prin: Habla con el propietario y lleva la cola; encarga el trabajo.
+  sub: Hace todo el trabajo de su tarea, en su worktree.
+  cola: Cada orden, un cambio de estado.

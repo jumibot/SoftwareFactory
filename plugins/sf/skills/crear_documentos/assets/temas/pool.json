@@ -17,7 +17,8 @@
     "texto-tenue": "#8a9fa9",
     "acento": "#b36e1d",
     "acento-fondo": "#fff2df",
-    "acento-borde": "#efd2a6"
+    "acento-borde": "#efd2a6",
+    "segundo": "#1d4ed8"
   },
   "serie": [
     "#08786f",

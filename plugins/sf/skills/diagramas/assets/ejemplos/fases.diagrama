@@ -1,0 +1,20 @@
+tipo: fases
+titulo: Las fases de la metodología
+descripcion: De la visión al cierre, con lo que deja cada fase.
+foco: des
+nodos:
+  vis: Visión | documento de visión
+  esp: Especificación | spec y bocetos
+  tec: Definición técnica | arquitectura y stack
+  dvs: Devslices | plan en el kanban
+  pre: Preparación | devslice preparada
+  des: Desarrollo | código y pruebas
+  cie: Cierre | evidencias e informe
+fichas:
+  vis: La idea contada para entenderla y decidir.
+  esp: Funcionalidades, pantallas, estados y criterios.
+  tec: Paradigma, arquitectura y convenciones; una vez y corta.
+  dvs: Incrementos verticales que se ven funcionar.
+  pre: Afinar alcance y criterios y crear sus tareas.
+  des: Pruebas anticipadas, backend primero.
+  cie: Evidencias, no impresiones.

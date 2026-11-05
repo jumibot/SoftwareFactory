@@ -1,0 +1,247 @@
+/* Diagramas de la SF (skill diagramas): forma según el ancho, fichas en el HUD y resaltado del recorrido.
+ * Solo usa las variables del tema de crear_documentos (--primario, --texto, --texto-suave, --borde, --fondo…),
+ * con valores de reserva para una página suelta. Sin fondo propio: el modo oscuro de «Lectura» invierte la página
+ * entera, y el diagrama con ella. Contrato del marcado, en references/interaccion.md. */
+
+.diagrama { --d-papel: var(--diagrama-papel, #fff); --d-fl: 1.2; container-type: inline-size; position: relative; margin: 1.8rem 0 1.4rem; }
+.diagrama text.d-etiqueta { font-family: ui-monospace, Consolas, monospace; letter-spacing: .04em; }
+.diagrama .d-mascara { fill: var(--d-papel); }   /* del color del papel: no se ve; no es una cápsula ni un botón */
+/* Una etiqueta que representa un botón del panel puede llevar su color, solo en el texto (decisión 301):
+   <text class="d-etiqueta" style="fill:<color del botón>">; sin fondo, borde ni forma de botón. */
+.diagrama svg { display: block; width: 100%; height: auto; margin: 0 auto; font-family: var(--fuente-texto, system-ui, sans-serif); }
+.diagrama svg.vertical { max-width: 400px; }   /* ancho provisional de las verticales: 400 (por decidir frente a 560) */
+.diagrama svg.ancho { max-width: 960px; }
+.diagrama figcaption { font-size: .875rem; font-style: italic; color: var(--texto-suave, #555); text-align: center; margin-top: .6rem; }
+
+/* Forma según el ancho de la figura: la horizontal desde 800 px de contenedor; por debajo, la vertical. */
+.diagrama .solo-estrecho { display: none; }
+@container (max-width: 799px) { .diagrama .solo-ancho { display: none; } .diagrama .solo-estrecho { display: block; } }
+
+/* Nodos que se pulsan y resaltado del recorrido */
+.diagrama [data-nodo][tabindex] { cursor: pointer; outline: none; }
+.diagrama [data-nodo] .d-caja { pointer-events: all; }   /* el interior se pulsa aunque la caja no tenga relleno */
+.diagrama [data-nodo][tabindex]:focus-visible .d-caja { stroke: var(--primario, #00726b); stroke-width: 3; }
+.diagrama.d-resaltando [data-nodo], .diagrama.d-resaltando [data-de] { opacity: .28; }
+.diagrama.d-resaltando .d-on, .diagrama.d-resaltando .d-vecino { opacity: 1; }
+.diagrama .d-on .d-caja { stroke: var(--primario, #00726b); stroke-width: 2.4; }
+.diagrama :is(path, line, polyline)[data-de].d-on { stroke: var(--primario, #00726b); stroke-width: calc(var(--d-fl) + 1); }
+.diagrama text[data-de].d-on { fill: var(--oscuro, #004d47); }
+@media (prefers-reduced-motion: no-preference) {
+  .diagrama [data-nodo], .diagrama [data-de] { transition: opacity .15s, stroke .15s; }
+}
+
+/* Fichas: el texto de cada una, oculto en la figura; el HUD lo enseña al pulsar su nodo. */
+.d-fichas { display: none; }
+
+/* HUD: la ficha del nodo pulsado, junto a él; en una figura estrecha, a todo su ancho, debajo del nodo. */
+.d-hud { box-sizing: border-box; position: absolute; top: 8px; left: 8px; z-index: 5; width: min(272px, 46%); max-height: calc(100% - 16px); overflow: auto;
+         background: var(--d-papel); color: var(--texto, #1a1a1a); border: 1px solid var(--texto-suave, #555);
+         border-radius: var(--esquinas, 6px); padding: .7rem .9rem .5rem; font-size: .95rem; line-height: 1.45; }
+.d-hud[hidden] { display: none; }
+@container (max-width: 799px) { .d-hud { width: calc(100% - 16px); } }
+.d-hud h4 { margin: .1rem 3rem .4rem 0; font-size: 1.05rem; color: var(--oscuro, #004d47); }
+.d-hud p, .d-hud ul { margin: 0 0 .5rem; }
+.d-hud ul { padding-left: 1.1rem; }
+.d-hud .d-cerrar { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; padding: 0; font-size: 1.1rem; line-height: 1;
+                   background: transparent; color: var(--oscuro, #004d47); border: 1px solid transparent; border-radius: var(--esquinas, 6px); cursor: pointer; }
+.d-hud .d-cerrar:hover { background: var(--fondo, #e0f4f3); }
+.d-hud .d-cerrar:focus-visible { outline: 3px solid var(--primario, #00726b); outline-offset: -3px; }
+
+@media print {
+  .d-hud { display: none !important; }
+  .diagrama.d-resaltando [data-nodo], .diagrama.d-resaltando [data-de] { opacity: 1; }
+  .diagrama { break-inside: avoid; }
+}
+
+/* Piezas del generador (scripts/generar_diagrama.py). Mismos grosores y letra que el ejemplo, a la espera del análisis. */
+.d-gen .d-cabecera { margin: 0 0 .5rem; }
+.d-gen .d-titulo { margin: 0; font: 650 1.15rem/1.3 var(--fuente-texto, system-ui, sans-serif); color: var(--texto, #1a1a1a); }
+.d-gen .d-desc { margin: .2rem 0 0; color: var(--texto-suave, #555); }
+.d-gen .d-antetitulo { margin: 0 0 .2rem; font: .66rem ui-monospace, Consolas, monospace; letter-spacing: .08em; color: var(--texto-tenue, #666); }
+.d-gen .d-ayuda { margin: 0 0 .6rem; font-size: .875rem; color: var(--texto-suave, #555); }
+.d-gen .d-pie { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: .6rem; padding-top: .4rem;
+                font: .72rem ui-monospace, Consolas, monospace; letter-spacing: .04em; color: var(--texto-suave, #555); }
+.d-gen .d-pie { border-top: 1px solid var(--borde, #bbb); }
+.d-gen .d-caja { fill: var(--d-papel); stroke: var(--texto-suave, #555); stroke-width: 1; }   /* el de diagram-design */
+.d-gen .d-caja.d-toque, .d-gen .d-hito .d-caja { fill: transparent; stroke: none; }
+.d-gen .d-on .d-caja.d-toque, .d-gen .d-hito.d-on .d-caja { stroke: var(--primario, #00726b); stroke-width: 1.2; }
+.d-gen .foco > .d-caja:not(.d-toque) { fill: var(--fondo, #eee); stroke: var(--primario, #00726b); stroke-width: 1.4; }
+.d-gen .foco .d-nn { fill: var(--oscuro, #000); }
+.d-gen .salida > .d-caja, .d-gen .externo > .d-caja { stroke: var(--texto-tenue, #666); }
+.d-gen .salida > .d-caja { fill: var(--fondo-medio, #ebeae7); }
+.d-gen .externo > .d-caja { stroke-dasharray: 5 4; }
+.d-gen .d-nn { font-weight: 650; fill: var(--texto, #1a1a1a); }
+.d-gen .d-sb { fill: var(--texto-suave, #555); }
+.d-gen .d-cl { font-family: var(--fuente-escena, Georgia, serif); font-style: italic; fill: var(--texto-suave, #555); }
+.d-gen text.d-etiqueta { fill: var(--texto-suave, #555); }
+.d-gen .d-b-verde, .d-gen text.d-b-verde { fill: var(--b-verde, #15803d); color: var(--b-verde, #15803d); }
+.d-gen .d-b-rojo, .d-gen text.d-b-rojo { fill: var(--b-rojo, #c81e1e); color: var(--b-rojo, #c81e1e); }
+.d-gen .d-b-morado, .d-gen text.d-b-morado { fill: var(--b-morado, #9333ea); color: var(--b-morado, #9333ea); }
+.d-gen text.d-b-acento { fill: var(--primario, #00726b); }
+.d-gen text.d-b-segundo { fill: var(--segundo, #2f5597); }
+.d-gen text.d-b-gris { fill: var(--texto-tenue, #666); }
+/* Color de la línea que dan los datos (linea=X); la punta toma el de su línea. */
+.d-gen .d-fl.d-l-acento { stroke: var(--primario, #00726b); }
+.d-gen .d-fl.d-l-segundo { stroke: var(--segundo, #2f5597); }
+.d-gen .d-fl.d-l-gris { stroke: var(--texto-tenue, #666); }
+.d-gen .d-fl.d-l-verde { stroke: var(--b-verde, #15803d); }
+.d-gen .d-fl.d-l-rojo { stroke: var(--b-rojo, #c81e1e); }
+.d-gen .d-fl.d-l-morado { stroke: var(--b-morado, #9333ea); }
+.d-gen .d-fl { stroke: var(--texto-suave, #555); stroke-width: var(--d-fl); }
+.d-gen .d-fl.d-principal { stroke: var(--primario, #00726b); }
+.d-gen .d-discontinua { stroke-dasharray: 6 5; }
+.d-gen .d-punta { fill: var(--texto-suave, #555); fill: context-stroke; }
+.d-gen .d-punta-on { fill: var(--primario, #00726b); }
+.d-gen .d-ini, .d-gen .d-fin, .d-gen .d-punto { fill: var(--texto-suave, #555); }
+.d-gen .foco .d-punto { fill: var(--primario, #00726b); }
+.d-gen .d-fin-a { fill: none; stroke: var(--texto-suave, #555); stroke-width: 1.2; }
+.d-gen .d-nota-c { fill: var(--fondo-medio, #ebeae7); stroke: none; }
+.d-gen .d-nota-b { fill: var(--primario, #00726b); display: none; }
+.d-gen text.d-nota-t { fill: var(--texto-suave, #555); text-transform: uppercase; }
+.d-gen .d-nota-x { fill: var(--texto, #1a1a1a); }
+.d-gen .d-zona { fill: none; stroke: var(--texto-tenue, #666); stroke-width: 1.2; stroke-dasharray: 4 4; }
+.d-gen text.d-carril, .d-gen text.d-num { fill: var(--texto-tenue, #666); }
+.d-gen .d-regla, .d-gen .d-vida { stroke: var(--texto-tenue, #666); stroke-width: var(--d-fl); }
+.d-gen .d-carril-g .d-regla { stroke-width: 1; }   /* el carril, de 1 como diagram-design */
+.d-gen .d-vida { stroke-dasharray: 3 5; }
+.d-gen .d-estado rect { fill: var(--fondo-suave, #f5f5f5); stroke: var(--borde, #bbb); stroke-width: 1; }
+.d-hud .d-bt { font: .85em ui-monospace, Consolas, monospace; letter-spacing: .04em; }
+.d-hud .d-li-claude { font-family: var(--fuente-escena, Georgia, serif); font-style: italic; }
+:root[data-theme="dark"] .d-gen { color-scheme: dark; }
+
+/* Ajustes de la figura (decisión 302). Casillas: d-no-<ajuste> en la figura si está apagada; selectores: data-d-<ajuste>.
+ * Los pone el generador y los cambia, en todas las figuras a la vez, la herramienta «diagramas» del documento. */
+.d-gen { display: flex; flex-direction: column; }
+.d-gen > .d-pie { order: 2; }
+/* Aspecto. Tarjeta: papel, borde fino y esquinas, como el marco de la síntesis de la tarea 308; sin relleno a los lados
+   mientras la vertical no llega a 400, para no bajar de la letra mínima. */
+.d-gen:not(.d-no-tarjeta) { border: 1px solid var(--linea, #d8d8da); border-radius: 10px;
+                            padding: 20px clamp(0px, (100% - 400px) / 2, 22px) 12px; }
+.d-gen:not(.d-no-tarjeta) > :is(.d-cabecera, .d-ayuda, .d-pie) { margin-left: 8px; margin-right: 8px; }
+/* Fondo del diagrama: papel (por defecto), ninguno (se ve el del documento) o tintado. La tarjeta pone borde y esquinas;
+   esto, el color. Con fondo tintado, las notas van en papel y las salidas, un tono más; sin fondo, las máscaras de las
+   etiquetas no se pintan (no tapan ninguna línea: el generador las separa de ellas). */
+.diagrama.d-gen { background: var(--d-papel); }
+.diagrama.d-gen[data-d-lienzo="ninguno"] { background: transparent; }
+.d-gen[data-d-lienzo="ninguno"] .d-mascara { fill: transparent; }
+.diagrama.d-gen[data-d-lienzo="tintado"] { background: var(--fondo-medio, #ebeae7); }
+.d-gen[data-d-lienzo="tintado"] .d-mascara { fill: var(--fondo-medio, #ebeae7); }
+.d-gen[data-d-lienzo="tintado"]:not([data-d-fondo-nota="ninguno"]) .d-nota-c { fill: var(--d-papel); }
+.d-gen[data-d-lienzo="tintado"] .salida > .d-caja:not(.d-toque) { fill: var(--linea, #d8d8da); }
+.d-gen[data-d-lienzo="tintado"][data-d-fondo="tintado"] .d-nodo:not(.foco):not(.salida) > .d-caja:not(.d-toque) { fill: var(--linea, #d8d8da); }
+.d-gen[data-d-lienzo="tintado"][data-d-fondo="tintado"] .d-nodo.salida > .d-caja:not(.d-toque) { fill: var(--d-papel); }
+/* Sobre el tintado, el color de los botones con un punto más de contraste (4,5:1): más oscuro en claro, más claro en oscuro */
+:root:not([data-theme="dark"]) .d-gen[data-d-lienzo="tintado"] { --b-verde: #116b33; --b-rojo: #b01a1a; --b-morado: #7e22ce; }
+:root[data-theme="dark"] .d-gen[data-d-lienzo="tintado"] { --b-rojo: #fca5a5; --b-morado: #d8b4fe; }
+/* Letra más grande: cada texto (y cada etiqueta con su máscara), un 9 % mayor sobre su sitio; el dibujo no se mueve.
+   La letra va en el atributo font-size del SVG: se escala con transform, que no cambia la maqueta. La vertical, además,
+   puede crecer hasta 460 donde hay sitio. */
+.d-gen:not(.d-no-letra) svg.vertical { max-width: 460px; }
+.d-gen:not(.d-no-letra) svg :is(.d-nn, .d-sb, .d-chip-g, .d-et, .d-final > .d-cl) { transform-box: fill-box; transform-origin: center; transform: scale(1.09); }
+.d-gen:not(.d-no-letra) svg :is(.d-nota-t, .d-nota-x, text.d-carril, g.d-paso > text) { transform-box: fill-box; transform-origin: left center; transform: scale(1.09); }
+/* Cajas. Plegadas y forma de croqueta: el generador dibuja las cuatro variantes; se ve la de los ajustes. */
+.d-gen:not([data-d-cajas="plegadas"]):not([data-d-cajas="acordeon"]) svg[data-cajas="plegadas"],
+.d-gen:is([data-d-cajas="plegadas"], [data-d-cajas="acordeon"]) svg[data-cajas="desplegadas"],
+.d-gen:not([data-d-forma="croqueta"]) svg[data-forma="croqueta"], .d-gen[data-d-forma="croqueta"] svg[data-forma="redondeada"] { display: none !important; }
+.diagrama[data-d-orientacion="vertical"] .solo-ancho, .diagrama[data-d-orientacion="horizontal"] .solo-estrecho { display: none; }
+.diagrama[data-d-orientacion="vertical"] .solo-estrecho, .diagrama[data-d-orientacion="horizontal"] .solo-ancho { display: block; }
+/* Plegar una caja sola: el circulito de su esquina (lo monta diagramas.js; sin JavaScript no sale). La caja crece o
+   encoge en su sitio y sus flechas la siguen; las demás no se mueven. */
+.d-gen .d-plegado { display: none; }
+.d-gen .d-plegar { display: none; }
+.d-gen.d-js .d-plegar { display: inline; cursor: pointer; outline: none; }
+.d-gen .d-plegar-t { fill: transparent; pointer-events: all; }
+.d-gen .d-plegar-p { fill: none; stroke: var(--texto-tenue, #666); stroke-width: 1.4; }
+.d-gen .d-plegar[aria-expanded="true"] .d-plegar-p { fill: var(--texto-tenue, #666); }
+.d-gen .d-plegar:hover .d-plegar-p { stroke: var(--texto, #1a1a1a); }
+.d-gen .d-plegar:focus-visible .d-plegar-t { stroke: var(--primario, #00726b); stroke-width: 2; }
+.d-gen.d-resaltando .d-plegar { opacity: .28; }
+/* Cajas: borde y fondo de las cajas de proceso (no los hitos ni las notas). La resaltada (foco) y las salidas
+   guardan su distinción: sin borde, el foco se marca con su fondo de acento; con fondo tintado, las salidas, un tono más.
+   Las flechas siguen tocando el contorno, que es el mismo aunque no se vea. */
+.d-gen[data-d-borde="ninguno"] .d-nodo > .d-caja:not(.d-toque) { stroke: none; }
+.d-gen[data-d-borde="grueso"] .d-nodo > .d-caja:not(.d-toque) { stroke-width: 1.8; }   /* por encima del fino de antes (1,2) */
+.d-gen[data-d-fondo="ninguno"] .d-nodo:not(.foco):not(.salida) > .d-caja:not(.d-toque) { fill: transparent; }
+.d-gen[data-d-fondo="tintado"] .d-nodo:not(.foco) > .d-caja:not(.d-toque) { fill: var(--fondo-medio, #ebeae7); }
+.d-gen[data-d-fondo="tintado"] .d-nodo.salida > .d-caja:not(.d-toque) { fill: var(--linea, #d8d8da); }
+.d-gen[data-d-borde="ninguno"] .foco > .d-caja:not(.d-toque) { fill: var(--fondo, #eee); }
+/* Cabecera */
+.d-gen[data-d-antetitulo="oculto"] .d-antetitulo, .d-gen[data-d-titulo="oculto"] .d-titulo, .d-gen[data-d-desc="oculta"] .d-desc,
+.d-gen[data-d-desc="corta"] .d-desc-resto { display: none; }
+.d-gen[data-d-antetitulo="lado"] :is(.d-antetitulo, .d-titulo) { display: inline; margin-right: .7rem; }
+.d-gen[data-d-titulo="serifa"] .d-titulo { font: 400 1.7rem/1.15 var(--fuente-escena, Georgia, serif); }
+.d-gen[data-d-titulo="serifa-p"] .d-titulo { font: 400 1.3rem/1.2 var(--fuente-escena, Georgia, serif); }
+.d-gen[data-d-titulo="mono"] .d-titulo { font: 500 .95rem/1.3 ui-monospace, Consolas, monospace; letter-spacing: .08em; text-transform: uppercase; }
+.d-gen[data-d-desc="completa"] .d-desc { max-width: 40rem; }
+/* Dibujo */
+.d-gen.d-no-color text:is(.d-b-verde, .d-b-rojo, .d-b-morado, .d-b-acento, .d-b-segundo, .d-b-gris) { fill: var(--texto-suave, #555); }
+.d-gen.d-no-color .d-fl:is(.d-l-verde, .d-l-rojo, .d-l-morado, .d-l-acento, .d-l-segundo, .d-l-gris) { stroke: var(--texto-suave, #555); }
+.d-gen.d-no-color :is(.d-b-verde, .d-b-rojo, .d-b-morado) { color: inherit; }
+/* Estilos de los datos: apagados, sin cursivas ni discontinuas. */
+.d-gen.d-no-estilos :is(.d-cl, .d-li-claude) { font-family: var(--fuente-texto, system-ui, sans-serif); font-style: normal; }
+.d-gen.d-no-estilos .d-discontinua { stroke-dasharray: none; }
+/* Sin estilos, la etiqueta en cursiva es una etiqueta más: mono, pequeña y en mayúsculas, como en diagram-design. */
+.d-gen.d-no-estilos .d-et text.d-cl { font-family: ui-monospace, Consolas, monospace; font-size: var(--d-fe); letter-spacing: .04em; text-transform: uppercase; }
+.d-gen.d-no-foco .foco > .d-caja:not(.d-toque) { fill: var(--d-papel); stroke: var(--texto-suave, #555); stroke-width: 1; }
+.d-gen.d-no-foco .foco .d-nn { fill: var(--texto, #1a1a1a); }
+.d-gen.d-no-foco .foco .d-punto { fill: var(--texto-suave, #555); }
+.d-gen.d-no-foco .d-fl.d-principal { stroke: var(--texto-suave, #555); }
+.d-gen.d-no-carriles .d-carril-g, .d-gen.d-no-chips .d-chip-g { display: none; }
+/* Con el chip a la vista, el nombre y el detalle bajan un poco para dejarle sitio (translate: se suma al de la letra). */
+.d-gen:not(.d-no-chips) .d-con-chip > :is(.d-nn, .d-sb) { translate: 0 7px; }
+.d-gen:not(.d-no-chips) .d-plegar[style] { translate: var(--dx) var(--dy); }
+.d-gen .d-chip-c { fill: none; stroke: var(--texto-suave, #555); stroke-opacity: .5; stroke-width: .8; }
+.d-gen text.d-chip { font-family: ui-monospace, Consolas, monospace; letter-spacing: .1em; fill: var(--texto, #1a1a1a); }
+/* Detalle de las cajas: sans o mono (la de diagram-design). */
+.d-gen[data-d-detalle="mono"] .d-nodo > text.d-sb { font-family: ui-monospace, Consolas, monospace; }
+/* Flechas y etiquetas: grosor (fino, el de diagram-design: 1,2), punta (llena, abierta o ninguna) y esquinas (las rectas
+   las pone diagramas.js con data-da de cada flecha; sin JavaScript, redondeadas). */
+.d-gen[data-d-grosor="normal"] { --d-fl: 1.6; }
+.d-gen[data-d-grosor="grueso"] { --d-fl: 2.2; }
+.d-gen:not([data-d-punta="abierta"]) .d-pa, .d-gen[data-d-punta="abierta"] .d-pl, .d-gen[data-d-punta="ninguna"] .d-pl { display: none; }
+/* Notas: se ven o no; recuadro, fondo, tamaño (el generador dibuja los tres), ubicación y cabecera. En la horizontal van en
+   el hueco libre del dibujo si caben (d-hueco), debajo o en una columna a su lado; en la vertical, siempre debajo. */
+.d-gen.d-no-notas :is(svg.d-notas-svg, .d-notas-g),
+.d-gen:not([data-d-tamano-nota="compacto"]) [data-tam="compacto"], .d-gen:not([data-d-tamano-nota="amplio"]) [data-tam="amplio"],
+.d-gen:is([data-d-tamano-nota="compacto"], [data-d-tamano-nota="amplio"]) [data-tam="normal"],
+.d-gen:not([data-d-lugar-nota="lado"]) svg[data-lugar="lado"],
+.d-gen:is([data-d-lugar-nota="lado"], [data-d-lugar-nota="debajo"]) svg.ancho .d-notas-g,
+.d-gen[data-d-lugar-nota="lado"] svg.solo-ancho[data-lugar="debajo"],
+.d-gen.d-hueco[data-d-lugar-nota="hueco"] svg.solo-ancho[data-lugar="debajo"] { display: none !important; }
+.d-gen .d-fila > svg { min-width: 0; }
+.d-gen[data-d-lugar-nota="lado"] .d-fila:has(> svg.d-notas-svg) { display: flex; align-items: flex-start; }
+.d-gen[data-d-lugar-nota="lado"] .d-fila > svg.ancho { flex: 960 1 0; }
+.d-gen[data-d-lugar-nota="lado"] .d-fila > svg.d-notas-svg { flex: 200 1 0; }
+.d-gen[data-d-recuadro="fino"] .d-nota-c { stroke: var(--borde, #bbb); stroke-width: 1; }
+.d-gen[data-d-recuadro="barra"] .d-nota-b { display: inline; }
+.d-gen[data-d-fondo-nota="papel"] .d-nota-c { fill: var(--d-papel); }
+.d-gen[data-d-fondo-nota="ninguno"] .d-nota-c { fill: transparent; }
+.d-gen[data-d-cabecera-nota="negrita"] text.d-nota-t { font-family: var(--fuente-texto, system-ui, sans-serif); font-weight: 650;
+  letter-spacing: 0; text-transform: none; fill: var(--texto, #1a1a1a); }
+/* Interacción (el resto, en diagramas.js) */
+.d-gen.d-no-resaltado.d-resaltando [data-nodo], .d-gen.d-no-resaltado.d-resaltando [data-de] { opacity: 1; }
+.d-gen[data-d-ayuda="oculta"] .d-ayuda { display: none; }
+/* Recorrido resaltado: en el segundo color del tema (por defecto; así no se confunde con el foco, en acento), en el
+   acento, o con su propio color y más grueso. */
+.d-gen[data-d-recorrido="segundo"] :is(path, line, polyline)[data-de].d-on,
+.d-gen[data-d-recorrido="segundo"] .d-on > .d-caja { stroke: var(--segundo, #2f5597); }
+.d-gen[data-d-recorrido="segundo"] .d-punta-on { fill: var(--segundo, #2f5597); }
+.d-gen[data-d-recorrido="grueso"] :is(path, line, polyline)[data-de].d-on { stroke: var(--texto-suave, #555); stroke-width: calc(var(--d-fl) * 2 + .6); }
+.d-gen[data-d-recorrido="grueso"] .d-on > .d-caja { stroke: var(--texto-suave, #555); stroke-width: 2.6; }
+.d-gen[data-d-recorrido="grueso"] .foco.d-on > .d-caja { stroke: var(--primario, #00726b); }
+.d-gen[data-d-recorrido="grueso"] .d-punta-on { fill: var(--texto-suave, #555); }
+.d-gen:is([data-d-ayuda="debajo"], [data-d-ayuda="discreta"]) > .d-ayuda { order: 1; margin: .6rem 0 0; }
+.d-gen[data-d-ayuda="discreta"] > .d-ayuda { font-size: .78rem; color: var(--texto-tenue, #666); text-align: center; }
+/* Pie */
+.d-gen[data-d-pie="centrado"] .d-pie { justify-content: center; text-align: center; }
+/* Todo a un lado: las dos partes juntas, separadas por « · » (si las dos tienen algo que se vea). */
+.d-gen:is([data-d-pie="izquierda"], [data-d-pie="derecha"]) .d-pie { gap: 0; }
+.d-gen[data-d-pie="derecha"] .d-pie { justify-content: flex-end; text-align: right; }
+.d-gen[data-d-pie="izquierda"] .d-pie { justify-content: flex-start; }
+.d-gen:is([data-d-pie="izquierda"], [data-d-pie="derecha"]) .d-pie > span:first-child:not(:empty) + span:not(.d-vacio)::before,
+.d-gen:not(.d-no-recuento):is([data-d-pie="izquierda"], [data-d-pie="derecha"]) .d-pie > span:first-child:not(:empty) + span.d-vacio::before { content: " · "; white-space: pre; }
+.d-gen[data-d-pie="oculto"] .d-pie, .d-gen.d-no-recuento .d-recuento, .d-gen.d-no-recuento .d-pie.d-pie-vacio { display: none; }
+.d-gen.d-no-regla .d-pie { border-top: 0; }
+/* En el modo oscuro de «Lectura», que invierte la página, el dibujo se invierte con ella (no se devuelve a sus colores
+   como las imágenes): así casa con el fondo de su figura y con el resto del documento. */
+html[data-modo="oscuro"] .diagrama svg { filter: none; }

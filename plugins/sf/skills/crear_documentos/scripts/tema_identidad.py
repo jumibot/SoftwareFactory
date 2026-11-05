@@ -23,6 +23,7 @@ ROLES = [
     ("pagina", "#f2f4f4", "#faf8fd"), ("texto", "#1a1a1a", "#2b2b2f"), ("texto-suave", "#555", "#6b7280"),
     ("texto-tenue", "#888", "#9ca3af"), ("acento", "#6d28d9", "#b45309"), ("acento-fondo", "#ede9fe", "#fff7ed"),
     ("acento-borde", "#c4b5fd", "#fcd9b6"),
+    ("segundo", "#2f5597", "#2f5598"),   # segundo color: lo que no es el foco ni el acento (el recorrido de un diagrama)
 ]
 
 # Tonos derivados: si el tema no da un rol, se calcula mezclando otro rol con blanco o negro.
@@ -36,7 +37,7 @@ DERIVADOS = [
     ("texto-suave", "texto", "#ffffff", .40), ("texto-tenue", "texto", "#ffffff", .60),
     ("acento-fondo", "acento", "#ffffff", .94), ("acento-borde", "acento", "#ffffff", .72),
 ]
-COLORES_MINIMOS = {"texto": "#2b2b2f", "acento": "#b45309"}  # el tema solo tiene que dar «primario»
+COLORES_MINIMOS = {"texto": "#2b2b2f", "acento": "#b45309", "segundo": "#2f5597"}  # el tema solo tiene que dar «primario»
 TIPOGRAFIAS = {  # valores por defecto si el tema no define tipografías
     "texto": "'DM Sans', Arial, sans-serif",
     "titulos": "'Space Grotesk', 'DM Sans', sans-serif",
@@ -73,6 +74,16 @@ def cargar_tema(nombre_o_ruta: str) -> dict:
     for rol, base, con, prop in DERIVADOS:
         colores.setdefault(rol, mezclar(colores[base], con, prop))
     tema["colores"] = colores
+    # Opcional: la versión oscura del tema, rol por rol. La usan las páginas con data-theme="dark" (diagramas,
+    # artifacts); el modo oscuro de «Lectura» de los documentos sigue invirtiendo la página.
+    oscuro = {k: v.lower() for k, v in tema.get("colores-oscuro", {}).items()}
+    raros = set(oscuro) - {r for r, _, _ in ROLES}
+    if raros:
+        sys.exit(f"El tema {ruta.name} usa roles de color desconocidos en «colores-oscuro»: {', '.join(sorted(raros))}")
+    for rol, valor in oscuro.items():
+        if not re.fullmatch(r"#[0-9a-f]{6}", valor):
+            sys.exit(f"El tema {ruta.name} tiene un color no válido en «colores-oscuro»: {rol} {valor} (formato #rrggbb)")
+    tema["colores-oscuro"] = oscuro
     serie = [c.lower() for c in tema.get("serie", [])]
     for c in serie:
         if not re.fullmatch(r"#[0-9a-f]{6}", c):
@@ -151,6 +162,12 @@ def variables_css(tema: dict) -> str:
     lineas.append("--primario-rgb: " + ", ".join(str(x) for x in _rgb(c["primario"])) + ";")
     lineas += [f"--fuente-{k}: {t[k]};" for k in ("texto", "titulos", "escena")]
     css = ":root { " + " ".join(lineas) + " }"
+    oscuro = tema.get("colores-oscuro", {})
+    if oscuro:
+        css += "\n    :root[data-theme=\"dark\"] { " +" ".join(f"--{r}: {oscuro[r]};" for r, _, _ in ROLES if r in oscuro)
+        if "primario" in oscuro:
+            css += " --primario-rgb: " + ", ".join(str(x) for x in _rgb(oscuro["primario"])) + ";"
+        css += " }"
     # Serie opcional: cada bloque (H2) toma un color de la lista, en ciclo, con sus tonos derivados.
     serie = tema.get("serie", [])
     for n in range(1, 41) if serie else ():
@@ -274,6 +291,7 @@ HERRAMIENTAS = {
     "mismo-archivo": ("«Guardar» escribe sobre el mismo archivo, sin preguntar después de la primera vez", False, True, False),
     "acordeon": ("Un solo bloque abierto a la vez", False, False, True),
     "bocadillos": ("Los subapartados de detalle se abren en un bocadillo, sin desplazar el texto", False, False, True),
+    "diagramas": ("Ajustes de los diagramas en la barra lateral (tema, forma, cabecera, dibujo, interacción y pie), para todas las figuras; solo si hay diagramas", True, True, False),
 }
 DESTINOS = ("proyecto", "usuario")
 # Retiradas del catálogo: se aceptan en documentos antiguos y no hacen nada.
@@ -430,3 +448,51 @@ def buscar_identidad(md: Path, indicada: str | None) -> Path | None:
                 return ruta
     return None
 
+
+
+# Diagramas de la skill diagramas (generar_diagrama.py --fragmento pegado en el .md): su CSS y su JS, los colores de
+# cada tema para .diagrama[data-d-tema] y la herramienta «diagramas» del kit. Solo entran si el documento los tiene.
+DIAGRAMAS_CSS = "skills/diagramas/assets/diagramas.css"
+DIAGRAMAS_JS = "skills/diagramas/assets/diagramas.js"
+DIAGRAMAS_KIT = "tools/kit_documentos/diagramas.js"
+
+
+def tiene_diagramas(html: str) -> bool:
+    return 'class="diagrama' in html
+
+
+def temas_diagramas() -> list:
+    """[(nombre, título, tema)] de los temas de assets/temas, para que las figuras puedan tomar cualquiera."""
+    out = []
+    for p in sorted(TEMAS.glob("*.json")):
+        t = cargar_tema(p.stem)
+        out.append((p.stem, t.get("nombre", p.stem).split("·")[0].strip() or p.stem, t))
+    return out
+
+
+def diagramas_estilos(html: str) -> str:
+    if not tiene_diagramas(html):
+        return ""
+    reglas = []
+    for nombre, _, t in temas_diagramas():
+        v = " ".join(f"--{k}: {c};" for k, c in t["colores"].items())
+        f = t.get("tipografias", {})
+        fuentes = "".join(f" --fuente-{k}: {f[k]};" for k in ("texto", "titulos", "escena") if f.get(k))
+        reglas.append(f'.diagrama[data-d-tema="{nombre}"] {{ {v}{fuentes} --diagrama-papel: var(--pagina); '
+                      'background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); '
+                      'border-radius: var(--esquinas, 8px); }')
+    usados = sorted(set(re.findall(r'data-d-tema="([\w-]+)"', html)))
+    urls = [t.get("tipografias", {}).get("url") for n, _, t in temas_diagramas() if n in usados]
+    enlaces = "".join(f'\n  <link href="{u}" rel="stylesheet">' for u in dict.fromkeys(u for u in urls if u))
+    return (enlaces + "\n  " + bloque_kit(DIAGRAMAS_CSS) + '\n  <style data-diagramas-temas>\n'
+            + "\n".join(reglas) + "\n  </style>")
+
+
+def diagramas_scripts(html: str, activas: str, con_kit: bool) -> str:
+    if not tiene_diagramas(html):
+        return ""
+    lista = json.dumps([[n, titulo] for n, titulo, _ in temas_diagramas()], ensure_ascii=False)
+    out = f'\n<script type="application/json" id="diagramas-temas">{lista}</script>\n' + bloque_kit(DIAGRAMAS_JS)
+    if con_kit and "diagramas" in activas.split():
+        out += "\n" + bloque_kit(DIAGRAMAS_KIT)
+    return out

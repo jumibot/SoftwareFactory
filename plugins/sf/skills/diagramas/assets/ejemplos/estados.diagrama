@@ -1,0 +1,43 @@
+tipo: estados
+titulo: Ciclo de vida de una tarea
+descripcion: Las fases van por el centro; la vuelta que hace Claude, a un lado; las salidas, al otro.
+# Los botones del panel, en el color de su botón (verde, rojo); lo que hace Claude, con la marca claude.
+pie: SF · PANEL | LA COLA, CON COLA.PY
+foco: curso
+nodos:
+  pend: Pendientes | sin rama | chip=FASE
+  curso: En curso | rama · subagente | chip=FASE
+  obs: En observación | en develop | chip=FASE
+  cerr: Cerradas | en develop | fin | chip=FASE
+  desc: Descartada | sin botones | salida | chip=SALIDA
+  fuera: fuera de la cola | final
+flechas:
+  inicio > pend
+  pend > curso: ACTIVAR RAMA | verde
+  curso > pend: sin trabajo | claude
+  curso > obs: A OBSERVACIÓN | verde
+  curso > cerr: CERRAR | verde
+  obs > cerr: CERRAR | verde
+  cerr > obs: A OBSERVACIÓN | verde
+  curso > desc: DESCARTAR | rojo
+  pend > fuera: ELIMINAR | rojo
+notas:
+  DESDE EN OBSERVACIÓN O CERRADAS: Revertir → Pendientes o fuera de la cola
+  DESDE OBSERVACIÓN, CERRADAS O DESCARTADA: Claude la reabre → En curso
+fichas:
+  pend: En la cola, sin rama.
+    - ACTIVAR RAMA (verde): con rama, o al elegirla → En curso
+    - ELIMINAR (rojo): → fuera de la cola
+  curso: Arriba en el panel, en amarillo.
+    - A OBSERVACIÓN (verde): → En observación
+    - CERRAR (verde): → Cerradas
+    - DESCARTAR (rojo): → Descartada
+    - claude: sin trabajo en su rama → Pendientes
+  obs: El squash ya está en develop.
+    - CERRAR (verde): → Cerradas
+    - REVERTIR (rojo): → Pendientes o fuera de la cola
+  cerr: En verde; el trabajo sigue en develop.
+    - A OBSERVACIÓN (verde): → En observación
+    - REVERTIR (rojo): → Pendientes o fuera de la cola
+  desc: Entre las cerradas, con una D.
+    - claude: la reabre → En curso

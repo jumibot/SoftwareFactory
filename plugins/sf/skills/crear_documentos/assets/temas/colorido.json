@@ -12,7 +12,8 @@
     "borde": "#e2e8f0",
     "linea": "#e2e8f0",
     "fondo-medio": "#e2e8f0",
-    "fondo-suave": "#f8fafc"
+    "fondo-suave": "#f8fafc",
+    "segundo": "#0f766e"
   },
   "serie": [
     "#1d6fb6",

@@ -1,0 +1,30 @@
+tipo: arquitectura
+titulo: Arquitectura de la SF
+descripcion: Del repositorio fuente al proyecto: RELEASE publica, ACTUALIZAR instala, cola.py escribe la cola y el panel la lee.
+foco: plug
+nodos:
+  dev: develop | rama de trabajo
+  main: main · vX.Y.Z | lo publicado
+  plug: Plugin sf | instalado
+  cola: cola.py | ~/.claude/sf/
+  pet: peticiones.json | la cola
+  panel: Panel | el mod, /sf
+zonas:
+  repo: REPOSITORIO | dev, main
+  equipo: EQUIPO · ~/.CLAUDE | cola, plug
+  proyecto: PROYECTO · .SF/ | pet, panel
+flechas:
+  dev > main: RELEASE
+  main > plug: ACTUALIZAR | rojo
+  plug > cola: COPIA
+  cola > pet: ESCRIBE
+  panel > pet: LEE | discontinua
+fichas:
+  dev: La rama de trabajo; cada tarea entra por squash.
+  main: Lo que instalan los proyectos.
+    - RELEASE: sube la versión, pasa develop a main y pone el tag
+  plug: Instalado desde el catálogo softwarefactory.
+    - ACTUALIZAR (rojo): instala la versión publicada
+  cola: El lanzador; la única vía para escribir la cola.
+  pet: Tareas, pasos y estados, en .sf/.
+  panel: Lo pinta el mod de estado; lee la cola y lanza cola.py.

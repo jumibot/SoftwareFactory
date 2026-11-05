@@ -17,7 +17,8 @@
     "texto-tenue": "#9a9a96",
     "acento": "#b45309",
     "acento-fondo": "#fff7ed",
-    "acento-borde": "#fcd9b6"
+    "acento-borde": "#fcd9b6",
+    "segundo": "#1d4ed8"
   },
   "tipografias": {
     "texto": "'Source Sans 3', Arial, sans-serif",

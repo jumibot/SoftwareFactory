@@ -22,7 +22,8 @@ BASE = KIT.parent.parent
 CONOCIDOS = ["tools/kit_documentos/herramientas.css", "tools/kit_documentos/herramientas.js", "tools/kit_documentos/lectura.js",
              "tools/kit_documentos/edicion.js", "skills/documento_vision/assets/estilo_base.css",
              "skills/crear_documentos/assets/estilo_documento.css", "skills/crear_documentos/assets/plegado.js",
-             "skills/crear_documentos/assets/fichas.js"]
+             "skills/crear_documentos/assets/fichas.js", "tools/kit_documentos/diagramas.js",
+             "skills/diagramas/assets/diagramas.css", "skills/diagramas/assets/diagramas.js"]
 SCRIPTS_KIT = ["tools/kit_documentos/herramientas.js", "tools/kit_documentos/lectura.js", "tools/kit_documentos/edicion.js"]
 # Archivos que cambiaron de sitio: la copia se pone al día con el archivo de su sitio nuevo.
 ANTIGUOS = {"skills/documento_vision/assets/herramientas.css": "tools/kit_documentos/herramientas.css",

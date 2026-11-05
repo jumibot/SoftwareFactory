@@ -1,0 +1,27 @@
+tipo: proceso
+titulo: Publicar con RELEASE
+descripcion: Lo que hace el botón RELEASE del panel y dónde se para si algo falla.
+foco: ff
+nodos:
+  eleg: Elegir versión | patch, minor o major
+  dec: ¿En orden? | dec
+  ver: Subir versión | commit «sf X.Y.Z»
+  ff: develop → main | fast-forward y tag
+  push: Push | develop, main y tag
+  no: No publica | dice qué falta | salida
+flechas:
+  inicio > eleg
+  eleg > dec
+  dec > ver: SÍ
+  dec > no: NO | rojo
+  ver > ff
+  ff > push
+fichas:
+  eleg: Dos clics en RELEASE.
+    - RELEASE: el primero ofrece patch, minor y major
+    - RELEASE: el segundo confirma y avisa de lo que queda en observación
+  dec: Lo comprueba antes de tocar nada.
+  ver: Los manifiestos de la configuración, en un commit en develop.
+  ff: main pasa a ser develop, sin merge, con el tag vX.Y.Z.
+  push: Las dos ramas y el tag, al remoto.
+  no: No sube la versión ni toca main; dice cómo arreglarlo.

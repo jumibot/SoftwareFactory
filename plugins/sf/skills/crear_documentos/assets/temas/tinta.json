@@ -1,0 +1,54 @@
+{
+  "nombre": "Tinta",
+  "descripcion": "Editorial, la paleta de diagram-design: papel claro, tinta azul noche y un solo acento óxido. Cabecera blanca, bloques con línea lateral sin marcador, esquinas pequeñas; Geist para el texto e Instrument Serif para los títulos. Trae también su versión oscura.",
+  "colores": {
+    "primario": "#b8431c",
+    "oscuro": "#25283a",
+    "primario-vivo": "#ca7255",
+    "fondo": "#f9f0ed",
+    "borde": "#b9bcc4",
+    "linea": "#d8d8da",
+    "fondo-medio": "#ebeae7",
+    "fondo-suave": "#f5f5f4",
+    "tenue": "#dfaa99",
+    "pagina": "#fbfbfa",
+    "texto": "#25283a",
+    "texto-suave": "#4f5871",
+    "texto-tenue": "#666e83",
+    "acento": "#b8431c",
+    "acento-fondo": "#fbf4f1",
+    "acento-borde": "#ebcabf",
+    "segundo": "#2f5597"
+  },
+  "colores-oscuro": {
+    "primario": "#f08a59",
+    "oscuro": "#f2f2f0",
+    "primario-vivo": "#f4a57f",
+    "fondo": "#3c323e",
+    "borde": "#575d75",
+    "linea": "#3c3e50",
+    "fondo-medio": "#2f3349",
+    "fondo-suave": "#23263a",
+    "tenue": "#754e46",
+    "pagina": "#1b1d2c",
+    "texto": "#f2f2f0",
+    "texto-suave": "#b8bdc9",
+    "texto-tenue": "#9aa1b2",
+    "acento": "#f08a59",
+    "acento-fondo": "#3c323e",
+    "acento-borde": "#945d4b",
+    "segundo": "#8fb0f0"
+  },
+  "tipografias": {
+    "texto": "'Geist', system-ui, sans-serif",
+    "titulos": "'Instrument Serif', Georgia, serif",
+    "escena": "'Instrument Serif', Georgia, serif",
+    "url": "https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
+  },
+  "estilo": {
+    "cabecera": "blanca",
+    "etiqueta": "linea",
+    "marcador": "ninguno",
+    "esquinas": 6
+  }
+}

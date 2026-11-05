@@ -1,0 +1,28 @@
+tipo: piezas
+titulo: Las piezas del plugin sf
+descripcion: Qué lleva plugins/sf, cómo se usan entre sí y de qué depende.
+foco: hooks
+nodos:
+  cmd: Comandos | /sf y /sf_…
+  hooks: Mod de estado | hooks/ · panel
+  tools: Herramientas | cola.py · kit
+  tests: Pruebas | tests/ · unittest
+  tpl: Plantillas | reglas de proyecto
+  skills: Skills | método y documentos
+  deps: Dependencias | threejs · oklch · gsap | externo
+zonas:
+  plugin: PLUGIN SF · PLUGINS/SF/ | cmd, hooks, tools, tests, tpl, skills
+flechas:
+  cmd > hooks: ABRE
+  hooks > tools: LANZA
+  hooks > tpl: ENTREGA
+  skills > tools: USAN
+  skills > deps: DEPENDEN DE
+fichas:
+  cmd: /sf abre el panel; los demás, en register.tsx.
+  hooks: panel.tsx pinta el panel; cola.ts lanza cola.py; contexto.ts entrega las reglas.
+  tools: cola.py, configuracion.py y el kit de documentos.
+  tests: Se pasan antes de cerrar cada tarea.
+  tpl: claude-sf.md y claude-sf-metodologia.md, que entrega el mod.
+  skills: metodologia, orquestacion, flujo_tareas, crear_documentos…
+  deps: Skills externas, tal cual, fijadas en el catálogo.

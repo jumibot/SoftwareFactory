@@ -23,7 +23,8 @@ import markdown
 AQUI = Path(__file__).resolve().parent
 sys.path.insert(0, str(AQUI))
 from tema_identidad import (BASE, CLAVES_IDENTIDAD, bloque_kit, buscar_identidad, cargar_tema,  # noqa: E402
-                            destino_documento, enlaces_externos, herramientas_activas, kit_estilos, kit_scripts,
+                            destino_documento, diagramas_estilos, diagramas_scripts, enlaces_externos,
+                            herramientas_activas, kit_estilos, kit_scripts,
                             lector_estilos, lector_scripts,
                             logo_data_uri, procedencia, variables_css)
 
@@ -565,7 +566,7 @@ def main():
   </style>
   <style data-kit="{RUTA_CSS}">
 {CSS}
-  </style>{kit_estilos()}{lector_estilos(cuerpo)}{css_tipo}{css_proyecto}
+  </style>{kit_estilos()}{lector_estilos(cuerpo)}{diagramas_estilos(cuerpo)}{css_tipo}{css_proyecto}
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -574,7 +575,7 @@ def main():
 <div class="hoja">
   <main id="contenido" tabindex="-1">{avisos}{cuerpo}</main>
   <footer class="pie"><p>{esc(" · ".join(x for x in (producto, tipo, version, datos.get("estado", "")) if x))}</p>{f"<p>{esc(pie_texto)}</p>" if pie_texto else ""}<p class="procedencia">{esc(procedencia(src))}</p></footer>
-</div>{js}{lector_scripts(cuerpo)}{js_proyecto}
+</div>{js}{lector_scripts(cuerpo)}{diagramas_scripts(cuerpo, activas, bool(secciones))}{js_proyecto}
 </body>
 </html>
 """
