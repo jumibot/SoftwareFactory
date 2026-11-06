@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 320 | 2026-11-06 | [El generador se detiene con un texto por debajo de 4,5:1 y avisa con un borde o una línea](320-2026-11-06-el-generador-se-detiene-con-un-texto-por-debajo-de-4-5-1-y-avisa-con-un-borde-o-una-linea.md) |
 | 319 | 2026-11-06 | [Dos roles de color para un primario claro: sobre-primario y primario-texto](319-2026-11-06-dos-roles-de-color-para-un-primario-claro-sobre-primario-y-primario-texto.md) |
 | 318 | 2026-11-06 | [El aspecto lo fija solo el estilo; cada documento fija cómo se lee](318-2026-11-06-el-aspecto-lo-fija-solo-el-estilo-cada-documento-fija-como-se-lee.md) |
 | 317 | 2026-11-06 | [estilo.json guarda los valores resueltos; el tema del catálogo es solo la muestra de partida](317-2026-11-06-estilo-json-guarda-los-valores-resueltos-el-tema-del-catalogo-es-solo-la-muestra-de-partida.md) |
