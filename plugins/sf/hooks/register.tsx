@@ -2,6 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Register } from 'claude-code'
 import type { Paso, Peticion, Sesion } from '../types'
 import { CADA_COMPROBACION, arrancar, comprobarActualizacion, copiarCola, elegirPasos, enCursoRecientes, etiqueta, fusionable, motivoFusion, motivoSplit, numerosDe, olvidarTitulosInicio, ordenCola, pedirConfiguracion, pedirFusion, pedirRedescripcion, pedirSplit, refrescar, refrescarSubagentes, separable } from './cola'
+import { diferirIdentidad, lanzarPendientes } from './identidad'
 import { CLAVE_PLEGADO, PANEL, migrarPlegado } from './constantes'
 import { escribir } from './control'
 import { cargarAvisosPanel, encargarAClaude, tomarAvisoPanel } from './avisos'
@@ -245,6 +246,7 @@ export const register: Register = on => {
             await update($, minuto, () => t)
             // El latido de la sesión con la SF (decisión 193); con ella apagada aquí, sin ACTUALIZAR ni REFRESCAR.
             const conSf = await latirSesion($).catch(() => true)
+            lanzarPendientes($)
             // Si el estado sigue sin leer (se perdió con un /clear o falló la lectura), se lee ahora (tarea 239).
             if ((await read($, estado)) === null) await refrescar($).catch(() => undefined)
             await refrescarSubagentes($).catch(() => undefined)
@@ -388,6 +390,8 @@ export const register: Register = on => {
       // Una incorporación a medias queda en pausa al acabar o interrumpirse el turno (tarea 333, decisión 258); si pidió
       // recargar los plugins, el mod los recarga y no la pausa: sigue sola tras recargar (tarea 366).
       if (!(await recargarSiPedido($, () => void refrescar($).catch(() => undefined)).catch(() => false))) await pausarIncorporacion($).catch(() => undefined)
+      // /color y /rename que el motor rechazó por lanzarse desde el hook de una orden (/sf_forzar_activa).
+      lanzarPendientes($)
     }
     await refrescar($)
     return next(e)
@@ -442,18 +446,21 @@ export const register: Register = on => {
 
   // /sf_forzar_activa y /sf_forzar_inactiva (decisiones 193 y 198). Al activarla, el panel se relee y comprueba
   // ACTUALIZAR y REFRESCAR, que con ella apagada no se miraban.
-  on('command.run', { command: 'sf_forzar_activa' }, async $ => {
-    const antes = await sesionSfActual($)
-    const text = await forzarActiva($)
-    await refrescar($).catch(() => undefined)
-    // Apagada no había panel (decisión 296): al traerla, se abre.
-    if (antes === 'apagada' || antes === 'inactiva') {
-      await update($, panelCerrado, () => false)
-      await $.ui.open({ id: PANEL, title: 'Software Factory' }).catch(() => undefined)
-      $.clock.after(0, () => void comprobarActualizacion($, { anotar: false }).catch(() => undefined))
-    }
-    return { text }
-  })
+  // /color y /rename, con el hook ya acabado: el motor no deja lanzarlos desde él (diferirIdentidad).
+  on('command.run', { command: 'sf_forzar_activa' }, async $ =>
+    diferirIdentidad($, async () => {
+      const antes = await sesionSfActual($)
+      const text = await forzarActiva($)
+      await refrescar($).catch(() => undefined)
+      // Apagada no había panel (decisión 296): al traerla, se abre.
+      if (antes === 'apagada' || antes === 'inactiva') {
+        await update($, panelCerrado, () => false)
+        await $.ui.open({ id: PANEL, title: 'Software Factory' }).catch(() => undefined)
+        $.clock.after(0, () => void comprobarActualizacion($, { anotar: false }).catch(() => undefined))
+      }
+      return { text }
+    }),
+  )
   on('command.run', { command: 'sf_forzar_inactiva' }, async $ => {
     const text = await forzarInactiva($)
     await refrescar($).catch(() => undefined)

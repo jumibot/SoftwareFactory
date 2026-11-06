@@ -129,10 +129,11 @@ type Agente = { description: string; status: string }
 // puede copiar. copia: el plugin que corre es la copia de trabajo de la SF, dentro de su repositorio (existe el .git
 // de la carpeta dos niveles por encima de la del plugin, fuera de /sf). sinDecisiones: el proyecto sin docs/decisiones/.
 // sinGenerador: indice_decisiones.py --html falla, como sin el paquete markdown. desplegadas: las tareas, desplegadas.
-type Opciones = { sinDecisiones?: boolean; sinGenerador?: boolean; cola?: Pet[]; extra?: Record<string, string>; sinMarca?: boolean; reloj?: boolean; git?: Git; paneles?: () => unknown[]; agentes?: Agente[]; raiz?: string; salidas?: Pet[]; respuestas?: Record<string, Respuesta>; sinCola?: boolean; copia?: boolean; sinArranque?: boolean; desplegadas?: boolean; entorno?: Record<string, string>; ajustes?: Record<string, unknown>; contextoMotor?: string[]; plegado?: Record<string, boolean>; pythons?: Record<string, string | null> }
+// rechazar: el error con que el motor rechaza $.command.run de esa orden (null: la ejecuta).
+type Opciones = { sinDecisiones?: boolean; sinGenerador?: boolean; cola?: Pet[]; extra?: Record<string, string>; sinMarca?: boolean; reloj?: boolean; git?: Git; paneles?: () => unknown[]; agentes?: Agente[]; raiz?: string; salidas?: Pet[]; respuestas?: Record<string, Respuesta>; sinCola?: boolean; copia?: boolean; sinArranque?: boolean; desplegadas?: boolean; entorno?: Record<string, string>; ajustes?: Record<string, unknown>; contextoMotor?: string[]; plegado?: Record<string, boolean>; pythons?: Record<string, string | null>; rechazar?: (command: string) => string | null }
 
 // Motor simulado: archivos, almacén, comandos y reloj. Devuelve lo que el caso quiere mirar.
-async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = false, cola = INICIAL, extra = {}, sinMarca = false, reloj = false, git = {}, paneles = () => [], agentes, raiz = RAIZ, salidas = [], respuestas = {}, sinCola = false, copia = false, sinArranque = false, desplegadas = false, entorno = {}, ajustes = {}, contextoMotor, plegado, pythons = { python: '3 13' } }: Opciones = {}) {
+async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = false, cola = INICIAL, extra = {}, sinMarca = false, reloj = false, git = {}, paneles = () => [], agentes, raiz = RAIZ, salidas = [], respuestas = {}, sinCola = false, copia = false, sinArranque = false, desplegadas = false, entorno = {}, ajustes = {}, contextoMotor, plegado, pythons = { python: '3 13' }, rechazar }: Opciones = {}) {
   const archivos: Record<string, string> = {
     ...(sinMarca ? {} : { '/sf/plugins/sf/.claude-plugin/plugin.json': '{}' }),
     '/plugin/plugin.json': JSON.stringify({ name: 'sf', version: '0.32.3' }),
@@ -198,6 +199,8 @@ async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = 
   })
   on('command.register', () => ({ value: { command: 'sf' } }))
   on('command.run', (_, e) => {
+    const rechazo = rechazar?.(e.command)
+    if (rechazo) throw new Error(rechazo)
     comandos.push(e.command)
     return { text: '' }
   })
@@ -7311,6 +7314,34 @@ test('Sesión única: la segunda sesión avisa al arrancar en una línea del his
   await m[0].command.run({ command: 'sf_forzar_activa', args: '' })
   await reloj!.advance(1_000)
   expect(comandos.filter(c => c === 'color' || c === 'rename')).toEqual(['color', 'rename'])
+})
+
+// El motor no deja lanzar una orden desde el hook de otra: al tomar la SF con /sf_forzar_activa, /color y /rename
+// rechazados con su «host check» no avisan; quedan pendientes y salen al acabar el turno siguiente (tarea 281).
+// Sin reloj en memoria, cada temporizador salta al momento, dentro del hook, como el de antes en la app de escritorio.
+test('Sesión única: al tomar la SF con /sf_forzar_activa, /color y /rename no se lanzan desde su hook ni avisan', async (...m) => {
+  let enOrden = false
+  const { comandos, toasts } = await preparar(m, {
+    sinMarca: true,
+    rechazar: c =>
+      enOrden && (c === 'color' || c === 'rename')
+        ? 'HooksError: sf: command.run: called from a command.run hook, it would wait on the turn this hook is holding; answer { text } instead, or run it from a later event (turn.complete) (host check)'
+        : null,
+    extra: { '/sf/.sf/proyecto.json': JSON.stringify({ sf: '1.1.0', proyecto: 'Demo', color: 'purple' }), ...latido('sesion-2', 30_000) },
+  })
+  const identidad = () => comandos.filter(c => c === 'color' || c === 'rename')
+  expect(identidad()).toEqual([])
+  enOrden = true
+  const r = await m[0].command.run({ command: 'sf_forzar_activa', args: '' })
+  enOrden = false
+  expect(r.text).toMatch(/^SF activa en esta sesión/)
+  expect(toasts.filter(t => /no pudo lanzar/.test(t))).toEqual([])
+  expect(identidad()).toEqual([])
+  await m[0].turn.start({ text: 'hola', turnId: 't1' })
+  await m[0].turn.complete({ turnId: 't1', answer: '', durationMs: 1, isAborted: false, reason: 'answer' } as never)
+  await new Promise(res => setTimeout(res, 0))
+  expect(identidad()).toEqual(['color', 'rename'])
+  expect(toasts.filter(t => /no pudo lanzar/.test(t))).toEqual([])
 })
 
 test('Sesión única: la sesión con la SF pone /color y /rename al arrancar, sin línea de SF apagada', async (...m) => {
