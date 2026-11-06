@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 322 | 2026-11-06 | [Cada afinado del estilo sube su versión, se anota en su historial y respalda la anterior](322-2026-11-06-cada-afinado-del-estilo-sube-su-version-se-anota-en-su-historial-y-respalda-la-anterior.md) |
 | 321 | 2026-11-06 | [La forma de la cabecera de sección es un parámetro del estilo](321-2026-11-06-la-forma-de-la-cabecera-de-seccion-es-un-parametro-del-estilo.md) |
 | 320 | 2026-11-06 | [El generador se detiene con un texto por debajo de 4,5:1 y avisa con un borde o una línea](320-2026-11-06-el-generador-se-detiene-con-un-texto-por-debajo-de-4-5-1-y-avisa-con-un-borde-o-una-linea.md) |
 | 319 | 2026-11-06 | [Dos roles de color para un primario claro: sobre-primario y primario-texto](319-2026-11-06-dos-roles-de-color-para-un-primario-claro-sobre-primario-y-primario-texto.md) |
