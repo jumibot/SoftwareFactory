@@ -97,10 +97,11 @@ async function cargar($: $, nueva = false): Promise<number> {
   await detectarPython($, true)
   // El cola.py que lanza el panel: una copia del de este plugin, hecha ahora (decisión 136).
   await copiarCola($)
-  await arrancar($, primera)
-  // Una sola sesión con la SF por proyecto (decisión 193): si otra la tiene, esta arranca con ella apagada. Antes del
-  // modo prueba: una sesión apagada no lo toca, que es de la que tiene la SF.
+  // Una sola sesión con la SF por proyecto (decisión 193): si otra la tiene, esta arranca con ella apagada. Antes de
+  // leer el estado, que pone /color y /rename solo con la SF activa (decisión 297), y antes del modo prueba: una sesión
+  // apagada no lo toca, que es de la que tiene la SF.
   await decidirSesion($).catch(() => undefined)
+  await arrancar($, primera)
   if (!(await sfApagada($))) await apagarAlEntrar($).catch(() => undefined)
   // Los avisos del panel cuentan desde el inicio de la sesión o el /clear; /reload-plugins sigue desde el último dado,
   // sin repetirlo ni perder lo cambiado antes de recargar, aunque cambie de plugin (tarea 285).

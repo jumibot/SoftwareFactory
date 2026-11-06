@@ -116,13 +116,20 @@ async function fijar($: $, s: SesionSf | null): Promise<void> {
     await $.ui.close({ id: PANEL }).catch(() => undefined)
 }
 
+// Un aviso de la SF apagada: en un emergente, que se va a los segundos, y en una línea del historial, que queda (en el
+// terminal y en la app, antes del primer mensaje): el emergente de una sesión que arranca puede no llegar a verse.
+function avisar($: $, t: string): void {
+  emergente($, t, false)
+  $.ui.log(t)
+}
+
 // La que la tenía ha dejado de latir, vista desde la apagada: se dice una vez, en un aviso y a Claude con el siguiente
 // mensaje; tomarla es cosa del propietario (decisiones 295 y 296).
 async function decirCaducada($: $): Promise<void> {
   if (await read($, caducadaDicha)) return
   await update($, caducadaDicha, () => true)
   await update($, avisoClaude, () => CONTEXTO_CADUCADA)
-  emergente($, AVISO_CADUCADA, false)
+  avisar($, AVISO_CADUCADA)
 }
 
 // El estado de la SF en esta sesión, sin decidir nada.
@@ -178,7 +185,7 @@ async function decidir($: $): Promise<SesionSf | null> {
   }
   if (await read($, caducadaDicha)) await update($, caducadaDicha, () => false)
   // Que se trabaja sin la SF, una vez: al apagarse, no tras un /clear ni un cambio de plugin (decisión 296).
-  if (!eraApagada) emergente($, AVISO_APAGADA, false)
+  if (!eraApagada) avisar($, AVISO_APAGADA)
   return 'apagada'
 }
 
@@ -204,7 +211,7 @@ export async function latirSesion($: $): Promise<boolean> {
     await fijar($, 'apagada')
     if (await read($, caducadaDicha)) await update($, caducadaDicha, () => false)
     await update($, avisoClaude, () => CONTEXTO_PERDIDA)
-    emergente($, AVISO_PERDIDA, false)
+    avisar($, AVISO_PERDIDA)
     return false
   }
   await escribirLatido($, ruta, ahora)

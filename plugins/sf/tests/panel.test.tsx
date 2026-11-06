@@ -225,7 +225,12 @@ async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = 
   // Sin hooks SessionStart en los ajustes: nada que decir; con contextoMotor, lo que dirían.
   on('classic.SessionStart', () => (contextoMotor ? { additionalContext: contextoMotor } : {}))
   on('ui.status', () => ({ value: undefined }))
-  on('ui.log', () => ({ value: undefined }))
+  // Las líneas que el mod deja en el historial ($.ui.log), sin las del registro de depuración.
+  const lineas: string[] = []
+  on('ui.log', (_, e) => {
+    if (e.to !== 'debug') lineas.push(e.text)
+    return { value: undefined }
+  })
   on('ui.toast', (_, e) => {
     toasts.push(e.text.replace(/^(?:🟦|🟥) /u, ''))
     marcados.push({ text: e.text, timeoutMs: e.timeoutMs })
@@ -671,7 +676,7 @@ def5678	${(AHORA - 3 * 3600000) / 1000}	Panel de la SF: un título de commit muy
     if (fuera.length) archivos[HISTORIAL_JSONL] = (archivos[HISTORIAL_JSONL] ?? '') + fuera.map(x => JSON.stringify(x) + '\n').join('')
     await $.tool.call({ tool: 'Bash', command: 'true' })
   }
-  return { archivos, guardado, comandos, prompts, contextos, ordenes, colas, lineasCola, entradas, toasts, marcados, rellenos, cwds, cierres, cambiarCola, reloj: relojEnMemoria }
+  return { archivos, guardado, comandos, prompts, contextos, ordenes, colas, lineasCola, entradas, toasts, marcados, rellenos, cwds, cierres, lineas, cambiarCola, reloj: relojEnMemoria }
 }
 
 // ACTUALIZAR: lo instalado del plugin sf y el catálogo de donde sale, en la carpeta del usuario (/home).
@@ -7285,6 +7290,38 @@ test('Sesión única: la segunda sesión arranca con la SF apagada, lo avisa una
   // Un /clear no repite el aviso.
   await m[0].classic.SessionStart({ source: 'clear' })
   expect(toasts.filter(t => /SF apagada/.test(t)).length).toBe(1)
+})
+
+// El aviso de la apagada también queda en una línea del historial, antes del primer mensaje: el emergente de una sesión
+// que arranca puede no verse (en el terminal no salía nada). Y apagada no pone /color ni /rename (decisión 297).
+test('Sesión única: la segunda sesión avisa al arrancar en una línea del historial y no lanza /color ni /rename', async (...m) => {
+  const { comandos, lineas, prompts, reloj } = await preparar(m, {
+    reloj: true,
+    sinMarca: true,
+    extra: { '/sf/.sf/proyecto.json': JSON.stringify({ sf: '1.1.0', proyecto: 'Demo', color: 'purple' }), ...latido('sesion-2', 30_000) },
+  })
+  await reloj!.advance(5_000)
+  expect(prompts).toEqual([])
+  expect(lineas).toEqual([
+    'SF apagada en esta sesión: otra sesión de este proyecto la tiene activa, y aquí se trabaja sin la SF. Para traerla aquí, /sf_forzar_activa.',
+  ])
+  expect(comandos).not.toContain('color')
+  expect(comandos).not.toContain('rename')
+  // Al traerla con /sf_forzar_activa, sí: el color y el nombre del proyecto.
+  await m[0].command.run({ command: 'sf_forzar_activa', args: '' })
+  await reloj!.advance(1_000)
+  expect(comandos.filter(c => c === 'color' || c === 'rename')).toEqual(['color', 'rename'])
+})
+
+test('Sesión única: la sesión con la SF pone /color y /rename al arrancar, sin línea de SF apagada', async (...m) => {
+  const { comandos, lineas, reloj } = await preparar(m, {
+    reloj: true,
+    sinMarca: true,
+    extra: { '/sf/.sf/proyecto.json': JSON.stringify({ sf: '1.1.0', proyecto: 'Demo', color: 'purple' }) },
+  })
+  await reloj!.advance(1_000)
+  expect(comandos.filter(c => c === 'color' || c === 'rename')).toEqual(['color', 'rename'])
+  expect(lineas.filter(l => /SF apagada/.test(l))).toEqual([])
 })
 
 test('Sesión única: apagada, avisa una vez cuando la que la tiene deja de dar latido; tomarla es cosa del propietario', async (...m) => {

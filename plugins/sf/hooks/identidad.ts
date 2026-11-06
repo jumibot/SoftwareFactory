@@ -32,10 +32,32 @@ export function lanzar($: $, command: string, args: string): Promise<boolean> {
   )
 }
 
+// La app de escritorio puede quitar de su cola una orden lanzada al arrancar la sesión («the command was removed from
+// the queue before it ran»): no llega a correr. Entonces se lanza otra vez, una sola, a los REINTENTO ms, sin avisar;
+// solo si ese segundo intento falla, el aviso de lanzar. Se lanza en un temporizador, fuera del hook que lo pide: el
+// motor no deja lanzar una orden desde el hook de otra (al activar la SF con /sf_forzar_activa), como en /sf_prueba.
+export const REINTENTO = 3000
+const quitadaDeLaCola = (err: unknown) => /removed from the queue/i.test(String(err))
+function lanzarIdentidad($: $, command: string, args: string): void {
+  $.clock.after(0, () => {
+    void $.command.run({ command, args }).catch((err: unknown) => {
+      if (!quitadaDeLaCola(err)) return void lanzar($, command, args)
+      $.ui.log(`/${command} ${args}: ${String(err)}; otra vez en ${String(REINTENTO / 1000)} s`, { to: 'debug' })
+      $.clock.after(REINTENTO, () => void lanzar($, command, args))
+    })
+  })
+}
+
+// La SF en esta sesión, el mismo valor que en latido.tsx. Apagada (otra sesión la tiene, o /sf_forzar_inactiva), la
+// sesión es Claude Code sin más: ni /color ni /rename (decisión 297).
+const sesionSf = atom({ plugin: 'sf', key: 'sesionSf' } as const, null as 'activa' | 'apagada' | 'inactiva' | null)
+
 export async function ponerIdentidad($: $, e: Estado): Promise<void> {
+  const s = await read($, sesionSf)
+  if (s === 'apagada' || s === 'inactiva') return
   const puesta = await read($, identidadPuesta)
   const nombre = nombreSesion(e)
-  if (e.color && e.color !== puesta.color) void lanzar($, 'color', e.color)
-  if (nombre && nombre !== puesta.nombre) void lanzar($, 'rename', nombre)
+  if (e.color && e.color !== puesta.color) lanzarIdentidad($, 'color', e.color)
+  if (nombre && nombre !== puesta.nombre) lanzarIdentidad($, 'rename', nombre)
   await update($, identidadPuesta, () => ({ color: e.color ?? puesta.color, nombre: nombre ?? puesta.nombre }))
 }
