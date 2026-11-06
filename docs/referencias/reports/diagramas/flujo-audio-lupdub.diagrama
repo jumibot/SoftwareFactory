@@ -5,36 +5,36 @@ pie: LUPDUB · FLUJO DE AUDIO | V2 · PROPUESTA
 foco: va
 opciones: cajas=plegadas
 nodos:
+  acB: Cambiar paciente | motor nuevo | chip=ACCIÓN
+  acA: Cambiar fonendo | fondo o artefactos | chip=ACCIÓN
+  acG: Grabar muestra | WAV a 48 kHz | chip=ACCIÓN
   pac: Ficha del paciente | PatientPreset | chip=CONTROL
   prog: Programador | physio/programador.py | chip=CONTROL
   cola: Cola de eventos | core/events.py | chip=CONTROL
-  reloj: Reloj | tarjeta de audio | chip=CONTROL
   vc: Corazón | 12 voces | chip=VOCES
   vp: Piel | sin voces aún | chip=VOCES | externo
   va: Captación | 17 voces · 2 nuevas | chip=VOCES
   ve: Red y tono | 2 voces | chip=VOCES
   mxc: Mezclador cuerpo | core/mixer.py | chip=MEZCLA
   pared: Tórax | paso bajo | chip=FILTRO
-  mxp: Mezclador piel | vacío | chip=MEZCLA | externo
   fon: Fonendo | filtro de la pieza | chip=FILTRO
+  mxp: Mezclador piel | vacío | chip=MEZCLA | externo
   tubo: Tubo | reverb corta | chip=EFECTO
   mxa: Mezclador captación | core/mixer.py | chip=MEZCLA
-  mxe: Mezclador equipo | core/mixer.py | chip=MEZCLA
   grab: Equipo | filtro de banda | chip=FILTRO
+  mxe: Mezclador equipo | core/mixer.py | chip=MEZCLA
   conv: Saturación y cortes | conversor | chip=EFECTO
   gan: Ganancia | del paciente | chip=GANANCIA
   up: Upsampler | 4 → 48 kHz | chip=REMUESTREO
   lim: Limitador | suave | chip=EFECTO
   vol: Volumen | tu mando | chip=GANANCIA
   alt: Altavoz | o cascos | chip=SALIDA
-  acB: Cambiar paciente | motor nuevo | chip=ACCIÓN
-  acA: Cambiar fonendo | fondo o artefactos | chip=ACCIÓN
-  acG: Grabar muestra | WAV a 48 kHz | chip=ACCIÓN
+  reloj: Reloj | tarjeta de audio | chip=CONTROL
 zonas:
   acciones: ACCIONES | acB, acA, acG
   control: CONTROL | pac, prog, cola
   voces: MOTOR · VOCES | vc, vp, va, ve
-  cadena: MOTOR · MEZCLA Y CADENA | mxc, pared, mxp, fon, tubo, mxa, mxe, grab, conv
+  cadena: MOTOR · MEZCLA Y CADENA | mxc, pared, fon, mxp, tubo, mxa, grab, mxe, conv
   escucha: ESCUCHA · WEB | gan, up, lim, vol, alt, reloj
 flechas:
   pac > prog: | discontinua
