@@ -2,14 +2,14 @@
 antetitulo: Software Factory · Informe de investigación · Noviembre 2026
 lema: Las 25 cajas caben y pasan el comprobador; // leerlas con fluidez pide las reglas del original.
 subtitulo: Cómo queda con la skill de diagramas el flujo de audio de LupDub hecho a mano, qué reglas de lectura salen del original, cómo se afinó en rondas y qué le falta a la skill.
-version: Versión 1.2 · 06/11/2026
-estado: Propuesta · Tarea 398
+version: Versión 1.3 · 06/11/2026
+estado: Decidido · Tarea 398
 portada: oscura
 destino: proyecto
 herramientas: buscador lectura cabecera tablas diagramas
 menu: secciones
 tipo: Informe de investigación
-pie: Informe de la tarea «Probar la skill de diagramas con el flujo de audio de LupDub en un informe» (398). Parte del diagrama a mano «Flujo de audio LupDub v2», leído sin cambiarlo, y de la skill diagramas de develop. Espera la decisión del propietario de la Software Factory.
+pie: Informe de la tarea «Probar la skill de diagramas con el flujo de audio de LupDub en un informe» (398). Parte del diagrama a mano «Flujo de audio LupDub v2», leído sin cambiarlo, y de la skill diagramas de develop. Decidido por el propietario de la Software Factory (decisiones 325 y 326).
 ---
 # Prueba de diagramas: el flujo de audio de LupDub
 
@@ -21,7 +21,9 @@ El flujo de audio de LupDub, rehecho con el generador de la skill con todas las 
 
 Pasa el comprobador, pero no se lee con la fluidez del original: la cadena va en serpentina, las flechas comparten la calle central y la vuelta del reloj cruza el dibujo entero. Del original salen dieciocho reglas de lectura, desde la primera: qué concepto fluye (aquí, el audio) y que su recorrido se cuente de principio a fin; aplicadas a mano en cinco rondas, la mejor disposición (el eje en una columna con las entradas al lado) choca con dos fallos del generador. La orientación horizontal no existe para esta figura y la herramienta no lo dice.
 
-[Ver las rondas](#rondas){: .salto} [Ver las reglas](#reglas){: .salto} [Ver las propuestas](#propuestas){: .salto} [Ver las preguntas](#por-decidir){: .salto}
+El propietario de la Software Factory ha decidido las dos preguntas: las nueve propuestas salen en una sola tarea con rama (401), y los flujos con entradas laterales se dibujan con el eje en una columna y cada entrada frente a su destino. No queda ninguna abierta.
+
+[Ver las rondas](#rondas){: .salto} [Ver las reglas](#reglas){: .salto} [Ver las propuestas](#propuestas){: .salto} [Ver lo decidido](#decidido){: .salto} [Ver la tarea](#tareas){: .salto}
 
 ## Comparación | El original frente al nuevo, con las mismas cajas | Comparación {#comparacion}
 
@@ -185,13 +187,20 @@ Paso: el chip como tipo en la ficha y una línea `codigo:` en mono; aceptar `a >
 
 :::
 
+## Decidido | Lo que ya está decidido | Decidido {#decidido}
+
+| Nº | Decisión | Qué fija aquí |
+| --- | --- | --- |
+| 325 | Las nueve propuestas de la prueba de diagramas, en una sola tarea | Una tarea con rama (401) con las nueve [propuestas](#propuestas), en el orden de la [pregunta 1](#p1) |
+| 326 | Flujos con entradas laterales: eje en columna y cada entrada frente a su destino | La disposición base de la [pregunta 2](#p2); chip para las entradas menores |
+
 ## Por decidir | Qué hacer con las reglas y las propuestas | Por decidir {#por-decidir}
 
-Dos decisiones: qué tarea sale, y qué disposición se toma como base para un flujo como este.
+Las dos preguntas, ya decididas: qué tarea sale, y qué disposición se toma como base para un flujo como este.
 
 ::: preguntas 2
 
-### 1 · Qué tarea sale {recomendada=A} {: #p1}
+### 1 · Qué tarea sale {estado=decidida recomendada=A elegida=A} {: #p1}
 
 Opción A
 :   Una tarea con rama con las reglas de lectura y los nueve pasos; primero el bucle de afinado, la horizontal y el eje con entradas.
@@ -205,7 +214,10 @@ Opción C
 Recomendación
 :   **A.** Las reglas sin el generador que las cumpla se quedan en el papel.
 
-### 2 · Disposición base para un flujo con entradas {recomendada=A} {: #p2}
+Decisión
+:   A, decisión 325. Las nueve propuestas, en una sola tarea con rama (401), por este orden: reglas de lectura y bucle de afinado; entradas laterales; horizontal o aviso; presupuesto como recomendación; y después orden y compacidad, etiquetas y calles, zonas anidadas y formas, dinamismo, y ficha, sintaxis y kit.
+
+### 2 · Disposición base para un flujo con entradas {estado=decidida recomendada=A elegida=A} {: #p2}
 
 Opción A
 :   El eje en una columna con las entradas al lado, como el original y la ronda 2, arreglando el generador.
@@ -216,10 +228,26 @@ Opción B
 Recomendación
 :   **A.** Es la que se lee de un tirón; la arquitectura sirve para piezas, no para una cadena.
 
+Decisión
+:   A, decisión 326. El eje en una columna y cada entrada al lado, a la altura de su destino y dentro de su zona; las entradas menores que no merecen caja, como chip dentro de su nodo.
+
 :::
 
 ## Tareas | Lo que sale de este informe | Tareas {#tareas}
 
 | Tarea | Tipo | Qué hace |
 | --- | --- | --- |
-| Reglas de lectura y bucle de afinado de la skill de diagramas | Desarrollo, con rama | Las [reglas](#reglas) y los pasos de las [propuestas](#propuestas) que se elijan en la [pregunta 1](#p1), con la disposición de la [pregunta 2](#p2) y este flujo como prueba. |
+| Que la skill de diagramas dibuje flujos que se leen de un tirón, con las entradas frente a su destino (401) | Implementar, con rama | Las [reglas](#reglas) y las nueve [propuestas](#propuestas) (decisión 325), con la disposición de la [pregunta 2](#p2) (decisión 326) y este flujo como prueba. |
+
+Pasos de la 401:
+
+1. Añadir a la skill las reglas de lectura y el bucle de afinado con Claude, en tres rondas como mucho.
+2. Colocar las entradas laterales a la altura de su destino en el eje, en su zona, y detectar flechas que no tocan su caja.
+3. Emitir la horizontal o avisar de que no cabe.
+4. Hacer del presupuesto de nodos una recomendación, con la opción `completo`.
+5. Respetar el orden de la zona y compactar las cajas plegadas.
+6. Poner cada etiqueta junto a su tramo, una calle por flecha, reparto en bus y puentes en la frontera.
+7. Añadir zonas anidadas, corchetes y las clases `accion` y `previsto`.
+8. Añadir el modo «recorrer» con ← y →, «solo lo nuevo» y áreas plegables.
+9. Arreglar la ficha, la sintaxis y el kit: chip como tipo, línea `codigo:`, `a > b | marca` y la errata «las figura».
+10. Rehacer con la skill el flujo de audio de LupDub y comprobarlo a 375 y 1440, en claro y oscuro.
