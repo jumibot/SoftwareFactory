@@ -19,7 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
-| 324 | 2026-11-06 | [Un parámetro de estilo que pide otro proyecto se dice en una línea, sin anotarlo](324-2026-11-06-un-parametro-de-estilo-que-pide-otro-proyecto-se-dice-en-una-linea-sin-anotarlo.md) |
+| 324 | 2026-11-06 | [Un parámetro de estilo que pide otro proyecto se dice en una línea y se ofrece abrir una issue en GitHub de la SF](324-2026-11-06-un-parametro-de-estilo-que-pide-otro-proyecto-se-dice-en-una-linea-sin-anotarlo.md) |
 | 323 | 2026-11-06 | [Un proyecto sin estilo.json se genera con los valores por defecto de un tema elegido por su color](323-2026-11-06-un-proyecto-sin-estilo-json-se-genera-con-los-valores-por-defecto-de-un-tema-elegido-por-su-color.md) |
 | 322 | 2026-11-06 | [Cada afinado del estilo sube su versión, se anota en su historial y respalda la anterior](322-2026-11-06-cada-afinado-del-estilo-sube-su-version-se-anota-en-su-historial-y-respalda-la-anterior.md) |
 | 321 | 2026-11-06 | [La forma de la cabecera de sección es un parámetro del estilo](321-2026-11-06-la-forma-de-la-cabecera-de-seccion-es-un-parametro-del-estilo.md) |
