@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 315 | 2026-11-06 | [La infografía técnica se puede incrustar como cualquier recurso o ir como pieza aparte](315-2026-11-06-la-infografia-tecnica-se-puede-incrustar-como-cualquier-recurso-o-ir-como-pieza-aparte.md) |
 | 314 | 2026-11-06 | [El diagrama es un recurso del catálogo y el generador único llama al motor de la skill de diagramas](314-2026-11-06-el-diagrama-es-un-recurso-del-catalogo-y-el-generador-unico-llama-al-motor-de-la-skill-de-diagramas.md) |
 | 313 | 2026-11-06 | [El logo y el producto forman parte del estilo; los componentes propios van al lado y usan sus variables](313-2026-11-06-el-logo-y-el-producto-forman-parte-del-estilo-los-componentes-propios-van-al-lado-y-usan-sus-variables.md) |
 | 312 | 2026-11-06 | [La web comercial comparte los colores y la letra del estilo de la SF, con su propia forma de página](312-2026-11-06-la-web-comercial-comparte-los-colores-y-la-letra-del-estilo-de-la-sf-con-su-propia-forma-de-pagina.md) |
