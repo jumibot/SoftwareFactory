@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 328 | 2026-11-06 | [El foco solo lo sabe Claude: ni el panel ni la caja del prompt lo muestran](328-2026-11-06-el-foco-solo-lo-sabe-claude-ni-el-panel-ni-la-caja-del-prompt-lo-muestran.md) |
 | 327 | 2026-11-06 | [«¿Cómo va la N?» de las tareas en observación sigue siendo un menú](327-2026-11-06-como-va-la-n-de-las-tareas-en-observacion-sigue-siendo-un-menu.md) |
 | 326 | 2026-11-06 | [Flujos con entradas laterales: eje en columna y cada entrada frente a su destino](326-2026-11-06-flujos-con-entradas-laterales-eje-en-columna-y-cada-entrada-frente-a-su-destino.md) |
 | 325 | 2026-11-06 | [Las nueve propuestas de la prueba de diagramas, en una sola tarea](325-2026-11-06-las-nueve-propuestas-de-la-prueba-de-diagramas-en-una-sola-tarea.md) |
