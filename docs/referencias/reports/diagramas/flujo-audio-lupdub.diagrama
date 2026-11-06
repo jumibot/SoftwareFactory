@@ -1,69 +1,138 @@
-tipo: proceso
+tipo: arquitectura
 titulo: Flujo de audio de LupDub v2
-descripcion: 4 kHz, bloques de 128 muestras, Python = web. La tarjeta marca el tiempo; las voces entran en la cadena por tres mezcladores.
+descripcion: 4 kHz, bloques de 128 muestras, Python = web. La tarjeta marca el tiempo; las voces entran en la cadena por cuatro mezcladores.
 pie: LUPDUB · FLUJO DE AUDIO | V2 · PROPUESTA
-foco: capt
+foco: va
+opciones: cajas=plegadas
 nodos:
   pac: Ficha del paciente | PatientPreset | chip=CONTROL
-  prog: Programador | cola de eventos | chip=CONTROL
-  voces: Voces | 31 en 4 paquetes | chip=VOCES | salida
-  cuerpo: Cuerpo y piel | mezcla · tórax | chip=MEZCLA
-  fon: Fonendo y tubo | filtro · reverb | chip=FILTRO
-  capt: Captación | 17 voces · 2 nuevas | chip=MEZCLA
-  equipo: Equipo | filtro · conversor | chip=MEZCLA
-  esc: Escucha web | ×15 · 48 kHz · límite | chip=WEB
-  tarj: Tarjeta de audio | altavoz · reloj | chip=SALIDA
+  prog: Programador | physio/programador.py | chip=CONTROL
+  cola: Cola de eventos | core/events.py | chip=CONTROL
+  reloj: Reloj | tarjeta de audio | chip=CONTROL
+  vc: Corazón | 12 voces | chip=VOCES
+  vp: Piel | sin voces aún | chip=VOCES | externo
+  va: Captación | 17 voces · 2 nuevas | chip=VOCES
+  ve: Red y tono | 2 voces | chip=VOCES
+  mxc: Mezclador cuerpo | core/mixer.py | chip=MEZCLA
+  pared: Tórax | paso bajo | chip=FILTRO
+  mxp: Mezclador piel | vacío | chip=MEZCLA | externo
+  fon: Fonendo | filtro de la pieza | chip=FILTRO
+  tubo: Tubo | reverb corta | chip=EFECTO
+  mxa: Mezclador captación | core/mixer.py | chip=MEZCLA
+  mxe: Mezclador equipo | core/mixer.py | chip=MEZCLA
+  grab: Equipo | filtro de banda | chip=FILTRO
+  conv: Saturación y cortes | conversor | chip=EFECTO
+  gan: Ganancia | del paciente | chip=GANANCIA
+  up: Upsampler | 4 → 48 kHz | chip=REMUESTREO
+  lim: Limitador | suave | chip=EFECTO
+  vol: Volumen | tu mando | chip=GANANCIA
+  alt: Altavoz | o cascos | chip=SALIDA
+  acB: Cambiar paciente | motor nuevo | chip=ACCIÓN
+  acA: Cambiar fonendo | fondo o artefactos | chip=ACCIÓN
+  acG: Grabar muestra | WAV a 48 kHz | chip=ACCIÓN
+zonas:
+  acciones: ACCIONES | acB, acA, acG
+  control: CONTROL | pac, prog, cola
+  voces: MOTOR · VOCES | vc, vp, va, ve
+  cadena: MOTOR · MEZCLA Y CADENA | mxc, pared, mxp, fon, tubo, mxa, mxe, grab, conv
+  escucha: ESCUCHA · WEB | gan, up, lim, vol, alt, reloj
 flechas:
-  pac > prog: CONFIGURA | discontinua
-  prog > voces: EVENTOS | discontinua
-  voces > cuerpo: 12 VOCES | linea=segundo
-  voces > capt: 17 VOCES | linea=segundo
-  voces > equipo: 2 VOCES | linea=segundo
-  cuerpo > fon: | principal
-  fon > capt: | principal
-  capt > equipo: | principal
-  equipo > esc: 128 · 4 KHZ | principal
-  esc > tarj: | principal
-  tarj > prog: PIDE 128 | vuelta
-notas:
-  CAMBIAR PACIENTE: motor nuevo; los dos suenan 150 ms y se funden antes del upsampler
-  CAMBIAR FONENDO, FONDO O ARTEFACTOS: cadena nueva (tórax → conversor), fundido de 120 ms; el corazón no se toca
+  pac > prog: | discontinua
+  prog > cola: | discontinua
+  cola > vc: | discontinua
+  cola > vp: | discontinua
+  cola > va: | discontinua
+  cola > ve: | discontinua
+  vc > mxc: | linea=segundo
+  vp > mxp: | linea=segundo | discontinua
+  va > mxa: | linea=segundo
+  ve > mxe: | linea=segundo
+  mxc > pared: | principal
+  pared > mxp: | principal
+  mxp > fon: | principal
+  fon > tubo: | principal
+  tubo > mxa: | principal
+  mxa > mxe: | principal
+  mxe > grab: | principal
+  grab > conv: | principal
+  conv > gan: 1 × 128 | principal
+  gan > up: | principal
+  up > lim: | principal
+  lim > vol: | principal
+  vol > alt: | principal
+  alt > reloj: | discontinua
+  reloj > prog: PIDE 128 | vuelta
+  acB > pac: | linea=morado | discontinua
+  acA > prog: | linea=morado | discontinua
+  acG > reloj: | linea=morado | discontinua
 fichas:
   pac: FC, niveles de cada voz, fondo, artefactos, fonendo, equipo de grabación y semilla.
-    - physio/preset.py: PatientPreset
-    - CAMBIAR PACIENTE: LivePlayer.set crea un motor nuevo; fundido de 150 ms
-  prog: Un solo reloj en muestras; agenda los eventos hasta t + 128.
-    - Fuentes: cardiaca, respiración, estado (INICIO/FIN) y Poisson; cada una con su azar
-    - Cola: INICIO / FIN con instante exacto, canal y parámetros (core/events.py)
-    - Cada evento parte el bloque de 128 solo en su paquete, en su instante
-    - CAMBIAR FONDO: FIN a las sostenidas; las nuevas entran con rampa
-  voces: Voces.paquetes en core/dsp.py; StemVoice en dsp_blocks/voice.py.
-    - Corazón, 12: M1, T1, A2, P2, S3, S4, chasquido, click y 4 soplos; Burst → SVF-TPT
-    - Piel, 0: vacío; la respiración irá aquí si se reafina por este camino
-    - Captación, 17: Burst o Train → filtro del canal; nuevas, ráfagas de clics y llanto
-    - Equipo, 2: zumbido de red y tono; excitador Tonal → filtro del canal
-  cuerpo: Inicia la señal (core/mixer.py y post_stages.py).
-    - Mezclador cuerpo: suma las 12 voces del corazón, cada una con la ganancia del foco
-    - Tórax: paso bajo SVF a ~200 Hz, Q 0,6; dos veces en los de 4.º orden
-    - Mezclador piel: vacío de momento
-  fon: El camino del sonido por el fonendo (post_stages.py).
-    - Campana: paso bajo 400 Hz
-    - Diafragma: paso alto 100 Hz + paso bajo 800 Hz
-    - Tubo: reverb corta de Schroeder; da la caída de S1 y S2 (e02125); RT60 y nivel por paciente
-  capt: Lo que capta el fonendo por sí mismo: lo que cambia en la v2.
-    - Respiración y fondo: retumbo, siseo, suelo, deriva, golpes, roces
-    - Artefactos: golpe, golpecito, chasquido, roce, recolocación, deriva, voz, tos
-    - NUEVAS: ráfagas de clics y llanto, cada una con su fuente Poisson
-  equipo: La electrónica que grabó las referencias; fin del motor: 1 × 128 a 4 kHz.
-    - Mezclador equipo: zumbido y tono entran antes del filtro
-    - Filtro: Butterworth a 1 kHz, 8.º orden en adultos (PhysioNet) y 4.º en niños (CirCor); paso alto ~26 Hz en algunos
-    - Conversor: saturación (recorte plano) y cortes digitales (artifact_stages.py)
-  esc: web/player.js, en este orden.
-    - Ganancia del paciente: × (escucha × 15), a 4 kHz; iguala los latidos entre pacientes
-    - Upsampler: 4 → 48 kHz con sinc Kaiser; −103 dB frente a scipy
-    - Limitador: lineal hasta 0,6; por encima, tanh hasta ±1
-    - Volumen: tu mando, con rampa de 20 ms
-  tarj: El tiempo lo marca la tarjeta: no hay reloj de pared, todo cuenta muestras.
-    - AudioWorklet a 48 kHz → LivePlayer.render → HeartEngine.render_block
-    - PIDE 128: el motor avanza t += 128
-    - GRABAR MUESTRA: mismo camino sin tarjeta, tan rápido como puede; WAV a 48 kHz con la semilla del paciente
+    - PatientPreset · physio/preset.py
+  prog: Un solo reloj en muestras. Cada fuente con su propio azar; una respiración compartida.
+    - Fuentes: cardiaca (latidos), respiración, estado (fondos sostenidos con INICIO/FIN) y Poisson (artefactos al azar)
+    - physio/programador.py, fuentes.py
+  cola: Eventos INICIO / FIN con instante exacto en muestras, canal y parámetros.
+    - Llegan a los 4 paquetes: cada evento parte el bloque de 128 solo en su paquete, justo en su instante
+    - ColaEventos · core/events.py
+  reloj: El tiempo lo marca la tarjeta: cada vez que necesita audio pide un bloque.
+    - PIDE 128: el motor avanza su reloj (t += 128) y el programador agenda hasta t + 128
+    - No hay reloj de pared: todo cuenta muestras
+    - AudioWorklet → LivePlayer.render → HeartEngine.render_block
+  vc: M1, T1, A2, P2, S3, S4, chasquido de apertura, click y 4 soplos (los 6 últimos, para patologías).
+    - Excitador Burst → resonador SVF-TPT
+    - Voces.paquetes[cuerpo] · core/dsp.py; StemVoice · dsp_blocks/voice.py
+  vp: Ninguna todavía: la respiración irá aquí si se reafina por este camino.
+    - Voces.paquetes[piel]
+  va: Respiración, fondo (retumbo, siseo, suelo, deriva, golpes, roces) y artefactos.
+    - NUEVAS: ráfagas de clics y llanto
+    - Excitador Burst (golpes, clics) o Train (ruido largo o sostenido) → filtro del canal
+    - Voces.paquetes[captación]; StemVoice · FiltroCanal
+  ve: Zumbido de red y tono.
+    - Excitador Tonal (armónicos) → filtro del canal
+    - Voces.paquetes[equipo]; StemVoice · TonalExciter
+  mxc: Suma las 12 voces del corazón, cada una con su ganancia (la del foco, en SiteMixer). Inicia la señal.
+    - MezcladorEtapa(CUERPO) · core/mixer.py
+  pared: Paso bajo SVF a ~200 Hz, Q 0,6. Dos veces en los pacientes de 4.º orden.
+    - filtro_torax · dsp_blocks/post_stages.py
+  mxp: Señal + voces que nacen bajo la piel. Vacío de momento: la respiración entra en captación, donde está afinada.
+    - MezcladorEtapa(PIEL) · core/mixer.py
+  fon: Campana: paso bajo 400 Hz. Diafragma: paso alto 100 Hz + paso bajo 800 Hz.
+    - FiltroFonendo · post_stages.py
+  tubo: Cola corta de resonancias del tubo y el tórax (Schroeder). Da la caída de S1 y S2 medida en e02125.
+    - RT60 y nivel por paciente
+    - TuboReverb · post_stages.py
+  mxa: Señal + las 17 voces que capta el fonendo por sí mismo.
+    - Fondo: retumbo, siseo, suelo, deriva, golpes, roces
+    - Artefactos: ráfagas de clics y llanto (nuevos), golpe, golpecito, chasquido, roce, recolocación, deriva, voz, tos
+    - MezcladorEtapa(CAPTACION) · core/mixer.py
+  mxe: Señal + 2 voces de la electrónica: zumbido de red y tono. Entran antes del filtro: se graban con el resto.
+    - MezcladorEtapa(EQUIPO) · core/mixer.py
+  grab: Micrófono, amplificador y antialias del equipo que grabó las referencias.
+    - Adultos (PhysioNet, 2 kHz): Butterworth de 8.º orden a 1 kHz; niños (CirCor, 4 kHz): de 4.º orden
+    - Orden configurable (device_lp_orden); paso alto en algunos equipos (~26 Hz)
+    - FiltroEquipo · post_stages.py
+  conv: Saturación del conversor (recorte plano en el máximo) y cortes digitales (huecos).
+    - Lo que sale de aquí es la grabación, con todo dentro. Fin del motor: 1 × 128 a 4 kHz
+    - SaturacionCortes · artifact_stages.py
+  gan: × (escucha del paciente × 15), a 4 kHz. La única ganancia de la escucha.
+    - Iguala los latidos entre pacientes y sube el nivel del motor; antes del limitador, para que actúe igual en todos
+    - gananciaPaciente · web/player.js
+  up: Sube de 4 kHz a la frecuencia de la tarjeta (48 kHz) con sinc Kaiser.
+    - −103 dB frente al FFT de scipy
+    - Upsampler · web/player.js
+  lim: Lineal hasta 0,6; por encima, tanh hasta ±1. Solo actúa con los artefactos más fuertes.
+    - softClip · web/player.js
+  vol: Tu mando, con rampa de 20 ms para que no chasquee.
+    - LivePlayer.volume
+  alt: 48 kHz.
+    - AudioWorklet
+  acB: Se crea un motor nuevo y los dos suenan a la vez 150 ms, cada uno con su ganancia fija; se funden antes del upsampler.
+    - LivePlayer.set (paciente)
+  acA: El programador cambia las fuentes de ruido y los mezcladores sus ganancias. El corazón no se toca.
+    - FIN a las sostenidas; las nuevas entran con rampa
+    - Cadena nueva (tórax → conversor); la vieja y la nueva se funden 120 ms
+    - HeartEngine.set_post / setPost
+  acG: Mismo camino entero, sin tarjeta: un bucle pide los bloques tan rápido como puede.
+    - Empieza en el primer latido y con la semilla del paciente: mismos ajustes, mismo archivo
+    - Volumen al 100 %; sale un WAV a 48 kHz
+    - renderMuestra · web/player.js
