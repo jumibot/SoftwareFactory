@@ -3753,7 +3753,7 @@ test('Cerrar: si falla el commit, también se lo pasa a Claude', async (...m) =>
 
 // Revertir una tarea mergeada (decisión del propietario, 2026-10-29): R negra sobre naranja en Cerradas, solo en
 // las C con su commit «… (N)» en develop; en observación, en lugar de la D (decisión 115, 4). El primer clic la parte en
-// «R eliminar» y «R pendiente»; el segundo, en uno de ellos, lo pide a cola.py revertir con ese destino, sin Claude ni
+// «¿Revertir?» con [eliminar] y [a Pendientes]; el segundo, en uno de ellos, lo pide a cola.py revertir con ese destino, sin Claude ni
 // push (decisión 134). La 20 y la 21 se han cerrado en la sesión (C); solo la 20 tiene su squash en develop. La 22,
 // revertida antes de la decisión 134: sigue con R.
 const SALIDAS_REVERTIR: Pet[] = [

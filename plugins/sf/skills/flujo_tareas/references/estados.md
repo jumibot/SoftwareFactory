@@ -24,7 +24,7 @@ El campo `estado` de cada tarea en `.sf/peticiones.json` admite cuatro valores (
 La tarea sale del archivo y pasa, con su historial, a `.sf/historial.jsonl` (115). Allí su `estado` es el de salida: `cerrada`, `eliminada`, `absorbida`, `descartada` (limpiada) o, en las revertidas antes de la decisión 134, `revertida` (sección 3).
 
 - **Cerrada**: salió por la C, cerrada en observación o por un cierre sin rama (050, 090, 101).
-- **Eliminada**: salió con la E, con «R eliminar» o por Claude, sin pasar por Cerradas; su número no se reutiliza. Se recupera del historial (079, 115, 134).
+- **Eliminada**: salió con la E, al revertirla con [eliminar] o por Claude, sin pasar por Cerradas; su número no se reutiliza. Se recupera del historial (079, 115, 134).
 - **Absorbida**: salió por `/sf_fusionar`, dentro de la de número más alto (099).
 - **Revertida**: cerrada o en observación, con su squash deshecho en `develop` con `git revert` (107, 115). Solo las de antes de la decisión 134: ahora una revertida sale eliminada o vuelve a Pendientes.
 
@@ -62,7 +62,7 @@ Fuera de la cola, la letra es el estado con que salió, en `.sf/historial.jsonl`
 
 ### Lo que el panel lee del historial
 
-El panel no deduce lo ocurrido comparando colas: lo lee del historial de cada tarea y de `.sf/historial.jsonl` (113, 145). De ahí salen la A y la H; Cerradas, las tareas con un evento de cierre en la sesión (`a-observacion`, `cerrada`, `descartada`, `revertida`, `reabierta`), sin las eliminadas ni las absorbidas; los commits de cada tarea, para la R; y los push pendientes. En `$.state` solo guarda las limpiadas, con la fecha de su último cierre.
+El panel no deduce lo ocurrido comparando colas: lo lee del historial de cada tarea y de `.sf/historial.jsonl` (113, 145). De ahí salen la A y la H; Cerradas, las tareas con un evento de cierre en la sesión (`a-observacion`, `cerrada`, `descartada`, `revertida`, `reabierta`), sin las eliminadas ni las absorbidas; los commits de cada tarea, para Revertir; y los push pendientes. En `$.state` solo guarda las limpiadas, con la fecha de su último cierre.
 
 ## 2. Cambios de estado
 
@@ -371,9 +371,9 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 #### 26 · Revertir (R)
 
 - **De → a:** cerrada en `develop`, o en observación → eliminada, fuera de la cola sin rastro, como con la E; o `en-cola`, reabierta con su número (`reabierta: true`) y sin rama. Nunca queda en Cerradas con R.
-- **Cuándo:** hay que deshacer una tarea ya entrada en `develop`: se abandona (eliminar) o hay que rehacerla (pendiente). La R sale en Cerradas, en las C con un commit en `develop` con su número («… (N)» o el trailer `SF-Tarea: N`) sin un revert posterior, y en En observación, en las que tienen commits en `develop`.
-- **Quién:** panel con la R; principal si se lo piden o si hay choques.
-- **Autorización:** dos clics: el primero cambia la R por «R eliminar» y «R pendiente»; el segundo, en uno de ellos, revierte y elige el destino. A los 5 s, o con un clic en otro sitio, vuelve a ser la R. O la petición del propietario, que dice el destino.
+- **Cuándo:** hay que deshacer una tarea ya entrada en `develop`: se abandona (eliminar) o hay que rehacerla (pendiente). Revertir sale en el menú de las C de Cerradas con un commit en `develop` con su número («… (N)» o el trailer `SF-Tarea: N`) sin un revert posterior, y en En observación, en las que tienen commits en `develop`.
+- **Quién:** panel con Revertir; principal si se lo piden o si hay choques.
+- **Autorización:** dos clics: el primero cambia Revertir por «¿Revertir?» con [eliminar] y [a Pendientes]; el segundo, en uno de ellos, revierte y elige el destino. A los 5 s, o con un clic en otro sitio, vuelve a ser Revertir. O la petición del propietario, que dice el destino.
 - **Repositorio:** `git switch develop` si hace falta; `git revert --no-edit <commits>`, el más reciente primero; sin push. Los commits salen del historial (`cerrada`, `a-observacion`); en una tarea sin historial, de los de `develop` con su número («… (N)» o `SF-Tarea: N`); o de `--commit`. Con choques, `git revert --abort`, vuelta a la rama de antes, la cola sin tocar y prompt a Claude. Si ya estaba en `main`, llega en la versión siguiente.
 - **Panel:** eliminada, desaparece y no entra en Cerradas; pendiente, vuelve a Pendientes con H y sale en Cerradas como cualquier reabierta, en rojo con su H. Historial: `revertida` y después `eliminada` (con `en-cola` en su detalle) o `reabierta` (con `revertida`).
 - **Rama:** en los dos destinos la tarea sale sin rama, y todo limpio para volver a ponerla en curso: si la suya aún existe (no se pudo borrar en el squash), se borra; con commits que nunca entraron en `develop`, u ocupada en otro worktree, queda en git y se avisa. Lo que quede del subagente se recoge (169, 170).
@@ -382,7 +382,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 #### 27 · Reabrir
 
-- **De → a:** `en-observacion`, `descartada` o fuera de la cola (cerrada, revertida) → `en-curso` o `en-cola`, con su número y `reabierta: true`; los pasos de cierre, pendientes (en curso, los que falten se añaden, 174). Una eliminada se restaura (28); una absorbida, con `/desfusionar` (30). Revertir con «R pendiente» ya la reabre en cola (26).
+- **De → a:** `en-observacion`, `descartada` o fuera de la cola (cerrada, revertida) → `en-curso` o `en-cola`, con su número y `reabierta: true`; los pasos de cierre, pendientes (en curso, los que falten se añaden, 174). Una eliminada se restaura (28); una absorbida, con `/desfusionar` (30). Revertir con [a Pendientes] ya la reabre en cola (26).
 - **Cuándo:** al probarla o al observarla hay que corregirla, o aparece un bug atribuible a ella.
 - **Quién:** principal.
 - **Autorización:** ninguna; el bug entra en la cola antes de investigarlo. Una modificación durante la prueba la hace el subagente de la tarea; si ya se paró, se lanza otro.
@@ -428,7 +428,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 #### 30 · Deshacer una fusión o una eliminación
 
-- **De → a:** fuera de la cola → `en-cola` o `en-curso`, con su letra de antes. Una eliminada al revertirla («R eliminar»), en cola y reabierta, con H (134).
+- **De → a:** fuera de la cola → `en-cola` o `en-curso`, con su letra de antes. Una eliminada al revertirla ([eliminar]), en cola y reabierta, con H (134).
 - **Cuándo:** una absorbida o eliminada vuelve a la cola.
 - **Quién:** principal; panel con `/desfusionar`.
 - **Autorización:** la del propietario.
@@ -523,10 +523,10 @@ Lista de cambios, el más antiguo primero. La escribe el CLI en cada orden; nadi
 Una línea JSON por tarea que sale de la cola (cerrada, limpiada, revertida, eliminada, absorbida), con todos sus campos y su historial. Su `estado` dice cómo salió:
 
 - `cerrada`: por la C, sin rama o en observación (`cerrada`).
-- `eliminada`: con la E, con «R eliminar» o con «A propuesta» (su último evento, `a-propuesta`); el evento `eliminada` guarda en `detalle` el estado de antes, el que le devuelve `restaurar` (tras un revert, `en-cola`, y vuelve reabierta).
+- `eliminada`: con la E, al revertirla con [eliminar] o con «A propuesta» (su último evento, `a-propuesta`); el evento `eliminada` guarda en `detalle` el estado de antes, el que le devuelve `restaurar` (tras un revert, `en-cola`, y vuelve reabierta).
 - `absorbida`: por una fusión.
 - `descartada`: limpiada tras descartarse.
-- `revertida`: con la R, desde En observación o ya cerrada, antes de la decisión 134. Ahora la R la deja `eliminada` o la devuelve a la cola, sin línea nueva.
+- `revertida`: con la R, desde En observación o ya cerrada, antes de la decisión 134. Ahora Revertir la deja `eliminada` o la devuelve a la cola, sin línea nueva.
 
 Si sale más de una vez, la última línea de su número manda. De aquí salen `reabrir`, `restaurar`, `revertir` y `ver`, y los números ya dados.
 

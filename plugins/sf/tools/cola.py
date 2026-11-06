@@ -2570,7 +2570,7 @@ def analizador() -> argparse.ArgumentParser:
     s.add_argument('--tipo', choices=TIPOS, help='deliberar, documentar, diseñar, implementar, especificar, corregir o investigar')
     s.add_argument('--en-curso', action='store_true')
     orden('en-curso', o_en_curso, 'de en cola a en curso', 'n')
-    orden('en-cola', o_en_cola, 'de en curso a en cola, sin rama (decisión 170)', 'n')
+    orden('en-cola', o_en_cola, 'de en curso a en cola, sin trabajo en su rama (170, 275)', 'n')
     s = orden('rama', o_rama, 'crea la rama feature/N-nombre desde develop', 'n', 'nombre')
     g = s.add_mutually_exclusive_group()
     g.add_argument('--sin-activar', action='store_true', help='la crea sin cambiar a ella (para un subagente)')
