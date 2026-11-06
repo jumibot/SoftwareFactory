@@ -34,6 +34,13 @@ export async function llevaRegla($: $): Promise<boolean> {
   return si
 }
 
+// Si el mod entrega las reglas y sf:orquestacion: en un proyecto incorporado y en la propia SF (decisión 298), que no
+// tiene .sf/proyecto.json y se reconoce por su marca; su configuración sale de ella (configuracion.ts). La regla del
+// prompt de sistema, en cambio, solo en los proyectos (llevaRegla).
+export async function entregaReglas($: $): Promise<boolean> {
+  return !(await sinSf($))
+}
+
 // Una carpeta sin SF: ni proyecto incorporado ni la propia SF. Sin guardar: puede incorporarse en la conversación.
 export async function sinSf($: $): Promise<boolean> {
   const raiz = await raizSesion($)
@@ -49,7 +56,7 @@ export async function anadirRegla($: $, r: PromptComposeResult): Promise<PromptC
 }
 
 // ── Las reglas de la SF y la orquestación, del plugin instalado (decisión 187) ──
-// En los proyectos incorporados, no en la SF, el mod las entrega como contexto de SessionStart al empezar la sesión,
+// En los proyectos incorporados y en la propia SF (decisión 298), el mod las entrega como contexto de SessionStart al empezar la sesión,
 // tras /clear y tras compactar: las reglas comunes de templates/claude-sf.md (tareas, repositorio y decisiones), las
 // del método de templates/claude-sf-metodologia.md si el proyecto sigue la metodología, la línea de sus convenciones
 // (idioma, commits, remoto y rama de publicación, de .sf/proyecto.json) y el texto entero de sf:orquestacion. No en
@@ -90,7 +97,7 @@ export async function contextoPython($: $, e: { source: string; agent_id?: strin
 export async function contextoInicial($: $, e: { source: string; agent_id?: string }): Promise<string | null> {
   if (!FUENTES_REGLAS.has(e.source) || e.agent_id) return null
   // Lo que se entrega ahora queda dado en esta conversación: sin SF, no, y se entrega al incorporarse (decisión 242).
-  const lleva = await llevaRegla($)
+  const lleva = await entregaReglas($)
   await update($, reglasDadas, () => lleva)
   if (!lleva) return null
   return textoReglas($, e.source === 'compact' ? 'compactar' : e.source === 'clear' ? 'hacer /clear' : 'empezar la sesión')
@@ -103,6 +110,7 @@ export async function contextoInicial($: $, e: { source: string; agent_id?: stri
 const reglasDadas = atom({ plugin: 'sf', key: 'reglasDadas' } as const, false)
 export async function reglasAlIncorporar($: $): Promise<string | null> {
   if (await read($, reglasDadas)) return null
+  // Solo un proyecto se incorpora en la conversación: la SF las recibe en SessionStart.
   if (!(await llevaRegla($))) return null
   await update($, reglasDadas, () => true)
   return textoReglas($, 'incorporarse el proyecto en esta conversación')
@@ -289,7 +297,7 @@ export async function menuEnIncorporacion($: $, respuestas: unknown): Promise<vo
 }
 
 // Las reglas y la orquestación del proyecto de la sesión, con el momento en que se entregan.
-async function textoReglas($: $, momento: string): Promise<string | null> {
+export async function textoReglas($: $, momento: string): Promise<string | null> {
   const raiz = await raizSesion($)
   const raizPlugin = normal($.plugin.root).replace(/\/$/, '')
   const partes: string[] = []

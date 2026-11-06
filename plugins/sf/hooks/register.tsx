@@ -14,6 +14,7 @@ import { ofrecerPantalla, reiniciarOferta } from './pantalla'
 import { CATALOGO_PRUEBA, apagarAlCerrar, apagarAlEntrar, cambiarPrueba, desdeCopia, leerAjustes, marcarTurno } from './prueba'
 import { registrarPanel, turnarAvisos } from './panel'
 import { leerAvisoSubagentes, rearmarAvisosSubagentes, recuperarSubagentes, SIN_AVISO } from './subagentes'
+import { asegurarSesion, decidirSesion, forzarActiva, forzarInactiva, latirSesion, sesionSfActual, sfApagada, soltarAlCerrar, tomarAvisoSesion } from './latido'
 
 // Valores de estado del mod: el motor exige declararlos en el archivo que los usa; con el mismo
 // plugin y clave, son el mismo valor en todos los archivos.
@@ -97,7 +98,10 @@ async function cargar($: $, nueva = false): Promise<number> {
   // El cola.py que lanza el panel: una copia del de este plugin, hecha ahora (decisión 136).
   await copiarCola($)
   await arrancar($, primera)
-  await apagarAlEntrar($).catch(() => undefined)
+  // Una sola sesión con la SF por proyecto (decisión 193): si otra la tiene, esta arranca con ella apagada. Antes del
+  // modo prueba: una sesión apagada no lo toca, que es de la que tiene la SF.
+  await decidirSesion($).catch(() => undefined)
+  if (!(await sfApagada($))) await apagarAlEntrar($).catch(() => undefined)
   // Los avisos del panel cuentan desde el inicio de la sesión o el /clear; /reload-plugins sigue desde el último dado,
   // sin repetirlo ni perder lo cambiado antes de recargar, aunque cambie de plugin (tarea 285).
   await cargarAvisosPanel($, ahora, nueva).catch(() => undefined)
@@ -127,7 +131,13 @@ async function reanudar($: $): Promise<void> {
 // Las órdenes del mod que no pasan nada a Claude: tras ellas no hay turno ni sugerencia del motor (tarea 323).
 // La orden fija del plugin, commands/panel.md: el motor la nombra con el plugin delante (tarea 337).
 const ORDEN_FIJA = 'sf:panel'
-const ORDENES_LOCALES = new Set(['sf', ORDEN_FIJA, 'sf_paso', 'sf_split', 'sf_fusionar', 'sf_prueba'])
+const ORDENES_LOCALES = new Set(['sf', ORDEN_FIJA, 'sf_paso', 'sf_split', 'sf_fusionar', 'sf_prueba', 'sf_forzar_activa', 'sf_forzar_inactiva'])
+// Las órdenes de la SF que no se atienden con la SF apagada en la sesión (decisión 193): /sf abre el panel, que lo dice.
+// Tampoco /sf ni /sf:panel: sin la SF activa no hay panel (decisión 296).
+const ORDENES_CON_SF = new Set(['sf', ORDEN_FIJA, 'sf_paso', 'sf_split', 'sf_fusionar', 'sf_redescribir', 'sf_config', 'sf_prueba'])
+
+const ordenApagada = (orden: string) =>
+  `/${orden}: la SF está apagada en esta sesión (la tiene otra sesión del proyecto, o se apagó con /sf_forzar_inactiva). Para traerla aquí, /sf_forzar_activa.`
 
 // /sf abre el panel. La orden fija del plugin (commands/panel.md, decisiones 254 y 257) se llama /sf:panel: la app la lista antes
 // del primer mensaje, cuando el mod aún no corre; con el mod en marcha, se atiende aquí igual que /sf y no sale en
@@ -185,6 +195,17 @@ export const register: Register = on => {
       argumentHint: '[qué cambiar]',
       immediate: true,
     })
+    // Una sola sesión con la SF por proyecto (decisión 193): tomarla aquí o apagarla aquí.
+    await $.command.register({
+      name: 'sf_forzar_activa',
+      description: 'Activa la SF en esta sesión y la apaga en la otra sesión del proyecto que la tenga',
+      immediate: true,
+    })
+    await $.command.register({
+      name: 'sf_forzar_inactiva',
+      description: 'Apaga la SF en esta sesión, que deja de dar latido, para que otra la tome',
+      immediate: true,
+    })
     const r = await next(e)
     // Sin línea de estado: Claude Code la marca con «⚠ sf:» y repite lo que ya dice la caja sobre el prompt.
     // Se borra la que hubiera dejado una versión anterior.
@@ -221,11 +242,13 @@ export const register: Register = on => {
           if (t <= antes) return
           try {
             await update($, minuto, () => t)
+            // El latido de la sesión con la SF (decisión 193); con ella apagada aquí, sin ACTUALIZAR ni REFRESCAR.
+            const conSf = await latirSesion($).catch(() => true)
             // Si el estado sigue sin leer (se perdió con un /clear o falló la lectura), se lee ahora (tarea 239).
             if ((await read($, estado)) === null) await refrescar($).catch(() => undefined)
             await refrescarSubagentes($).catch(() => undefined)
             const red = t - ((await read($, comprobadaEn)) ?? ahora) >= CADA_COMPROBACION
-            await comprobarActualizacion($, { red }).catch(() => undefined)
+            if (conSf) await comprobarActualizacion($, { red }).catch(() => undefined)
           } finally {
             latir(t)
           }
@@ -240,8 +263,8 @@ export const register: Register = on => {
   // Un /clear acaba la conversación sin cerrar el proceso: el motor no vuelve a lanzar session.start, y el estado del
   // panel puede quedar vacío («Leyendo el estado…»). El SessionStart de los ajustes sí llega, con source «clear»: ahí
   // se vuelve a cargar (tarea 239).
-  // En los proyectos incorporados, al empezar, tras /clear y tras compactar, las reglas de la SF y sf:orquestacion
-  // como contexto (decisión 187). Si falla, la sesión sigue sin ellas.
+  // En los proyectos incorporados y en la propia SF, al empezar, tras /clear y tras compactar, las reglas de la SF y
+  // sf:orquestacion como contexto (decisiones 187 y 298); con la SF apagada, nada (297). Si falla, la sesión sigue sin ellas.
   on('classic.SessionStart', async ($, e, next) => {
     const r = await next(e)
     if (e.source === 'clear') {
@@ -253,33 +276,45 @@ export const register: Register = on => {
     // Tras compactar, Claude ya no tiene los avisos de subagentes dados: lo pendiente se vuelve a avisar (tarea 249).
     if (e.source === 'compact') await rearmarAvisosSubagentes($).catch(() => undefined)
     if (e.source === 'resume') await reanudar($).catch(err => $.ui.log(`al reanudar: ${String(err)}`, { to: 'debug' }))
+    // Con la SF apagada en la sesión, sin contexto de la SF: Claude Code sin más (decisión 297).
+    await asegurarSesion($).catch(() => null)
+    const apagada = await sfApagada($)
     const textos = [
-      await contextoInicial($, e).catch(err => {
-        $.ui.log(`reglas en SessionStart: ${String(err)}`, { to: 'debug' })
-        return null
-      }),
-      // El intérprete de Python, en cualquier carpeta, si no es `python` (236).
+      apagada
+        ? null
+        : await contextoInicial($, e).catch(err => {
+            $.ui.log(`reglas en SessionStart: ${String(err)}`, { to: 'debug' })
+            return null
+          }),
+      // El intérprete de Python, en cualquier carpeta, si no es `python` (236), como en una carpeta sin SF.
       await contextoPython($, e).catch(() => null),
     ].filter((x): x is string => !!x)
     return textos.length ? { ...r, additionalContext: [...(r.additionalContext ?? []), ...textos] } : r
   }).catch(($, e, next) => next(e))
 
   // En los proyectos incorporados, no en la SF, la regla de lo que es de la SF y lo global, en el prompt de sistema (decisión 167).
-  on('prompt.compose', async ($, e, next) => anadirRegla($, await next(e))).catch(($, e, next) => next(e))
+  // Con la SF apagada en la sesión, sin ella (decisión 297).
+  on('prompt.compose', async ($, e, next) => {
+    const r = await next(e)
+    return (await sfApagada($).catch(() => false)) ? r : anadirRegla($, r)
+  }).catch(($, e, next) => next(e))
 
   // Al cerrar la sesión, en la SF, el modo prueba se desactiva: la siguiente entra con el plugin publicado.
+  // Con la SF apagada, no: el modo prueba es de la sesión que la tiene. La que la tiene suelta su latido (decisión 193).
   on('session.end', async ($, e, next) => {
-    await apagarAlCerrar($, String(e.reason)).catch(() => undefined)
+    if (!(await sfApagada($).catch(() => false))) await apagarAlCerrar($, String(e.reason)).catch(() => undefined)
+    await soltarAlCerrar($).catch(() => undefined)
     return next(e)
   })
 
   // Un proyecto por sesión: las escrituras en otro proyecto se bloquean con el motivo.
   // Si el control falla, la escritura sigue: el control ayuda, la regla manda.
-  on('tool.call', { tool: 'Write' }, ($, e, next) => escribir($, e.file_path, e, next)).catch(($, e, next) => next(e))
-  on('tool.call', { tool: 'Edit' }, ($, e, next) => escribir($, e.file_path, e, next)).catch(($, e, next) => next(e))
-  on('tool.call', { tool: 'NotebookEdit' }, ($, e, next) => escribir($, e.notebook_path, e, next)).catch(($, e, next) =>
-    next(e),
-  )
+  // Con la SF apagada en la sesión, sin control: Claude Code sin más (decisión 297).
+  on('tool.call', { tool: 'Write' }, async ($, e, next) => ((await sfApagada($).catch(() => false)) ? next(e) : escribir($, e.file_path, e, next))).catch(($, e, next) => next(e))
+  on('tool.call', { tool: 'Edit' }, async ($, e, next) => ((await sfApagada($).catch(() => false)) ? next(e) : escribir($, e.file_path, e, next))).catch(($, e, next) => next(e))
+  on('tool.call', { tool: 'NotebookEdit' }, async ($, e, next) =>
+    (await sfApagada($).catch(() => false)) ? next(e) : escribir($, e.notebook_path, e, next),
+  ).catch(($, e, next) => next(e))
 
   // La cola cambia a mitad de turno (Claude marca una petición en curso y trabaja en ella): tras cada herramienta
   // que puede escribir, se relee sin esperar, para que el panel muestre al momento la tarea en curso.
@@ -297,6 +332,8 @@ export const register: Register = on => {
   on('tool.call', { tool: 'Agent' }, async ($, e, next) => {
     const r = await next(e)
     if (e.agentId || r.deny !== undefined) return r
+    // Con la SF apagada en la sesión, sin avisos de subagentes: son de la sesión que la tiene (decisión 193).
+    if (await sfApagada($).catch(() => false)) return r
     const { lanzar, recoger } = await leerAvisoSubagentes($).catch(() => SIN_AVISO)
     const aviso = [lanzar, recoger].filter((x): x is string => !!x)
     return aviso.length ? { ...r, context: [...(r.context ?? []), ...aviso] } : r
@@ -365,6 +402,10 @@ export const register: Register = on => {
     if (e.command) return next(e)
     const delPropietario = !e.isMeta && DEL_PROPIETARIO.has(e.origin.kind)
     if (!delPropietario && e.origin.kind !== 'task-notification') return next(e)
+    // Una sola sesión con la SF por proyecto (decisión 193): que se ha apagado o activado aquí, una vez; con ella
+    // apagada, ningún otro aviso de la SF.
+    const avisoSesion = delPropietario ? await tomarAvisoSesion($).catch(() => null) : null
+    if (await sfApagada($).catch(() => false)) return next(avisoSesion ? { ...e, context: [...(e.context ?? []), avisoSesion] } : e)
     // La carpeta se acaba de incorporar en esta conversación: las reglas y la orquestación, una vez (decisión 242). Sin
     // SF, el encargo de ofrecer la incorporación, una vez por conversación (decisión 243).
     const reglas = delPropietario ? await reglasAlIncorporar($).catch(() => null) : null
@@ -375,7 +416,7 @@ export const register: Register = on => {
     const pantalla = delPropietario ? await ofrecerPantalla($).catch(() => null) : null
     // El de lanzar los subagentes que faltan, el primero: es lo primero del turno (tarea 351).
     const { lanzar, recoger } = await leerAvisoSubagentes($).catch(() => SIN_AVISO)
-    const avisos = [lanzar, reglas, incorporar, panel, pantalla, recoger].filter((x): x is string => !!x)
+    const avisos = [avisoSesion, lanzar, reglas, incorporar, panel, pantalla, recoger].filter((x): x is string => !!x)
     if (!avisos.length) return next(e)
     // Si el mensaje no llega a entrar (otro hook lo descarta), el aviso del panel queda pendiente para el siguiente.
     const r = await next({ ...e, context: [...(e.context ?? []), ...avisos] }).catch(async (err: unknown) => {
@@ -390,10 +431,32 @@ export const register: Register = on => {
   // Tras una orden local del mod (no un turno de Claude, que deja su propia sugerencia), sin SF, vuelve la sugerencia de
   // incorporar: el prompt la pierde al escribir la orden (tarea 323). Va antes que las de cada orden, que contestan sin
   // next: así las envuelve.
+  // Con la SF apagada en la sesión, sus órdenes no se atienden: lo dicen (decisión 193).
   on('command.run', async ($, e, next) => {
+    if (ORDENES_CON_SF.has(e.command) && (await sfApagada($).catch(() => false))) return { text: ordenApagada(e.command) }
     const r = await next(e)
     if (ORDENES_LOCALES.has(e.command)) $.clock.after(300, () => void sugerirIncorporar($).catch(() => undefined))
     return r
+  })
+
+  // /sf_forzar_activa y /sf_forzar_inactiva (decisiones 193 y 198). Al activarla, el panel se relee y comprueba
+  // ACTUALIZAR y REFRESCAR, que con ella apagada no se miraban.
+  on('command.run', { command: 'sf_forzar_activa' }, async $ => {
+    const antes = await sesionSfActual($)
+    const text = await forzarActiva($)
+    await refrescar($).catch(() => undefined)
+    // Apagada no había panel (decisión 296): al traerla, se abre.
+    if (antes === 'apagada' || antes === 'inactiva') {
+      await update($, panelCerrado, () => false)
+      await $.ui.open({ id: PANEL, title: 'Software Factory' }).catch(() => undefined)
+      $.clock.after(0, () => void comprobarActualizacion($, { anotar: false }).catch(() => undefined))
+    }
+    return { text }
+  })
+  on('command.run', { command: 'sf_forzar_inactiva' }, async $ => {
+    const text = await forzarInactiva($)
+    await refrescar($).catch(() => undefined)
+    return { text }
   })
 
   // /sf_paso texto: lo escribe en una tarea en curso de .sf/peticiones.json, como pendiente (decisión del

@@ -13,6 +13,7 @@ import { COLOR_PRUEBA, cambiarPrueba, desdeCopia } from './prueba'
 import type { $ } from './lectura'
 import { emergente, emergenteError, emergenteRespuesta } from './emergentes'
 import { subirDevelop } from './cola'
+import { sfApagada } from './latido'
 
 // Valores de estado del mod: el motor exige declararlos en el archivo que los usa; con el mismo
 // plugin y clave, son el mismo valor en todos los archivos.
@@ -216,7 +217,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     anotarPantalla(e)
     const est = await read($, estado)
-    if (e.props.hasSurvey || est === null) return next(e)
+    // Con la SF apagada en la sesión, ni caja ni panel (decisión 296).
+    if (e.props.hasSurvey || est === null || (await sfApagada($).catch(() => false))) return next(e)
     // La caja no sale mientras el panel se ve: colocado y al frente. Sale con el panel cerrado, detrás de otra
     // pestaña o sin colocar (decisión 164, corregida tras probarla: verse siempre la repetía junto al panel).
     if (e.viewport?.isFullscreen === true) {
@@ -342,6 +344,11 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const est = await read($, estado)
 
     if (est === null) return <Text dimColor>Leyendo el estado…</Text>
+    // Con la SF apagada en la sesión no hay panel (decisión 296): si queda uno abierto, se cierra.
+    if (await sfApagada($).catch(() => false)) {
+      void $.ui.close({ id: PANEL }).catch(() => undefined)
+      return <Text dimColor>SF apagada en esta sesión.</Text>
+    }
 
     const plegadas = await read($, plegado)
     // La letra es el estado de la tarea, la misma en todos los sitios (decisión del propietario, 2026-10-28):

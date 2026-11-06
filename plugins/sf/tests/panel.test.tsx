@@ -6150,10 +6150,29 @@ test('Reglas: al reanudar o bifurcar la conversación, nada: ya las tiene', asyn
   expect(await inicio(m, 'fork')).toEqual([])
 })
 
-test('Reglas: en la propia SF, nada, aunque tenga .sf/proyecto.json', async (...m) => {
-  await preparar(m, { extra: { ...REGLAS_PLUGIN, '/sf/.sf/proyecto.json': JSON.stringify({ proyecto: 'SoftwareFactory' }) } })
-  expect(await inicio(m, 'startup')).toEqual([])
-  expect(await inicio(m, 'compact')).toEqual([])
+test('Reglas (298): en la propia SF, sin .sf/proyecto.json, las reglas con la metodología, sus convenciones y sf:orquestacion', async (...m) => {
+  await preparar(m, { extra: REGLAS_PLUGIN })
+  for (const source of ['startup', 'clear', 'compact'] as const) {
+    const c = await inicio(m, source)
+    expect(c.length).toBe(1)
+    expect(c[0]).toMatch(/^Software Factory \(plugin sf, entregado por su mod/)
+    expect(c[0]).toMatch(/# Software Factory\n\n- \*\*Método:\*\*/)
+    expect(c[0]).toMatch(/Convenciones del proyecto: idioma es; commits libres/)
+    expect(c[0]).toMatch(/sf:orquestacion, ya cargada[\s\S]*# Orquestación\n\n## Con cada mensaje/)
+  }
+  expect(await inicio(m, 'resume')).toEqual([])
+  // La regla del prompt de sistema, no: en la SF lo del plugin sí es del proyecto (decisión 167).
+  expect((await regla(m)).map(x => x.id)).toEqual(['intro'])
+})
+
+test('Reglas (298): en la propia SF con la SF apagada en la sesión, nada; con /sf_forzar_activa, una vez', async (...m) => {
+  const { contextos } = await preparar(m, { extra: { ...REGLAS_PLUGIN, '/home/.claude/sf/latido-_sf.json': JSON.stringify({ carpeta: '/sf', sesion: 'sesion-2', latido: AHORA - 30_000 }) } })
+  for (const source of ['startup', 'clear', 'compact', 'resume'] as const) expect(await inicio(m, source)).toEqual([])
+  await m[0].prompt.submit({ text: 'hola', origin: { kind: 'composer' }, wait: false })
+  expect(contextos.at(-1)).toBe(undefined)
+  await m[0].command.run({ command: 'sf_forzar_activa', args: '' })
+  await m[0].prompt.submit({ text: 'hola', origin: { kind: 'composer' }, wait: false })
+  expect(contextos.at(-1)?.[0]).toMatch(/^Software Factory activa en esta sesión con \/sf_forzar_activa[\s\S]*sf:orquestacion, ya cargada/)
 })
 
 test('Reglas: en una carpeta sin SF, nada', async (...m) => {
@@ -6197,14 +6216,16 @@ test('Python: el atajo de la Microsoft Store y un Python 3.8 no valen; py sí (W
 
 test('Python: sin ninguno, Claude recibe que falta y cómo instalarlo', async (...m) => {
   await preparar(m, { cola: [EN_CURSO], pythons: {} })
-  const [c] = await inicio(m, 'startup')
+  // En la SF, después de las reglas (decisión 298).
+  const c = (await inicio(m, 'startup')).join(' ')
   expect(c).toContain('no responde Python 3.9 o posterior (se han probado python, python3, py)')
   expect(c).toContain('xcode-select --install')
 })
 
 test('Python: en la SF con python (Windows), nada cambia: ninguna línea y la orden de siempre', async (...m) => {
   const { lineasCola } = await preparar(m, { cola: [EN_CURSO] })
-  expect(await inicio(m, 'startup')).toEqual([])
+  // Solo las reglas, que en la SF también entrega el mod (decisión 298).
+  expect((await inicio(m, 'startup')).filter(x => !x.startsWith('Software Factory (plugin sf'))).toEqual([])
   await m[0].command.run({ command: 'sf_paso', args: 'Uno' })
   expect(lineasCola.map(x => x[0])).toEqual(['python'])
 })
@@ -7171,4 +7192,216 @@ test('Incorporación: la clave del archivo de progreso es la de incorporacion.py
   expect(claveIncorporacion('C:\\Proyectos\\Ejemplo/')).toBe('c__proyectos_ejemplo')
   expect(claveIncorporacion('/sf')).toBe('_sf')
   expect(claveIncorporacion('/srv/Año')).toBe('_srv_a_o')
+})
+
+// ── Una sola sesión con la SF por proyecto (decisión 193) ──
+// El latido de la sesión que tiene la SF, fuera del proyecto: en la carpeta de Claude Code, por la clave de la carpeta.
+const LATIDO = '/home/.claude/sf/latido-_sf.json'
+const latido = (sesion: string, hace: number) => ({ [LATIDO]: JSON.stringify({ carpeta: '/sf', sesion, latido: AHORA - hace }) })
+const leerLatidoDe = (archivos: Record<string, string>) => JSON.parse(archivos[LATIDO] ?? 'null') as { sesion: string; latido: number } | null
+const hola = (m: Motor) => m[0].prompt.submit({ text: 'hola', origin: { kind: 'composer' }, wait: false })
+
+test('Sesión única: la primera sesión toma la SF y deja su latido cada minuto', async (...m) => {
+  const { archivos, reloj } = await preparar(m, { reloj: true })
+  expect(leerLatidoDe(archivos)).toEqual({ carpeta: '/sf', sesion: 'sesion-1', latido: AHORA } as never)
+  await reloj!.advance(60_000)
+  expect(leerLatidoDe(archivos)?.latido).toBe(AHORA + 60_000)
+  await reloj!.advance(60_000)
+  expect(leerLatidoDe(archivos)?.latido).toBe(AHORA + 120_000)
+})
+
+test('Sesión única: una sesión colgada caduca a los 3 minutos sin latido y la siguiente toma la SF', async (...m) => {
+  const { archivos, toasts } = await preparar(m, { extra: latido('sesion-2', 3 * 60_000) })
+  expect(leerLatidoDe(archivos)).toEqual({ carpeta: '/sf', sesion: 'sesion-1', latido: AHORA } as never)
+  expect(toasts.some(t => /SF apagada/.test(t))).toBe(false)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Text', text: /^SF apagada en esta sesión$/ })).toBe(false)
+  await ui.unmount()
+})
+
+test('Sesión única: con 2 minutos sin latido, aún no ha caducado', async (...m) => {
+  const { archivos } = await preparar(m, { extra: latido('sesion-2', 2 * 60_000) })
+  expect(leerLatidoDe(archivos)?.sesion).toBe('sesion-2')
+})
+
+test('Sesión única: sin SF en la carpeta, ni latido ni apagada', async (...m) => {
+  const { archivos } = await preparar(m, { sinMarca: true })
+  expect(archivos[LATIDO]).toBe(undefined)
+  expect((await m[0].command.run({ command: 'sf_forzar_activa', args: '' })).text).toBe('Esta carpeta no tiene la SF: no hay nada que activar.')
+})
+
+test('Sesión única: el mismo latido que deja la sesión comprueba si hay que ofrecer REFRESCAR (decisión 177)', async (...m) => {
+  const { archivos, reloj, ui } = await actualizar(m, { remoto: remotos('1.0.0'), corre: '1.0.0' })
+  expect(await hay(ui, { type: 'Text', text: / REFRESCAR / })).toBe(false)
+  // Otra sesión instala la 1.1.0: este latido lo ve, sin red, a la vez que deja el suyo.
+  archivos[INSTALADAS] = JSON.stringify({ version: 2, plugins: { 'sf@softwarefactory': [{ ...USER_100, version: '1.1.0' }, { ...LOCAL_100, version: '1.1.0' }] } })
+  await reloj!.advance(59_000)
+  expect(leerLatidoDe(archivos)?.latido).toBe(AHORA + 60_000)
+  // REFRESCAR en la cabecera o, si le toca al aviso, en el aviso.
+  expect((await hay(ui, { type: 'Text', text: / REFRESCAR / })) || /pulsa REFRESCAR/.test(await textoAvisos(ui))).toBe(true)
+  await ui.unmount()
+})
+
+// Un proyecto incorporado (no la SF), para ver también la regla del prompt de sistema.
+const PROYECTO_SESION = { '/sf/.sf/proyecto.json': JSON.stringify({ sf: '1.1.0', proyecto: 'Demo' }), '/otro/.sf/proyecto.json': '{}' }
+// Apagada, Claude Code sin más (decisiones 296 y 297): ni caja ni panel, sin control de proyecto, sin regla en el
+// prompt de sistema, sin contexto de la SF al empezar ni con los mensajes, y sin sus órdenes.
+async function claudeCodeSinMas(m: Motor, contextos: (readonly string[] | undefined)[], cierres: string[]) {
+  const caja = await m[0].ui.mount(CAJA_NORMAL)
+  expect(((await caja.findAll({ type: 'Text' })) as { props: { children?: unknown } }[]).length).toBe(1)
+  expect(await hay(caja, { type: 'Text', text: /^motor$/ })).toBe(true)
+  await caja.unmount()
+  const panel = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(cierres).toContain('sf-estado')
+  expect(await ui_sinCola(panel)).toBe(true)
+  await panel.unmount()
+  expect((await escribirEn(m, '/otro/a.ts')).deny).toBe(undefined)
+  expect((await regla(m)).map(x => x.id)).toEqual(['intro'])
+  for (const source of ['startup', 'clear', 'compact', 'resume'] as const)
+    expect((await m[0].classic.SessionStart({ source })).additionalContext ?? []).toEqual([])
+  await hola(m)
+  expect(contextos.at(-1)).toBe(undefined)
+  for (const orden of ['sf', 'sf_paso', 'sf_split', 'sf_fusionar'])
+    expect((await m[0].command.run({ command: orden, args: '1 algo' })).text).toMatch(/la SF está apagada en esta sesión.*\/sf_forzar_activa/)
+}
+// El panel que quedara abierto no pinta la cola: solo una línea mientras se cierra.
+const ui_sinCola = async (ui: Awaited<ReturnType<Motor[0]['ui']['mount']>>) =>
+  (await hay(ui, { type: 'Text', text: /^SF apagada en esta sesión\.$/ })) && !(await hay(ui, { type: 'Text', text: /Panel lateral/ }))
+
+test('Sesión única: la segunda sesión arranca con la SF apagada, lo avisa una vez y es Claude Code sin más', async (...m) => {
+  const { archivos, toasts, contextos, cierres, reloj } = await preparar(m, {
+    reloj: true,
+    sinMarca: true,
+    extra: { ...PROYECTO_SESION, ...latido('sesion-2', 30_000) },
+    paneles: () => [{ id: 'sf-estado', title: 'Software Factory', isShown: true, isFocused: false, isPlaced: true }],
+  })
+  expect(toasts.filter(t => /SF apagada/.test(t))).toEqual([
+    'SF apagada en esta sesión: otra sesión de este proyecto la tiene activa, y aquí se trabaja sin la SF. Para traerla aquí, /sf_forzar_activa.',
+  ])
+  // No toca el latido de la otra, tampoco con el suyo de cada minuto.
+  await reloj!.advance(60_000)
+  expect(leerLatidoDe(archivos)).toEqual({ carpeta: '/sf', sesion: 'sesion-2', latido: AHORA - 30_000 } as never)
+  await claudeCodeSinMas(m, contextos, cierres)
+  // Un /clear no repite el aviso.
+  await m[0].classic.SessionStart({ source: 'clear' })
+  expect(toasts.filter(t => /SF apagada/.test(t)).length).toBe(1)
+})
+
+test('Sesión única: apagada, avisa una vez cuando la que la tiene deja de dar latido; tomarla es cosa del propietario', async (...m) => {
+  const { archivos, toasts, contextos, reloj } = await preparar(m, { reloj: true, extra: latido('sesion-2', 30_000) })
+  await reloj!.advance(60_000)
+  expect(toasts.filter(t => /ya no da latido/.test(t)).length).toBe(0)
+  await reloj!.advance(2 * 60_000)
+  expect(toasts.filter(t => /ya no da latido/.test(t))).toEqual(['La sesión que tenía la SF ya no da latido: /sf_forzar_activa para tomarla en esta.'])
+  await reloj!.advance(60_000)
+  expect(toasts.filter(t => /ya no da latido/.test(t)).length).toBe(1)
+  expect(leerLatidoDe(archivos)?.sesion).toBe('sesion-2')
+  // Sin panel (decisión 296): el aviso y, con el siguiente mensaje, Claude lo propone, una vez.
+  await hola(m)
+  expect(contextos.at(-1)).toEqual([
+    'La sesión que tenía la Software Factory ha dejado de dar latido; esta sigue sin la SF (decisión 295). Di al propietario en una línea que puede traerla aquí con /sf_forzar_activa.',
+  ])
+  await hola(m)
+  expect(contextos.at(-1)).toBe(undefined)
+  const caja = await m[0].ui.mount(CAJA_NORMAL)
+  expect(await hay(caja, { type: 'Text', text: /^motor$/ })).toBe(true)
+  await caja.unmount()
+})
+
+test('Sesión única (295): si la que la tiene vuelve a latir y luego deja de hacerlo, se vuelve a avisar', async (...m) => {
+  const { archivos, toasts, reloj } = await preparar(m, { reloj: true, extra: latido('sesion-2', 30_000) })
+  await reloj!.advance(3 * 60_000)
+  expect(toasts.filter(t => /ya no da latido/.test(t)).length).toBe(1)
+  // Solo estaba colgada: vuelve a latir; sigue apagada aquí.
+  Object.assign(archivos, latido('sesion-2', -3 * 60_000))
+  await reloj!.advance(60_000)
+  expect(leerLatidoDe(archivos)?.sesion).toBe('sesion-2')
+  // Y vuelve a dejar de latir.
+  await reloj!.advance(4 * 60_000)
+  expect(toasts.filter(t => /ya no da latido/.test(t)).length).toBe(2)
+})
+
+test('Sesión única (295): apagada, un /clear no la toma sola aunque la otra haya dejado de latir', async (...m) => {
+  const { archivos, toasts, reloj } = await preparar(m, { reloj: true, extra: latido('sesion-2', 30_000) })
+  // La otra se cierra sin soltar el latido (o se cuelga): tras 3 minutos ha caducado.
+  await reloj!.advance(4 * 60_000)
+  toasts.length = 0
+  expect((await m[0].classic.SessionStart({ source: 'clear' })).additionalContext ?? []).toEqual([])
+  expect(leerLatidoDe(archivos)?.sesion).toBe('sesion-2')
+  expect((await m[0].command.run({ command: 'sf_paso', args: '1 algo' })).text).toMatch(/la SF está apagada/)
+  // La otra suelta el latido al cerrar: tampoco la toma sola.
+  Object.assign(archivos, { [LATIDO]: JSON.stringify({ carpeta: '/sf', sesion: 'sesion-2', latido: 0 }) })
+  await m[0].classic.SessionStart({ source: 'clear' })
+  await reloj!.advance(60_000)
+  expect(leerLatidoDe(archivos)?.sesion).toBe('sesion-2')
+  // Tomarla, con /sf_forzar_activa.
+  expect((await m[0].command.run({ command: 'sf_forzar_activa', args: '' })).text).toMatch(/^SF activa en esta sesión/)
+  expect(leerLatidoDe(archivos)?.sesion).toBe('sesion-1')
+})
+
+test('Sesión única: /sf_forzar_activa la trae a esta sesión, con su latido y su panel, y lo dice a Claude con el siguiente mensaje', async (...m) => {
+  const { archivos, contextos, reloj } = await preparar(m, { reloj: true, sinMarca: true, extra: { ...PROYECTO_SESION, ...latido('sesion-2', 30_000) } })
+  expect((await escribirEn(m, '/otro/a.ts')).deny).toBe(undefined)
+  const r = await m[0].command.run({ command: 'sf_forzar_activa', args: '' })
+  expect(r.text).toBe('SF activa en esta sesión: la otra sesión del proyecto se apaga en su siguiente latido (un minuto como mucho).')
+  expect(leerLatidoDe(archivos)).toEqual({ carpeta: '/sf', sesion: 'sesion-1', latido: AHORA } as never)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await ui_sinCola(ui)).toBe(false)
+  expect((await ui.findAll({ type: 'Text', text: /Panel lateral/ })).length > 0).toBe(true)
+  await ui.unmount()
+  // Vuelven el control y la regla.
+  expect((await escribirEn(m, '/otro/a.ts')).deny ?? '').toMatch(/^Un proyecto por sesión/)
+  expect((await regla(m)).map(x => x.id)).toEqual(['intro', 'sf:lo-que-es-de-la-sf'])
+  await hola(m)
+  expect(contextos.at(-1)?.[0]).toMatch(/^Software Factory activa en esta sesión con \/sf_forzar_activa/)
+  // Una vez.
+  await hola(m)
+  expect((contextos.at(-1) ?? []).some(x => /activa en esta sesión/.test(x))).toBe(false)
+  await reloj!.advance(60_000)
+  expect(leerLatidoDe(archivos)).toEqual({ carpeta: '/sf', sesion: 'sesion-1', latido: AHORA + 60_000 } as never)
+  // Ya activa, lo dice.
+  expect((await m[0].command.run({ command: 'sf_forzar_activa', args: '' })).text).toBe('La SF ya estaba activa en esta sesión.')
+})
+
+test('Sesión única: la que la tenía se apaga en su siguiente latido cuando otra la toma: cierra el panel y deja la SF', async (...m) => {
+  const { archivos, toasts, contextos, cierres, reloj } = await preparar(m, {
+    reloj: true,
+    sinMarca: true,
+    extra: PROYECTO_SESION,
+    paneles: () => [{ id: 'sf-estado', title: 'Software Factory', isShown: true, isFocused: false, isPlaced: true }],
+  })
+  expect((await escribirEn(m, '/otro/a.ts')).deny ?? '').toMatch(/^Un proyecto por sesión/)
+  // Otra sesión escribe /sf_forzar_activa: su latido, fresco.
+  Object.assign(archivos, latido('sesion-2', -30_000))
+  await reloj!.advance(60_000)
+  expect(toasts).toContain('SF apagada en esta sesión: otra sesión de este proyecto la ha tomado con /sf_forzar_activa, y aquí se trabaja sin la SF.')
+  expect(cierres).toContain('sf-estado')
+  // No le pisa el latido.
+  expect(leerLatidoDe(archivos)?.sesion).toBe('sesion-2')
+  // Claude aún tiene las reglas: que las deje, una vez.
+  await hola(m)
+  expect(contextos.at(-1)?.[0]).toMatch(/^Software Factory apagada en esta sesión: otra sesión de este proyecto la ha tomado.*Desde ahora deja las reglas y la orquestación de la SF/)
+  await claudeCodeSinMas(m, contextos, cierres)
+})
+
+test('Sesión única (297): /sf_forzar_inactiva deja la sesión igual que apagada por otra; /sf_forzar_activa la vuelve a traer', async (...m) => {
+  const { archivos, contextos, cierres, reloj } = await preparar(m, {
+    reloj: true,
+    sinMarca: true,
+    extra: PROYECTO_SESION,
+    paneles: () => [{ id: 'sf-estado', title: 'Software Factory', isShown: true, isFocused: false, isPlaced: true }],
+  })
+  const r = await m[0].command.run({ command: 'sf_forzar_inactiva', args: '' })
+  expect(r.text).toMatch(/^SF apagada en esta sesión, que sigue como Claude Code sin más: deja de dar latido/)
+  // Suelto: la siguiente que arranque lo toma sin esperar.
+  expect(leerLatidoDe(archivos)).toEqual({ carpeta: '/sf', sesion: 'sesion-1', latido: 0 } as never)
+  await reloj!.advance(2 * 60_000)
+  expect(leerLatidoDe(archivos)?.latido).toBe(0)
+  await hola(m)
+  expect(contextos.at(-1)?.[0]).toMatch(/^Software Factory apagada en esta sesión con \/sf_forzar_inactiva\. Desde ahora deja las reglas/)
+  await claudeCodeSinMas(m, contextos, cierres)
+  expect((await m[0].command.run({ command: 'sf_forzar_activa', args: '' })).text).toMatch(/^SF activa en esta sesión/)
+  expect(leerLatidoDe(archivos)?.sesion).toBe('sesion-1')
+  expect(leerLatidoDe(archivos)?.latido).toBe(AHORA + 2 * 60_000)
+  expect((await escribirEn(m, '/otro/a.ts')).deny ?? '').toMatch(/^Un proyecto por sesión/)
 })
