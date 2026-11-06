@@ -23,14 +23,14 @@ flechas:
   gen > docs: GENERA | verde
   estilo > aparte
 notas:
-  SIN ESTILO.JSON: el generador compone uno implícito con identidad.json y su tema, como hoy, y avisa una vez
+  SIN ESTILO.JSON: el generador sale del paso con los valores por defecto de un tema, elegido por el color del proyecto, y avisa una vez
 fichas:
   skill: La única que escribe estilo.json (305).
     - muestras: el generador con parámetros distintos sobre el mismo contenido
     - cada vuelta: respalda, sube la versión y anota el historial
     - no maqueta ni escribe CSS
   estilo: JSON, con todos los valores resueltos.
-    - claves: version, origen, historial y los nueve grupos
+    - claves: version, origen, historial y los nueve grupos, con los archivos del logo (316)
     - origen: la muestra de partida (pool, tinta…), solo informativo
     - una actualización del plugin no lo cambia
   resp: La versión que se sustituye, como en los documentos (217).

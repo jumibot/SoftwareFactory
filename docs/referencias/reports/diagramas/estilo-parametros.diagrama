@@ -20,9 +20,9 @@ notas:
   POR DEFECTO, LO DE HOY: un parámetro que falta deja la salida como hoy; uno desconocido detiene el generador y enseña los posibles
   DERIVADO, NO SE GUARDA: el color de sesión (310), los tonos que faltan y el informe de contraste
 fichas:
-  ident: Forma parte del estilo (313); sale en portada, pie y título de la pestaña.
+  ident: Forma parte del estilo (313), con la referencia a los archivos del logo (316); sale en portada, pie y título de la pestaña.
     - producto: texto · por defecto, el nombre de .sf/proyecto.json → marca de portada, pie y <title>
-    - logo: ruta | ninguno · por defecto ninguno → 40 px de alto en la portada
+    - logo: ruta o lista de rutas a los archivos del logo | ninguno · por defecto ninguno → 40 px de alto en la portada
     - logo-oscuro: ruta | igual · por defecto igual, sobre placa blanca → portada oscura o de color
     - enlace: url | ninguno · por defecto ninguno → enlace al repositorio en la portada (hoy cabecera.css de SpriteAnimation)
   color: Roles con contraste comprobado; se guardan en hex, resueltos.

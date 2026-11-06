@@ -32,7 +32,7 @@ fichas:
     - documentos: cambian al regenerarlos (309)
   nuevo: Tarea de implementar «Añadir al generador el parámetro …».
     - en la SF: va a su cola, bajo Mejorar la Software Factory
-    - en otro proyecto: es de la SF; Claude lo dice en una línea y el historial lo anota como pedido
+    - en otro proyecto: es de la SF; Claude lo dice en una línea y ofrece abrir una issue en GitHub de la SF; no se anota en el estilo
     - pruebas, en plugins/sf/tests/: con cada valor genera la muestra y comprueba lo que cambia
     - pruebas, por defecto: la muestra sale idéntica a la copia de referencia
     - catálogo: su línea en la referencia y en las notas de la versión
