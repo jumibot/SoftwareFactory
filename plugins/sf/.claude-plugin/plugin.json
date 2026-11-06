@@ -1,6 +1,6 @@
 {
   "name": "sf",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "description": "Software Factory para Claude Code: metodología, skills del método y de documentos, kit de documentos HTML, plantillas y mod de estado (panel lateral /sf)",
   "license": "MIT",
   "author": {
