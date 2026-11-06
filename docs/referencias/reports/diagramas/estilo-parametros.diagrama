@@ -1,0 +1,69 @@
+tipo: piezas
+titulo: Los parámetros del estilo de un proyecto
+descripcion: Nueve grupos en docs/identidad/estilo.json. Cada parámetro tiene nombre, valores, un valor por defecto que es lo que el generador hace hoy, y un efecto en la salida. Pulsa cada grupo para ver sus parámetros.
+pie: SF · ESTILO | TAREA 387
+foco: color
+nodos:
+  ident: Identidad | producto · logo · enlace
+  color: Colores | roles · oscuro · serie
+  letra: Letra y escala | familias · tamaño
+  portada: Portada | clara, oscura o compacta
+  secc: Secciones | cabecera · etiqueta
+  pagina: Página y pie | ancho · esquinas · código
+  lectura: Lectura | destino · herramientas
+  diag: Diagramas | ajustes por defecto
+  aparte: Infografía y web | escenario · HUD | externo
+zonas:
+  estilo: ESTILO.JSON · DOCS/IDENTIDAD/ | ident, color, letra, portada, secc, pagina, lectura, diag, aparte
+flechas:
+notas:
+  POR DEFECTO, LO DE HOY: un parámetro que falta deja la salida como hoy; uno desconocido detiene el generador y enseña los posibles
+  DERIVADO, NO SE GUARDA: el color de sesión (310), los tonos que faltan y el informe de contraste
+fichas:
+  ident: Forma parte del estilo (313); sale en portada, pie y título de la pestaña.
+    - producto: texto · por defecto, el nombre de .sf/proyecto.json → marca de portada, pie y <title>
+    - logo: ruta | ninguno · por defecto ninguno → 40 px de alto en la portada
+    - logo-oscuro: ruta | igual · por defecto igual, sobre placa blanca → portada oscura o de color
+    - enlace: url | ninguno · por defecto ninguno → enlace al repositorio en la portada (hoy cabecera.css de SpriteAnimation)
+  color: Roles con contraste comprobado; se guardan en hex, resueltos.
+    - primario: hex, el único obligatorio → marca, etiquetas, botones; de él sale el color de sesión (310)
+    - sobre-primario: hex · por defecto blanco o tinta, el de más contraste → texto sobre el primario (≥ 4,5:1)
+    - primario-texto: hex · por defecto el primario → enlaces y rótulos sobre la página (≥ 4,5:1); nuevo, para primarios claros como el amarillo
+    - oscuro · acento · segundo: hex · derivados o los mínimos de hoy → portada oscura, avisos, recorrido de los diagramas
+    - texto · texto-suave · texto-tenue: hex → ≥ 4,5:1 sobre página y fondo
+    - página · fondo · fondo-medio · fondo-suave · borde · línea · tenue: hex · derivados del primario → superficies; borde ≥ 3:1 si marca una caja
+    - colores-oscuro: rol → hex | ninguno · por defecto ninguno (Lectura invierte) → páginas con data-theme dark
+    - serie: lista | ninguna · por defecto ninguna (todos los bloques en primario) → un color por sección, en ciclo
+    - significado: correcto, aviso, error, info · por defecto los de las tarjetas (verde, naranja, frambuesa, turquesa) → tarjetas y estados
+  letra: Familias y tamaños; las fuentes, solo de Google Fonts o del sistema.
+    - texto · títulos · escena · código: familia CSS · por defecto DM Sans, Space Grotesk, Source Serif 4, ui-monospace → cuerpo, h1–h3, citas, código
+    - url: Google Fonts | vacío (sistema) · por defecto la de las tres de hoy → la hoja que se carga
+    - tamaño: 16 | 17 | 18 px · por defecto 17 → letra del cuerpo en pantalla
+    - escala: editorial | compacta · por defecto editorial (h2 hasta 2,2 rem) → compacta, la de la visión (h2 1,05 rem)
+  portada: La cabecera de todos los documentos del proyecto.
+    - forma: clara | oscura | compacta · por defecto clara → hoy «portada:» en cada .md; pasa al estilo
+    - fondo: oscuro | primario · por defecto oscuro → color de la portada oscura (hoy «cabecera» del tema)
+    - línea: sí | no · por defecto sí → filete de color bajo el titular en la clara
+  secc: Sustituye a la 306 cuando el proyecto lo fija.
+    - cabecera: numero-etiqueta | numero-titulo | titulo · por defecto numero-etiqueta → «01 / ETIQUETA» sobre el h2; sin etiqueta, número y título (306)
+    - etiqueta: tinte | sólida | línea | ninguna · por defecto tinte → fondo de la cabecera de sección (hoy «etiqueta» del tema)
+    - opacidad: 0,2–0,5 o 0,75–1 · por defecto 1 → con sólida; el texto cambia de color para seguir legible
+    - marcador: círculo | cuadrado | ninguno · por defecto círculo → la marca de plegado
+    - plegado: primera | todas | ninguna · por defecto primera → qué secciones abren al cargar
+  pagina: Forma de la hoja y del pie.
+    - ancho: 980–1400 px · por defecto 1240 → ancho máximo de la hoja; en móvil, siempre 16 px de margen
+    - esquinas: 0–16 px · por defecto 6 → tarjetas, botones, fichas, código y diagramas
+    - código: bloque | línea · por defecto bloque con fondo suave y filete → bloques de código (hoy codigo.css de SpriteAnimation)
+    - pie: claro | oscuro · por defecto claro → oscuro, el de la visión, con producto y tipo
+  lectura: Función de lectura; el documento puede cambiarla.
+    - destino: proyecto | usuario · sin valor, el generador se detiene (183) → herramientas recomendadas
+    - herramientas: recomendadas | lista | cambios · sin valor, se detiene (183) → data-herramientas
+    - menú: botones | secciones | no · por defecto botones → enlaces de sección en la barra
+  diag: Los valores de partida de la herramienta «Diagramas» (302) en los documentos del proyecto.
+    - forma · borde · fondo · grosor · punta · esquinas: los del selector · por defecto los de la 302 → cada figura nueva
+    - recorrido: segundo | acento | grueso · por defecto segundo → resaltado del recorrido
+    - tema: el del documento (307); tinta queda en el selector
+  aparte: No pasan por el generador, pero leen los mismos parámetros.
+    - infografía · escenario: derivado | claro · por defecto derivado del oscuro → fondo del 3D (tarea 8)
+    - infografía · hud: primario | acento | hex · por defecto primario-vivo, ≥ 3:1 sobre el escenario → etiquetas HUD
+    - web: solo colores y letra (312); su forma de página es propia

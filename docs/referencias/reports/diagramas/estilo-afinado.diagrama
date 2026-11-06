@@ -1,0 +1,38 @@
+tipo: proceso
+titulo: Una vuelta de afinado y un parámetro nuevo
+descripcion: Lo que el generador sabe hacer se prueba con muestras y se acepta subiendo la versión del estilo; lo que no sabe, sale como parámetro nuevo, con sus pruebas, y nunca como excepción.
+pie: SF · ESTILO | TAREA 387
+foco: acepta
+nodos:
+  pide: Petición | el desarrollador
+  dec: ¿Lo sabe hacer? | dec
+  prueba: Valores en prueba | sin tocar estilo.json
+  muestras: Muestras | mismo contenido
+  acepta: Aceptar | versión +1 · historial
+  nuevo: Parámetro | nuevo, con pruebas | salida
+flechas:
+  inicio > pide
+  pide > dec
+  dec > prueba: SÍ
+  dec > nuevo: NO | acento
+  prueba > muestras
+  muestras > acepta: ELIGE
+  muestras > prueba: OTRA VUELTA | vuelta
+fichas:
+  pide: Al fijar el estilo por primera vez o al usarlo después.
+    - ejemplo: «los bloques de código, con filete», «el enlace del repo, legible»
+  dec: La skill mira el catálogo de parámetros del generador.
+    - arreglo: si es un fallo del generador (un contraste), se arregla, sin parámetro
+    - parámetro: si es una preferencia de aspecto
+  prueba: Un estilo.json provisional en la carpeta de muestras; el del proyecto no cambia hasta aceptar.
+  muestras: El generador con los valores en prueba sobre un documento de muestra fijo.
+    - comprobación: escritorio, móvil, A4 y contraste, como cualquier documento
+  acepta: El desarrollador elige; la skill respalda estilo.json, sube su versión y anota el historial.
+    - historial: versión, fecha, qué cambia y por qué, en una línea
+    - documentos: cambian al regenerarlos (309)
+  nuevo: Tarea de implementar «Añadir al generador el parámetro …».
+    - en la SF: va a su cola, bajo Mejorar la Software Factory
+    - en otro proyecto: es de la SF; Claude lo dice en una línea y el historial lo anota como pedido
+    - pruebas, en plugins/sf/tests/: con cada valor genera la muestra y comprueba lo que cambia
+    - pruebas, por defecto: la muestra sale idéntica a la copia de referencia
+    - catálogo: su línea en la referencia y en las notas de la versión

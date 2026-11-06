@@ -1,0 +1,53 @@
+tipo: arquitectura
+titulo: Dónde vive el estilo y quién lo lee
+descripcion: El estilo es un archivo del proyecto que escribe solo la skill de estilo y leen el generador, la infografía, la web y la sesión. Los componentes propios quedan al lado, en identidad.json.
+pie: SF · ESTILO | TAREA 387
+foco: estilo
+nodos:
+  skill: Skill de estilo | escribe y afina
+  estilo: estilo.json | parámetros · versión
+  resp: _respaldo/ | versión anterior
+  ident: identidad.json | css · js · reglas
+  gen: Generador único | lee y valida
+  docs: Documentos | un solo estilo
+  aparte: Fuera del documento | infografía · web · sesión
+zonas:
+  proyecto: PROYECTO · DOCS/IDENTIDAD/ | skill, estilo, resp, ident
+  plugin: GENERADOR | gen
+  salida: LO QUE SALE | docs, aparte
+flechas:
+  skill > estilo: ESCRIBE
+  estilo > resp: | discontinua
+  estilo > gen: LEE | linea=acento
+  ident > gen
+  gen > docs: GENERA | verde
+  estilo > aparte
+notas:
+  SIN ESTILO.JSON: el generador compone uno implícito con identidad.json y su tema, como hoy, y avisa una vez
+fichas:
+  skill: La única que escribe estilo.json (305).
+    - muestras: el generador con parámetros distintos sobre el mismo contenido
+    - cada vuelta: respalda, sube la versión y anota el historial
+    - no maqueta ni escribe CSS
+  estilo: JSON, con todos los valores resueltos.
+    - claves: version, origen, historial y los nueve grupos
+    - origen: la muestra de partida (pool, tinta…), solo informativo
+    - una actualización del plugin no lo cambia
+  resp: La versión que se sustituye, como en los documentos (217).
+    - nombre: estilo.vN.json
+  ident: Lo que no es estilo (313).
+    - css, js, iconos: componentes propios, con las variables del estilo
+    - reglas: reglas de redacción del dominio
+    - tipo: se retira; lo da el perfil del tipo
+    - tema, logo, producto, destino, herramientas: pasan a estilo.json
+  gen: documento_a_html.py, con su catálogo de parámetros.
+    - valida: claves, valores y contraste antes de generar
+    - desconocido: se detiene y enseña los posibles
+    - diagramas: llama a generar_diagrama.py (314) con el estilo del documento (307)
+    - escribe: las variables CSS del estilo para el documento y los componentes
+  docs: Cada uno pasa al estilo cuando se vuelve a tocar (309).
+    - pie: anota la versión del estilo con la procedencia
+  aparte: Lo que no pasa por el generador y lee el estilo.
+    - infografía técnica (315): colores, letra, escenario y HUD, con un script determinista
+    - web comercial (312): solo colores y letra
+    - color de sesión: el de /color más cercano al primario, en OKLCH (310), sin reservar el de la SF (311); no se guarda
