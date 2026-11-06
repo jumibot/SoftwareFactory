@@ -29,7 +29,6 @@ DOCUMENTOS = [
 # viejo, no hacen fallar la prueba; cuando ya no lo tengan, la prueba pide sacarlos de aquí.
 EN_SU_TAREA = {
     'docs/como-funciona-el-panel.md',
-    'docs/como-funcionan-los-estados.md',
     'docs/uso-del-panel.md',
 }
 # Lo que Claude Code genera en el plugin (claude plugin test): rutas relativas a plugins/sf, archivo o carpeta.

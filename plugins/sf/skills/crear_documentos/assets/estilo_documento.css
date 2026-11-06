@@ -46,6 +46,12 @@ strong { font-weight: 650; }
 .idea h3 { font-family: var(--fuente-titulos); font-size: 1.15rem; margin: 0 0 .5rem; }
 .idea p { margin: 0 0 .5rem; font-size: 1.05rem; max-width: 80ch; }
 .oscura .idea p { color: rgba(255,255,255,.86); }
+/* «portada: compacta»: título, raya pegada, versión en gris y la entrada con menos aire */
+.portada.compacta { padding: clamp(1rem, 2.4vw, 1.5rem) 0 1rem; }
+.compacta .titular { margin: 0 0 .45rem; }
+.compacta .portada-linea { margin: 0 0 .4rem; }
+.portada-datos { font-size: .8125rem; color: var(--texto-suave); margin: 0 0 .55rem; }
+.compacta .idea p { margin: 0 0 .3rem; }
 .datos-version { margin: 1.4rem 0 0; font-size: .875rem; color: var(--texto-suave); }
 .datos-version span { display: block; color: var(--texto-tenue); font-size: .8125rem; margin-top: .15rem; }
 .oscura .datos-version, .oscura .datos-version span { color: rgba(255,255,255,.72); }

@@ -501,6 +501,8 @@ def main():
 
     # Portada. Con «antetitulo», el nombre es el titular y el lema va debajo; sin él, el lema es el titular.
     oscura = datos.get("portada", "").lower() == "oscura"
+    # «portada: compacta»: sin antetítulo ni tipo, la raya pegada al título y la versión en una línea gris debajo.
+    compacta = datos.get("portada", "").lower() == "compacta"
     marca = esc(datos.get("antetitulo") or nombre)
     if logo:  # alto de 40 px, como en el CSS; ancho y alto explícitos para que la portada no salte al cargar
         from PIL import Image
@@ -508,17 +510,21 @@ def main():
             ancho = round(im.width * 40 / im.height)
         marca = f'<img src="{logo_data_uri(logo)}" alt="" width="{ancho}" height="40">' + marca
     lema = "<br>".join(esc(x) for x in lineas_lema(datos["lema"])) if datos.get("lema") else ""
-    p = [f'<header class="portada{" oscura" if oscura else ""}"><div class="portada-dentro">', f'<p class="marca">{marca}</p>']
+    p = [f'<header class="portada{" oscura" if oscura else ""}{" compacta" if compacta else ""}"><div class="portada-dentro">']
+    if not compacta:
+        p.append(f'<p class="marca">{marca}</p>')
     if datos.get("antetitulo"):
         p.append(f'<h1 class="titular">{esc(nombre)}' + (f'<span class="lema">{lema}</span>' if lema else "") + "</h1>")
     else:
         p.append(f'<h1 class="titular">{lema or esc(nombre)}</h1>')
-    if not datos.get("antetitulo"):
+    if not datos.get("antetitulo") and not compacta:
         p.append(f'<p class="tipo-doc">{esc(tipo)}</p>')
     if datos.get("subtitulo"):
         p.append(f'<p class="subtitulo">{esc(datos["subtitulo"])}</p>')
     if not oscura:
         p.append('<hr class="portada-linea">')
+    if compacta and datos.get("version"):
+        p.append(f'<p class="portada-datos">{esc(datos["version"])}</p>')
     if portada_md.strip():
         p.append(f'<div class="idea">{a_html(portada_md)}</div>')
     # Portada sobria: la versión y el estado van al pie; las cifras ya no se muestran.

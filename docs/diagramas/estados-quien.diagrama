@@ -1,0 +1,36 @@
+tipo: secuencia
+titulo: Quién mueve una tarea
+descripcion: Tú, con un botón; Claude, el principal; y cola.py, el CLI que ejecutan los dos.
+pie: SF · LA COLA | COLA.PY
+foco: cola
+actores:
+  prop: Tú
+  prin: Principal
+  sub: Subagente
+  cola: cola.py
+mensajes:
+  prop > prin: PIDE
+  prin > cola: CREAR | estado=Pendientes
+  prin > cola: EN-CURSO · RAMA | estado=En curso
+  prin > sub: ENCARGA
+  sub > prin: INFORME | discontinua
+  prop > cola: ACTIVAR RAMA | verde
+  prop > cola: CERRAR | verde | estado=Cerradas
+fichas:
+  prop: Pides, pruebas y das el OK con los botones.
+    - Los que cierran o deshacen piden un segundo clic, como «¿Cerrar? sí»: es tu OK
+    - Sin tu OK: crear la tarea, su rama o marcar un paso
+    - Con tu OK: cerrar, pasar o volver a observación, devolver a Pendientes y descartar
+  prin: Habla contigo y lleva la cola; cada tarea en curso tiene su subagente.
+    - Antes de empezar, cola.py choques: si comparte archivos con otra, te lo dice
+    - Antes del primer archivo crea feature/NN-nombre desde develop: desde entonces no se elimina, se descarta
+    - Fusionar y separar (/sf_fusionar, /sf_split) no cambian el estado
+  sub: Hace todo el trabajo de su tarea, en su worktree y en su rama sub-NN.
+    - No escribe la cola: lo dice en su informe y el principal lo anota
+    - Al quedarse la tarea sin subagente, se quitan su worktree y sub-NN, sin forzar
+  cola: Toda escritura de la cola pasa por aquí; nunca se edita a mano.
+    - ACTIVAR RAMA (verde): cola.py probar; integra develop y activa la rama; si choca, se lo pasa a Claude
+    - CERRAR (verde): cola.py cerrar; squash «tarea (N)» en develop, push y borra la rama; si el squash choca, lo deshace
+    - A OBSERVACIÓN (verde): cola.py a-observacion; el mismo squash, y queda en observación
+    - REVERTIR (rojo): cola.py revertir; git revert en develop, del más reciente al más antiguo, sin push
+    - ELIMINAR (rojo): cola.py eliminar; cola.py restaurar la devuelve

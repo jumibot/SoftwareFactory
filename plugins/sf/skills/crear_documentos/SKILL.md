@@ -54,7 +54,7 @@ Entre dos líneas `---`, al principio; todo es opcional:
 - `subtitulo`, `pie`.
 - `version`, `estado`: van al pie, no a la portada.
 - `tipo`: el tipo de documento; por defecto, el del perfil.
-- `portada`: `oscura` para la portada sobre el color oscuro del tema.
+- `portada`: `oscura` para la portada sobre el color oscuro del tema; `compacta` para una cabecera breve, sin antetítulo ni tipo, con la raya pegada al título y la `version` en una línea gris debajo (también sigue en el pie).
 - `destino` y `herramientas`: ver «Herramientas y opciones de lectura». Sin ellos, el generador se detiene con las opciones.
 - `menu`: por defecto, el menú fijo lleva solo los botones («Buscar» en pantallas estrechas, «Plegar todo» e «Imprimir / PDF»). Con la columna de herramientas, «Plegar todo» e «Imprimir» pasan a la barra de «Guardar» como iconos y el menú vacío se oculta. `secciones` añade los enlaces a las secciones; `no` quita el menú.
 

@@ -1,0 +1,29 @@
+tipo: arquitectura
+titulo: Qué queda de cada cambio
+descripcion: Cada cambio de estado deja rastro en git y en .sf/. Solo el CLI escribe la cola.
+pie: SF · .SF/ | COLA.PY
+foco: pet
+nodos:
+  rama: Rama | feature/NN-nombre
+  dev: develop | squash y revert
+  pet: peticiones.json | las tareas vivas
+  hist: historial.jsonl | las que salen
+  cop: copias/ | las 50 últimas
+zonas:
+  git: GIT | rama, dev
+  sf: PROYECTO · .SF/ | hist, pet, cop
+flechas:
+  rama > dev: SQUASH
+  pet > hist: SALE
+  pet > cop: COPIA | discontinua
+fichas:
+  rama: La rama de la tarea; la escriben el panel o Claude.
+    - Al cerrar o descartar, se borra
+  dev: El squash «tarea (N)» de cada cierre y los revert.
+    - Si ya estaba en main, queda revertida en la versión siguiente
+  pet: La cola: en-cola (Pendientes), en-curso, en-observacion o descartada.
+    - Cada tarea lleva su historial: cada cambio con fecha, quién y por dónde, el hash del squash y los fallos
+    - De ahí lee el panel las letras y las Cerradas
+  hist: Una línea por tarea cerrada, eliminada o absorbida.
+  cop: Antes de cada escritura, el CLI guarda la cola.
+    - cola.py copias las lista y cola.py recuperar pone una

@@ -1,0 +1,53 @@
+tipo: estados
+titulo: Ciclo de vida de una tarea
+descripcion: Cada flecha es un botón del panel, en su color, o lo que hace Claude, en cursiva; la ficha de cada estado dice cuándo usar cada botón.
+pie: SF · PANEL | LA COLA, CON COLA.PY
+foco: curso
+nodos:
+  pend: Pendientes | sin rama
+  curso: En curso | rama · subagente
+  obs: En observación | en develop
+  cerr: Cerradas | en develop | fin
+  desc: Descartada | sin botones | salida
+  fuera: fuera de la cola | final
+flechas:
+  inicio > pend
+  pend > curso: ACTIVAR RAMA | verde
+  curso > pend: sin trabajo | claude
+  curso > obs: A OBSERVACIÓN | verde
+  curso > cerr: CERRAR | verde
+  obs > cerr: CERRAR | verde
+  cerr > obs: A OBSERVACIÓN | verde
+  curso > desc: DESCARTAR | rojo
+  pend > fuera: ELIMINAR | rojo
+notas:
+  REVERTIR, DESDE EN OBSERVACIÓN O CERRADAS: el segundo clic dice adónde: eliminar (fuera de la cola) o a Pendientes
+  REABRIR, DESDE OBSERVACIÓN, CERRADAS O DESCARTADA: díselo a Claude; vuelve con su número y una H
+fichas:
+  pend: En la sección Pendientes del panel. Sin rama ni subagente, fuera de develop.
+    - Para empezar: pídesela a Claude o elígela; pasa a En curso con su rama y su subagente
+    - ACTIVAR RAMA (verde): si ya tiene rama → En curso
+    - A PROPUESTA (verde): si aún no está decidida → sf/propuestas.md
+    - ELIMINAR (rojo): sin rama → fuera de la cola
+  curso: Arriba en el panel, en amarillo. Con rama y subagente; aún fuera de develop.
+    - ACTIVAR RAMA (verde): pone su rama, con develop integrado, para probarla; probarla no la cierra
+    - CERRAR (verde): ya probada, o nada que probar (deliberar, investigar, documentar); entra en develop y sale de la cola
+    - A OBSERVACIÓN (verde): si solo se ve funcionando después, como un commit o una publicación; entra en develop y se vigila
+    - DESCARTAR (rojo): con rama, fuera de develop; borra la rama → Descartada
+    - claude: sin trabajo en su rama, la devuelve a Pendientes con su número; con commits, no
+    - Si solo espera a otra: un paso «Esperar a …»
+  obs: En la sección En observación. El squash ya está en develop.
+    - Claude pregunta «¿Cómo va la N?»
+    - CERRAR (verde): va bien → Cerradas
+    - REVERTIR (rojo): va mal → fuera de la cola o a Pendientes
+    - Aún no se sabe: «Sigue en observación»
+    - «La miro ahora»: la marca observando, arriba y en amarillo
+    - claude: la reabre si falla o aparece un bug suyo → En curso
+  cerr: En Cerradas, en verde. El trabajo sigue en develop.
+    - A OBSERVACIÓN (verde): ¿la cerraste por error? vuelve con su commit, para poder revertirla
+    - REVERTIR (rojo): → fuera de la cola o a Pendientes
+    - claude: la reabre si aparece un bug suyo → En curso
+  desc: Entre las Cerradas, con una D, hasta limpiar o la sesión siguiente. Sin rama ni trabajo.
+    - claude: la reabre → En curso
+  fuera: Fuera del panel. Su número no se reutiliza.
+    - Pídele a Claude que la restaure si la eliminaste por error
