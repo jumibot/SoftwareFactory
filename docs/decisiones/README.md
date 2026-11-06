@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 317 | 2026-11-06 | [estilo.json guarda los valores resueltos; el tema del catálogo es solo la muestra de partida](317-2026-11-06-estilo-json-guarda-los-valores-resueltos-el-tema-del-catalogo-es-solo-la-muestra-de-partida.md) |
 | 316 | 2026-11-06 | [El estilo del proyecto se guarda en docs/identidad/estilo.json, con la referencia a los archivos de su logo](316-2026-11-06-el-estilo-del-proyecto-se-guarda-en-docs-identidad-estilo-json-con-la-referencia-a-los-archivos-de-su-logo.md) |
 | 315 | 2026-11-06 | [La infografía técnica se puede incrustar como cualquier recurso o ir como pieza aparte](315-2026-11-06-la-infografia-tecnica-se-puede-incrustar-como-cualquier-recurso-o-ir-como-pieza-aparte.md) |
 | 314 | 2026-11-06 | [El diagrama es un recurso del catálogo y el generador único llama al motor de la skill de diagramas](314-2026-11-06-el-diagrama-es-un-recurso-del-catalogo-y-el-generador-unico-llama-al-motor-de-la-skill-de-diagramas.md) |
