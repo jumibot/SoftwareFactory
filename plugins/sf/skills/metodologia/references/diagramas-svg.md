@@ -2,6 +2,8 @@
 
 Guía común de la SF para cualquier diagrama de un documento, de la SF o de un proyecto: visiones, fundacionales, especificaciones, interfaz, definición técnica, guías e informes. Reúne las recomendaciones de los gráficos de `documento_vision` y de los esquemas del generador común de `crear_documentos` (fundacional, informes…). Esas skills añaden lo propio: escenas y caso conductor en la visión; tipografías mínimas y el catálogo de recursos, con las tarjetas de color, en `crear_documentos`.
 
+**Cada diagrama se dibuja con la skill `sf:diagramas`**, en cualquier documento: los datos van en un archivo `.diagrama` y su generador dibuja la figura, vertical y, si es ancha, también horizontal, con la ficha de cada nodo, y la comprueba con su script. La forma, la estética y la interacción son de esa skill; si algo de esta guía choca con ella, manda la skill.
+
 ## Norma
 
 **Todo diagrama es un SVG inline en el propio `.md`. Nunca en ASCII ni en mermaid** (metodología, 6; norma del propietario, 2026-10-27). El HTML de la SF no dibuja ni los esquemas de caracteres ni mermaid, y se leen peor. Si un borrador o un material de partida trae uno, se redibuja en SVG.
@@ -18,7 +20,7 @@ Excepción: los árboles de carpetas no son diagramas y siguen en un bloque de t
 
 ## Forma
 
-- **Vertical, preferentemente siempre:** `<figure class="vertical">` y `viewBox` de **560 de ancho**, para que se lea en el móvil sin desplazarse. No solo los flujos: las tarjetas que se comparan se apilan, los mapas por columnas se apilan por grupos, las líneas de tiempo van una opción por fila y los ciclos, un paso por fila. Antes de entregar, comprobar que ningún diagrama pasa de 560 de ancho.
+- **Vertical, preferentemente siempre:** `<figure class="vertical">`, con el ancho de `viewBox` que fija `sf:diagramas`, para que se lea en el móvil sin desplazarse. No solo los flujos: las tarjetas que se comparan se apilan, los mapas por columnas se apilan por grupos, las líneas de tiempo van una opción por fila y los ciclos, un paso por fila. Antes de entregar, comprobar que ningún diagrama vertical pasa de ese ancho.
 - **Con datos reales del caso o del proyecto**: nombres, rutas, cifras. Nada de «opción X / Y» ni de etiquetas genéricas.
 - **Estilo ligero.** Pocos recuadros y pocos fondos. La información se ordena con tipografía (nombre en negrita y color, detalle en gris debajo), alineación en columnas y espacio en blanco. Para bloques paralelos que comparar, basta un contorno fino sin fondo por bloque. Los fondos se reservan para lo que hay que destacar (una marca, un estado, «estás aquí»).
 - **Minimalismo: sin título ni línea separadora dentro del SVG.** El encabezado de la sección y el pie ya dicen qué es; el diagrama empieza por su contenido (norma del propietario, 2026-10-27).
@@ -49,7 +51,7 @@ Excepción: los árboles de carpetas no son diagramas y siguen en un bloque de t
 ## Revisión
 
 - Ningún texto se sale de su caja ni del `viewBox`; no hay solapes; las flechas siguen la lógica correcta.
-- Cada SVG se revisa en una captura del HTML generado (Chrome sin cabeza, `--screenshot`), no solo en el código: los desbordes y solapes solo se ven así.
+- Cada SVG se revisa en el HTML generado, no solo en el código: con el comprobador de `sf:diagramas` (solapes, desbordes, contraste y letra mínima a 375) o, a mano, en una captura (Chrome sin cabeza, `--screenshot`).
 - El diagrama es coherente con el texto y con los demás diagramas.
 - Al rehacer un diagrama, listar antes las piezas que nombraba y comprobar después que siguen todas.
 - Una regla de estilo se aplica a todos los diagramas equivalentes del documento, no solo al primero.
@@ -57,9 +59,11 @@ Excepción: los árboles de carpetas no son diagramas y siguen en un bloque de t
 
 ## Esqueleto
 
+Para un diagrama a mano que no hace el generador de `sf:diagramas`, el mínimo:
+
 ```html
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 {alto}" width="100%" role="img" aria-label="{Qué dice el diagrama}" style="font-family:var(--fuente-texto);display:block">
+<svg viewBox="0 0 400 {alto}" width="100%" role="img" aria-label="{Qué dice el diagrama}" style="font-family:var(--fuente-texto);display:block">
 <circle cx="34" cy="22" r="7" fill="#fff" stroke="#00726b" stroke-width="2"/>
 <text x="56" y="20" font-size="14.5" font-weight="700" fill="#004d47">{Paso o pieza}</text>
 <text x="56" y="38" font-size="12.5" fill="#555">{Detalle en una frase}</text>

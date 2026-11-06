@@ -50,7 +50,7 @@ La metodología es opcional. Sin ella, el proyecto usa solo las tareas, el repos
 
 **Las reglas las entrega el mod** (acuerdo del propietario, 2026-11-01). El `CLAUDE.md` del proyecto no lleva ninguna línea de la SF: es solo para lo propio del proyecto.
 
-Al empezar la sesión, tras `/clear` y tras compactar, el mod de la SF entrega como contexto las reglas comunes (plantilla `templates/claude-sf.md` del plugin) y, si el proyecto sigue la metodología, las del método (`templates/claude-sf-metodologia.md`). Entrega también una línea con las convenciones del proyecto y el texto entero de la skill `sf:orquestacion`. Siempre en la versión instalada, sin copias que regenerar.
+Al empezar la sesión, tras `/clear` y tras compactar, el mod de la SF entrega como contexto las reglas comunes (plantilla `templates/claude-sf.md` del plugin) y, si el proyecto sigue la metodología, las del método (`templates/claude-sf-metodologia.md`). Entrega también una línea con las convenciones del proyecto y el texto entero de la skill `sf:orquestacion`. Siempre en la versión instalada, sin copias que regenerar. También en la propia SF, que se lleva como los demás proyectos (decisiones 298 y 299).
 
 Un proyecto que aún importa la copia antigua (`@.sf/claude-sf.md` en su `CLAUDE.md`) va atrasado: el panel lo avisa, y ponerlo al día quita la línea y la copia.
 
@@ -145,6 +145,12 @@ El principal lanza el subagente sin preguntar, avisando en una línea. El botón
 El subagente trabaja en su propio worktree, en una rama auxiliar desde la de la tarea; el de una deliberativa, sin ninguno de los dos («Tareas y cola»). El principal trae sus commits con `git merge --ff-only`. Solo el principal escribe la cola: el mod bloquea que lo haga un subagente.
 
 Las reglas completas, en la skill `sf:orquestacion`.
+
+**Una sola sesión con la SF por proyecto** (decisiones 296, 297 y 298). Solo una sesión de cada proyecto lleva la SF: la cola, los subagentes, sus avisos, las órdenes `/sf_*` y el panel. Esa sesión deja un latido cada minuto, fuera del proyecto; tras unos tres minutos sin latido se da por cerrada, y la siguiente sesión que arranca toma la SF.
+
+Las demás arrancan con la SF apagada y lo dicen una vez, en un aviso y en una línea del historial. Apagada, la sesión es Claude Code sin más: sin panel, sin reglas ni orquestación de la SF, sin el control de un proyecto por sesión y sin el color ni el nombre del proyecto. No toma la SF sola aunque la otra deje de latir: lo avisa y propone `/sf_forzar_activa`.
+
+`/sf_forzar_activa` trae la SF a la sesión donde se escribe, con sus reglas; la otra se apaga en su siguiente latido, un minuto como mucho. `/sf_forzar_inactiva` la apaga en la sesión donde se escribe, que suelta el latido para que otra la tome al arrancar.
 
 ### 2.3. Incorporación
 
@@ -393,7 +399,7 @@ El índice, `sf/decisiones/README.md`, no se escribe a mano: lo regenera `tools/
 
 Un proyecto con decisiones en otro sitio (el antiguo `docs/decisiones/`, un `docs/decisiones.md` u otro registro propio) las pasa a `sf/decisiones/` al incorporarlo o ponerlo al día, con el OK del propietario. Si un archivo mezcla decisiones con otras cosas, sus decisiones pasan a `sf/decisiones/` y su sección se cambia por un enlace a ellas. La skill `definicion_tecnica` trae la plantilla de una decisión.
 
-**Diagramas en SVG, nunca en ASCII** (norma del propietario, 2026-10-27). Todo diagrama de un documento del proyecto o de la SF (un flujo, un recorrido, una estructura, dependencias, arquitectura) se dibuja como SVG inline en el propio `.md`, dentro de `<figure>` y con un `<figcaption>` breve. Se siguen las recomendaciones de la [guía de diagramas en SVG](diagramas-svg.md): vertical y de 560 de ancho para el móvil, estilo ligero, datos reales, color estable, cilindro para lo que almacena, letra del tema, accesibilidad y revisión. No se usan diagramas en ASCII (flechas y cajas hechas con caracteres) ni en mermaid: el HTML de la SF no los dibuja y se leen peor. Los árboles de carpetas no son diagramas y siguen en un bloque de texto.
+**Diagramas en SVG, nunca en ASCII** (norma del propietario, 2026-10-27). Todo diagrama de un documento del proyecto o de la SF (un flujo, un recorrido, una estructura, dependencias, arquitectura) se dibuja como SVG inline en el propio `.md`, dentro de `<figure>` y con un `<figcaption>` breve. Se dibuja con la skill `sf:diagramas`, para los diagramas de cualquier documento: los datos van en un archivo `.diagrama` y su generador dibuja la figura (vertical y, si es ancha, también horizontal, con la ficha de cada nodo) y la comprueba. Lo común a todo diagrama (cuándo dibujar, datos reales, color estable, letra del tema, accesibilidad y pie) está en la [guía de diagramas en SVG](diagramas-svg.md). No se usan diagramas en ASCII (flechas y cajas hechas con caracteres) ni en mermaid: el HTML de la SF no los dibuja y se leen peor. Los árboles de carpetas no son diagramas y siguen en un bloque de texto.
 
 **Forma de los documentos** (acuerdos del propietario, 2026-10-27):
 
