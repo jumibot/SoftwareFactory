@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 325 | 2026-11-06 | [Las nueve propuestas de la prueba de diagramas, en una sola tarea](325-2026-11-06-las-nueve-propuestas-de-la-prueba-de-diagramas-en-una-sola-tarea.md) |
 | 324 | 2026-11-06 | [Un parámetro de estilo que pide otro proyecto se dice en una línea y se ofrece abrir una issue en GitHub de la SF](324-2026-11-06-un-parametro-de-estilo-que-pide-otro-proyecto-se-dice-en-una-linea-sin-anotarlo.md) |
 | 323 | 2026-11-06 | [Un proyecto sin estilo.json se genera con los valores por defecto de un tema elegido por su color](323-2026-11-06-un-proyecto-sin-estilo-json-se-genera-con-los-valores-por-defecto-de-un-tema-elegido-por-su-color.md) |
 | 322 | 2026-11-06 | [Cada afinado del estilo sube su versión, se anota en su historial y respalda la anterior](322-2026-11-06-cada-afinado-del-estilo-sube-su-version-se-anota-en-su-historial-y-respalda-la-anterior.md) |
