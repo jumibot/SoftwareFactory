@@ -1,7 +1,7 @@
 tipo: arquitectura
 titulo: Lo decidido: un generador único y el estilo como parámetros
 descripcion: Las skills de tipo eligen recursos del catálogo, también el diagrama; el generador único y determinista maqueta todo documento con los parámetros del estilo del proyecto, que una skill ayuda a fijar con muestras y afinado.
-pie: SF · DOCUMENTOS | DECISIONES 305 A 313
+pie: SF · DOCUMENTOS | DECISIONES 305 A 315
 foco: gen
 nodos:
   perf: Skills de tipo | contenido y estructura
@@ -25,8 +25,8 @@ flechas:
   comp > html: DENTRO
 notas:
   LA SKILL DE ESTILO NO MAQUETA: fija los parámetros; las muestras y los documentos los hace el generador
-  EL DIAGRAMA, UN RECURSO MÁS: el .md nombra su .diagrama y el generador lo dibuja al generar, con el estilo del documento (pregunta 9)
-  LA INFOGRAFÍA: lee los parámetros del estilo sin pasar por el generador; si es también un recurso, pregunta 10
+  EL DIAGRAMA, UN RECURSO MÁS: el .md nombra su .diagrama y el generador lo dibuja al generar, con el estilo del documento (314)
+  LA INFOGRAFÍA: lee los parámetros del estilo aparte y enlazada, o incrustada como un recurso (315)
 fichas:
   perf: Una por tipo de documento: visión, explicativo, fundacional, informe, técnica, interfaz.
     - dan: contenido, estructura, tono y procedimiento
@@ -36,7 +36,7 @@ fichas:
     - no cambia: los colores con significado del modelo
   cat: Los recursos con su sintaxis y cuándo usar cada uno.
     - también: los de la visión (308)
-    - el diagrama: un recurso más; el generador llama al motor de la skill de diagramas, con el estilo del documento (307; pregunta 9)
+    - el diagrama: un recurso más; el generador llama al motor de la skill de diagramas, con el estilo del documento (307 y 314)
     - lo dibuja: el generador; las skills de tipo solo eligen
   gen: El único generador de documentos, determinista (305).
     - maqueta: cualquier documento, con los parámetros del estilo
