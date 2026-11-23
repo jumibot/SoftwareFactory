@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 333 | 2026-11-23 | [El principal no abre menús con texto a medio escribir ni fuera del foco](333-2026-11-23-el-principal-no-abre-menus-con-texto-a-medio-escribir-ni-fuera-del-foco.md) |
 | 332 | 2026-11-23 | [Tras un rato sin escribir, la SF deja una sugerencia en la caja del prompt](332-2026-11-23-tras-un-rato-sin-escribir-la-sf-deja-una-sugerencia-en-la-caja-del-prompt.md) |
 | 331 | 2026-11-23 | [Sin estilo.json no se aplican las opciones de estilo de un tema, y los explicativos toman su tipo al migrarlos](331-2026-11-23-sin-estilo-json-no-se-aplican-las-opciones-de-estilo-de-un-tema-y-los-explicativos-toman-su-tipo-al-migrarlos.md) |
 | 330 | 2026-11-23 | [Una infografía técnica se puede meter en cualquier documento que la necesite](330-2026-11-23-una-infografia-tecnica-se-puede-meter-en-cualquier-documento-que-la-necesite.md) |
