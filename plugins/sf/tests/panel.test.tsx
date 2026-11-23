@@ -2,7 +2,8 @@ import { expect, mock, test } from 'claude-code/testing'
 import { ANCHO_ETIQUETA, FONDO_ORDEN, MARCA_AVISO_EMERGENTE, MARCA_ERROR_EMERGENTE, anchoComun, centrar, puntosDe } from '../hooks/estilo'
 import { abreviarRutas, duracionEmergente, pareceError, textoEmergente } from '../hooks/emergentes'
 import { avisoComprobacion, avisoDependencias, proximaComprobacion, subirManifiesto } from '../hooks/cola'
-import { claveIncorporacion, tareasEnDevelop } from '../hooks/lectura'
+import { claveIncorporacion, colorDelEstilo, tareasEnDevelop } from '../hooks/lectura'
+import { colorDeSesion } from '../hooks/constantes'
 import { PRUEBA_PYTHON } from '../hooks/python'
 import { NOMBRE, NOMBRE_ANCHO, bienvenida, partir } from '../hooks/bienvenida'
 import { BARRA, COLOR_BARRA, COLOR_LETRAS, LETRAS, logoSvg } from '../hooks/logo'
@@ -7472,4 +7473,23 @@ test('Sesión única (297): /sf_forzar_inactiva deja la sesión igual que apagad
   expect(leerLatidoDe(archivos)?.sesion).toBe('sesion-1')
   expect(leerLatidoDe(archivos)?.latido).toBe(AHORA + 2 * 60_000)
   expect((await escribirEn(m, '/otro/a.ts')).deny ?? '').toMatch(/^Un proyecto por sesión/)
+})
+
+// El color de sesión sale del primario del estilo: el de /color de tono más cercano, también el de la SF (decisiones
+// 310 y 311); sin estilo, con un primario gris o que no se lee, el que se tenía (tarea 393).
+test('Color de sesión: el de /color más cercano al primario del estilo; sin estilo, el del proyecto', async () => {
+  const casos: [string, string | null][] = [
+    ['#facc15', 'yellow'], ['#e0b000', 'yellow'], ['#1d6fb6', 'blue'], ['#7b2cbf', 'purple'], ['#c62a1f', 'red'],
+    ['#08786f', 'cyan'], ['#16a34a', 'green'], ['#ea580c', 'orange'], ['#db2777', 'pink'], ['#777777', null], ['azul', null],
+  ]
+  for (const [primario, color] of casos) expect([primario, colorDeSesion(primario)]).toEqual([primario, color])
+  const con = (archivos: Record<string, string>) =>
+    ({ fs: { read: async (r: string) => (r in archivos ? archivos[r] : Promise.reject(new Error('no existe'))) } }) as never
+  const estilo = (colores: unknown) => ({ '/p/docs/identidad/estilo.json': JSON.stringify({ version: 1, colores }) })
+  expect(await colorDelEstilo(con(estilo({ primario: '#facc15' })), '/p', 'green')).toBe('yellow')
+  expect(await colorDelEstilo(con(estilo({ primario: '#7b2cbf' })), '/p', null)).toBe('purple')
+  expect(await colorDelEstilo(con({}), '/p', 'green')).toBe('green')
+  expect(await colorDelEstilo(con(estilo({ primario: '#777777' })), '/p', 'green')).toBe('green')
+  expect(await colorDelEstilo(con(estilo(undefined)), '/p', 'green')).toBe('green')
+  expect(await colorDelEstilo(con({ '/p/docs/identidad/estilo.json': '{ roto' }), '/p', null)).toBe(null)
 })

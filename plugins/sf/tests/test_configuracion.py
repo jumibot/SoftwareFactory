@@ -75,13 +75,13 @@ class Configuracion(unittest.TestCase):
         (self.repo / 'web').mkdir()
         (self.repo / 'web' / 'package.json').write_text('{"name": "x"}', encoding='utf-8')
         git(self.repo, 'remote', 'add', 'gl', 'https://gitlab.com/prueba/demo.git')
-        self.escribir({**BUENA, 'color': 'purple', 'descripcion': 'x' * 121, 'kanban': 'JKanban', 'commits': 'raro',
+        self.escribir({**BUENA, 'color': 'morado', 'descripcion': 'x' * 121, 'kanban': 'JKanban', 'commits': 'raro',
                        'remoto': 'gl', 'rama_main': 'master', 'manifiesto': ['web/package.json', 'no/pyproject.toml'],
                        'automatizaciones': {'orquestacion': False, 'otra': True, 'avisos_subagentes': 'no'}})
         codigo, r = configuracion.o_ver(self.repo)
         self.assertEqual(codigo, 1)
         texto = '\n'.join(r['problemas'])
-        for esperado in ('color: purple', 'descripcion: 121', 'kanban: en la forma antigua', 'commits: no se entiende',
+        for esperado in ('color: falta o no es uno de', 'descripcion: 121', 'kanban: en la forma antigua', 'commits: no se entiende',
                          'gl no apunta a GitHub', 'la rama master no existe', 'web/package.json no tiene versión',
                          'no existe no/pyproject.toml', 'no se conoce el interruptor otra',
                          'automatizaciones.avisos_subagentes'):
@@ -127,7 +127,29 @@ class Configuracion(unittest.TestCase):
         self.assertEqual(r['coautoria'], {'mirados': 5, 'con_linea': 1, 'mas_usada': 'Co-Authored-By: Ana <a@x.com>'})
         self.assertEqual(r['colores']['usados'], {'green': ['Vecino']})
         self.assertNotIn('green', r['colores']['libres'])
-        self.assertNotIn('purple', r['colores']['libres'])
+        self.assertEqual(r['colores']['libres'][-1], 'purple')
+
+    def test_color_de_sesion_del_estilo(self):
+        # El color de las sesiones sale del primario del estilo, sin reservar el de la SF (decisiones 310 y 311); sin
+        # estilo, con un primario gris o que no se lee, el del proyecto (tarea 393).
+        for primario, color in (('#facc15', 'yellow'), ('#1d6fb6', 'blue'), ('#7b2cbf', 'purple'), ('#c62a1f', 'red'),
+                                ('#08786f', 'cyan'), ('#16a34a', 'green'), ('#ea580c', 'orange'), ('#db2777', 'pink'),
+                                ('#777777', None), ('azul', None)):
+            self.assertEqual((primario, configuracion.color_mas_cercano(primario)), (primario, color))
+        self.escribir({**BUENA, 'color': 'purple'})
+        codigo, r = configuracion.o_ver(self.repo)
+        self.assertEqual((codigo, r['vale']['color'], r['vale']['color_origen']), (0, 'purple', 'proyecto'))
+        estilo = self.repo / 'docs' / 'identidad'
+        estilo.mkdir(parents=True)
+        (estilo / 'estilo.json').write_text('{"version": 1, "colores": {"primario": "#facc15"}}', encoding='utf-8')
+        codigo, r = configuracion.o_ver(self.repo)
+        self.assertEqual((codigo, r['vale']['color'], r['vale']['color_origen']), (0, 'yellow', 'estilo'))
+        self.assertIn('color: yellow  (del primario del estilo', configuracion.texto_ver(r))
+        # Con estilo, el color del archivo no hace falta.
+        self.escribir({k: v for k, v in BUENA.items() if k != 'color'})
+        self.assertEqual(configuracion.o_ver(self.repo)[1]['problemas'], [])
+        (estilo / 'estilo.json').write_text('{"colores": {"primario": "#777777"}}', encoding='utf-8')
+        self.assertIn('color: falta', '\n'.join(configuracion.o_ver(self.repo)[1]['problemas']))
 
     def test_salida_en_texto_y_json(self):
         self.escribir(BUENA)

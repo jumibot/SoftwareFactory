@@ -18,7 +18,7 @@ Uso:
       Lo que se detecta para proponer valores en los menús: los remotos (y cuáles son de GitHub y a cuál siguen develop
       y la rama de publicación), las ramas main, master y develop (locales y en los remotos), los manifiestos con
       versión (raíz y un nivel por debajo), la forma de los últimos 50 commits y su línea de coautoría más usada, y los
-      colores que usan los proyectos de las carpetas vecinas. El idioma no se detecta con comandos: lo dice Claude leyendo el README, el CLAUDE.md y los
+      colores que usan los proyectos de las carpetas vecinas (para el de un proyecto sin estilo). El idioma no se detecta con comandos: lo dice Claude leyendo el README, el CLAUDE.md y los
       commits.
 """
 
@@ -27,6 +27,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import math
 import re
 import subprocess
 import sys
@@ -37,9 +38,13 @@ cola = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(cola)
 
 PROYECTO = Path('.sf') / 'proyecto.json'
-# Los colores de sesión de un proyecto; purple es el de la SF (constantes.ts, COLORES y COLOR_SF).
-COLORES = ('red', 'blue', 'green', 'yellow', 'orange', 'pink', 'cyan')
-COLOR_SF = 'purple'
+# Los colores de sesión (constantes.ts, COLORES y RGB). El de la SF no se reserva (decisión 311): purple, el último
+# en proponerse a un proyecto sin estilo.
+COLORES = ('red', 'blue', 'green', 'yellow', 'orange', 'pink', 'cyan', 'purple')
+RGB = {'red': '#dc2626', 'blue': '#2563eb', 'green': '#16a34a', 'yellow': '#ca8a04', 'purple': '#827dbd',
+       'orange': '#ea580c', 'pink': '#db2777', 'cyan': '#0891b2'}
+# El estilo del proyecto (decisión 316): su colores.primario da el color de sesión (decisión 310).
+ESTILO = Path('docs') / 'identidad' / 'estilo.json'
 LARGO_DESCRIPCION = 120
 # Los interruptores de «automatizaciones» (decisión 171), encendidos salvo false, con lo que apagan.
 AUTOMATIZACIONES = {
@@ -158,6 +163,47 @@ def coautoria(repo: Path, rama: str | None) -> dict:
     return {'mirados': len(cuerpos), 'con_linea': sum(cuenta.values()), 'mas_usada': mas}
 
 
+def tono_oklch(color: str) -> tuple[float, float] | None:
+    """El tono OKLCH (grados) y el croma de un #rrggbb, o None si no es un hex (como tonoOklch de constantes.ts)."""
+    m = re.fullmatch(r'#?([0-9a-fA-F]{6}|[0-9a-fA-F]{3})', color.strip()) if isinstance(color, str) else None
+    if not m:
+        return None
+    h = m.group(1) if len(m.group(1)) == 6 else ''.join(c * 2 for c in m.group(1))
+    r, g, b = (((c / 12.92) if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4)
+               for c in (int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)))
+    l = (0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b) ** (1 / 3)
+    mm = (0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b) ** (1 / 3)
+    s = (0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b) ** (1 / 3)
+    a = 1.9779984951 * l - 2.428592205 * mm + 0.4505937099 * s
+    bb = 0.0259040371 * l + 0.7827717662 * mm - 0.808675766 * s
+    return math.degrees(math.atan2(bb, a)) % 360, math.hypot(a, bb)
+
+
+def color_mas_cercano(primario: str) -> str | None:
+    """El color de /color de tono más cercano al primario; None si es gris (croma < 0,03) o no se lee."""
+    p = tono_oklch(primario)
+    if not p or p[1] < 0.03:
+        return None
+
+    def dist(c: str) -> float:
+        d = abs(tono_oklch(RGB[c])[0] - p[0]) % 360
+        return min(d, 360 - d)
+    return min(COLORES, key=dist)
+
+
+def color_de_sesion(repo: Path, propio) -> tuple[str | None, str | None]:
+    """El color de las sesiones y de dónde sale: del primario del estilo ('estilo') o, sin estilo, el del proyecto
+    ('proyecto'), como colorDelEstilo de lectura.ts (decisiones 310 y 311)."""
+    try:
+        primario = json.loads((repo / ESTILO).read_text(encoding='utf-8')).get('colores', {}).get('primario')
+    except (OSError, ValueError, AttributeError):
+        primario = None
+    color = color_mas_cercano(primario) if isinstance(primario, str) else None
+    if color:
+        return color, 'estilo'
+    return (propio, 'proyecto') if propio in COLORES else (None, None)
+
+
 def colores_vecinos(repo: Path) -> dict:
     """Los colores de los proyectos de las carpetas vecinas (solo lectura) y los que quedan libres."""
     usados: dict[str, list[str]] = {}
@@ -201,10 +247,8 @@ def problemas(repo: Path, datos: dict, efectiva: dict) -> list[str]:
         p.append('descripcion: falta')
     elif len(d.strip()) > LARGO_DESCRIPCION:
         p.append(f'descripcion: {len(d.strip())} caracteres, más de {LARGO_DESCRIPCION}')
-    color = datos.get('color')
-    if color == COLOR_SF:
-        p.append('color: purple es el de la SF')
-    elif color not in COLORES:
+    # Con estilo, el color de las sesiones sale de él y el del archivo no se usa (decisión 310).
+    if datos.get('color') not in COLORES and color_de_sesion(repo, None)[1] != 'estilo':
         p.append(f'color: falta o no es uno de {", ".join(COLORES)}')
     for campo in efectiva['desconocidos']:
         p.append(f'{campo}: no se entiende {json.dumps(datos.get(campo), ensure_ascii=False)}; vale lo de por defecto')
@@ -252,9 +296,10 @@ def o_ver(repo: Path) -> tuple[int, dict]:
     if datos is None:
         return 2, {'error': motivo}
     efectiva = cola.leer_configuracion(datos, es_sf=(repo / cola.MARCA_SF).is_file())
+    color, origen = color_de_sesion(repo, datos.get('color'))
     vale = {
         'sf': datos.get('sf'), 'proyecto': datos.get('proyecto'), 'descripcion': datos.get('descripcion'),
-        'color': datos.get('color'), 'metodologia': efectiva['metodologia'], 'kanban': efectiva['kanban'],
+        'color': color, 'color_origen': origen, 'metodologia': efectiva['metodologia'], 'kanban': efectiva['kanban'],
         'idioma': efectiva['idioma'], 'commits': efectiva['commits'], 'remoto': efectiva['remoto'],
         'rama_main': efectiva['rama_main'], 'manifiesto': efectiva['manifiesto'] or None,
         'coautor': efectiva['coautor'],
@@ -296,7 +341,11 @@ def texto_ver(r: dict) -> str:
         return r['error']
     lineas = ['Configuración (.sf/proyecto.json):']
     for campo, valor in r['vale'].items():
-        if campo == 'automatizaciones':
+        if campo == 'color_origen':
+            continue
+        if campo == 'color' and r['vale'].get('color_origen') == 'estilo':
+            valor = f'{valor}  (del primario del estilo, {ESTILO.as_posix()})'
+        elif campo == 'automatizaciones':
             apagadas = [k for k, v in valor.items() if not v]
             valor = 'todas encendidas' if not apagadas else 'apagadas: ' + ', '.join(apagadas)
         elif not isinstance(valor, str):

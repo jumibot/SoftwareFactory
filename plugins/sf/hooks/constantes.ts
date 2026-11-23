@@ -66,7 +66,7 @@ export const ANTIGUO = 'docs/sf.json'
 // El repositorio de la SF se reconoce por la fuente del plugin.
 export const MARCA_SF = 'plugins/sf/.claude-plugin/plugin.json'
 export const PANEL = 'sf-estado'
-// Colores que acepta /color; el de la propia SF es fijo.
+// Colores que acepta /color. COLOR_SF es el de la SF mientras no tenga estilo y el de su marca en la bienvenida.
 export const COLORES = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan'] as const
 export const COLOR_SF = 'purple'
 // Cada color de /color en RGB, para pintar el nombre del proyecto como la etiqueta de la sesión.
@@ -80,6 +80,36 @@ export const RGB: Record<(typeof COLORES)[number], string> = {
   orange: '#ea580c',
   pink: '#db2777',
   cyan: '#0891b2',
+}
+// El estilo del proyecto (decisión 316): su colores.primario da el color de sesión (decisión 310).
+export const ESTILO = 'docs/identidad/estilo.json'
+// El tono OKLCH (grados) de un color #rrggbb y su croma, o null si no es un hex.
+export function tonoOklch(hex: string): { tono: number; croma: number } | null {
+  const m = /^#?([0-9a-f]{6}|[0-9a-f]{3})$/i.exec(hex.trim())
+  if (!m) return null
+  const h = m[1].length === 3 ? [...m[1]].map(c => c + c).join('') : m[1]
+  const lin = (i: number) => {
+    const c = parseInt(h.slice(i, i + 2), 16) / 255
+    return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4
+  }
+  const [r, g, b] = [lin(0), lin(2), lin(4)]
+  const l = Math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+  const mm = Math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+  const s = Math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+  const A = 1.9779984951 * l - 2.428592205 * mm + 0.4505937099 * s
+  const B = 0.0259040371 * l + 0.7827717662 * mm - 0.808675766 * s
+  return { tono: ((Math.atan2(B, A) * 180) / Math.PI + 360) % 360, croma: Math.hypot(A, B) }
+}
+// El color de /color de tono más cercano a un primario, sin reservar el de la SF (decisión 311). Un primario gris
+// (croma por debajo de 0,03) no tiene tono: null, y la sesión conserva el color del proyecto.
+export function colorDeSesion(primario: string): (typeof COLORES)[number] | null {
+  const p = tonoOklch(primario)
+  if (!p || p.croma < 0.03) return null
+  const dist = (c: (typeof COLORES)[number]) => {
+    const d = Math.abs(tonoOklch(RGB[c])!.tono - p.tono) % 360
+    return Math.min(d, 360 - d)
+  }
+  return COLORES.reduce((mejor, c) => (dist(c) < dist(mejor) ? c : mejor))
 }
 export const CLAVE_PLEGADO = 'plegado'
 export const PLEGADAS_DE_INICIO = ['observacion', 'propuestas']

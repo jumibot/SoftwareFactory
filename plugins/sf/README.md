@@ -31,6 +31,8 @@ Lee la carpeta `.sf/` del proyecto al abrir la sesión y al acabar cada turno (m
 }
 ```
 
+El color de las sesiones sale del primario del estilo del proyecto (`docs/identidad/estilo.json`, `colores.primario`): el más cercano de los de `/color`, también el de la SF; sin estilo, el `color` de `.sf/proyecto.json` (decisiones 310 y 311).
+
 La configuración se cambia con `/sf_config` (o pidiéndoselo a Claude): la skill `sf:configurar_proyecto` la enseña, pregunta qué cambiar con menús, pide el OK y lo aplica en `develop` con su commit, sin tarea. `tools/configuracion.py` (`ver` y `detectar`, solo lee) la comprueba y detecta las convenciones, para esa skill y para la incorporación.
 
 Sin metodología, el panel no da fase ni lee `.sf/estado.json`. Un valor que no se entiende, o un remoto que no existe o no apunta a GitHub, sale en los avisos del panel.

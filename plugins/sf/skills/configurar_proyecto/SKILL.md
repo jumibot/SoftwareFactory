@@ -1,7 +1,7 @@
 ---
 name: configurar_proyecto
 user-invocable: false
-description: Cambia la configuración de un proyecto ya incorporado a la Software Factory (SF), la de .sf/proyecto.json — nombre, descripción, color de sesión, metodología, kanban, línea de coautoría de los commits, idioma, formato de commit, remoto de GitHub, rama de publicación (rama_main), manifiestos con versión y automatizaciones — sin tarea y fuera del panel. Claude enseña lo que hay, pregunta qué cambiar con menús de hasta cuatro preguntas, pide el OK y lo aplica en develop con su commit. La lanza la orden /sf_config; también se ofrece al poner al día el proyecto. Úsala cuando pidan cambiar, ver o revisar la configuración del proyecto o uno de sus valores (activar o quitar la metodología, elegir o quitar el kanban, cambiar o quitar la firma de coautoría de los commits, cambiar el remoto, el idioma, el formato de los commits, la rama de publicación, el manifiesto, el color, el nombre o la descripción, apagar o encender una automatización).
+description: Cambia la configuración de un proyecto ya incorporado a la Software Factory (SF), la de .sf/proyecto.json — nombre, descripción, metodología, kanban, línea de coautoría de los commits, idioma, formato de commit, remoto de GitHub, rama de publicación (rama_main), manifiestos con versión y automatizaciones — sin tarea y fuera del panel; el color de las sesiones no se pregunta: sale del primario del estilo del proyecto. Claude enseña lo que hay, pregunta qué cambiar con menús de hasta cuatro preguntas, pide el OK y lo aplica en develop con su commit. La lanza la orden /sf_config; también se ofrece al poner al día el proyecto. Úsala cuando pidan cambiar, ver o revisar la configuración del proyecto o uno de sus valores (activar o quitar la metodología, elegir o quitar el kanban, cambiar o quitar la firma de coautoría de los commits, cambiar el remoto, el idioma, el formato de los commits, la rama de publicación, el manifiesto, el nombre o la descripción, apagar o encender una automatización).
 ---
 
 # Configurar un proyecto con la SF
@@ -31,13 +31,13 @@ Con `--json`, la salida para leerla. Si el mod dice que en esta máquina Python 
 
 ## Procedimiento
 
-1. **Lo que hay.** Se ejecutan `ver` y `detectar`, y se enseña la configuración en una tabla corta en palabras llanas: qué es (por ejemplo, «Color de las sesiones», «Cómo se escriben los commits», «Dónde se publica»), su valor legible y «por defecto» si no está en el archivo. Debajo, los problemas que dé `ver`, cada uno con lo que pasa y lo que se propone, sin jerga (por ejemplo, «El kanban está apuntado a la manera antigua: lo paso a la nueva, sin cambiar de kanban»). Si el propietario ya ha dicho qué quiere cambiar («pon los commits en conventional», `/sf_config idioma`), no se pregunta el paso 2: se va a su pregunta del paso 3 con lo pedido como opción recomendada.
+1. **Lo que hay.** Se ejecutan `ver` y `detectar`, y se enseña la configuración en una tabla corta en palabras llanas: qué es (por ejemplo, «Color de las sesiones», «Cómo se escriben los commits», «Dónde se publica»), su valor legible y «por defecto» si no está en el archivo. El color de las sesiones sale del primario del estilo del proyecto (`docs/identidad/estilo.json`), el más cercano de los de `/color`, y `ver` dice si viene de él; sin estilo, es el de `.sf/proyecto.json` (decisiones 310 y 311). Se enseña, pero no se cambia aquí: se cambia con el estilo. Debajo, los problemas que dé `ver`, cada uno con lo que pasa y lo que se propone, sin jerga (por ejemplo, «El kanban está apuntado a la manera antigua: lo paso a la nueva, sin cambiar de kanban»). Si el propietario ya ha dicho qué quiere cambiar («pon los commits en conventional», `/sf_config idioma`), no se pregunta el paso 2: se va a su pregunta del paso 3 con lo pedido como opción recomendada.
 
 2. **Qué cambiar (menú 1).** Un menú de selección múltiple, con una pregunta por grupo; los problemas de `ver` vienen ya marcados en la descripción de su opción («Hay que arreglarlo: el repositorio de GitHub apuntado no existe»):
 
    | Pregunta | Opciones |
    | --- | --- |
-   | ¿Qué cambio de cómo se presenta el proyecto? | Nombre / Descripción / Color de las sesiones / Nada de esto |
+   | ¿Qué cambio de cómo se presenta el proyecto? | Nombre / Descripción / Nada de esto |
    | ¿Qué cambio de cómo se trabaja? | Metodología / Kanban / Firma de Claude en los commits / Nada de esto |
    | ¿Qué cambio de cómo se escribe? | Idioma / Forma de los commits / Archivos con la versión / Nada de esto |
    | ¿Qué cambio del repositorio y la ayuda automática? | Repositorio de GitHub / Rama donde se publica / Automatizaciones / Nada de esto |
@@ -50,7 +50,6 @@ Con `--json`, la salida para leerla. Si el mod dice que en esta máquina Python 
    | --- | --- | --- | --- |
    | `proyecto` | ¿Cómo se llama el proyecto? | El del README o la carpeta / el actual | — |
    | `descripcion` | ¿Cómo lo describo en una línea? (120 caracteres como mucho) | La primera frase del README / la actual | Más de 120: se acorta y se vuelve a preguntar |
-   | `color` | ¿De qué color quieres sus sesiones? | Dos o tres libres de `detectar`, nombrados en el idioma del proyecto («verde») / el actual | `purple` no: es de la SF |
    | `metodologia` | ¿Sigo la metodología de la SF? | «Sí, con sus fases y documentos» (antes de programar, visión y especificación, y el trabajo por fases) / «No, solo tareas y ramas» | Al activarla, se crea `.sf/estado.json` con la fase real, como al incorporar (su paso 3); al quitarla, `.sf/estado.json` se queda (está fuera de git) y el panel deja de pintar la fase |
    | `kanban` | ¿Llevo las tareas también en un kanban? | «No, solo en la SF» / «Sí, en JKanban: `<proyecto>`» | «No» quita el campo. Mientras JKanban no esté conectado, el proyecto no se crea en él: queda en los pendientes del informe (224) |
    | `coautor` | ¿Firmo mis commits como coautor? | La más usada en los últimos 50 commits (`detectar`), con su nombre («Sí, como `Claude <modelo>`, como hasta ahora») / «Sí, con mi nombre de esta sesión: `Claude <modelo>`» / «No, sin firma» | La firma es la línea `Co-Authored-By: …` al pie. «No» quita el campo (o lo deja en `null`). Vale desde el siguiente commit de la SF: cierre, decisión, RELEASE y encargos nuevos (238) |
@@ -90,7 +89,7 @@ Con `--json`, la salida para leerla. Si el mod dice que en esta máquina Python 
 
 6. **Informe.** En pocas líneas y en palabras llanas: qué ha cambiado, el commit y lo que pide hacer el propietario:
    - **`/clear`**, si ha cambiado algo de lo que el mod entrega al empezar la sesión: `metodologia`, `idioma`, `commits`, `remoto`, `rama_main` o `automatizaciones.orquestacion`. La conversación en curso sigue con lo de antes.
-   - El nombre y el color los aplica el mod a la sesión en cuanto lee el archivo, al acabar el turno.
+   - El nombre lo aplica el mod a la sesión en cuanto lee el archivo, al acabar el turno.
    - Los subagentes que ya trabajan siguen con su encargo; lo nuevo vale para los siguientes y para los cierres a partir de ahora.
    - No se afirma que el proyecto exista en el kanban si no se ha creado.
 

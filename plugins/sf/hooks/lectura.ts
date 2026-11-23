@@ -1,6 +1,6 @@
 import { atom, read, update, type EngineInterface } from 'claude-code'
 import type { SubagenteVisto, Estado, Incorporacion, Evento, Paso, Peticion, Realimentacion, Salida } from '../types'
-import { ANTIGUO, CAMPO_VIEJO, CARPETA_COPIAS, PREFIJO_INCORPORACION, COLORES, COLOR_SF, ESTADO, ESTADOS_PETICION, ESTADOS_VIEJOS, EVENTO_CERRADA_VIEJO, EVENTOS_VIEJOS, FASES, HISTORIAL, MARCA_SF, PETICIONES, PROYECTO } from './constantes'
+import { ANTIGUO, CAMPO_VIEJO, CARPETA_COPIAS, PREFIJO_INCORPORACION, COLORES, COLOR_SF, ESTADO, ESTILO, colorDeSesion, ESTADOS_PETICION, ESTADOS_VIEJOS, EVENTO_CERRADA_VIEJO, EVENTOS_VIEJOS, FASES, HISTORIAL, MARCA_SF, PETICIONES, PROYECTO } from './constantes'
 import { avisosConfiguracion, leerConfiguracion, remotos, TRAILER_TAREA } from './configuracion'
 import { igual, normal } from './control'
 import { guardarSesion } from './memoria'
@@ -333,6 +333,18 @@ export async function leerIncorporacion($: $, raiz: string): Promise<Incorporaci
   return { caso: texto(d.caso) ?? '', actual, pausa: d.pausa === true && actual > 0 && !recarga, ...(recarga ? { recarga } : {}), pasos }
 }
 
+// El color de sesión: el más cercano a colores.primario del estilo (decisiones 310 y 311); sin estilo o con un
+// primario que no se lee, el que se tenía (el de .sf/proyecto.json, o el de la SF).
+export async function colorDelEstilo($: $, raiz: string, propio: string | null): Promise<string | null> {
+  try {
+    const colores = (await leerJson($, `${raiz}/${ESTILO}`)).colores as Record<string, unknown> | undefined
+    const primario = texto(colores?.primario)
+    return (primario && colorDeSesion(primario)) || propio
+  } catch {
+    return propio
+  }
+}
+
 export async function leerEstado($: $, desde = 0): Promise<Estado> {
   const raiz = await raizSesion($)
   const base: Estado = {
@@ -423,7 +435,7 @@ export async function leerEstado($: $, desde = 0): Promise<Estado> {
       proyecto: texto(ident.proyecto) ?? base.proyecto,
       versionSf: texto(ident.sf),
       importaCopia: await importaCopia($, raiz).catch(() => false),
-      color: COLORES.find(c => c === texto(ident.color)?.toLowerCase()) ?? null,
+      color: await colorDelEstilo($, raiz, COLORES.find(c => c === texto(ident.color)?.toLowerCase()) ?? null),
       fase: indice >= 0 ? indice : null,
       hechas,
       detalle: conf.metodologia ? texto(datos.detalle) : null,
@@ -443,7 +455,7 @@ export async function leerEstado($: $, desde = 0): Promise<Estado> {
   }
 
   if (await $.fs.exists(`${raiz}/${MARCA_SF}`)) {
-    return { ...base, tipo: 'sf', proyecto: 'SoftwareFactory', color: COLOR_SF }
+    return { ...base, tipo: 'sf', proyecto: 'SoftwareFactory', color: await colorDelEstilo($, raiz, COLOR_SF) }
   }
   return base
 }
