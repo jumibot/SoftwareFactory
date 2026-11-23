@@ -27,10 +27,7 @@ DOCUMENTOS = [
 ]
 # Documentos compartidos que se ponen al día en su propia tarea «Actualizar <documento>»: mientras tengan el nombre
 # viejo, no hacen fallar la prueba; cuando ya no lo tengan, la prueba pide sacarlos de aquí.
-EN_SU_TAREA = {
-    'docs/como-funciona-el-panel.md',
-    'docs/uso-del-panel.md',
-}
+EN_SU_TAREA: set[str] = set()
 # Lo que Claude Code genera en el plugin (claude plugin test): rutas relativas a plugins/sf, archivo o carpeta.
 GENERADOS = {'tsconfig.json', '.claude-plugin/types'}
 EXTENSIONES = {'.py', '.ts', '.tsx', '.md', '.json', '.html', '.txt', '.css', '.js'}
