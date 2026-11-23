@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 339 | 2026-11-23 | [El orquestador decide el modelo de inferencia más adecuado para cada hilo](339-2026-11-23-el-orquestador-decide-el-modelo-de-inferencia-mas-adecuado-para-cada-hilo.md) |
 | 338 | 2026-11-23 | [Al cambiar el color principal del estilo se recalculan solos sus derivados](338-2026-11-23-al-cambiar-el-color-principal-del-estilo-se-recalculan-solos-sus-derivados.md) |
 | 337 | 2026-11-23 | [Con un foco fijado y sin resolver no se cambia de tarea sin instrucción expresa del propietario](337-2026-11-23-con-un-foco-fijado-y-sin-resolver-no-se-cambia-de-tarea-sin-instruccion-expresa-del-propietario.md) |
 | 336 | 2026-11-23 | [La línea del foco es una excepción al juego fijo de emojis](336-2026-11-23-la-linea-del-foco-es-una-excepcion-al-juego-fijo-de-emojis.md) |
