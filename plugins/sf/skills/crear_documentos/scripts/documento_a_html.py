@@ -2,14 +2,15 @@
 
 Uso:
     python <skills>/crear_documentos/scripts/documento_a_html.py <documento>.md [--perfil <perfil.json>]
-        [--tema <nombre>|<ruta .json>] [--identidad <carpeta>|ninguna] [--logo <ruta>|ninguno]
+        [--estilo <ruta>|ninguno] [--tema <nombre>|<ruta .json>] [--identidad <carpeta>|ninguna] [--logo <ruta>|ninguno]
         [--producto "..."] [--tipo "..."] [--destino proyecto|usuario] [--herramientas "..."]
 
 Genera el .html junto al .md. La sintaxis de los recursos está en la skill crear_documentos (SKILL.md,
 «Catálogo de recursos»). Cada tipo de documento (fundacional, informe…) tiene su perfil (perfil.json en su skill):
 su tipo por defecto, los recursos del catálogo que usa y sus propios CSS y JS. Sin perfil, todos los recursos.
-Los temas y la identidad del proyecto están en scripts/tema_identidad.py, junto a este.
-Paquetes de Python necesarios: markdown, Pillow (solo si hay logo).
+El aspecto lo fija el estilo del proyecto, docs/identidad/estilo.json (scripts/estilo_proyecto.py, decisiones 316 a 323);
+sin él, los valores por defecto de un tema (scripts/tema_identidad.py), con un aviso.
+Paquetes de Python necesarios: markdown, Pillow (solo si hay un logo que no es SVG).
 """
 
 from __future__ import annotations
@@ -27,6 +28,8 @@ from tema_identidad import (BASE, CLAVES_IDENTIDAD, bloque_kit, buscar_identidad
                             herramientas_activas, kit_estilos, kit_scripts,
                             lector_estilos, lector_scripts,
                             logo_data_uri, procedencia, variables_css)
+import estilo_proyecto  # noqa: E402
+from resaltar_codigo import resaltar  # noqa: E402  coloreado de sintaxis de los bloques de código
 
 ASSETS = AQUI.parent / "assets"
 RUTA_CSS = "skills/crear_documentos/assets/estilo_documento.css"
@@ -35,7 +38,7 @@ CSS = (BASE / RUTA_CSS).read_text(encoding="utf-8")
 BLOQUES = ("tarjetas", "fichas", "columnas", "fuentes", "preguntas")
 PERMITIDOS = set(BLOQUES)  # los que deja usar el perfil del tipo de documento (main)
 NOMBRE_PERFIL = ""
-EXTENSIONES = ["tables", "sane_lists", "attr_list", "md_in_html", "def_list"]
+EXTENSIONES = ["tables", "fenced_code", "sane_lists", "attr_list", "md_in_html", "def_list"]
 esc = html_mod.escape
 
 
@@ -103,7 +106,8 @@ def trocear(hijos: list, por_titulo: bool) -> tuple[list, list[list]]:
 # «#### Título {color=turquesa icono=codigo}» en la primera línea de una tarjeta: cabecera con el color
 # de fondo y el icono; «::: tarjetas 3 plegables»: cada tarjeta es un <details> con la cabecera siempre a la vista.
 
-COLORES = {"turquesa": "#1f7a7a", "naranja": "#a6501a", "verde": "#1f812d", "frambuesa": "#be185d"}
+COLORES = {"turquesa": "#1f7a7a", "naranja": "#a6501a", "verde": "#1f812d", "frambuesa": "#be185d",
+           **estilo_proyecto.SIGNIFICADO}  # y los de significado (correcto, aviso, error, info), que fija el estilo
 ICONOS = {  # trazos de 24 × 24, sin relleno
     "codigo": '<path d="M8 7l-5 5 5 5M16 7l5 5-5 5M14 4l-4 16"/>',
     "dialogo": '<path d="M4 5h11a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H9l-4 3v-3H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/><path d="M19 9h1a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-1v3l-3-3h-3"/>',
@@ -334,27 +338,39 @@ def etiquetar_tablas(h: str) -> str:
 
 
 def cabecera_seccion(linea: str) -> tuple[str, str, str, str]:
-    """«Etiqueta | Título | Menú {#id}» → (etiqueta, título, menú, id)."""
+    """«Etiqueta | Título | Menú {#id}» → (etiqueta, título, menú, id). Sin «|», la sección no tiene etiqueta: ""."""
     ident = ""
     m = re.search(r"\s*\{:?\s*#([\w-]+)\s*\}\s*$", linea)
     if m:
         ident, linea = m.group(1), linea[:m.start()]
     partes = [p.strip() for p in linea.split("|")]
-    etiqueta = partes[0]
-    titulo = partes[1] if len(partes) > 1 and partes[1] else etiqueta
+    etiqueta = partes[0] if len(partes) > 1 else ""
+    titulo = partes[1] if len(partes) > 1 and partes[1] else partes[0]
     menu = partes[2] if len(partes) > 2 else ""
     return etiqueta, titulo, menu, ident or slug(titulo)
 
 
-def seccion(n: int, etiqueta: str, titulo: str, ident: str, cuerpo_md: str) -> str:
-    cuerpo = recuadros(a_html(cuerpo_md))
+def seccion(n: int, etiqueta: str, titulo: str, ident: str, cuerpo_md: str, estilo: dict | None = None) -> str:
+    cuerpo = resaltar(recuadros(a_html(cuerpo_md)))
     # El primer párrafo sin clase de la sección es la entradilla.
     cuerpo = re.sub(r"^\s*<p>", '<p class="entradilla">', cuerpo, count=1)
-    # Sección plegable: solo la primera abierta al cargar; se abre o pliega tocando el título
-    # (assets/plegado.js añade el resto; al imprimir se abre todo).
-    abierta = " open" if n == 1 else ""
-    return (f'<details class="seccion" id="{ident}"{abierta}><summary class="seccion-titulo">'
-            f'<span class="etiqueta">{n:02d} / {etiqueta}</span><h2>{titulo}</h2></summary>'
+    # Sección plegable: por defecto, solo la primera abierta al cargar (secciones.plegado); se abre o pliega tocando el
+    # título (assets/plegado.js añade el resto; al imprimir se abre todo).
+    plegado = estilo_proyecto.param(estilo, "secciones", "plegado", "primera")
+    abierta = " open" if plegado == "todas" or plegado == "primera" and n == 1 else ""
+    # Forma de la cabecera (secciones.cabecera, decisión 321): «01 / ETIQUETA» sobre el título, por defecto; sin
+    # etiqueta, número y título (306); o solo el título.
+    forma = estilo_proyecto.param(estilo, "secciones", "cabecera", "numero-etiqueta")
+    if forma == "numero-etiqueta" and etiqueta:
+        clase, cabecera = "seccion-titulo", f'<span class="etiqueta">{n:02d} / {etiqueta}</span><h2>{titulo}</h2>'
+    elif forma == "titulo":
+        clase, cabecera = "seccion-titulo sin-etiqueta", f"<h2>{titulo}</h2>"
+    else:
+        clase, cabecera = ("seccion-titulo sin-etiqueta",
+                           f'<h2><span class="seccion-numero">{n:02d}</span> {titulo}</h2>')
+    # Con una serie de colores en el estilo, cada sección toma el suyo (las variables de .bloque-N).
+    serie = " bloque-" + str(n) if estilo and estilo.get("colores", {}).get("serie") else ""
+    return (f'<details class="seccion{serie}" id="{ident}"{abierta}><summary class="{clase}">{cabecera}</summary>'
             f'<div class="seccion-cuerpo">{cuerpo}</div></details>')
 
 
@@ -438,19 +454,76 @@ def bloque_propio(ruta: Path) -> str:
         return f"<{etiqueta}>\n{ruta.read_text(encoding='utf-8').rstrip()}\n</{etiqueta}>"
 
 
+# Claves de la cabecera del .md que fijan el aspecto: son del estilo del proyecto (decisión 318). Las de la lectura
+# (destino, herramientas, menu) siguen siendo de cada documento. scripts/convertir_cabecera.py las quita al migrar.
+ASPECTO_CABECERA = ("portada", "tema", "logo")
+
+
+def imagen_logo(ruta: Path, placa: bool = False) -> str:
+    """<img> del logo a 40 px de alto, con ancho y alto explícitos para que la portada no salte al cargar. SVG o imagen."""
+    if not ruta.is_file():
+        sys.exit(f"No encuentro el logo: {ruta}")
+    clase = ' class="placa"' if placa else ""
+    if ruta.suffix.lower() == ".svg":
+        import base64
+        texto = ruta.read_text(encoding="utf-8")
+        caja = re.search(r'viewBox="\s*[-\d.]+[\s,]+[-\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)\s*"', texto)
+        ancho_alto = (float(caja.group(1)), float(caja.group(2))) if caja else None
+        if not ancho_alto:
+            w = re.search(r'<svg\b[^>]*\bwidth="([\d.]+)', texto)
+            h = re.search(r'<svg\b[^>]*\bheight="([\d.]+)', texto)
+            ancho_alto = (float(w.group(1)), float(h.group(1))) if w and h else (1, 1)
+        ancho = round(ancho_alto[0] * 40 / ancho_alto[1])
+        uri = "data:image/svg+xml;base64," + base64.b64encode(texto.encode("utf-8")).decode()
+        return f'<img{clase} src="{uri}" alt="" width="{ancho}" height="40">'
+    from PIL import Image
+    with Image.open(ruta) as im:
+        ancho = round(im.width * 40 / im.height)
+    return f'<img{clase} src="{logo_data_uri(ruta)}" alt="" width="{ancho}" height="40">'
+
+
+def elegir_tema(args, identidad: dict, ruta_id: Path | None, src: Path, ruta_estilo: Path | None, estilo: dict | None):
+    """El tema del documento: el del estilo del proyecto o, sin estilo.json, los valores por defecto de un tema (323):
+    --tema, el de identidad.json, el más cercano al color de sesión del proyecto o «morado». Sin estilo, un aviso."""
+    if estilo:
+        if args.tema:
+            print(f"Aviso: --tema {args.tema} no se usa: el aspecto lo fija el estilo del proyecto ({ruta_estilo}).",
+                  file=sys.stderr)
+        return estilo_proyecto.tema_del_estilo(estilo, ruta_estilo), ""
+    tema_id = identidad.get("tema")
+    if tema_id and tema_id.endswith(".json"):
+        tema_id = str(ruta_id.parent / tema_id)
+    color = None if args.tema or tema_id else estilo_proyecto.color_del_proyecto(src)
+    if args.tema:
+        nombre, por = args.tema, "indicado con --tema"
+    elif tema_id:
+        nombre, por = tema_id, "el de identidad.json"
+    elif color:
+        nombre, por = estilo_proyecto.tema_por_color(color), f"por el color de sesión del proyecto, {color}"
+    else:
+        nombre, por = "morado", "el de siempre"
+    tema = cargar_tema(nombre)
+    aviso = (f"Aviso: el proyecto no tiene estilo (docs/identidad/estilo.json): se genera con los valores por defecto "
+             f"del tema «{tema.get('nombre', nombre)}» ({por}).")
+    return tema, aviso
+
+
 def main():
     global PERMITIDOS, NOMBRE_PERFIL
     ap = argparse.ArgumentParser(description="Documento .md → HTML editorial (generador común de crear_documentos)")
     ap.add_argument("md")
     ap.add_argument("--perfil", default=None, help="perfil.json del tipo de documento (lo pasa el generador de cada skill de tipo)")
-    ap.add_argument("--tema", default=None, help="tema de crear_documentos (assets/temas/) o ruta a un .json; por defecto, el de la identidad")
+    ap.add_argument("--estilo", default=None, help="estilo.json del proyecto o 'ninguno'; por defecto, el de la carpeta de "
+                    "--identidad o docs/identidad/estilo.json subiendo desde el .md")
+    ap.add_argument("--tema", default=None, help="sin estilo del proyecto: tema de crear_documentos (assets/temas/) o ruta a "
+                    "un .json; por defecto, el de la identidad o el del color de sesión del proyecto")
     ap.add_argument("--identidad", default=None, help="carpeta con identidad.json; por defecto se busca docs/identidad/ subiendo desde el .md")
     ap.add_argument("--logo", default=None, help="ruta del logo; 'ninguno' para no ponerlo")
-    ap.add_argument("--producto", default=None, help="nombre del producto; por defecto, el de la identidad o el título")
+    ap.add_argument("--producto", default=None, help="nombre del producto; por defecto, el del estilo, el de la identidad o el título")
     ap.add_argument("--tipo", default=None, help="tipo de documento; por defecto, el de la cabecera del .md, el del perfil o «Documento»")
-    ap.add_argument("--destino", default=None, help="proyecto o usuario; manda sobre la cabecera y la identidad. Sin destino, error")
+    ap.add_argument("--destino", default=None, help="proyecto o usuario; manda sobre la cabecera, el estilo y la identidad. Sin destino, error")
     ap.add_argument("--herramientas", default=None, help="recomendadas, todas, ninguna, una lista o cambios («+leyenda -tablas»); "
-                    "manda sobre la cabecera y la identidad. Sin herramientas, error")
+                    "manda sobre la cabecera, el estilo y la identidad. Sin herramientas, error")
     args = ap.parse_args()
     perfil = cargar_perfil(args.perfil)
     PERMITIDOS = set(perfil.get("recursos", BLOQUES))
@@ -465,17 +538,44 @@ def main():
     def archivos(clave):
         v = identidad.get(clave, [])
         return [ruta_id.parent / x for x in ([v] if isinstance(v, str) else v)]
-    tema_id = identidad.get("tema")
-    if tema_id and tema_id.endswith(".json"):
-        tema_id = str(ruta_id.parent / tema_id)
-    tema = cargar_tema(args.tema or tema_id or "morado")
+    # El estilo del proyecto (decisiones 316 y 317): nueve grupos de parámetros con sus valores resueltos.
+    ruta_estilo = estilo_proyecto.buscar_estilo(src, args.identidad, args.estilo)
+    estilo = estilo_proyecto.cargar(ruta_estilo) if ruta_estilo else None
+    tema, aviso_sin_estilo = elegir_tema(args, identidad, ruta_id, src, ruta_estilo, estilo)
+    COLORES.update(estilo_proyecto.significado(estilo))
+    # Contraste (decisión 320): un texto por debajo de 4,5:1 (3:1 el grande) detiene el generador; un borde o una línea
+    # por debajo de 3:1, solo avisa. Sin estilo.json, el tema por defecto no bloquea (323): todo va en el aviso.
+    errores, avisos_linea = estilo_proyecto.comprobar_contraste(tema, estilo)
+    if estilo and errores:
+        sys.exit(f"Contraste insuficiente en el estilo del proyecto ({ruta_estilo}); se fija en su skill o a mano:\n  "
+                 + "\n  ".join(errores))
+    if aviso_sin_estilo:
+        notas = errores + avisos_linea
+        print(aviso_sin_estilo + (" Contraste del tema que el estilo tendrá que mejorar:\n  " + "\n  ".join(notas)
+                                  if notas else ""), file=sys.stderr)
+    elif avisos_linea:
+        print("Aviso: bordes y líneas con poco contraste en el estilo del proyecto:\n  " + "\n  ".join(avisos_linea),
+              file=sys.stderr)
     css_proyecto = "".join(f"\n  <style>\n{p.read_text(encoding='utf-8')}\n  </style>" for p in archivos("css"))
     js_proyecto = "".join(f"\n<script>\n{p.read_text(encoding='utf-8')}\n</script>" for p in archivos("js"))
-    logo = None
+    # Logo: --logo, los archivos que cita el estilo (316) o el de identidad.json.
+    logo, logo_oscuro, placa = None, None, False
+    logo_estilo = estilo_proyecto.param(estilo, "identidad", "logo")
     if args.logo and args.logo != "ninguno":
         logo = Path(args.logo)
+    elif args.logo != "ninguno" and logo_estilo:
+        lista = [logo_estilo] if isinstance(logo_estilo, str) else logo_estilo
+        logo = ruta_estilo.parent / lista[0]
+        for x in lista:
+            if not (ruta_estilo.parent / x).is_file():
+                sys.exit(f"No encuentro el logo «{x}» que cita {ruta_estilo}: {ruta_estilo.parent / x}")
     elif args.logo != "ninguno" and identidad.get("logo"):
         logo = ruta_id.parent / identidad["logo"]
+    oscuro_estilo = estilo_proyecto.param(estilo, "identidad", "logo-oscuro")
+    if logo and oscuro_estilo == "placa":
+        placa = True
+    elif logo and oscuro_estilo:
+        logo_oscuro = ruta_estilo.parent / oscuro_estilo
 
     if ruta_id:
         iconos_propios(identidad, ruta_id.parent)
@@ -485,12 +585,20 @@ def main():
     if sueltas:
         print("Aviso: estos «<…>» no son HTML y no se verán en el documento. Escríbelos entre comillas invertidas "
               "(`<nombre>`) o con &lt; y &gt;:\n  " + "\n  ".join(sueltas), file=sys.stderr)
+    aspecto = [f"«{k}: {datos[k]}»" for k in ASPECTO_CABECERA if k in datos]
+    if aspecto:
+        efecto = ("se ignora: manda el estilo del proyecto" if estilo else
+                  "vale mientras el proyecto no tenga estilo.json")
+        print(f"Aviso: la cabecera del .md fija el aspecto ({', '.join(aspecto)}); el aspecto es del estilo del proyecto "
+              f"(decisión 318) y {efecto}. Al migrar el documento, scripts/convertir_cabecera.py quita la clave.",
+              file=sys.stderr)
     tipo = args.tipo or datos.get("tipo") or perfil.get("tipo") or "Documento"
     h1 = re.search(r"^#\s+(.+)$", raw, re.M)
     if not h1:
         sys.exit("El documento necesita un título «# Nombre del proyecto».")
     nombre = h1.group(1).strip()
-    producto = args.producto if args.producto is not None else identidad.get("producto", nombre)
+    producto = (args.producto if args.producto is not None else
+                estilo_proyecto.param(estilo, "identidad", "producto", identidad.get("producto", nombre)))
     partes = re.split(r"^##\s+(.+)$", raw[h1.end():], flags=re.M)
     portada_md, secciones = partes[0], [(cabecera_seccion(c), md) for c, md in zip(partes[1::2], partes[2::2])]
     # Las citas «>» antes de la primera sección son avisos de alcance global: van al principio, fuera de las secciones.
@@ -500,17 +608,21 @@ def main():
     avisos = f'<div class="avisos-globales">{recuadros(a_html(avisos_md))}</div>' if avisos_md else ""
 
     # Portada. Con «antetitulo», el nombre es el titular y el lema va debajo; sin él, el lema es el titular.
-    oscura = datos.get("portada", "").lower() == "oscura"
-    # «portada: compacta»: sin antetítulo ni tipo, la raya pegada al título y la versión en una línea gris debajo.
-    compacta = datos.get("portada", "").lower() == "compacta"
+    # Su forma la da el estilo (portada.forma); sin estilo.json, la cabecera del .md, como antes.
+    # «compacta»: sin antetítulo ni tipo, la raya pegada al título y la versión en una línea gris debajo.
+    forma_md = datos.get("portada", "").lower()
+    forma = (estilo_proyecto.param(estilo, "portada", "forma", "clara") if estilo else
+             (forma_md if forma_md in ("oscura", "compacta") else "clara"))
+    oscura = forma == "oscura"
+    compacta = forma == "compacta"
+    fondo_primario = oscura and estilo_proyecto.param(estilo, "portada", "fondo") == "primario"
+    con_linea = estilo_proyecto.param(estilo, "portada", "linea", "si") not in ("no", False)
     marca = esc(datos.get("antetitulo") or nombre)
-    if logo:  # alto de 40 px, como en el CSS; ancho y alto explícitos para que la portada no salte al cargar
-        from PIL import Image
-        with Image.open(logo) as im:
-            ancho = round(im.width * 40 / im.height)
-        marca = f'<img src="{logo_data_uri(logo)}" alt="" width="{ancho}" height="40">' + marca
+    if logo:  # alto de 40 px, como en el CSS
+        marca = imagen_logo(logo_oscuro if oscura and logo_oscuro else logo, placa=oscura and placa) + marca
     lema = "<br>".join(esc(x) for x in lineas_lema(datos["lema"])) if datos.get("lema") else ""
-    p = [f'<header class="portada{" oscura" if oscura else ""}{" compacta" if compacta else ""}"><div class="portada-dentro">']
+    clase_portada = {"oscura": " oscura", "compacta": " compacta"}.get(forma, "")
+    p = [f'<header class="portada{clase_portada}"><div class="portada-dentro">']
     if not compacta:
         p.append(f'<p class="marca">{marca}</p>')
     if datos.get("antetitulo"):
@@ -521,10 +633,14 @@ def main():
         p.append(f'<p class="tipo-doc">{esc(tipo)}</p>')
     if datos.get("subtitulo"):
         p.append(f'<p class="subtitulo">{esc(datos["subtitulo"])}</p>')
-    if not oscura:
+    enlace = estilo_proyecto.param(estilo, "identidad", "enlace")
+    if not oscura and con_linea:
         p.append('<hr class="portada-linea">')
     if compacta and datos.get("version"):
         p.append(f'<p class="portada-datos">{esc(datos["version"])}</p>')
+    if enlace:
+        visible = re.sub(r"^https?://(www\.)?", "", enlace).rstrip("/")
+        p.append(f'<p class="enlace-proyecto"><a href="{esc(enlace)}">{esc(visible)}</a></p>')
     if portada_md.strip():
         p.append(f'<div class="idea">{a_html(portada_md)}</div>')
     # Portada sobria: la versión y el estado van al pie; las cifras ya no se muestran.
@@ -535,7 +651,8 @@ def main():
 
     # Menú fijo: por defecto solo los botones (las secciones ya se ven como títulos plegables).
     # Con «menu: secciones», también los enlaces de las secciones con tercera parte en su título; con «menu: no», sin menú.
-    opcion_menu = datos.get("menu", "botones").lower()
+    # Lo fija el documento; si no, el estilo (lectura.menu).
+    opcion_menu = str(datos.get("menu", estilo_proyecto.param(estilo, "lectura", "menu", "botones"))).lower()
     enlaces = [(ident, menu) for (_, _, menu, ident), _ in secciones if menu] if opcion_menu == "secciones" else []
     nav = ""
     if secciones and opcion_menu not in ("no", "false"):
@@ -544,21 +661,29 @@ def main():
                + '<span class="menu-botones"><button type="button" class="plegar">Plegar todo</button>'
                + '<button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>')
 
-    cuerpo = "".join(seccion(n, e, t, i, md) for n, ((e, t, _, i), md) in enumerate(secciones, 1))
-    cuerpo = etiquetar_tablas(cuerpo)
+    cuerpo = "".join(seccion(n, e, t, i, md, estilo) for n, ((e, t, _, i), md) in enumerate(secciones, 1))
+    cuerpo = estilo_proyecto.aplicar_diagramas(etiquetar_tablas(cuerpo), estilo)
     js = "\n" + bloque_kit("skills/crear_documentos/assets/plegado.js") + kit_scripts() if secciones else ""
     js += "\n" + bloque_kit("skills/crear_documentos/assets/fichas.js") if 'class="fichas' in cuerpo else ""
     # Lo propio del tipo de documento (perfil.json): después de lo común, antes de lo del proyecto.
     css_tipo = "".join("\n  " + bloque_propio(perfil["_carpeta"] / x) for x in perfil.get("css", []))
     js += "".join("\n" + bloque_propio(perfil["_carpeta"] / x) for x in perfil.get("js", []))
     # Si falta el destino o las herramientas, herramientas_activas se detiene con las opciones: no se elige por el autor.
-    destino = args.destino or datos.get("destino", identidad.get("destino"))
-    activas = herramientas_activas(args.herramientas or datos.get("herramientas", identidad.get("herramientas")), destino)
+    # Orden: la orden, la cabecera del .md, el estilo del proyecto (lectura) y identidad.json.
+    lectura = (estilo or {}).get("lectura", {})
+    destino = args.destino or datos.get("destino", lectura.get("destino", identidad.get("destino")))
+    activas = herramientas_activas(args.herramientas or datos.get("herramientas", lectura.get("herramientas",
+                                                                                              identidad.get("herramientas"))), destino)
     pie_texto = datos.get("pie", "")
     url_fuentes = tema["tipografias"]["url"]
     fuentes = ('  <link rel="preconnect" href="https://fonts.googleapis.com">\n'
                '  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
                f'  <link href="{url_fuentes}" rel="stylesheet">\n') if url_fuentes else ""
+    css_estilo = estilo_proyecto.css_parametros(estilo)
+    css_estilo = f'\n  <style data-estilo="v{estilo["version"]}">\n    {css_estilo}\n  </style>' if css_estilo else ""
+    color_tema = (tema["colores"]["primario"] if fondo_primario else tema["colores"]["oscuro"]) if oscura else "#ffffff"
+    # El pie cita la versión del estilo con que se generó (decisión 322).
+    origen = procedencia(src) + (f" · estilo v{estilo['version']}" if estilo else "")
 
     page = f"""<!DOCTYPE html>
 <html lang="es" data-destino="{destino_documento(destino)}" data-herramientas="{activas}">
@@ -566,13 +691,13 @@ def main():
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{esc(nombre)} · {esc(tipo)}</title>
-  <meta name="theme-color" content="{tema['colores']['oscuro'] if oscura else '#ffffff'}">
+  <meta name="theme-color" content="{color_tema}">
 {fuentes}  <style>
     {variables_css(tema)}
   </style>
   <style data-kit="{RUTA_CSS}">
 {CSS}
-  </style>{kit_estilos()}{lector_estilos(cuerpo)}{diagramas_estilos(cuerpo)}{css_tipo}{css_proyecto}
+  </style>{css_estilo}{kit_estilos()}{lector_estilos(cuerpo)}{diagramas_estilos(cuerpo)}{css_tipo}{css_proyecto}
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -580,7 +705,7 @@ def main():
 {nav}
 <div class="hoja">
   <main id="contenido" tabindex="-1">{avisos}{cuerpo}</main>
-  <footer class="pie"><p>{esc(" · ".join(x for x in (producto, tipo, version, datos.get("estado", "")) if x))}</p>{f"<p>{esc(pie_texto)}</p>" if pie_texto else ""}<p class="procedencia">{esc(procedencia(src))}</p></footer>
+  <footer class="pie"><p>{esc(" · ".join(x for x in (producto, tipo, version, datos.get("estado", "")) if x))}</p>{f"<p>{esc(pie_texto)}</p>" if pie_texto else ""}<p class="procedencia">{esc(origen)}</p></footer>
 </div>{js}{lector_scripts(cuerpo)}{diagramas_scripts(cuerpo, activas, bool(secciones))}{js_proyecto}
 </body>
 </html>
@@ -593,7 +718,8 @@ def main():
     if repetidos:
         sys.exit("Ids repetidos en la página: " + ", ".join(repetidos) + ". Cambia el {#id} de la sección o del elemento.")
     out.write_text(page, encoding="utf-8")
-    print(out, "· tema:", tema.get("nombre", args.tema), "· identidad:", ruta_id or "ninguna", "· secciones:", len(secciones))
+    print(out, "· estilo:", f"{ruta_estilo} v{estilo['version']}" if estilo else "ninguno",
+          "· tema:", tema.get("nombre", args.tema), "· identidad:", ruta_id or "ninguna", "· secciones:", len(secciones))
 
 
 if __name__ == "__main__":

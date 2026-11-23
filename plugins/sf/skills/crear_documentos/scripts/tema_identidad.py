@@ -26,6 +26,10 @@ ROLES = [
     ("segundo", "#2f5597", "#2f5598"),   # segundo color: lo que no es el foco ni el acento (el recorrido de un diagrama)
 ]
 
+# Roles que no traducen colores del .md (no están en ROLES): se derivan si faltan (decisión 319).
+ROLES_PRIMARIO = ("sobre-primario", "primario-texto")
+ROLES_VALIDOS = {r for r, _, _ in ROLES} | set(ROLES_PRIMARIO)
+
 # Tonos derivados: si el tema no da un rol, se calcula mezclando otro rol con blanco o negro.
 # (rol, rol de partida, color de mezcla, proporción de mezcla). Proporciones tomadas del tema morado.
 DERIVADOS = [
@@ -55,54 +59,86 @@ def mezclar(color: str, con: str, prop: float) -> str:
     a, b = _rgb(color), _rgb(con)
     return "#" + "".join(f"{round(x + (y - x) * prop):02x}" for x, y in zip(a, b))
 
-def cargar_tema(nombre_o_ruta: str) -> dict:
+def ruta_tema(nombre_o_ruta: str) -> Path:
     ruta = Path(nombre_o_ruta)
     if ruta.suffix != ".json":
         ruta = TEMAS / f"{nombre_o_ruta}.json"
     if not ruta.is_file():
         disponibles = ", ".join(sorted(p.stem for p in TEMAS.glob("*.json")))
         sys.exit(f"Tema no encontrado: {nombre_o_ruta}. Temas disponibles: {disponibles}")
-    tema = json.loads(ruta.read_text(encoding="utf-8"))
+    return ruta
+
+def cargar_tema(nombre_o_ruta: str) -> dict:
+    ruta = ruta_tema(nombre_o_ruta)
+    return normalizar_tema(json.loads(ruta.read_text(encoding="utf-8")), ruta.name)
+
+def luminancia(color: str) -> float:
+    canales = []
+    for c in _rgb(color):
+        c /= 255
+        canales.append(c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4)
+    return 0.2126 * canales[0] + 0.7152 * canales[1] + 0.0722 * canales[2]
+
+def contraste(a: str, b: str) -> float:
+    """Contraste WCAG entre dos colores #rrggbb (de 1 a 21)."""
+    la, lb = luminancia(a), luminancia(b)
+    return (max(la, lb) + .05) / (min(la, lb) + .05)
+
+def sobre(fondo: str, tinta: str = "#2b2b2f") -> str:
+    """El color de texto con más contraste sobre «fondo»: blanco o la tinta del texto. En empate, blanco."""
+    return "#ffffff" if contraste("#ffffff", fondo) >= contraste(tinta, fondo) else tinta
+
+def normalizar_tema(tema: dict, nombre: str) -> dict:
+    """Completa un tema (o los colores de un estilo.json): roles mínimos, tonos derivados, versión oscura, serie,
+    opciones de aspecto y tipografías. Se detiene con un rol, un color o una opción desconocidos."""
     colores = {k: v.lower() for k, v in tema.get("colores", {}).items()}
     if "primario" not in colores:
-        sys.exit(f"El tema {ruta.name} debe definir al menos el color «primario».")
-    desconocidos = set(colores) - {r for r, _, _ in ROLES}
+        sys.exit(f"El tema {nombre} debe definir al menos el color «primario».")
+    desconocidos = set(colores) - ROLES_VALIDOS
     if desconocidos:
-        sys.exit(f"El tema {ruta.name} usa roles de color desconocidos: {', '.join(sorted(desconocidos))}")
+        sys.exit(f"El tema {nombre} usa roles de color desconocidos: {', '.join(sorted(desconocidos))}. "
+                 f"Posibles: {', '.join(sorted(ROLES_VALIDOS))}")
+    for rol, valor in colores.items():
+        if not re.fullmatch(r"#[0-9a-f]{6}|#[0-9a-f]{3}", valor):
+            sys.exit(f"El tema {nombre} tiene un color no válido: {rol} {valor} (formato #rrggbb)")
     for rol, valor in COLORES_MINIMOS.items():
         colores.setdefault(rol, valor)
     for rol, base, con, prop in DERIVADOS:
         colores.setdefault(rol, mezclar(colores[base], con, prop))
+    # Roles de un primario claro (decisión 319): el texto sobre el primario y el primario usado como texto.
+    # Si faltan, se derivan: blanco o la tinta del texto, el de más contraste, y el propio primario.
+    colores.setdefault("sobre-primario", sobre(colores["primario"], tinta=colores["texto"]))
+    colores.setdefault("primario-texto", colores["primario"])
     tema["colores"] = colores
     # Opcional: la versión oscura del tema, rol por rol. La usan las páginas con data-theme="dark" (diagramas,
     # artifacts); el modo oscuro de «Lectura» de los documentos sigue invirtiendo la página.
     oscuro = {k: v.lower() for k, v in tema.get("colores-oscuro", {}).items()}
-    raros = set(oscuro) - {r for r, _, _ in ROLES}
+    raros = set(oscuro) - ROLES_VALIDOS
     if raros:
-        sys.exit(f"El tema {ruta.name} usa roles de color desconocidos en «colores-oscuro»: {', '.join(sorted(raros))}")
+        sys.exit(f"El tema {nombre} usa roles de color desconocidos en «colores-oscuro»: {', '.join(sorted(raros))}")
     for rol, valor in oscuro.items():
         if not re.fullmatch(r"#[0-9a-f]{6}", valor):
-            sys.exit(f"El tema {ruta.name} tiene un color no válido en «colores-oscuro»: {rol} {valor} (formato #rrggbb)")
+            sys.exit(f"El tema {nombre} tiene un color no válido en «colores-oscuro»: {rol} {valor} (formato #rrggbb)")
     tema["colores-oscuro"] = oscuro
     serie = [c.lower() for c in tema.get("serie", [])]
     for c in serie:
         if not re.fullmatch(r"#[0-9a-f]{6}", c):
-            sys.exit(f"El tema {ruta.name} tiene un color de «serie» no válido: {c} (formato #rrggbb)")
+            sys.exit(f"El tema {nombre} tiene un color de «serie» no válido: {c} (formato #rrggbb)")
     tema["serie"] = serie
     estilo = tema.get("estilo", {})
     for clave, valor in estilo.items():
         if clave == "esquinas":
             if not isinstance(valor, (int, float)) or valor < 0:
-                sys.exit(f"El tema {ruta.name}: «esquinas» debe ser un número de píxeles")
+                sys.exit(f"El tema {nombre}: «esquinas» debe ser un número de píxeles")
         elif clave == "opacidad":
             # De 0,75 a 1, título blanco (grande y en negrita por debajo de 1: 3:1 o más).
             # De 0,2 a 0,5, título en el color oscuro del bloque (4,5:1 o más). En medio no se lee bien ninguno.
             if not isinstance(valor, (int, float)) or not (0.75 <= valor <= 1 or 0.2 <= valor <= 0.5):
-                sys.exit(f"El tema {ruta.name}: «opacidad» (etiqueta sólida) debe estar entre 0.75 y 1 (título blanco) "
+                sys.exit(f"El tema {nombre}: «opacidad» (etiqueta sólida) debe estar entre 0.75 y 1 (título blanco) "
                          "o entre 0.2 y 0.5 (título oscuro)")
         elif clave not in ESTILO_OPCIONES or valor not in ESTILO_OPCIONES[clave]:
             opciones = "; ".join(f"{k}: {', '.join(v)}" for k, v in ESTILO_OPCIONES.items())
-            sys.exit(f"El tema {ruta.name}: estilo «{clave}: {valor}» no válido. Opciones: {opciones}; esquinas: número")
+            sys.exit(f"El tema {nombre}: estilo «{clave}: {valor}» no válido. Opciones: {opciones}; esquinas: número")
     tema["estilo"] = estilo
     tema["tipografias"] = {**TIPOGRAFIAS, **tema.get("tipografias", {})}
     return tema
@@ -159,12 +195,14 @@ def css_estilo(estilo: dict) -> str:
 def variables_css(tema: dict) -> str:
     c, t = tema["colores"], tema["tipografias"]
     lineas = [f"--{rol}: {c[rol]};" for rol, _, _ in ROLES]
+    lineas += [f"--{rol}: {c[rol]};" for rol in ROLES_PRIMARIO if rol in c]
     lineas.append("--primario-rgb: " + ", ".join(str(x) for x in _rgb(c["primario"])) + ";")
     lineas += [f"--fuente-{k}: {t[k]};" for k in ("texto", "titulos", "escena")]
     css = ":root { " + " ".join(lineas) + " }"
     oscuro = tema.get("colores-oscuro", {})
     if oscuro:
-        css += "\n    :root[data-theme=\"dark\"] { " +" ".join(f"--{r}: {oscuro[r]};" for r, _, _ in ROLES if r in oscuro)
+        roles = [r for r, _, _ in ROLES] + list(ROLES_PRIMARIO)
+        css += "\n    :root[data-theme=\"dark\"] { " + " ".join(f"--{r}: {oscuro[r]};" for r in roles if r in oscuro)
         if "primario" in oscuro:
             css += " --primario-rgb: " + ", ".join(str(x) for x in _rgb(oscuro["primario"])) + ";"
         css += " }"
@@ -175,7 +213,8 @@ def variables_css(tema: dict) -> str:
         tonos = {"primario": c, "oscuro": mezclar(c, "#000000", .38), "fondo": mezclar(c, "#ffffff", .95),
                  "borde": mezclar(c, "#ffffff", .81), "linea": mezclar(c, "#ffffff", .88),
                  "tenue": mezclar(c, "#ffffff", .55), "fondo-suave": mezclar(c, "#ffffff", .97),
-                 "fondo-medio": mezclar(c, "#ffffff", .84), "primario-vivo": mezclar(c, "#ffffff", .25)}
+                 "fondo-medio": mezclar(c, "#ffffff", .84), "primario-vivo": mezclar(c, "#ffffff", .25),
+                 "primario-texto": c, "sobre-primario": sobre(c, tema["colores"]["texto"])}
         decl = " ".join(f"--{k}: {v};" for k, v in tonos.items())
         decl += " --primario-rgb: " + ", ".join(str(x) for x in _rgb(c)) + ";"
         css += f"\n    .bloque-{n} {{ {decl} }}"

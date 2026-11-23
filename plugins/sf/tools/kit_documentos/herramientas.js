@@ -25,7 +25,7 @@
   const VERSION = '1.10.0';
   const main = document.querySelector('main, .report-body');
   if (!main) return;
-  const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title';
+  const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title, .seccion-titulo h2';
   const raiz = document.documentElement;
   const grande = matchMedia('(min-width: 1400px)');
   const suave = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';

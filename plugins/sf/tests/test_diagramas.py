@@ -62,7 +62,7 @@ class TemaTinta(unittest.TestCase):
         c, o = self.tema['colores'], self.tema['colores-oscuro']
         self.assertEqual((c['primario'], c['texto'], c['pagina']), ('#b8431c', '#25283a', '#fbfbfa'))
         self.assertEqual((o['primario'], o['texto'], o['pagina']), ('#f08a59', '#f2f2f0', '#1b1d2c'))
-        self.assertEqual(set(c), {r for r, _, _ in self.ti.ROLES})
+        self.assertEqual(set(c), {r for r, _, _ in self.ti.ROLES} | set(self.ti.ROLES_PRIMARIO))
         self.assertEqual(set(o), {r for r, _, _ in self.ti.ROLES})
         css = self.ti.variables_css(self.tema)
         self.assertIn('--primario: #b8431c;', css)

@@ -2,7 +2,7 @@
  * Solo usa las variables del tema (--primario, --oscuro, --fondo, --linea, --borde, --texto, --texto-suave,
  * --acento, --acento-fondo, --fondo-suave) y no depende de la hoja de estilos de cada documento. */
 .herramienta button, .abrir-herramienta { font: inherit; font-size: .82rem; font-weight: 700; line-height: 1.2; cursor: pointer;
-  border: 1px solid var(--primario); border-radius: var(--esquinas, 6px); background: var(--primario); color: #fff; padding: .45rem .8rem; }
+  border: 1px solid var(--primario); border-radius: var(--esquinas, 6px); background: var(--primario); color: var(--sobre-primario, #fff); padding: .45rem .8rem; }
 .herramienta button:disabled { opacity: .45; cursor: default; }
 .herramienta button:focus-visible, .herramienta input:focus-visible, .herramienta textarea:focus-visible, .abrir-herramienta:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 .herramienta ol, .herramienta p { margin: 0; padding: 0; }
@@ -21,7 +21,7 @@ html.con-columna .columna-herramientas { display: block; position: fixed; z-inde
 .herramienta { display: flex; flex-direction: column; gap: .7rem; color: var(--texto); background: #fff; }
 .herramienta[data-modo="oculto"] { display: none; }
 .herr-cabecera { display: flex; align-items: center; justify-content: space-between; gap: .5rem; user-select: none; }
-.herr-titulo { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario); }
+.herr-titulo { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); }
 .herr-acciones { display: flex; gap: .3rem; }
 .herr-acciones button { background: #fff; color: var(--oscuro); border-color: var(--borde); line-height: 1;
   min-width: 2rem; min-height: 2rem; padding: .25rem .45rem; display: inline-grid; place-items: center; font-size: 1.05rem; }
@@ -45,7 +45,7 @@ html:not(.herr-estrecho) .herramienta[data-modo="flotante"] .herr-cabecera { cur
 html.herr-estrecho .herramienta[data-modo="flotante"] { top: auto; left: 0 !important; right: 0; bottom: 0; width: auto;
   max-height: 70vh; border-radius: var(--esquinas, 10px) var(--esquinas, 10px) 0 0; border-width: 1px 0 0; }
 html.herr-estrecho .dc-anclar { display: none !important; }
-.abrir-herramienta { display: none; background: #fff; color: var(--primario); }
+.abrir-herramienta { display: none; background: #fff; color: var(--primario-texto, var(--primario)); }
 html.herr-estrecho .abrir-herramienta { display: inline-block; }
 .abrir-herramienta:hover { background: var(--fondo); color: var(--oscuro); border-color: var(--oscuro); }
 .botones-herramientas { display: none; }
@@ -61,7 +61,7 @@ html.herr-estrecho .botones-herramientas { display: flex; gap: .5rem; position: 
 .bd-resultados button { width: 100%; text-align: left; display: grid; gap: .25rem; padding: .6rem .7rem; font-weight: 400;
   background: var(--fondo-suave); color: var(--texto); border: 1px solid var(--linea); }
 .bd-resultados button:hover { background: var(--fondo); border-color: var(--primario); }
-.bd-seccion { font-size: .8125rem; font-weight: 750; color: var(--primario); }
+.bd-seccion { font-size: .8125rem; font-weight: 750; color: var(--primario-texto, var(--primario)); }
 .bd-fragmento { font-size: .875rem; line-height: 1.45; }
 .bd-fragmento b { background: var(--acento-fondo); }
 mark.bd-hit { background: var(--acento-fondo); color: inherit; border-radius: 2px; box-shadow: 0 0 0 1px var(--acento); }
@@ -77,7 +77,7 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 .barra-doc.sucio .dc-guardar::after { content: ""; position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%;
   background: #ff3b30; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .85), 0 0 6px 1px rgba(255, 59, 48, .8); }
 .dc-guardar { font: inherit; font-size: .8125rem; font-weight: 700; cursor: pointer; border: 1px solid var(--primario); border-radius: var(--esquinas, 6px);
-  background: var(--primario); color: #fff; padding: .3rem .75rem; min-height: 24px; }
+  background: var(--primario); color: var(--sobre-primario, #fff); padding: .3rem .75rem; min-height: 24px; }
 .dc-guardar:hover { background: var(--oscuro); border-color: var(--oscuro); }
 /* En la columna, la barra es su primera tarjeta: versión y herramientas, estado y «Guardar». */
 .columna-herramientas > .barra-doc { display: flex; flex-wrap: nowrap; min-width: 0; box-sizing: border-box; justify-content: space-between; align-items: center; gap: .7rem;
@@ -112,7 +112,7 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 .nt-nota textarea.nt-amplia { min-height: 9em; }
 .nt-pie:has(> span:first-child:empty) { justify-content: flex-end; }
 .nt-acciones { display: inline-flex; gap: .35rem; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-convertir { background: #fff; color: var(--primario); border-color: var(--borde); font-size: .75rem; padding: .3rem .6rem; }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-convertir { background: #fff; color: var(--primario-texto, var(--primario)); border-color: var(--borde); font-size: .75rem; padding: .3rem .6rem; }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-convertir:not(:disabled):hover { border-color: var(--primario); }
 .nt-cuantas { color: var(--texto-suave); letter-spacing: 0; }
 .nt-resumen { list-style: none; display: grid; gap: .25rem; }
@@ -128,10 +128,10 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 .herr-notas.por-seccion[data-modo="columna"] .nt-vacio { padding: .8rem .9rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); background: #fff; }
 /* La nota de la sección, en su sitio y solo para leer: se escribe en la columna. */
 .nota-espejo { margin: 1rem 0 .5rem; padding: .5rem .85rem .65rem; border: 1px dashed var(--borde, #b9c4c9); border-radius: 8px; background: var(--fondo-suave); cursor: pointer; }
-.nota-espejo-t { font-size: .75rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; color: var(--primario); margin-bottom: .2rem; }
+.nota-espejo-t { font-size: .75rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin-bottom: .2rem; }
 .nota-espejo-x { white-space: pre-wrap; font-size: .95rem; }
 @media print { .nota-espejo { display: none; } }
-.nt-grupo { font-size: .8125rem; font-weight: 750; color: var(--primario); margin-top: .4rem; }
+.nt-grupo { font-size: .8125rem; font-weight: 750; color: var(--primario-texto, var(--primario)); margin-top: .4rem; }
 .nt-nota { display: grid; gap: .4rem; padding: .6rem .65rem; background: var(--fondo-suave); border: 1px solid var(--linea); border-radius: 8px; }
 .nt-nota.actual { border-color: var(--primario); box-shadow: 0 0 0 2px var(--fondo); }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-cita { background: none; color: var(--texto); border: 0; border-left: 3px solid var(--acento); border-radius: 0; padding: .1rem 0 .1rem .55rem;
@@ -216,7 +216,7 @@ html[data-modo="oscuro"] .modal-lectura { background: rgba(255, 255, 255, .45); 
 .ml-caja .lc-version { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .9rem; margin: .8rem 0 0; padding-top: .7rem; border-top: 1px solid var(--linea); font-size: .75rem; color: var(--texto-suave); }
 .ml-caja .lc-version .dc-kit { margin-left: .7rem; }
 /* Chincheta de toda la barra de herramientas, a la derecha del engranaje: ancladas, en el primario; despegadas, inclinada */
-.dc-anclar[aria-pressed="true"] { color: var(--primario) !important; }
+.dc-anclar[aria-pressed="true"] { color: var(--primario-texto, var(--primario)) !important; }
 .dc-anclar[aria-pressed="false"] svg { transform: rotate(45deg); }
 .botones-herramientas > .dc-anclar, .menu-botones > .dc-anclar { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px;
   padding: 0; border: 0; border-radius: 50%; background: none; color: var(--texto-suave); cursor: pointer; }
@@ -262,7 +262,7 @@ table.anchos-propios th, table.anchos-propios td { overflow-wrap: anywhere; }
 .leyenda-doc { margin: 0 0 1.4rem; padding: .7rem 1rem; border: 1px solid var(--borde); border-radius: var(--esquinas, 10px); background: var(--fondo-suave); }
 .leyenda-doc > summary { cursor: pointer; font-weight: 700; font-size: .9375rem; list-style: none; }
 .leyenda-doc > summary::-webkit-details-marker { display: none; }
-.leyenda-doc > summary::before { content: "▸ "; color: var(--primario); }
+.leyenda-doc > summary::before { content: "▸ "; color: var(--primario-texto, var(--primario)); }
 .leyenda-doc[open] > summary::before { content: "▾ "; }
 .leyenda-doc > summary:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; border-radius: 4px; }
 .leyenda-doc dl { display: grid; grid-template-columns: minmax(0, 14rem) 1fr; gap: .55rem 1.1rem; margin: .8rem 0 .2rem; align-items: start; }
@@ -289,10 +289,10 @@ p.editando { outline: 2px solid var(--primario); outline-offset: 4px; border-rad
 .ed-grupo { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; }
 .ed-btn { min-width: 28px; min-height: 28px; padding: .15rem .5rem; font: inherit; font-size: .8125rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo-suave); color: var(--texto); cursor: pointer; }
 .ed-btn:hover { border-color: var(--primario); }
-.ed-btn[aria-pressed="true"] { background: var(--primario); color: #fff; border-color: var(--primario); }
+.ed-btn[aria-pressed="true"] { background: var(--primario); color: var(--sobre-primario, #fff); border-color: var(--primario); }
 .ed-fmt[data-cmd="bold"] { font-weight: 700; } .ed-fmt[data-cmd="italic"] { font-style: italic; }
 .ed-fmt[data-cmd="underline"] { text-decoration: underline; } .ed-fmt[data-cmd="strikeThrough"] { text-decoration: line-through; }
-.ed-aplicar { background: var(--primario); color: #fff; border-color: var(--primario); font-weight: 700; }
+.ed-aplicar { background: var(--primario); color: var(--sobre-primario, #fff); border-color: var(--primario); font-weight: 700; }
 .ed-pista { font-size: .75rem; color: var(--texto-suave); }
 .nt-convertir { font: inherit; font-size: .75rem; padding: .1rem .45rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo-suave); color: var(--texto); cursor: pointer; }
 
@@ -329,7 +329,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
    rótulo pequeño, el campo de texto abierto y «Convertir en párrafo» a la derecha, sin caja ni plegado. La nota general
    y «Tus notas» van al principio del documento. */
 :is(.nt-sitio, .nt-sitio-inicio) button { font: inherit; font-size: .8rem; font-weight: 600; line-height: 1.2; cursor: pointer;
-  border: 1px solid var(--linea); border-radius: var(--esquinas, 6px); background: #fff; color: var(--primario); padding: .4rem .8rem; }
+  border: 1px solid var(--linea); border-radius: var(--esquinas, 6px); background: #fff; color: var(--primario-texto, var(--primario)); padding: .4rem .8rem; }
 :is(.nt-sitio, .nt-sitio-inicio) button:not(:disabled):hover { border-color: var(--primario); }
 :is(.nt-sitio, .nt-sitio-inicio) button:disabled { opacity: .5; cursor: default; }
 :is(.nt-sitio, .nt-sitio-inicio) :is(ol, p) { margin: 0; padding: 0; }

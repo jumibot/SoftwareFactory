@@ -1,7 +1,7 @@
 ---
 name: crear_documentos
 user-invocable: false
-description: Lo común para crear cualquier documento de la Software Factory — el generador .md → HTML, el catálogo de recursos con su sintaxis (portada, secciones plegables, recuadros, tarjetas con color, icono y plegado, columnas, fichas con buscador, preguntas con opciones, fuentes y referencias, esquemas SVG), cuándo usar cada recurso y la norma de usarlos desde la primera versión, los temas y la identidad del proyecto, las herramientas de lectura, el respaldo en _respaldo/, la impresión A4 y la comprobación en escritorio y móvil. Úsala junto a la skill del tipo de documento (documento_fundacional, informe_deliberativa, documento_vision…), y también para crear un tipo de documento nuevo, añadir o cambiar un recurso, un tema o la identidad de un proyecto, o generar, respaldar y comprobar el HTML de un documento.
+description: Lo común para crear cualquier documento de la Software Factory — el generador .md → HTML, el catálogo de recursos con su sintaxis (portada, secciones plegables, recuadros, tarjetas con color, icono y plegado, columnas, fichas con buscador, preguntas con opciones, fuentes y referencias, esquemas SVG), cuándo usar cada recurso y la norma de usarlos desde la primera versión, el estilo del proyecto (docs/identidad/estilo.json, con su contraste), los temas y la identidad del proyecto, las herramientas de lectura, el respaldo en _respaldo/, la impresión A4 y la comprobación en escritorio y móvil. Úsala junto a la skill del tipo de documento (documento_fundacional, informe_deliberativa, documento_vision…), y también para crear un tipo de documento nuevo, añadir o cambiar un recurso, un tema o la identidad de un proyecto, o generar, respaldar y comprobar el HTML de un documento.
 ---
 
 # Crear documentos
@@ -43,7 +43,7 @@ Su generador es un envoltorio de pocas líneas que llama a `documento_a_html.py`
 
 ## Catálogo de recursos
 
-La sintaxis es la del `.md` que lee `documento_a_html.py` (Markdown con `attr_list`, `def_list`, `md_in_html` y tablas). Cada recurso dice para qué sirve; «Cuándo usar cada recurso», más abajo, dice cuándo conviene.
+La sintaxis es la del `.md` que lee `documento_a_html.py` (Markdown con `attr_list`, `def_list`, `md_in_html`, tablas y bloques de código con ```` ``` ````). Cada recurso dice para qué sirve; «Cuándo usar cada recurso», más abajo, dice cuándo conviene.
 
 ### Cabecera de datos
 
@@ -54,9 +54,9 @@ Entre dos líneas `---`, al principio; todo es opcional:
 - `subtitulo`, `pie`.
 - `version`, `estado`: van al pie, no a la portada.
 - `tipo`: el tipo de documento; por defecto, el del perfil.
-- `portada`: `oscura` para la portada sobre el color oscuro del tema; `compacta` para una cabecera breve, sin antetítulo ni tipo, con la raya pegada al título y la `version` en una línea gris debajo (también sigue en el pie).
+- `portada`: `oscura` para la portada sobre el color oscuro del tema; `compacta` para una cabecera breve, sin antetítulo ni tipo, con la raya pegada al título y la `version` en una línea gris debajo (también sigue en el pie). **Es aspecto**, y el aspecto lo fija el estilo del proyecto (`portada.forma`, decisión 318): el generador avisa; sin `estilo.json` vale como siempre y con él se ignora. `scripts/convertir_cabecera.py` la quita al migrar el documento.
 - `destino` y `herramientas`: ver «Herramientas y opciones de lectura». Sin ellos, el generador se detiene con las opciones.
-- `menu`: por defecto, el menú fijo lleva solo los botones («Buscar» en pantallas estrechas, «Plegar todo» e «Imprimir / PDF»). Con la columna de herramientas, «Plegar todo» e «Imprimir» pasan a la barra de «Guardar» como iconos y el menú vacío se oculta. `secciones` añade los enlaces a las secciones; `no` quita el menú.
+- `menu` (si falta, el del estilo, `lectura.menu`): por defecto, el menú fijo lleva solo los botones («Buscar» en pantallas estrechas, «Plegar todo» e «Imprimir / PDF»). Con la columna de herramientas, «Plegar todo» e «Imprimir» pasan a la barra de «Guardar» como iconos y el menú vacío se oculta. `secciones` añade los enlaces a las secciones; `no` quita el menú.
 
 ```markdown
 ---
@@ -84,7 +84,8 @@ Primer párrafo: la entradilla, más grande.
 
 - **Portada sobria:** marca (logo y antetítulo), titular y lema; nada más, para que la cabecera sea baja. La versión y el estado van al pie.
 - **Avisos de alcance global:** las citas `>` entre el `# Nombre` y la primera `##` van al principio, fuera de toda sección, como recuadro.
-- **Secciones:** `## Etiqueta | Título | Menú {#id}`. La etiqueta sale como «01 / ETIQUETA» y el título es el `h2`. El texto de menú solo se usa con `menu: secciones`. El `{#id}` sirve para enlazar la sección. Cada sección es plegable (`assets/plegado.js`): solo la primera está abierta al cargar, un enlace interno abre la de destino y al imprimir se abre todo.
+- **Secciones:** `## Etiqueta | Título | Menú {#id}`. La etiqueta sale como «01 / ETIQUETA» y el título es el `h2`; una sección sin etiqueta (`## Título`) sale con su número y su título, sin antetítulo repetido (306). El estilo puede cambiar la forma (`secciones.cabecera`). El texto de menú solo se usa con `menu: secciones`. El `{#id}` sirve para enlazar la sección. Cada sección es plegable (`assets/plegado.js`): por defecto solo la primera está abierta al cargar (`secciones.plegado`), un enlace interno abre la de destino y al imprimir se abre todo.
+- **Bloques de código:** con ```` ```lenguaje ````, en un bloque con fondo suave y filete, y con la sintaxis coloreada (`scripts/resaltar_codigo.py`: `json`, `bash` o `powershell`, `python`, `javascript` o `typescript`, `css`, `html` o `xml`, `sql`, `yaml`; sin lenguaje, como JSON si lo es).
 
 ### Párrafos
 
@@ -113,7 +114,7 @@ Los bloques empiezan con `::: tipo` y acaban con `:::`, y se pueden anidar.
 
 - **`::: tarjetas 3`** es una rejilla de 1, 2 o 3 columnas. Cada tarjeta empieza en un `###` (o en un `####`, si la primera lo usa).
 - **Tarjetas plegables:** `::: tarjetas 3 plegables` hace cada tarjeta un `<details>`: la cabecera con el título se ve siempre; se abren en pantallas anchas, se pliegan al cargar en el móvil y se abren al imprimir. Para tarjetas largas que en el móvil harían una columna interminable. Un bloque con dos o más tarjetas plegables (también preguntas y fichas) lleva delante el botón «Plegar las tarjetas / Desplegar las tarjetas» (`assets/plegado.js`), que no sale al imprimir ni en la copia guardada.
-- **Tarjetas con color e icono:** `### Título {color=turquesa icono=codigo}` en el título de una tarjeta le da una cabecera con ese color de fondo y el icono; con `{: #id}` detrás, su ancla. Colores: `turquesa`, `naranja`, `verde`, `frambuesa` o `#rrggbb`. Iconos: `codigo`, `dialogo`, `documento`, `rama`, `carpeta`, `lupa`, `check`, `aviso`, y los propios del proyecto (ver «Identidad del proyecto»). Dentro, los campos llevan la marca del color, y un campo cuyo valor es una lista corta (`:   - uno` y `    - dos`) sale en chips.
+- **Tarjetas con color e icono:** `### Título {color=turquesa icono=codigo}` en el título de una tarjeta le da una cabecera con ese color de fondo y el icono; con `{: #id}` detrás, su ancla. Colores: `turquesa`, `naranja`, `verde`, `frambuesa`, los de significado del estilo (`correcto`, `aviso`, `error`, `info`; por defecto, verde, naranja, frambuesa y turquesa) o `#rrggbb`. Iconos: `codigo`, `dialogo`, `documento`, `rama`, `carpeta`, `lupa`, `check`, `aviso`, y los propios del proyecto (ver «Identidad del proyecto»). Dentro, los campos llevan la marca del color, y un campo cuyo valor es una lista corta (`:   - uno` y `    - dos`) sale en chips.
 - **`::: columnas`** son columnas separadas por una línea `|||`, por ejemplo dentro de una tarjeta.
 - **`::: fichas 2`** son tarjetas con buscador de texto y filtro por insignias (`assets/fichas.js`). Al buscar un texto, las fichas plegables que coinciden se abren.
 - **`::: preguntas 2 plegables`** son preguntas con opciones, para lo que el lector tiene que decidir. Cada pregunta es una tarjeta con cabecera que empieza en su título, con sus opciones como campos (`Opción A` / `:   …`), el campo `Recomendación` y, si ya se decidió, el campo `Decisión`. En el título, entre llaves:
@@ -210,11 +211,48 @@ Son mínimos para la primera versión, no un adorno: cada recurso sigue justific
 - **Sin códigos que el lector aún no conoce.** Un código interno (S1, P3…) solo se usa después de la sección que lo define.
 - **Solo la última decisión** y **sin paja**: nada sobre el propio documento ni obviedades.
 
+## Estilo del proyecto
+
+El aspecto de los documentos es del proyecto, no de cada documento (decisiones 305 y 316 a 323): **`docs/identidad/estilo.json`** (o `doc/identidad/`), que el generador busca subiendo carpetas desde el `.md`, junto a `identidad.json`. Guarda todos los valores ya resueltos (el tema del que se partió queda solo como `origen`), una `version` que sube con cada vuelta de afinado, su `historial` (una línea por vuelta: `version`, `fecha`, `cambio`, `motivo`) y la versión anterior en `_respaldo/`. El pie de cada documento cita la versión del estilo con que se generó («estilo v3»). Lo escribe la skill de estilo; aquí, lo que lee el generador (`scripts/estilo_proyecto.py`).
+
+**Cada parámetro que falta toma su valor por defecto, que es lo que el generador hacía sin él**: sin el parámetro, nada cambia. Un grupo, un parámetro o un valor desconocidos detienen el generador y enseñan los posibles. Los nueve grupos:
+
+| Grupo | Parámetros (por defecto) |
+| --- | --- |
+| `identidad` | `producto` (el de `identidad.json` o el título), `logo` (ruta o lista de rutas; la primera va en la portada, a 40 px de alto, SVG o imagen; por defecto, el de `identidad.json`), `logo-oscuro` (otra ruta para la portada oscura, o `placa`: el mismo sobre una placa blanca; por defecto, el mismo), `enlace` (url del proyecto, bajo el subtítulo de la portada; por defecto, ninguno) |
+| `colores` | Los roles del tema (solo `primario` es obligatorio; los demás se derivan), `sobre-primario` (el texto sobre el primario: blanco o la tinta del texto, el de más contraste) y `primario-texto` (el primario usado como texto: el propio primario), para un primario claro (319); `colores-oscuro`, `serie` (un color por sección, en ciclo; por defecto, ninguna) y `significado` (`correcto`, `aviso`, `error`, `info`, para las tarjetas) |
+| `letra` | `texto`, `titulos`, `escena`, `url` (las del tema `morado`), `codigo` (la monoespaciada del navegador), `tamano` (`16`, `17` o `18` px; 17), `escala` (`editorial` o `compacta`, la de la visión; editorial) |
+| `portada` | `forma` (`clara`, `oscura` o `compacta`; clara), `fondo` de la oscura (`oscuro` o `primario`; oscuro), `linea` bajo el titular en la clara (`si` o `no`; si) |
+| `secciones` | `cabecera` (`numero-etiqueta`, `numero-titulo` o `titulo`; numero-etiqueta, y sin etiqueta, número y título), `etiqueta` (`tinte`: el rótulo en el color del primario; `solida`, `linea` o `ninguna`; tinte), `opacidad` con `solida` (de 0.2 a 0.5, rótulo oscuro; de 0.75 a 1, rótulo `sobre-primario`; 1), `marcador` de plegado (`flecha`, `circulo`, `cuadrado` o `ninguno`; flecha), `plegado` al cargar (`primera`, `todas` o `ninguna`; primera) |
+| `pagina` | `ancho` (de 980 a 1400 px; 1240), `esquinas` (de 0 a 16 px; las de cada pieza), `codigo` (`bloque` o `linea`; bloque), `pie` (`claro` u `oscuro`; claro) |
+| `lectura` | `destino`, `herramientas` y `menu`: el valor de partida de cada documento, que puede cambiarlo en su cabecera (318) |
+| `diagramas` | Los ajustes de la herramienta «Diagramas» (`forma`, `borde`, `fondo`, `grosor`, `punta`, `esquinas`, `recorrido`… con los valores del selector) y `tema` (`documento` o uno del catálogo): el generador los pone en cada figura y el lector los sigue cambiando |
+| `aparte` | `escenario` (`derivado` o `claro`) y `hud` (`primario`, `acento` o `#rrggbb`) de la infografía técnica, que no pasa por el generador |
+
+```json
+{
+  "version": 2,
+  "origen": "colorido",
+  "historial": [{"version": 1, "fecha": "2026-11-10", "cambio": "estilo de partida", "motivo": "muestra B"},
+                {"version": 2, "fecha": "2026-11-12", "cambio": "secciones.etiqueta: solida, opacidad 0.4", "motivo": "títulos más visibles"}],
+  "identidad": {"producto": "SoftwareFactory", "logo": ["logo.svg"]},
+  "colores": {"primario": "#e0a800", "sobre-primario": "#1f2937", "primario-texto": "#7a5a00"},
+  "secciones": {"etiqueta": "solida", "opacidad": 0.4},
+  "lectura": {"destino": "proyecto", "herramientas": "recomendadas"}
+}
+```
+
+**Contraste** (decisión 320). Antes de generar, el generador comprueba cada color de texto sobre el fondo en que la maqueta lo pone (texto, enlaces y rótulos, botones, portada oscura, recuadros, cabecera sólida, serie, significado): **se detiene si un texto baja de 4,5:1** (3:1 el texto grande) y dice cuál, dónde y cuánto da; **un borde o una línea por debajo de 3:1 solo avisa**. `texto-tenue` es de líneas y zonas (diagramas), no de texto.
+
+**Sin `estilo.json`** (decisión 323), el generador sale del paso con los valores por defecto de un tema: el de `--tema`, el de `identidad.json` o el del catálogo más cercano al color de sesión del proyecto (`.sf/proyecto.json`); si no, `morado`. Avisa una vez, con lo que el tema tendrá que mejorar de contraste, y no se detiene. La cabecera del `.md` sigue valiendo para `portada` hasta que el proyecto tenga estilo.
+
+**El aspecto no va en el `.md`** (decisión 318): `portada`, `tema` o `logo` en la cabecera dan un aviso, y al migrar un documento `python scripts/convertir_cabecera.py <doc>.md` los quita y pasa los comentarios de opciones de la visión (`<!-- destino: … -->`) a la cabecera `---`; con `--comprobar`, solo dice qué cambiaría. La lectura (`destino`, `herramientas`, `menu`) sigue en cada documento.
+
 ## Temas e identidad
 
 ### Identidad del proyecto
 
-Cada proyecto guarda su identidad en `doc/identidad/` o `docs/identidad/`, con un `identidad.json` que el generador busca subiendo carpetas desde el `.md`. Las rutas son relativas a esa carpeta. Claves:
+Cada proyecto guarda su identidad en `doc/identidad/` o `docs/identidad/`, con un `identidad.json` (y su `estilo.json`, ver «Estilo del proyecto») que el generador busca subiendo carpetas desde el `.md`. Las rutas son relativas a esa carpeta. Claves:
 
 - `tema`: nombre de un tema de esta skill (`assets/temas/`) o ruta a un tema propio (`.json`).
 - `logo`: imagen de la cabecera.
@@ -308,7 +346,7 @@ Al cambiar cualquier archivo de la biblioteca se sube `VERSION` en `herramientas
 python -I -X utf8 <skills>/<skill del tipo>/scripts/<generador>.py <documento>.md
 ```
 
-El generador de cada tipo llama a `scripts/documento_a_html.py` con su perfil. Escribe el `.html` junto al `.md`; el `.md` es la fuente y el `.html` no se edita a mano. Opciones: `--tema`, `--identidad <carpeta>|ninguna`, `--logo <ruta>|ninguno`, `--producto`, `--tipo`, `--destino`, `--herramientas`, que mandan sobre la cabecera y la identidad. Paquetes de Python: `markdown` y Pillow (solo si hay logo).
+El generador de cada tipo llama a `scripts/documento_a_html.py` con su perfil. Escribe el `.html` junto al `.md`; el `.md` es la fuente y el `.html` no se edita a mano. Opciones: `--estilo <ruta>|ninguno` (por defecto, el de la carpeta de `--identidad` o `docs/identidad/estilo.json`; con `--identidad ninguna`, ninguno), `--tema` (solo sin estilo), `--identidad <carpeta>|ninguna`, `--logo <ruta>|ninguno`, `--producto`, `--tipo`, `--destino`, `--herramientas`, que mandan sobre la cabecera, el estilo y la identidad. Paquetes de Python: `markdown` y Pillow (solo si hay un logo que no es SVG).
 
 **Avisos.** Markdown deja pasar el HTML en bruto, así que un `<documento>` escrito en el texto se toma por una etiqueta y no se ve. El generador avisa de cada `<…>` que no es HTML, con su línea, fuera del código: se escribe entre comillas invertidas (`` `<documento>` ``) o con `&lt;` y `&gt;`. También avisa de una pregunta abierta sin recomendación. Los avisos no detienen la generación: se corrigen antes de entregar.
 
