@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 334 | 2026-11-23 | [«En curso» pasa a azul o cian en el panel y el amarillo queda para la SF](334-2026-11-23-en-curso-pasa-a-azul-o-cian-en-el-panel-y-el-amarillo-queda-para-la-sf.md) |
 | 333 | 2026-11-23 | [El principal no abre menús con texto a medio escribir ni fuera del foco](333-2026-11-23-el-principal-no-abre-menus-con-texto-a-medio-escribir-ni-fuera-del-foco.md) |
 | 332 | 2026-11-23 | [Tras un rato sin escribir, la SF deja una sugerencia en la caja del prompt](332-2026-11-23-tras-un-rato-sin-escribir-la-sf-deja-una-sugerencia-en-la-caja-del-prompt.md) |
 | 331 | 2026-11-23 | [Sin estilo.json no se aplican las opciones de estilo de un tema, y los explicativos toman su tipo al migrarlos](331-2026-11-23-sin-estilo-json-no-se-aplican-las-opciones-de-estilo-de-un-tema-y-los-explicativos-toman-su-tipo-al-migrarlos.md) |
