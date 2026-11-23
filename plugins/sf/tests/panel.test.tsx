@@ -5,6 +5,7 @@ import { avisoComprobacion, avisoDependencias, proximaComprobacion, subirManifie
 import { claveIncorporacion, colorDelEstilo, tareasEnDevelop } from '../hooks/lectura'
 import { colorDeSesion } from '../hooks/constantes'
 import { PRUEBA_PYTHON } from '../hooks/python'
+import { firmaEstructura, firmaLista, vistaCuerpo } from '../hooks/panel'
 import { NOMBRE, NOMBRE_ANCHO, bienvenida, partir } from '../hooks/bienvenida'
 import { BARRA, COLOR_BARRA, COLOR_LETRAS, LETRAS, logoSvg } from '../hooks/logo'
 
@@ -2845,6 +2846,85 @@ test('Cabecera: fija al hacer scroll; el cuerpo sube bajo ella, hasta el final d
   await scroll(-1000)
   expect((await cuerpo())?.props?.top).toBe(0)
   expect(ventana).toBe(0)
+  await ui.unmount()
+})
+
+// Desplazamiento del cuerpo (tarea 406): no se queda subido cuando la lista cambia, el panel se vuelve a abrir o cabe
+// entero, y lo que queda fuera de la vista se marca.
+test('Desplazamiento: vale con la misma lista, no pasa del final medido y sabe lo de abajo con la misma estructura', () => {
+  const v = { filas: 5, contenido: 60, lista: 'a', estructura: 'x' }
+  expect(vistaCuerpo(v, 'a', 'x', 40)).toEqual({ filas: 5, abajo: 15, medida: true })
+  // Otra lista: arriba, sin medida.
+  expect(vistaCuerpo(v, 'b', 'x', 40)).toEqual({ filas: 0, abajo: 0, medida: false })
+  // La ventana crece hasta que cabe entero: arriba.
+  expect(vistaCuerpo(v, 'a', 'x', 60).filas).toBe(0)
+  expect(vistaCuerpo(v, 'a', 'x', 58).filas).toBe(2)
+  // Otra estructura: las filas siguen, pero lo de abajo ya no se sabe.
+  expect(vistaCuerpo(v, 'a', 'y', 40)).toEqual({ filas: 5, abajo: 0, medida: false })
+  // Sin ventana conocida: las filas, tal cual, y nada abajo.
+  expect(vistaCuerpo(v, 'a', 'x', null)).toEqual({ filas: 5, abajo: 0, medida: false })
+  expect(firmaLista([{ id: 1, estado: 'en-curso' }, { id: 2, estado: 'en-cola', observando: true }] as never)).toBe('1:en-curso,2:en-cola*')
+  // La estructura no cambia con los textos (una duración), sí con las filas.
+  const caja = (...t: string[]) => ({ type: 'Box', props: {}, children: t.map(x => ({ type: 'Text', props: {}, children: [x] })) })
+  expect(firmaEstructura(caja('hace 3 min'))).toBe(firmaEstructura(caja('hace 4 min')))
+  expect(firmaEstructura(caja('a')) === firmaEstructura(caja('a', 'b'))).toBe(false)
+})
+
+test('Desplazamiento: «▲ N filas más» arriba y «▼ N filas más» abajo al subir el cuerpo; la marca de arriba vuelve arriba', async (...m) => {
+  const [$] = m
+  await preparar(m, { extra: GIT('ref: refs/heads/develop\n') })
+  const ui = await $.ui.mount({ ...ANCHO, surface: 'terminal' })
+  const scroll = (by: number) =>
+    $.ui.scroll({ component: 'Pane', requestId: 'sf-estado', offset: 0, by, bodyRows: 40, contentRows: 100, origin: { kind: 'person' } })
+  const cuerpo = async () => buscar((await ui.drawn()) as Nodo, desplazado)
+  const marca = async (t: string) => buscar((await ui.drawn()) as Nodo, n => n.props?.position === 'absolute' && JSON.stringify(n).includes(t))
+  expect(await ui.find({ type: 'Button', key: 'mas-arriba:boton' })).toBe(undefined)
+  await scroll(3)
+  expect((await cuerpo())?.props?.top).toBe(-3)
+  // Arriba, sobre la primera fila que se ve; abajo, sobre la última: la ventana menos la cabecera (rama: 4 filas).
+  expect((await marca('▲ 3 filas más'))?.props?.top).toBe(0)
+  expect((await marca('▼ 57 filas más'))?.props?.top).toBe(40 - 4 - 1)
+  await ui.press({ key: 'mas-arriba:boton' })
+  expect((await cuerpo())?.props?.top).toBe(0)
+  expect(await ui.find({ type: 'Button', key: 'mas-arriba:boton' })).toBe(undefined)
+  expect(await marca('▼ 60 filas más')).not.toBe(undefined)
+  await ui.unmount()
+})
+
+test('Desplazamiento: el cuerpo vuelve arriba si cambia la lista de tareas o si el panel cabe entero', async (...m) => {
+  const [$] = m
+  const { cambiarCola } = await preparar(m, { extra: GIT('ref: refs/heads/develop\n') })
+  const ui = await $.ui.mount({ ...ANCHO, surface: 'terminal' })
+  const scroll = (by: number) =>
+    $.ui.scroll({ component: 'Pane', requestId: 'sf-estado', offset: 0, by, bodyRows: 40, contentRows: 100, origin: { kind: 'person' } })
+  const cuerpo = async () => buscar((await ui.drawn()) as Nodo, desplazado)
+  await scroll(10)
+  expect((await cuerpo())?.props?.top).toBe(-10)
+  // Se cierran tareas: la lista cambia y el cuerpo se ve desde arriba, sin marca.
+  await cambiarCola(CERRADAS)
+  expect((await cuerpo())?.props?.top).toBe(0)
+  expect(JSON.stringify(await ui.drawn()).includes('▲')).toBe(false)
+  // Con la misma lista, el siguiente scroll parte de arriba.
+  await scroll(2)
+  expect((await cuerpo())?.props?.top).toBe(-2)
+  // La ventana crece hasta que el árbol medido cabe entero: arriba, sin marcas.
+  await ui.redraw({ ...ANCHO.props, scroll: { offset: 0, bodyRows: 100 } })
+  expect((await cuerpo())?.props?.top).toBe(0)
+  expect(/[▲▼] \d+ filas? más/.test(JSON.stringify(await ui.drawn()))).toBe(false)
+  await ui.unmount()
+})
+
+test('Desplazamiento: al cerrarse el panel (/sf lo cierra y lo abre), se vuelve a abrir arriba', async (...m) => {
+  const [$] = m
+  const abierto = { id: 'sf-estado', title: 'Software Factory', isShown: true, isFocused: false, isPlaced: true }
+  const { cierres } = await preparar(m, { extra: GIT('ref: refs/heads/develop\n'), paneles: () => [abierto] })
+  const ui = await $.ui.mount({ ...ANCHO, surface: 'terminal' })
+  await $.ui.scroll({ component: 'Pane', requestId: 'sf-estado', offset: 0, by: 7, bodyRows: 40, contentRows: 100, origin: { kind: 'person' } })
+  expect(buscar((await ui.drawn()) as Nodo, desplazado)?.props?.top).toBe(-7)
+  await $.command.run({ command: 'sf', args: '' })
+  expect(cierres).toEqual(['sf-estado'])
+  await ui.redraw()
+  expect(buscar((await ui.drawn()) as Nodo, desplazado)?.props?.top).toBe(0)
   await ui.unmount()
 })
 

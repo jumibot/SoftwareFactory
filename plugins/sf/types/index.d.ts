@@ -62,6 +62,11 @@ export type Incorporacion = { caso: string; actual: number; pausa: boolean; reca
 // actual era `actual`; al cambiar el actual, la lista vuelve a seguirlo.
 export type VistaIncorporacion = { desde: number; actual: number }
 
+// Lo que el cuerpo del panel ha subido con el scroll (filas) y lo último que el motor midió al moverlo: el alto del
+// árbol (contenido), y la lista de tareas y la estructura del cuerpo de entonces. Con otra lista, el
+// desplazamiento ya no vale y el cuerpo vuelve arriba; con otra estructura, la medida ya no vale (tarea 406).
+export type VistaPanel = { filas: number; contenido: number | null; lista: string; estructura: string }
+
 export type Estado = {
   // 'sf': repositorio de la propia SF; 'proyecto': tiene .sf/proyecto.json (o el antiguo docs/sf.json); 'sin-sf': ninguno
   tipo: 'sf' | 'proyecto' | 'sin-sf'
@@ -125,6 +130,6 @@ export type AvisosSubagentes = { claves: string[]; nueva: boolean; sesion?: stri
 
 declare module 'claude-code' {
   interface PluginState {
-    'sf': { estado: Shaped<Estado | null>; nuevasEnSf: number; prompts: number; avisadoPanel: number; inicioSesion: number; minuto: number; sesion: Sesion; panelCerrado: boolean; plegado: Record<string, boolean>; desplazamiento: number; turnoAvisos: number; identidadPuesta: { color: string | null; nombre: string | null }; prueba: Prueba; porConfirmar: string | null; fuenteRelease: FuenteVersion | null; actualizacion: Actualizacion | null; publicadaConocida: string | null; comprobadaEn: number | null; subagentesVistos: Record<string, SubagenteVisto>; pantallaOfrecida: boolean; reglasDadas: boolean; incorporarOfrecido: boolean; avisosSubagentes: AvisosSubagentes; vistaIncorporacion: VistaIncorporacion | null; sesionSf: 'activa' | 'apagada' | 'inactiva' | null; latidoIds: string[]; avisoSesionSf: string | null; latidoCaducadoDicho: boolean }
+    'sf': { estado: Shaped<Estado | null>; nuevasEnSf: number; prompts: number; avisadoPanel: number; inicioSesion: number; minuto: number; sesion: Sesion; panelCerrado: boolean; plegado: Record<string, boolean>; vistaPanel: VistaPanel; turnoAvisos: number; identidadPuesta: { color: string | null; nombre: string | null }; prueba: Prueba; porConfirmar: string | null; fuenteRelease: FuenteVersion | null; actualizacion: Actualizacion | null; publicadaConocida: string | null; comprobadaEn: number | null; subagentesVistos: Record<string, SubagenteVisto>; pantallaOfrecida: boolean; reglasDadas: boolean; incorporarOfrecido: boolean; avisosSubagentes: AvisosSubagentes; vistaIncorporacion: VistaIncorporacion | null; sesionSf: 'activa' | 'apagada' | 'inactiva' | null; latidoIds: string[]; avisoSesionSf: string | null; latidoCaducadoDicho: boolean }
   }
 }

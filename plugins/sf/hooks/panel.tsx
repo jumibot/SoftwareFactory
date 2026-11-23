@@ -1,6 +1,6 @@
 import { atom, read, update } from 'claude-code'
 import type { Register, RenderChildren } from 'claude-code'
-import type { Actualizacion, Cerrada, Estado, FuenteVersion, Incorporacion, Paso, Peticion, Prueba, Sesion, VistaIncorporacion } from '../types'
+import type { Actualizacion, Cerrada, Estado, FuenteVersion, Incorporacion, Paso, Peticion, Prueba, Sesion, VistaIncorporacion, VistaPanel } from '../types'
 import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, observable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, refrescar, eliminable, eliminarTarea, enCursoOObservando, enCursoTarea, ponibleEnCurso, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
 import { CLAVE_PLEGADO, COLORES, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO, RGB } from './constantes'
 import { COLOR_MARCA, COLOR_MARCA_CLARO, DESPUES, LEMA, LETRA_MARCA, NOMBRE, NOMBRE_ANCHO, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
@@ -40,8 +40,38 @@ const panelCerrado = atom({ plugin: 'sf', key: 'panelCerrado' } as const, false)
 // Secciones del panel plegadas (true) o abiertas (false) por el propietario; las que no ha tocado siguen
 // PLEGADAS_DE_INICIO. Se recuerdan entre sesiones en $.store.
 const plegado = atom({ plugin: 'sf', key: 'plegado' } as const, {} as Record<string, boolean>)
-// Filas que el cuerpo del panel ha subido con el scroll: la cabecera queda fija encima.
-const desplazamiento = atom({ plugin: 'sf', key: 'desplazamiento' } as const, 0)
+// Filas que el cuerpo del panel ha subido con el scroll, con la última medida del motor: la cabecera queda fija encima.
+const VISTA_ARRIBA: VistaPanel = { filas: 0, contenido: null, lista: '', estructura: '' }
+const vistaPanel = atom({ plugin: 'sf', key: 'vistaPanel' } as const, VISTA_ARRIBA)
+// La lista de tareas y la estructura del cuerpo del último dibujo, para el scroll, que no las ve (tarea 406); y lo último
+// que el panel pidió medir, para no pedirlo dos veces.
+let listaDibujada = ''
+let estructuraDibujada = ''
+let medidaPedida = ''
+
+// La lista de tareas tal como el panel la enseña: cada una con su estado. Si cambia, el cuerpo vuelve arriba (tarea 406).
+export const firmaLista = (cola: readonly Peticion[]) => cola.map(p => `${String(p.id)}:${p.estado}${p.observando ? '*' : ''}`).join(',')
+
+// La forma del cuerpo sin sus textos: cada elemento por su tipo y sus hijos. Cambia al añadir o quitar filas (una
+// sección plegada, un paso), no al cambiar una duración (tarea 406).
+export function firmaEstructura(n: unknown): string {
+  if (Array.isArray(n)) return n.map(firmaEstructura).join('')
+  if (typeof n !== 'object' || n === null) return ''
+  const x = n as { type?: unknown; props?: { children?: unknown }; children?: unknown }
+  const tipo = typeof x.type === 'string' ? x.type.slice(0, 1) : '?'
+  return `${tipo}(${firmaEstructura(x.children ?? x.props?.children)})`
+}
+
+// Lo que se ve del cuerpo (tarea 406): las filas subidas, que valen solo con la misma lista y nunca pasan del final del
+// árbol medido, y las que quedan fuera de la vista abajo, que se saben solo con una medida de la misma estructura.
+// `ventana`, las filas que el motor da al panel (sin ella, nada abajo).
+export function vistaCuerpo(v: VistaPanel, lista: string, estructura: string, ventana: number | null) {
+  if (v.lista !== lista) return { filas: 0, abajo: 0, medida: false }
+  const contenido = ventana === null ? null : v.contenido
+  const filas = Math.max(0, contenido === null ? v.filas : Math.min(v.filas, contenido - ventana!))
+  const medida = contenido !== null && v.estructura === estructura
+  return { filas, abajo: medida ? Math.max(0, contenido - ventana! - filas) : 0, medida }
+}
 // La parte de la lista de la incorporación que se ve, movida a mano (tarea 333); null, la que sigue al paso actual.
 const vistaIncorporacion = atom({ plugin: 'sf', key: 'vistaIncorporacion' } as const, null as VistaIncorporacion | null)
 // En una superficie gráfica, los apartados del panel (cabecera, bienvenida, incorporación, tareas) y las secciones de
@@ -323,6 +353,9 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     if (e.id !== PANEL) return next(e)
     $.ui.log(`panel cerrado: ${e.origin.kind}`, { to: 'debug' })
     if (e.origin.kind === 'person') await update($, panelCerrado, () => true).catch(() => undefined)
+    // Al volver a abrirse, arriba del todo (tarea 406).
+    await update($, vistaPanel, () => VISTA_ARRIBA).catch(() => undefined)
+    medidaPedida = ''
     const r = await next(e)
     $.ui.invalidate('ui.render')
     return r
@@ -330,12 +363,17 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
 
   // Cabecera fija: el panel no deja mover su ventana; sube el cuerpo bajo la cabecera, como pide el motor
   // para un árbol que se desplaza solo bajo una cabecera. El tope sale del alto del árbol, que el cuerpo
-  // no cambia al subir (decisión del propietario, 2026-10-29).
-  on('ui.scroll', { component: 'Pane', requestId: PANEL }, async ($, e) => {
-    const k = await read($, desplazamiento)
-    const nuevo = Math.min(Math.max(0, k + e.by), Math.max(0, e.contentRows - e.bodyRows))
-    if (nuevo !== k) await update($, desplazamiento, () => nuevo)
-    return {}
+  // no cambia al subir (decisión del propietario, 2026-10-29). Cada movimiento deja también la medida del árbol, con
+  // la lista y la estructura del cuerpo de entonces; con otra lista, el cuerpo parte de arriba (tarea 406).
+  // El del propio panel (al dibujarse, para medir) no sube el cuerpo: solo deja la medida y la ventana arriba.
+  on('ui.scroll', { component: 'Pane', requestId: PANEL }, async ($, e, next) => {
+    const v = await read($, vistaPanel)
+    const k = v.lista === listaDibujada ? v.filas : 0
+    const medir = e.origin.kind === 'plugin'
+    const filas = Math.min(Math.max(0, k + (medir ? 0 : e.by)), Math.max(0, e.contentRows - e.bodyRows))
+    const nueva: VistaPanel = { filas, contenido: e.contentRows, lista: listaDibujada, estructura: estructuraDibujada }
+    if (JSON.stringify(nueva) !== JSON.stringify(v)) await update($, vistaPanel, () => nueva)
+    return medir ? next({ ...e, offset: 0 }) : {}
   })
 
   on('ui.render', { component: 'Pane', requestId: PANEL }, async ($, e) => {
@@ -1631,14 +1669,54 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       )
     }
     // Bajo la cabecera, el cuerpo: sube las filas desplazadas sin cambiar su alto y recorta lo que queda encima.
-    const k = await read($, desplazamiento)
-    const cuerpo = (...hijos: RenderChildren[]) => (
-      <Box flexDirection="column" overflow="hidden">
-        <Box flexDirection="column" gap={grafica ? HUECO_APARTADOS : 1} position="relative" top={k > 0 ? -k : 0}>
-          {hijos}
-        </Box>
+    // Las filas subidas valen con la misma lista de tareas: si cambia, o el panel se vuelve a abrir, o cabe entero, el
+    // cuerpo vuelve arriba. Lo que queda fuera de la vista se marca sobre la primera fila y la última que se ven, sin
+    // mover nada: arriba, «▲ N filas más», un botón que vuelve arriba; abajo, «▼ N filas más» (tarea 406).
+    const vistaDelPanel = await read($, vistaPanel)
+    const ventana = (e.props as { scroll?: { bodyRows?: number } }).scroll?.bodyRows ?? null
+    const firmaDeLista = firmaLista(est.peticiones)
+    const volverArriba = () => void update($, vistaPanel, v => ({ ...v, filas: 0 })).catch(() => undefined)
+    const marcaFuera = (key: string, t: string, top: number, pulsar?: () => void) => (
+      <Box key={key} position="absolute" top={top} left={0} flexDirection="row">
+        {pulsar ? (
+          <Button key={`${key}:boton`} label={t.trim()} plain onPress={pulsar}>
+            <Text backgroundColor={FONDO_ETIQUETA}>{t}</Text>
+          </Button>
+        ) : (
+          <Text backgroundColor={FONDO_ETIQUETA} dimColor>
+            {t}
+          </Text>
+        )}
       </Box>
     )
+    const filasMas = (n: number) => `${String(n)} ${n === 1 ? 'fila' : 'filas'} más`
+    const cuerpo = (...hijos: RenderChildren[]) => {
+      const estructura = firmaEstructura(hijos)
+      listaDibujada = firmaDeLista
+      estructuraDibujada = estructura
+      const { filas, abajo, medida } = vistaCuerpo(vistaDelPanel, firmaDeLista, estructura, ventana)
+      // Sin medida de este cuerpo, o con la ventana del motor movida (que lleva la cabecera consigo), se le pide llevarla
+      // arriba: su scroll trae el alto del árbol, y con él, si hay algo abajo, y la devuelve a su sitio.
+      const movida = (e.props as { scroll?: { offset?: number } }).scroll?.offset ?? 0
+      const pedir = `${firmaDeLista}|${estructura}|${String(ventana)}|${String(movida)}`
+      if ((!medida || movida > 0) && ventana !== null && medidaPedida !== pedir) {
+        medidaPedida = pedir
+        void Promise.resolve()
+          .then(() => $.ui.scroll({ in: PANEL, to: 'start' }))
+          .catch(() => undefined)
+      }
+      // Abajo, sobre la última fila que se ve: en el terminal, donde la cabecera tiene alto fijo.
+      const ultima = ventana !== null && !grafica ? ventana - altoCabecera - 1 : null
+      return (
+        <Box flexDirection="column" overflow="hidden">
+          <Box flexDirection="column" gap={grafica ? HUECO_APARTADOS : 1} position="relative" top={filas > 0 ? -filas : 0}>
+            {hijos}
+          </Box>
+          {filas > 0 ? marcaFuera('mas-arriba', ` ▲ ${filasMas(filas)} · arriba `, 0, volverArriba) : null}
+          {abajo > 0 && ultima !== null && ultima > 0 ? marcaFuera('mas-abajo', ` ▼ ${filasMas(abajo)} `, ultima) : null}
+        </Box>
+      )
+    }
     // La etiqueta de la derecha: «SF» y la versión del plugin que corre, en todos los proyectos, también sin SF
     // (decisión del propietario, 2026-10-30); sin versión legible, «SF» a secas.
     const etiquetaSf = est.versionPlugin ? `SF ${est.versionPlugin}` : 'SF'
