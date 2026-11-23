@@ -28,6 +28,7 @@ from tema_identidad import (BASE, CLAVES_IDENTIDAD, bloque_kit, buscar_identidad
                             herramientas_activas, kit_estilos, kit_scripts,
                             lector_estilos, lector_scripts,
                             logo_data_uri, procedencia, variables_css)
+import diagramas_recurso  # noqa: E402
 import estilo_proyecto  # noqa: E402
 from resaltar_codigo import resaltar  # noqa: E402  coloreado de sintaxis de los bloques de código
 
@@ -585,6 +586,11 @@ def main():
     if sueltas:
         print("Aviso: estos «<…>» no son HTML y no se verán en el documento. Escríbelos entre comillas invertidas "
               "(`<nombre>`) o con &lt; y &gt;:\n  " + "\n  ".join(sueltas), file=sys.stderr)
+    # Diagramas, recurso del catálogo (decisión 314): «![](x.diagrama)» en su línea lo dibuja el motor de la skill.
+    try:
+        raw = diagramas_recurso.expandir(raw, src.parent, texto_md[:len(texto_md) - len(raw)].count("\n"))
+    except diagramas_recurso.ErrorDiagrama as e:
+        sys.exit(str(e))
     aspecto = [f"«{k}: {datos[k]}»" for k in ASPECTO_CABECERA if k in datos]
     if aspecto:
         efecto = ("se ignora: manda el estilo del proyecto" if estilo else

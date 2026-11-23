@@ -145,6 +145,16 @@ Un SVG en el propio `.md`, dentro de `<figure class="vertical">` y con un `<figc
 
 Dentro de un bloque HTML del `.md` no se dejan líneas en blanco: el conversor de Markdown lo cortaría.
 
+### Diagramas
+
+Un diagrama de la skill `diagramas` se escribe como datos en su `.diagrama` y el `.md` lo nombra en una línea sola, con la forma de una imagen («El diagrama es un recurso del catálogo y el generador único llama al motor de la skill de diagramas», 314):
+
+```markdown
+![](diagramas/flujo.diagrama)
+```
+
+En cada generación, `documento_a_html.py` lo dibuja con el motor de la skill (`generar_diagrama.py --fragmento --tema ""`) y pone la figura en su sitio: si cambian los datos o el motor, el documento sale al día sin tocar el `.md`. La figura toma el estilo del documento («Los diagramas toman el estilo del documento», 307); su id es el nombre del archivo, y su título, descripción y pie salen de los datos (el texto entre corchetes no se usa). La ruta es relativa a la carpeta del `.md`; entre `<…>` admite espacios. Si falta el archivo o el motor da un error, el generador se detiene con la línea. Dentro de un bloque de código, la línea se deja como está. Cómo diseñar el diagrama (tipo, presupuesto, foco, fichas) y su formato de datos están en la skill `diagramas`; un fragmento pegado a mano se cambia por su referencia.
+
 ### Lector de libros
 
 Para contar una historia como un libro (la opción novela de los documentos de visión, o cualquier documento que lo pida). El generador lo añade solo cuando el documento lleva `class="libro"` o `class="lector"`: estilo en `assets/lector.css` y script en `assets/lector.js`.
@@ -321,7 +331,7 @@ Todo vive en la biblioteca de la SF `tools/kit_documentos/` (`herramientas.js`, 
 - `mismo-archivo` (no / sí): «Guardar» escribe sobre el mismo archivo y, tras la primera vez, no pregunta. En los del proyecto se guarda una copia aparte (`<nombre>.notas-<autor>.html`), para que regenerar el `.html` no la borre.
 - `acordeon` (no / no; el lector lo ajusta): un solo bloque abierto a la vez. Por defecto no, porque comparar secciones es frecuente.
 - `bocadillos` (no / no; el lector lo ajusta): en la visión, los subapartados de detalle (`####`) se abren en un bocadillo sobre el texto, sin desplazarlo.
-- `diagramas` (sí / sí): solo si el documento tiene diagramas de la skill `diagramas` (`generar_diagrama.py --fragmento`, pegado tal cual en el `.md`). Herramienta «Diagramas» de la columna (`tools/kit_documentos/diagramas.js`): los ajustes de la decisión 302 por grupos plegables (Aspecto, Forma, Cabecera, Dibujo, Interacción y Pie), con «Por defecto» (los favoritos y el tema con que se generó cada figura) y «Como el original» (tinta) fijos arriba; cada cambio vale para todas las figuras y se recuerda en el navegador; la copia guardada lleva lo del autor. Con diagramas, el generador incluye su CSS y su JS y los colores de cada tema para `.diagrama[data-d-tema]`; en el modo oscuro de «Lectura», el dibujo se invierte con la página.
+- `diagramas` (sí / sí): solo si el documento tiene diagramas de la skill `diagramas` (ver «Diagramas»). Herramienta «Diagramas» de la columna (`tools/kit_documentos/diagramas.js`): los ajustes de la decisión 302 por grupos plegables (Aspecto, Forma, Cabecera, Dibujo, Interacción y Pie), con «Por defecto» (los favoritos y el tema con que se generó cada figura) y «Como el original» (tinta) fijos arriba; cada cambio vale para todas las figuras y se recuerda en el navegador; la copia guardada lleva lo del autor. Con diagramas, el generador incluye su CSS y su JS y los colores de cada tema para `.diagrama[data-d-tema]`; en el modo oscuro de «Lectura», el dibujo se invierte con la página.
 
 **Modo claro siempre al abrir.** Los temas están pensados en claro y para imprimir. En «Lectura» el lector elige oscuro (invierte la página y deja imágenes y gráficos con sus colores) o el del sistema, y se recuerda por documento. El autor no puede hacer que abra en oscuro.
 
@@ -369,6 +379,7 @@ Antes de entregar, con Playwright y el navegador instalado. Si Playwright no tie
 - **Escritorio** (≈1300 px) y **móvil** (390 × 844): sin desplazamiento horizontal, tarjetas en una columna en el móvil y menú sin solaparse.
 - **Sin errores de página.** El buscador de fichas filtra y cuenta. «Plegar las tarjetas» pliega y despliega su bloque. Los componentes propios responden.
 - **Sin avisos del generador** (`<…>` sueltos, preguntas sin recomendación).
+- **Diagramas**, si el documento tiene alguno: `python -I -X utf8 <skills>/diagramas/scripts/comprobar_diagramas.py <documento>.html` (con `--oscuro` si el tema tiene modo oscuro) sale sin errores: solapes, desbordes, letra mínima y contraste a 375 y 1440, y la ficha de cada nodo con teclado.
 - **Recursos desde la primera versión** («Desde la primera versión»): el esquema SVG del proceso, si lo hay; los bloques largos, plegables; ninguna sección de más de unas 500 palabras sin partir ni con más de cinco párrafos seguidos sin un recurso; dos secciones seguidas sin el mismo recurso principal. Se comprueba también en la primera versión, no solo al revisar.
 - **Secciones plegables:** solo la primera abierta al cargar; un enlace interno (menú, referencia, insignia o `#id` en la dirección) abre la sección de destino; al imprimir se abre todo.
 - **Herramientas:** la columna desde 1400 px; por debajo, minimizada hasta «Buscar». El buscador no distingue mayúsculas ni tildes y abre la sección plegada.

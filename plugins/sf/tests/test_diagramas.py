@@ -374,7 +374,7 @@ class EnNavegador(unittest.TestCase):
             self.assertEqual(estado, [['vertical', True]] * 6)
             p.click('#herr-diagramas [data-dg-poner="def"]')
             estado = p.evaluate("() => [...document.querySelectorAll('figure.diagrama')].map(f => [f.dataset.dOrientacion, f.classList.contains('d-no-color'), f.dataset.dTema])")
-            self.assertEqual(estado, [['auto', False, 'tinta']] * 6)
+            self.assertEqual(estado, [['auto', False, None]] * 6)   # sin tema propio: el del documento (307)
             # «Letra más grande» cambia la letra de las seis figuras, también en la horizontal
             escala = "() => [...document.querySelectorAll('figure.diagrama')].map(f => getComputedStyle([...f.querySelectorAll('svg')].find(s => s.getBoundingClientRect().width).querySelector('.d-nn')).transform)"
             self.assertEqual(set(p.evaluate(escala)), {'none'})
@@ -390,10 +390,11 @@ class EnNavegador(unittest.TestCase):
             self.assertTrue(y2 - 3 <= fy2 <= y2 + h2, (fy2, y2, h2))   # la flecha (ahora recta, por el lado) sigue en la caja
             self.assertTrue(p.evaluate("document.querySelector('#estados .d-hud').hidden"))
             self.assertEqual(p.locator('#estados svg:visible [data-plegar="obs"]').get_attribute('aria-expanded'), 'false')
-            # recorrido en el segundo color del tema (en tinta, azul)
+            # recorrido en el segundo color del tema (el del documento)
             p.locator('#estados svg:visible [data-nodo="pend"]').hover()
             p.wait_for_timeout(400)   # la transición del resaltado
-            self.assertEqual(p.evaluate("getComputedStyle([...document.querySelectorAll('#estados path.d-on')].find(e => e.getBoundingClientRect().width)).stroke"), 'rgb(47, 85, 151)')
+            segundo = p.evaluate("() => { const e = document.createElement('i'); e.style.color = 'var(--segundo, #2f5597)'; document.querySelector('#estados').append(e); const c = getComputedStyle(e).color; e.remove(); return c; }")
+            self.assertEqual(p.evaluate("getComputedStyle([...document.querySelectorAll('#estados path.d-on')].find(e => e.getBoundingClientRect().width)).stroke"), segundo)
             b.close()
 
     def test_una_pagina_mala_da_cada_error(self):

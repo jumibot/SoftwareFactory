@@ -16,7 +16,7 @@ Se aplica con la guía común `../metodologia/references/diagramas-svg.md` (cuá
 2. **Decir el plan en una línea** al autor: tipo, forma (vertical u horizontal más vertical), qué se queda fuera por el presupuesto. Si no responde, seguir y anotarlo.
 3. **Primero, el generador** (comandos antes que inferencia): escribir los datos en el formato breve de `references/datos.md` (un ejemplo por tipo en `assets/ejemplos/`) y lanzar
    `python -I -X utf8 <skills>/diagramas/scripts/generar_diagrama.py <datos.diagrama> [-o salida.html] [--tema tinta] [--fragmento]`.
-   Dibuja la vertical y, si cabe, la horizontal con los mismos ids, cada una con cajas desplegadas o plegadas y redondeadas o en croqueta, con fichas en el HUD, resaltado, los ajustes por defecto de la decisión 302 y el tema (`tinta` por defecto; con `--tema ""`, sin tema: la figura toma el del documento, decisión 307), y pasa él solo el comprobador. Con `--fragmento`, solo la `<figure>`: se pega tal cual en el `.md` y `documento_a_html.py` trae lo demás, con la herramienta «diagramas» para ajustar todas las figuras (ejemplo: `assets/ejemplo-documento.md`). Si dice que algo no cabe, se acorta o se quita (no se fuerza). Tipos: estados, proceso, arquitectura, piezas, secuencia y fases.
+   Dibuja la vertical y, si cabe, la horizontal con los mismos ids, cada una con cajas desplegadas o plegadas y redondeadas o en croqueta, con fichas en el HUD, resaltado, los ajustes por defecto de la decisión 302 y el tema (`tinta` por defecto; con `--tema ""`, sin tema: la figura toma el del documento, decisión 307), y pasa él solo el comprobador. En un documento no se pega: el `.md` lo nombra en una línea sola, `![](diagramas/x.diagrama)`, y `documento_a_html.py` llama a este motor en cada generación (`--fragmento --tema ""`, solo la `<figure>` con el estilo del documento) y trae lo demás, con la herramienta «diagramas» para ajustar todas las figuras (`crear_documentos`, «Diagramas»; ejemplo: `assets/ejemplo-documento.md`). La página suelta sirve para afinarlo y comprobarlo antes. Si dice que algo no cabe, se acorta o se quita (no se fuerza). Tipos: estados, proceso, arquitectura, piezas, secuencia y fases.
 4. Solo para los demás tipos, a mano, desde `assets/ejemplo-estados.html` (generado): el esqueleto, los marcadores, las máscaras y las fichas, con el tema de referencia, `tinta` (la paleta de diagram-design en `crear_documentos`), en claro y en oscuro.
 
 ## Forma según el ancho de la figura
@@ -75,7 +75,7 @@ Abre la página en Chromium (o el Chrome o el Edge del equipo) y, en cada ancho,
 ## Pendiente (por decidir)
 
 - **Ancho de las verticales**: 400 (provisional), 420 (página de síntesis de la tarea 308) o 560 (guía actual).
-- **Integración** con `crear_documentos` y su generador (cargar `diagramas.css` y `diagramas.js`, y el ancho de `figure.vertical`).
+- **Ancho de `figure.vertical`** en `crear_documentos` (560 en su guía), a la par que el de las verticales. Lo demás de la integración ya está: el generador de documentos dibuja cada `.diagrama` que nombra el `.md` y carga `diagramas.css` y `diagramas.js` (decisión 314).
 
 ## Origen
 
