@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 336 | 2026-11-23 | [La línea del foco es una excepción al juego fijo de emojis](336-2026-11-23-la-linea-del-foco-es-una-excepcion-al-juego-fijo-de-emojis.md) |
 | 335 | 2026-11-23 | [Estilo de la SF: amarillo de la web, cabecera en banda, portada oscura y las demás recomendadas del informe de estilo](335-2026-11-23-estilo-de-la-sf-amarillo-de-la-web-cabecera-en-banda-portada-oscura-y-las-demas-recomendadas-del-informe-de-estilo.md) |
 | 334 | 2026-11-23 | [«En curso» pasa a azul o cian en el panel y el amarillo queda para la SF](334-2026-11-23-en-curso-pasa-a-azul-o-cian-en-el-panel-y-el-amarillo-queda-para-la-sf.md) |
 | 333 | 2026-11-23 | [El principal no abre menús con texto a medio escribir ni fuera del foco](333-2026-11-23-el-principal-no-abre-menus-con-texto-a-medio-escribir-ni-fuera-del-foco.md) |
