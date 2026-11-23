@@ -6927,6 +6927,75 @@ test('Sugerencia: tras /sf vuelve; tras un turno de Claude, no', async (...m) =>
   expect(vistas.length).toBe(2)
 })
 
+// ── Tarea 372: no interrumpir al propietario ──
+// A los 10 minutos sin prompt desde el último turno, la sugerencia con lo pendiente (decisión 332).
+const DIEZ_MIN = 10 * 60_000
+const borradorDe = (on: Motor[1], texto: () => string) => on('prompt.read', () => ({ value: { text: texto() } }) as never)
+test('Sugerencia de lo pendiente: a los 10 minutos sin prompt tras un turno, «¿Seguimos con …?» con la en curso más reciente', async (...m) => {
+  const vistas = sugerencias(m[1])
+  const { reloj } = await preparar(m, { reloj: true })
+  await fin(m, 't1')
+  await reloj!.advance(DIEZ_MIN - 60_000)
+  expect(vistas).toEqual([])
+  await reloj!.advance(60_000)
+  expect(vistas).toEqual(['¿Seguimos con «Fondos por bloque» (T 4)?'])
+})
+test('Sugerencia de lo pendiente: con la rama de una tarea activa, esa', async (...m) => {
+  const vistas = sugerencias(m[1])
+  const cola = INICIAL.map(p => (p.id === 1 ? { ...p, rama: 'feature/1-panel' } : p))
+  const { reloj } = await preparar(m, { reloj: true, cola, extra: GIT('ref: refs/heads/feature/1-panel\n') })
+  await fin(m, 't1')
+  await reloj!.advance(DIEZ_MIN)
+  expect(vistas).toEqual(['¿Seguimos con «Panel lateral» (T 1)?'])
+})
+test('Sugerencia de lo pendiente: un prompt del propietario o un turno nuevo antes de los 10 minutos la anulan', async (...m) => {
+  const vistas = sugerencias(m[1])
+  const { reloj } = await preparar(m, { reloj: true })
+  await fin(m, 't1')
+  await reloj!.advance(5 * 60_000)
+  await escribe(m, 'hola')
+  await reloj!.advance(DIEZ_MIN)
+  expect(vistas).toEqual([])
+  await fin(m, 't1')
+  await reloj!.advance(5 * 60_000)
+  await m[0].turn.start({ text: 'trabaja', turnId: 't2' })
+  await reloj!.advance(DIEZ_MIN)
+  expect(vistas).toEqual([])
+})
+test('Sugerencia de lo pendiente: con texto a medio escribir o sin tareas en curso, nada', async (...m) => {
+  const vistas = sugerencias(m[1])
+  let texto = 'a medio'
+  borradorDe(m[1], () => texto)
+  const { reloj, cambiarCola } = await preparar(m, { reloj: true })
+  await fin(m, 't1')
+  await reloj!.advance(DIEZ_MIN)
+  expect(vistas).toEqual([])
+  texto = ''
+  await cambiarCola(INICIAL.filter(p => p.estado !== 'en-curso'))
+  await fin(m, 't1')
+  await reloj!.advance(DIEZ_MIN)
+  expect(vistas).toEqual([])
+})
+
+// El principal no abre un menú con texto a medio escribir en la caja del prompt (decisión 333).
+test('Menús: con texto a medio escribir en la caja del prompt, el del principal se bloquea; con la caja vacía, se abre', async (...m) => {
+  let texto = 'estoy escribiendo'
+  borradorDe(m[1], () => texto)
+  let abiertos = 0
+  m[1]('tool.call', { tool: 'AskUserQuestion' }, () => {
+    abiertos++
+    return { result: { answers: {} } as never }
+  })
+  await preparar(m)
+  const pregunta = () => m[0].tool.call({ tool: 'AskUserQuestion', questions: [{ question: '¿Y ahora?', header: 'SF', multiSelect: false, options: [{ label: 'Demo', description: '' }] }] } as never)
+  const r = (await pregunta()) as { deny?: string }
+  expect(r.deny).toMatch(/a medio escribir/)
+  expect(abiertos).toBe(0)
+  texto = '  '
+  expect(((await pregunta()) as { deny?: string }).deny).toBeUndefined()
+  expect(abiertos).toBe(1)
+})
+
 // ── La incorporación, paso a paso (tarea 333) ──
 // El progreso que anota Claude con tools/incorporacion.py, en la carpeta de la SF de Claude Code, por sesión.
 // Por proyecto, no por sesión: la clave de la carpeta /sf (tarea 333).

@@ -15,6 +15,7 @@ import { ofrecerPantalla, reiniciarOferta } from './pantalla'
 import { CATALOGO_PRUEBA, apagarAlCerrar, apagarAlEntrar, cambiarPrueba, desdeCopia, leerAjustes, marcarTurno } from './prueba'
 import { registrarPanel, turnarAvisos } from './panel'
 import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE, FUENTES_ARRANQUE, arranqueEnMarcha, arranqueTurnoAcabado, encargarArranque, leerAvisoSubagentes, rearmarAvisosSubagentes, recuperarSubagentes, SIN_AVISO } from './subagentes'
+import { armarSugerencia, cancelarSugerencia, frenarMenu } from './foco'
 import { asegurarSesion, decidirSesion, forzarActiva, forzarInactiva, latirSesion, sesionSfActual, sfApagada, soltarAlCerrar, tomarAvisoSesion } from './latido'
 
 // Valores de estado del mod: el motor exige declararlos en el archivo que los usa; con el mismo
@@ -351,7 +352,13 @@ export const register: Register = on => {
   }).catch(($, e, next) => next(e))
 
   // La respuesta al menú de incorporar (decisión 246): «No, y no vuelvas a preguntar en esta carpeta» se guarda por carpeta.
+  // Antes, el freno: el principal no abre un menú con texto a medio escribir en la caja del prompt (decisión 333); con la
+  // SF apagada, sin él (decisión 297).
   on('tool.call', { tool: 'AskUserQuestion' }, async ($, e, next) => {
+    if (!e.agentId && !(await sfApagada($).catch(() => true))) {
+      const motivo = await frenarMenu($).catch(() => null)
+      if (motivo) return { deny: motivo }
+    }
     const r = await next(e)
     if (e.agentId || r.deny !== undefined) return r
     const respuestas = r.isError === true ? undefined : (r.result as { answers?: unknown } | undefined)?.answers
@@ -382,6 +389,7 @@ export const register: Register = on => {
   on('turn.start', async ($, e, next) => {
     if (e.agentId === undefined) {
       marcarTurno(e.turnId)
+      cancelarSugerencia()
       // Con un turno en marcha, la incorporación no está en pausa, aunque espere la respuesta de un menú (tarea 366).
       if (await reanudarIncorporacion($).catch(() => false)) void refrescar($).catch(() => undefined)
       // Una incorporación terminada, con el panel operativo ya pintado, se quita al empezar el turno siguiente (tarea 333).
@@ -401,6 +409,8 @@ export const register: Register = on => {
       if (!(await recargarSiPedido($, () => void refrescar($).catch(() => undefined)).catch(() => false))) await pausarIncorporacion($).catch(() => undefined)
       // /color y /rename que el motor rechazó por lanzarse desde el hook de una orden (/sf_forzar_activa).
       lanzarPendientes($)
+      // A los 10 minutos sin prompt, la sugerencia con lo pendiente (decisión 332).
+      armarSugerencia($)
     }
     await refrescar($)
     return next(e)
@@ -413,6 +423,8 @@ export const register: Register = on => {
   // También le añade los avisos de subagentes nuevos (tarea 249), y a la notificación de un subagente que vuelve.
   on('prompt.submit', async ($, e, next) => {
     if (!e.isMeta) await update($, prompts, n => n + 1).catch(() => undefined)
+    // El propietario escribe: la sugerencia de lo pendiente ya no va (decisión 332).
+    if (!e.isMeta && DEL_PROPIETARIO.has(e.origin.kind)) cancelarSugerencia()
     if (e.command) return next(e)
     const delPropietario = !e.isMeta && DEL_PROPIETARIO.has(e.origin.kind)
     if (!delPropietario && e.origin.kind !== 'task-notification') return next(e)
