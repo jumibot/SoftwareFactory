@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 331 | 2026-11-23 | [Sin estilo.json no se aplican las opciones de estilo de un tema, y los explicativos toman su tipo al migrarlos](331-2026-11-23-sin-estilo-json-no-se-aplican-las-opciones-de-estilo-de-un-tema-y-los-explicativos-toman-su-tipo-al-migrarlos.md) |
 | 330 | 2026-11-23 | [Una infografía técnica se puede meter en cualquier documento que la necesite](330-2026-11-23-una-infografia-tecnica-se-puede-meter-en-cualquier-documento-que-la-necesite.md) |
 | 329 | 2026-11-23 | [El arranque solo se prueba con /clear en modo prueba y, al abrir sesión, en observación tras publicar](329-2026-11-23-el-arranque-solo-se-prueba-con-clear-en-modo-prueba-y-al-abrir-sesion-en-observacion-tras-publicar.md) |
 | 328 | 2026-11-06 | [El foco solo lo sabe Claude: ni el panel ni la caja del prompt lo muestran](328-2026-11-06-el-foco-solo-lo-sabe-claude-ni-el-panel-ni-la-caja-del-prompt-lo-muestran.md) |
