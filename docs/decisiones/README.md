@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 330 | 2026-11-23 | [Una infografía técnica se puede meter en cualquier documento que la necesite](330-2026-11-23-una-infografia-tecnica-se-puede-meter-en-cualquier-documento-que-la-necesite.md) |
 | 329 | 2026-11-23 | [El arranque solo se prueba con /clear en modo prueba y, al abrir sesión, en observación tras publicar](329-2026-11-23-el-arranque-solo-se-prueba-con-clear-en-modo-prueba-y-al-abrir-sesion-en-observacion-tras-publicar.md) |
 | 328 | 2026-11-06 | [El foco solo lo sabe Claude: ni el panel ni la caja del prompt lo muestran](328-2026-11-06-el-foco-solo-lo-sabe-claude-ni-el-panel-ni-la-caja-del-prompt-lo-muestran.md) |
 | 327 | 2026-11-06 | [«¿Cómo va la N?» de las tareas en observación sigue siendo un menú](327-2026-11-06-como-va-la-n-de-las-tareas-en-observacion-sigue-siendo-un-menu.md) |
