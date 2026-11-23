@@ -1,7 +1,7 @@
 """Coloreado de sintaxis de los bloques de código, sin dependencias.
 
-Lo usa doc_to_html.py sobre el HTML que deja markdown (<pre><code class="language-x">). Cada fragmento
-reconocido va en un <span class="sx-…">; los colores están en estilo_base.css (variables --sx-…).
+Lo usa documento_a_html.py sobre el HTML que deja markdown (<pre><code class="language-x">). Cada fragmento
+reconocido va en un <span class="sx-…">; los colores están en assets/estilo_documento.css (variables --sx-…).
 Un bloque sin lenguaje se colorea como JSON si lo es; el resto (text, árboles de carpetas…) se deja igual.
 
 Clases: sx-c comentario, sx-s cadena, sx-n número o literal, sx-k palabra clave, sx-p clave o propiedad,

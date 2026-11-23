@@ -275,7 +275,7 @@ a.salto { font-size: .875rem; }
 
 .pie { margin-top: 3rem; border-top: 1px solid var(--linea); padding: 1rem 0 2.5rem; font-size: .875rem; color: var(--texto-suave); }
 .pie p { margin: 0 0 .4rem; }
-code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; border-radius: 3px; }
+code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; border-radius: 3px; overflow-wrap: anywhere; }
 /* Bloques de código: fondo suave y filete (pagina.codigo: bloque, el de por defecto; «linea» los deja entre dos líneas). */
 pre { background: var(--fondo-suave); border-left: 3px solid var(--primario); padding: .9rem 1.1rem; margin: 1rem 0 1.4rem;
       border-radius: 0 var(--esquinas, 6px) var(--esquinas, 6px) 0; overflow-x: auto; line-height: 1.5; font-size: .9rem; }

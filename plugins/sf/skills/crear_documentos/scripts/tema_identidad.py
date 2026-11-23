@@ -1,7 +1,7 @@
 """Temas e identidad de proyecto, compartidos por los generadores HTML de la SF (skill crear_documentos).
 
-Lo usan documento_a_html.py (el generador común de crear_documentos, con el que generan el fundacional y los
-informes) y doc_to_html.py (la maqueta de la visión). Carga un tema de assets/temas/ o del proyecto, deriva sus
+Lo usa documento_a_html.py, el generador único de crear_documentos, con el que generan todos los tipos de documento
+(el fundacional, los informes, la visión y los explicativos). Carga un tema de assets/temas/ o del proyecto, deriva sus
 tonos, produce las variables CSS y busca el identidad.json del proyecto.
 """
 
@@ -13,7 +13,7 @@ from pathlib import Path
 ASSETS = Path(__file__).resolve().parent.parent / "assets"
 TEMAS = ASSETS / "temas"
 
-# Roles de color de los temas. Cada rol es una variable CSS (--<rol>) en estilo_base.css y EXTRA_HEAD.
+# Roles de color de los temas. Cada rol es una variable CSS (--<rol>) que usan las hojas de estilos de los documentos.
 # En el .md, los gráficos pueden escribir el color de un rol en el tema teal o en el morado: el
 # generador lo pasa a la variable del rol. Orden: rol, valor en el tema teal, valor en el tema morado.
 ROLES = [
@@ -143,54 +143,13 @@ def normalizar_tema(tema: dict, nombre: str) -> dict:
     tema["tipografias"] = {**TIPOGRAFIAS, **tema.get("tipografias", {})}
     return tema
 
-# Opciones de aspecto de un tema («estilo»). Sin ellas, el aspecto es el de siempre (tema «morado»).
+# Opciones de aspecto de un tema («estilo»), de la maqueta antigua de la visión: se validan, pero el generador único no
+# las aplica; el aspecto lo fija el estilo del proyecto (docs/identidad/estilo.json, decisión 318).
 ESTILO_OPCIONES = {
     "cabecera": ("blanca", "primario", "oscuro"),
     "etiqueta": ("tinte", "solida", "linea"),
     "marcador": ("circulo", "cuadrado", "ninguno"),
 }
-
-def css_estilo(estilo: dict) -> str:
-    """CSS adicional según las opciones de «estilo» del tema."""
-    css = []
-    cab = estilo.get("cabecera", "blanca")
-    if cab != "blanca":
-        fondo = "var(--primario)" if cab == "primario" else "var(--oscuro)"
-        css.append(f".site-header {{ background: {fondo}; border-bottom: none; }}"
-                   " .institution-name { color: #fff; } .institution-sub { color: rgba(255,255,255,.8); }"
-                   " .site-header .brand-logo { background: #fff; border-radius: 6px; padding: 4px; }")
-    eti = estilo.get("etiqueta", "tinte")
-    if eti == "solida":
-        opacidad = float(estilo.get("opacidad", 1))
-        fondo = "var(--primario)" if opacidad >= 1 else f"rgba(var(--primario-rgb), {opacidad:g})"
-        texto = "#fff" if opacidad >= .75 else "var(--oscuro)"
-        css.append(f".bloque-chip {{ background: {fondo}; }} .bloque-summary, .bloque-summary:hover {{ color: {texto}; }}")
-        if opacidad >= 1:
-            css.append(".bloque-btn { color: #fff; border-color: rgba(255,255,255,.6); }"
-                       " .bloque-btn:hover { background: rgba(255,255,255,.18); color: #fff; }")
-        else:
-            # Con fondo traslúcido, el texto blanco pierde contraste: el título pasa a texto grande en negrita
-            # (WCAG pide 3:1) y los botones van sobre blanco con el color oscuro del bloque.
-            css.append(".bloque-summary { font-size: 1.17rem; font-weight: 700; }"
-                       " .bloque-btn { color: var(--oscuro); background: rgba(255,255,255,.92); border-color: transparent; }"
-                       " .bloque-btn:hover { background: #fff; color: var(--oscuro); }")
-    elif eti == "linea":
-        css.append(".bloque-chip { background: transparent; border-radius: 0; border-left: 4px solid var(--primario);"
-                   " border-bottom: 1px solid var(--borde); padding-left: .8rem; }"
-                   # El texto del título empieza tras el borde (4px) y el relleno (.8rem): ahí se alinea el contenido.
-                   " :root { --chip-izq: calc(.8rem + 4px); }")
-    mar = estilo.get("marcador", "circulo")
-    if mar == "cuadrado":
-        css.append(".bloque-summary::before { border-radius: 2px; }")
-    elif mar == "ninguno":
-        css.append(".bloque-summary::before { display: none; } :root { --marca: 0rem; }")
-    if "esquinas" in estilo:
-        r = f'{float(estilo["esquinas"]):g}px'
-        # --esquinas queda disponible para el CSS de cada proyecto: border-radius: var(--esquinas, 4px).
-        css.append(f":root {{ --esquinas: {r}; }} .caso, .expediente, .ficha, .cmp-fila, .aviso-ficcion {{ border-radius: {r}; }}"
-                   f" .escena {{ border-radius: 0 {r} {r} 0; }}"
-                   + (f" .bloque-chip, .bloque-btn {{ border-radius: {r}; }}" if eti != "linea" else ""))
-    return " ".join(css)
 
 def variables_css(tema: dict) -> str:
     c, t = tema["colores"], tema["tipografias"]
@@ -219,16 +178,6 @@ def variables_css(tema: dict) -> str:
         decl += " --primario-rgb: " + ", ".join(str(x) for x in _rgb(c)) + ";"
         css += f"\n    .bloque-{n} {{ {decl} }}"
     return css
-
-def aplicar_tema(page: str, tema: dict) -> str:
-    """Rellena los marcadores de la carcasa ({{fuentes_url}}, colores en URIs de datos)."""
-    if tema["tipografias"]["url"]:
-        page = page.replace("{{fuentes_url}}", tema["tipografias"]["url"])
-    else:  # tema con fuentes del sistema: sin hoja de Google Fonts
-        page = re.sub(r'[ \t]*<link href="\{\{fuentes_url\}\}" rel="stylesheet">\n?', "", page)
-    for rol, _, _ in ROLES:
-        page = page.replace("{{" + rol + "}}", "%23" + tema["colores"][rol].lstrip("#"))
-    return page
 
 _ATRIBUTOS_COLOR = ("fill", "stroke", "stop-color", "flood-color", "lighting-color")
 

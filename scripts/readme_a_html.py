@@ -1,4 +1,5 @@
-"""Genera DESARROLLO.html para leer la guía de desarrollo (DESARROLLO.md) en local con el estilo de la SF.
+"""Genera DESARROLLO.html para leer la guía de desarrollo (DESARROLLO.md) en local con el estilo de la SF, con el
+generador único (doc_to_html.py, el perfil de la visión).
 
 Los enlaces a un .md que tiene .html al lado pasan a apuntar al .html.
 Uso: python -I -X utf8 scripts/readme_a_html.py
@@ -12,7 +13,7 @@ from urllib.parse import unquote
 
 RAIZ = Path(__file__).resolve().parent.parent
 GENERADOR = RAIZ / "plugins/sf/skills/documento_vision/scripts/doc_to_html.py"
-TITULO = "Índice de la SoftwareFactory"  # el generador lo toma del nombre del archivo
+TITULO = "Índice de la SoftwareFactory"  # nombre del .md temporal; el título es el «# …» de DESARROLLO.md
 
 
 def a_html(m):
@@ -57,7 +58,7 @@ def main():
                         "--tipo", "Índice", "--destino", "proyecto", "--herramientas", "recomendadas"], check=True)
         html = tmp_md.with_suffix(".html").read_text(encoding="utf-8")
         # En un índice todas las secciones empiezan abiertas.
-        html = re.sub(r'(<details id="[^"]*" class="bloque[^"]*")(?! open)>', r"\1 open>", html)
+        html = re.sub(r'(<details class="seccion[^"]*" id="[^"]*")(?! open)>', r"\1 open>", html)
         (RAIZ / "DESARROLLO.html").write_text(html, encoding="utf-8")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

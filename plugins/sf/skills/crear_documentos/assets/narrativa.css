@@ -1,0 +1,123 @@
+/* Recursos que vienen de la maqueta de la visión, en el catálogo común (decisión 308): los narrativos (escena con sus
+ * turnos, caso conductor, expediente, aviso de ficción) y los generales (ficha con <dl> y su estado acordado,
+ * comparativa de versiones, preguntas frecuentes, ejemplo narrado), las subsecciones plegables (### abiertas, ####
+ * plegadas) y los gráficos anchos que se desplazan en el móvil. El generador lo añade solo si el documento los usa.
+ * Colores y tipografías: variables del estilo o del tema del proyecto. */
+
+/* Tres niveles de lectura: la narración, en la letra de texto; las escenas dialogadas, en la letra de escena, con
+ * etiqueta, margen lateral y fondo suave; los datos del caso, fuentes y evidencias, compactos y con cifras tabulares. */
+.escena { font-family: var(--fuente-escena); background: var(--fondo-suave); border-left: 3px solid var(--tenue);
+          border-radius: 0 var(--esquinas, 12px) var(--esquinas, 12px) 0; padding: 1rem 1.4rem .9rem; margin: 1.8rem 0; }
+.escena p { margin: 0; }
+.escena-etiqueta { font-family: var(--fuente-texto); font-size: .8125rem; font-weight: 700; letter-spacing: .09em;
+                   text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin-bottom: .35rem !important; }
+.escena-contexto { font-size: .95rem; color: var(--texto-suave); line-height: 1.5; margin-bottom: .6rem !important; }
+.turno { display: grid; grid-template-columns: 9.5rem 1fr; gap: .15rem 1.1rem; padding: .6rem 0; border-top: 1px solid var(--linea); }
+.ponente { font-family: var(--fuente-texto); font-size: .8125rem; font-weight: 700; color: var(--oscuro); line-height: 1.35; padding-top: .2rem; }
+.ponente small { display: block; font-weight: 400; color: var(--texto-suave); font-size: .8125rem; }
+.turno > p:last-child { font-size: 1.04rem; line-height: 1.6; color: var(--texto); }
+.turno.sistema .ponente { color: var(--texto-suave); }
+.turno.sistema > p:last-child { font-family: var(--fuente-texto); font-size: .9rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+.escena-pie { font-family: var(--fuente-texto); font-size: .8125rem; color: var(--texto-suave); border-top: 1px solid var(--linea);
+              padding-top: .5rem; margin-top: .1rem !important; }
+
+/* Hilo conductor: la narración del caso, en cursiva, en un recuadro claro con la etiqueta «El caso». */
+.caso, .expediente { background: var(--fondo-suave); border: 1px solid var(--linea); border-radius: var(--esquinas, 10px);
+                     padding: .9rem 1.3rem 1rem; margin: 1.4rem 0 1.6rem; }
+.caso-etiqueta, .expediente b:first-child { display: block; font-size: .8125rem; font-weight: 700; letter-spacing: .09em;
+                                            text-transform: uppercase; color: var(--oscuro); margin: 0 0 .35rem; font-style: normal; }
+.caso p { margin: 0; }
+.caso p + p { margin-top: .6rem; }
+.caso > p:not(.caso-etiqueta) { font-size: 1.08rem; line-height: 1.65; color: var(--texto); font-style: italic; }
+.expediente { font-size: .92rem; font-variant-numeric: tabular-nums; color: var(--texto); padding: .6rem 1.3rem .7rem; }
+
+/* Aviso de ficción: al principio del documento, antes del prólogo. */
+.aviso-ficcion { border-left: 4px solid #b91c1c; background: color-mix(in srgb, #b91c1c 7%, var(--pagina));
+                 border-radius: 0 var(--esquinas, 8px) var(--esquinas, 8px) 0; padding: .7rem 1.1rem; margin: .4rem 0 1.4rem;
+                 font-size: .92rem; line-height: 1.55; color: var(--texto); }
+.aviso-ficcion p { margin: 0; }
+.aviso-ficcion p + p { margin-top: .4rem; }
+
+/* Ficha de datos: <div class="ficha"> con una lista <dl>; dt.acordado marca el estado final y dt.evidencia la solidez
+ * de la evidencia. No es la tarjeta de «::: fichas» (.tarjeta.ficha). */
+div.ficha:not(.tarjeta) { border: 1px solid var(--borde); border-radius: var(--esquinas, 12px); padding: .9rem 1.2rem; margin: 1.6rem 0; font-size: .92rem; }
+.ficha-titulo { font-family: var(--fuente-titulos); font-weight: 600; color: var(--oscuro); font-size: 1.02rem; margin: 0 0 .5rem; }
+div.ficha:not(.tarjeta) dl { display: grid; grid-template-columns: 11rem 1fr; margin: 0; }
+div.ficha:not(.tarjeta) dt, div.ficha:not(.tarjeta) dd { margin: 0; padding: .42rem 0; border-top: 1px solid var(--linea); }
+div.ficha:not(.tarjeta) dt { font-size: .8125rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--texto-suave); padding-top: .55rem; }
+div.ficha:not(.tarjeta) dt.acordado, div.ficha:not(.tarjeta) dd.acordado { border-top: 2px solid var(--primario); }
+div.ficha:not(.tarjeta) dt.acordado { color: var(--primario-texto, var(--primario)); }
+div.ficha:not(.tarjeta) dt.evidencia { color: var(--acento); }
+
+/* Comparativa de versiones en tarjetas: una por idea y, dentro, una subtarjeta por versión (data-version) con el texto
+ * y el comentario de lo que cambió. 4 columnas (o --cols) en escritorio, 2 en tableta y 1 en móvil. */
+.comparativa { margin: 1.6rem 0 1.4rem; font-size: .9rem; }
+.cmp-cab { display: none; }
+.cmp-fila { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: .7rem; background: var(--pagina);
+            border: 1px solid var(--linea); border-radius: var(--esquinas, 12px); padding: 1rem 1.05rem 1.05rem; margin-bottom: 1rem; }
+.cmp-idea { grid-column: 1 / -1; margin: 0 0 .1rem; font-family: var(--fuente-titulos); font-size: .8125rem; font-weight: 700;
+            letter-spacing: .07em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); }
+.cmp-celda { background: var(--fondo); border-radius: 8px; padding: .7rem .8rem .75rem; min-width: 0; }
+.cmp-celda[data-version^="Original"] { background: transparent; border: 1px dashed var(--tenue); }
+.cmp-celda::before { content: attr(data-version); display: block; font-size: .8125rem; font-weight: 700; color: var(--oscuro);
+                     margin-bottom: .35rem; letter-spacing: .02em; }
+.cmp-celda p { margin: 0; }
+.cmp-texto { font-size: .9rem; line-height: 1.5; color: var(--texto); }
+.cmp-texto + .cmp-texto { margin-top: .2rem !important; }
+.cmp-nota { margin-top: .6rem !important; padding-top: .5rem; border-top: 1px solid var(--linea); font-size: .8125rem;
+            line-height: 1.45; color: var(--texto-suave); }
+.cmp-vacia .cmp-texto { color: var(--texto-suave); font-style: italic; }
+.cmp-pie { background: var(--fondo); }
+.cmp-pie .cmp-celda { background: var(--pagina); }
+.cmp-pie .cmp-texto { font-variant-numeric: tabular-nums; font-weight: 700; font-size: .95rem; }
+@media (max-width: 1000px) { .cmp-fila { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .cmp-fila { grid-template-columns: 1fr; } }
+
+/* Preguntas frecuentes: <dl class="faq">, pregunta en <dt> y respuesta en <dd>, sin cabecera ni franjas. */
+dl.faq { margin: .6rem 0 1.2rem; }
+dl.faq dt { font-weight: 600; color: var(--oscuro); margin: 1rem 0 .15rem; }
+dl.faq dt:first-child { margin-top: 0; }
+dl.faq dd { margin: 0; color: var(--texto); }
+
+/* Ejemplo narrado: un caso real contado en prosa, en un recuadro como el del código. */
+.ejemplo { background: var(--fondo-suave); border: 1px solid var(--linea); border-radius: var(--esquinas, 6px);
+           padding: 1rem 1.2rem; margin: 1rem 0 1.4rem; }
+.ejemplo p { margin: 0 0 .6rem; }
+.ejemplo p:last-child { margin-bottom: 0; }
+
+/* Subsecciones plegables (perfil con «subsecciones»: «plegables»): cada ### abierta y cada #### plegada, con la misma
+ * convención que las herramientas: ▸ plegado, ▾ abierto. */
+.subseccion { margin: 1.4rem 0 0; }
+.subsubseccion { margin: .55rem 0 0; }
+.subseccion-summary, .subsubseccion-summary { display: flex; align-items: center; gap: .45rem; cursor: pointer; list-style: none;
+                                              user-select: none; text-wrap: balance; min-height: 44px; }
+.subseccion-summary { font-family: var(--fuente-titulos); font-size: 1.22rem; line-height: 1.3; font-weight: 650;
+                      color: var(--oscuro); margin: .4rem 0 .3rem; }
+.subsubseccion-summary { font-size: 1rem; font-weight: 650; color: var(--oscuro); margin: .2rem 0 .1rem; }
+.subseccion-summary::-webkit-details-marker, .subsubseccion-summary::-webkit-details-marker { display: none; }
+.subseccion-summary::marker, .subsubseccion-summary::marker { content: ''; }
+.subseccion-summary::after, .subsubseccion-summary::after {
+  content: ""; flex: none; margin-left: auto; width: .5rem; height: .5rem; border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .2s; opacity: .7; }
+.subseccion[open] > .subseccion-summary::after, .subsubseccion[open] > .subsubseccion-summary::after { transform: translateY(-2px) rotate(45deg); }
+.subseccion-summary:hover, .subsubseccion-summary:hover { color: var(--primario-texto, var(--primario)); }
+.subseccion-summary:focus-visible, .subsubseccion-summary:focus-visible { outline: 3px solid var(--primario); outline-offset: 3px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { .subseccion-summary::after, .subsubseccion-summary::after { transition: none; } }
+
+@media (max-width: 720px) {
+  .escena { padding: .9rem 1rem .8rem; }
+  .turno { grid-template-columns: 1fr; }
+  div.ficha:not(.tarjeta) dl { grid-template-columns: 1fr; }
+  div.ficha:not(.tarjeta) dd { border-top: none; padding-top: 0; }
+  /* Un gráfico ancho conserva un tamaño legible y se desplaza en horizontal, con su aviso; los verticales caben. */
+  figure:not(.vertical):not(.diagrama) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  figure:not(.vertical):not(.diagrama) > svg { min-width: 680px; }
+  figure:not(.vertical):not(.diagrama)::before { content: 'Desliza para ver el gráfico completo →'; display: block;
+    font-size: .8125rem; color: var(--texto-suave); text-align: right; margin-bottom: .3rem; }
+  figure:not(.vertical):not(.diagrama) figcaption { position: sticky; left: 0; max-width: calc(100vw - 2rem); text-align: left; }
+}
+@media print {
+  .subseccion-summary::after, .subsubseccion-summary::after { display: none; }
+  .escena, .caso, div.ficha:not(.tarjeta), .cmp-fila { break-inside: avoid; }
+  figure:not(.vertical):not(.diagrama)::before { content: none; }
+}

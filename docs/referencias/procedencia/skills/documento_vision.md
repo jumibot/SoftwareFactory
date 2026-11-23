@@ -161,3 +161,7 @@ Tarea 204. La fase 2 pregunta el destino y las herramientas al acordar las secci
 ## Lo común, a `crear_documentos` (2026-11-02)
 
 Tarea 301, decisión 232. `scripts/tema_identidad.py`, `scripts/resaltar_codigo.py` y `assets/temas/` pasan a la skill general `crear_documentos`, igual que el texto de «Temas visuales», «Logo e identidad», «CSS del proyecto» y el «Catálogo de herramientas y opciones de lectura». `doc_to_html.py` los importa desde allí. La maqueta de la visión (carcasa, `estilo_base.css`, escenas, caso conductor) se queda aquí. Las ocho visiones y explicativos de la SF regenerados salen iguales (sin contar la fecha de generación del pie).
+
+## Al generador único (2026-11-23)
+
+Tarea 390, decisiones 308 y 309. `scripts/doc_to_html.py` pasa a ser un envoltorio del generador único de `crear_documentos` (`scripts/documento_a_html.py`) con el perfil de la visión (`perfil.json`: subsecciones plegables y anclas de la maqueta antigua). Se retiran `scripts/carcasa.py` y `assets/estilo_base.css`, las dos piezas que venían de OncoCore. Los estilos de la escena, el caso, el expediente, el aviso de ficción, la ficha, la comparativa, las preguntas frecuentes y el ejemplo pasan a `crear_documentos/assets/narrativa.css`, y el paso de los colores del `.md` al tema, al generador único.

@@ -1,6 +1,9 @@
 /* Lector de libros (.lector) y «Leer la historia completa». Sin librerías; sin JS, el texto se ve seguido. */
 (function () {
   var CLAVE_PASO = 'sf-lector-paso';
+  // Dónde va el texto del documento: en el generador común, la portada y <main>; .report-body, en los HTML de la maqueta antigua.
+  var DOC = ['.portada', 'main', '.report-body'];
+  function enDoc(sel) { return DOC.map(function (d) { return sel.split(', ').map(function (x) { return d + ' ' + x; }).join(', '); }).join(', '); }
   function modoPaso() { try { return localStorage.getItem(CLAVE_PASO) === 'hoja' ? 'hoja' : 'tinta'; } catch (e) { return 'tinta'; } }
   function ponerModoPaso(m) { try { localStorage.setItem(CLAVE_PASO, m); } catch (e) {} }
   // La marca en dos tonos: lo que va antes de la primera letra o cifra («/») y el resto («SF»).
@@ -119,7 +122,7 @@
   function texto(el) { return (el && el.textContent || '').replace(/\s+/g, ' ').trim(); }
   function p(clase, html) { var e = document.createElement('p'); if (clase) e.className = clase; e.innerHTML = html; return e; }
   function historia() {
-    var partes = Array.prototype.filter.call(document.querySelectorAll('.report-body .libro, .report-body .caso, .report-body .escena'),
+    var partes = Array.prototype.filter.call(document.querySelectorAll(enDoc('.libro, .caso, .escena')),
       function (el) { return !el.closest('[data-historia="no"]') && !el.closest('.lector-capa'); });
     if (partes.length < 2) return null;
     var libro = document.createElement('div'); libro.className = 'libro';
@@ -235,7 +238,7 @@
   }
 
   function todos() {
-    var lectores = Array.prototype.slice.call(document.querySelectorAll('.report-body .lector'));
+    var lectores = Array.prototype.slice.call(document.querySelectorAll(enDoc('.lector')));
     lectores.forEach(function (l) { paginar(l); });
     if (lectores.length && historia()) {
       var caja = document.createElement('p'); caja.className = 'lector-abrir';

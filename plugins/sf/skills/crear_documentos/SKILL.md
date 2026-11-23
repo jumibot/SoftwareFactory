@@ -16,9 +16,9 @@ Comunicar bien es un objetivo de la SF: la usabilidad de los documentos no es un
 | --- | --- | --- | --- |
 | Documento fundacional | `documento_fundacional` | `scripts/fundacional_to_html.py` de su skill | Su `perfil.json` |
 | Informe de una tarea deliberativa | `informe_deliberativa` | `scripts/informe_to_html.py` de su skill | Su `perfil.json`, con las preguntas |
-| Visión y documentos explicativos («Cómo funciona…») | `documento_vision` | `scripts/doc_to_html.py` de su skill, con maqueta propia | Escenas, caso conductor y bloques plegables propios; temas, identidad y herramientas de esta skill |
+| Visión y documentos explicativos («Cómo funciona…») | `documento_vision` | `scripts/doc_to_html.py` de su skill | Su `perfil.json`: todo el catálogo, con las subsecciones plegables y las anclas de la maqueta antigua |
 
-El fundacional, los informes y los tipos que vengan usan el **generador común** de esta skill, `scripts/documento_a_html.py`, con su **perfil**. La visión conserva su maqueta (carcasa, escenas, caso conductor), que es propia de su forma narrativa; de esta skill toma los temas, la identidad, las herramientas y el coloreado de código.
+Todos los tipos usan el **generador único** de esta skill, `scripts/documento_a_html.py`, con su **perfil**. La maqueta antigua de la visión (`carcasa.py` y `estilo_base.css`) se retiró: regenerar un documento hecho con ella ya lo migra («Cada documento se migra al generador único cuando se vuelve a tocar», 309). Sus opciones en comentarios antes del título (`<!-- destino: … -->`) siguen valiendo, con un aviso, hasta que `scripts/convertir_cabecera.py` las pasa a la cabecera.
 
 ### El perfil de un tipo de documento
 
@@ -31,6 +31,8 @@ Cada skill de tipo lleva un `perfil.json` en su carpeta:
 - `tipo`: el nombre por defecto del tipo (pie y título de la pestaña), si la cabecera del `.md` no da otro.
 - `recursos`: los bloques del catálogo que usa (`tarjetas`, `columnas`, `fichas`, `preguntas`, `fuentes`). Así un tipo elige: un documento técnico puede usar recursos que uno para usuarios no usa. Si el `.md` usa uno que no está, el generador se detiene y lo dice. Sin `recursos`, todos.
 - `css` y `js`: recursos propios del tipo, con rutas relativas al perfil. Van después de los comunes y antes de los del proyecto, con su marca `data-kit` para que `actualizar_copia.py` los ponga al día.
+- `subsecciones` (`no`, por defecto, o `plegables`): con `plegables`, cada `###` del cuerpo de una sección es una subsección plegable, abierta, y cada `####`, un detalle plegado (el que la opción de lectura `bocadillos` abre encima del texto). Los títulos dentro de tarjetas, recuadros o HTML propio no se pliegan.
+- `anclas` (`con-tildes`, por defecto, o `sin-tildes`): con `sin-tildes`, el id de una sección o subsección sin `{#id}` se calcula como en la maqueta antigua de la visión (sin el número del principio, sin tildes, repetidos con `-1`, `-2`…), para que los enlaces a ella sigan valiendo al migrarla.
 
 Su generador es un envoltorio de pocas líneas que llama a `documento_a_html.py` con `--perfil`; el del fundacional sirve de modelo.
 
@@ -180,6 +182,12 @@ Para contar una historia como un libro (la opción novela de los documentos de v
 - **`data-marca`** (y, si se quiere, `--lector-marca` y `--lector-marca-claro` en `style`): la marca del proyecto en el marco, como el logo de un aparato. Lo que va antes de la primera letra o cifra (la barra de «/SF») sale en `--lector-marca-claro` y el resto, en `--lector-marca`: en la SF, `--lector-marca:#827dbd;--lector-marca-claro:#b3aee6`, los colores de su logo (decisión 255).
 - **`data-al-abrir="historia"`**: el documento se abre en la historia completa, a pantalla completa y sin nada encima.
 - **Pantalla de entrada** (con `data-al-abrir` y `data-marca`), como el encendido del lector. **Anuncia el tema del documento, no la marca**: arriba, el tema y su subtítulo (`data-tema` y `data-subtitulo`; por defecto, el título del documento partido por sus dos puntos); en medio, el logo en sus colores con un **latido** (un halo suave que respira lento, unos 2 s, siempre visible y que es también su señal de foco; fijo con movimiento reducido); debajo, la invitación (`data-invitacion`); y abajo, en letra pequeña, el **aviso de ficción** (`data-aviso`; por defecto, «Historia de ficción: personajes y escenas son imaginados.»; vacío, sin aviso). Pulsar el logo, o Intro o espacio sobre él, lleva a la página 1.
+
+### Recursos narrativos y de la visión
+
+Vienen de la maqueta de la visión y valen en cualquier documento («Todos los recursos de la visión pasan al catálogo común», 308); su estilo (`assets/narrativa.css`) solo entra si el documento los usa. Son HTML en el `.md`, sin líneas en blanco dentro: la **escena** (`.escena` con `.escena-etiqueta`, `.escena-contexto`, `.turno` y `.ponente`, `.turno sistema` y `.escena-pie`), el **caso conductor** (`.caso` con `.caso-etiqueta`) y el **expediente** (`p.expediente`), el **aviso de ficción** (`.aviso-ficcion`), la **ficha de datos** (`div.ficha` con `<dl>`, `dt.acordado` y `dt.evidencia`), la **comparativa** de versiones (`.comparativa`), las **preguntas frecuentes** (`dl.faq`) y el **ejemplo narrado** (`.ejemplo`). La sintaxis completa y cuándo usar cada uno, en `sf:documento_vision` («Componentes de texto»). Un gráfico SVG ancho (sin `class="vertical"`) se desplaza en el móvil con su aviso.
+
+**Colores del `.md` al tema.** En los SVG y el HTML del `.md`, un color de rol escrito con el valor del tema `teal` o del tema `morado` (por ejemplo, `#00726b` o `#7b2cbf` para el primario) pasa a la variable del estilo o del tema del documento. El código y los diagramas del catálogo no se tocan.
 
 ### Componentes propios del proyecto
 

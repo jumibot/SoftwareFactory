@@ -24,10 +24,10 @@ import markdown
 AQUI = Path(__file__).resolve().parent
 sys.path.insert(0, str(AQUI))
 from tema_identidad import (BASE, CLAVES_IDENTIDAD, bloque_kit, buscar_identidad, cargar_tema,  # noqa: E402
-                            destino_documento, diagramas_estilos, diagramas_scripts, enlaces_externos,
+                            colores_a_variables, destino_documento, diagramas_estilos, diagramas_scripts, enlaces_externos,
                             herramientas_activas, kit_estilos, kit_scripts,
                             lector_estilos, lector_scripts,
-                            logo_data_uri, procedencia, variables_css)
+                            logo_data_uri, procedencia, traducir_colores, variables_css)
 import diagramas_recurso  # noqa: E402
 import estilo_proyecto  # noqa: E402
 from resaltar_codigo import resaltar  # noqa: E402  coloreado de sintaxis de los bloques de código
@@ -39,6 +39,13 @@ CSS = (BASE / RUTA_CSS).read_text(encoding="utf-8")
 BLOQUES = ("tarjetas", "fichas", "columnas", "fuentes", "preguntas")
 PERMITIDOS = set(BLOQUES)  # los que deja usar el perfil del tipo de documento (main)
 NOMBRE_PERFIL = ""
+# Cómo se lee el tipo de documento (perfil.json): «subsecciones»: «plegables» pliega cada ### (abierta) y cada ####
+# (plegada) del cuerpo de una sección; «anclas»: «sin-tildes» calcula los id como la maqueta antigua de la visión, para
+# que los enlaces a sus secciones sigan valiendo al migrarla (decisión 309).
+SUBSECCIONES = "no"
+ANCLAS = "con-tildes"
+USADOS: "collections.Counter[str]" = collections.Counter()  # id calculados, para no repetir ninguno
+NARRATIVA_CSS = "skills/crear_documentos/assets/narrativa.css"
 EXTENSIONES = ["tables", "fenced_code", "sane_lists", "attr_list", "md_in_html", "def_list"]
 esc = html_mod.escape
 
@@ -304,6 +311,94 @@ def slug(texto: str) -> str:
     return re.sub(r"[\s_]+", "-", t).strip("-")
 
 
+def slug_sin_tildes(texto: str) -> str:
+    """El id de un título como lo calculaba la maqueta antigua de la visión (carcasa.py): sin el número de sección del
+    principio («1.2 »), vocales sin tilde y el resto de signos como «-». Así un enlace a una sección sobrevive a la
+    migración."""
+    t = re.sub(r"<[^>]+>", "", texto).strip()
+    t = re.sub(r"^\d+(?:\.\d+)*\s+", "", t).lower()
+    for vocales, v in (("àáâãäå", "a"), ("èéêë", "e"), ("ìíîï", "i"), ("òóôõö", "o"), ("ùúûü", "u")):
+        t = re.sub(f"[{vocales}]", v, t)
+    return re.sub(r"[^a-z0-9]+", "-", t).strip("-") or "section"
+
+
+def id_calculado(texto: str) -> str:
+    """El id de un título sin {#id}: el slug del perfil y, si ya se usó, con «-1», «-2»…"""
+    base = slug_sin_tildes(texto) if ANCLAS == "sin-tildes" else slug(texto)
+    n = USADOS[base]
+    USADOS[base] += 1
+    return base if n == 0 else f"{base}-{n}"
+
+
+VACIAS = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
+
+
+def titulos_de_primer_nivel(h: str) -> list[tuple[int, int, str]]:
+    """(inicio, fin, nivel) de cada <h3> y <h4> que no está dentro de otro elemento (tarjetas, recuadros, escenas…)."""
+    hondo, res = 0, []
+    for m in re.finditer(r"<!--.*?-->|<(/?)([a-zA-Z][\w:-]*)\b[^>]*?(/?)>", h, re.S):
+        if m.group(0).startswith("<!--"):
+            continue
+        cierre, etiqueta, sola = m.group(1), m.group(2).lower(), m.group(3)
+        if cierre:
+            hondo = max(0, hondo - (etiqueta in ETIQUETAS_HTML))
+            continue
+        if hondo == 0 and etiqueta in ("h3", "h4"):
+            fin = h.find(f"</{etiqueta}>", m.end())
+            if fin >= 0:
+                res.append((m.start(), fin + len(etiqueta) + 3, etiqueta))
+        # Un «<tarea>» suelto del texto no es HTML: no abre nada (avisar_etiquetas_sueltas ya lo avisa).
+        if not sola and etiqueta not in VACIAS and etiqueta in ETIQUETAS_HTML:
+            hondo += 1
+    return res
+
+
+def plegar_subsecciones(cuerpo: str) -> str:
+    """Cada ### de primer nivel abre una subsección plegable, abierta, hasta el siguiente ###; cada #### abre un detalle
+    plegado hasta el siguiente #### o ###. El id va en el <details>, con el del título o calculado."""
+    titulos = titulos_de_primer_nivel(cuerpo)
+    if not titulos:
+        return cuerpo
+    out, abiertos = [cuerpo[:titulos[0][0]]], []
+    for i, (ini, fin, nivel) in enumerate(titulos):
+        m = re.match(rf"<{nivel}([^>]*)>(.*)</{nivel}>", cuerpo[ini:fin], re.S)
+        ident = re.search(r'\bid="([^"]+)"', m.group(1))
+        ident = ident.group(1) if ident else id_calculado(m.group(2))
+        # Un ### cierra la subsección abierta y su detalle; un ####, solo el detalle.
+        while abiertos and (nivel == "h3" or abiertos[-1] == 4):
+            out.append("</details>")
+            abiertos.pop()
+        if nivel == "h3":
+            out.append(f'<details id="{ident}" class="subseccion" open><summary class="subseccion-summary">{m.group(2)}</summary>')
+            abiertos.append(3)
+        else:
+            out.append(f'<details id="{ident}" class="subsubseccion"><summary class="subsubseccion-summary">{m.group(2)}</summary>')
+            abiertos.append(4)
+        out.append(cuerpo[fin:titulos[i + 1][0] if i + 1 < len(titulos) else len(cuerpo)])
+    out += ["</details>"] * len(abiertos)
+    return "".join(out)
+
+
+# Colores del .md al tema: los de un rol escritos con los valores de los temas teal o morado (los gráficos SVG de la
+# visión) pasan a las variables del tema, para que sigan los colores del documento. El código y los diagramas del
+# catálogo, que ya usan las variables, no se tocan.
+PROTEGIDOS = re.compile(r'<pre\b.*?</pre>|<code\b.*?</code>|<figure class="diagrama\b.*?</figure>', re.S)
+
+
+def colores_al_tema(h: str, tema: dict) -> str:
+    partes, ultimo = [], 0
+    for m in PROTEGIDOS.finditer(h):
+        partes += [traducir_colores(colores_a_variables(h[ultimo:m.start()]), tema), m.group(0)]
+        ultimo = m.end()
+    partes.append(traducir_colores(colores_a_variables(h[ultimo:]), tema))
+    return "".join(partes)
+
+
+# Clases de los recursos que vienen de la visión (assets/narrativa.css): su estilo solo entra si el documento los usa.
+USA_NARRATIVA = re.compile(r'class="(?:escena|caso|expediente|aviso-ficcion|ficha|comparativa|faq|ejemplo|subseccion|'
+                           r'subsubseccion)\b|<figure(?:\s|>)')
+
+
 def recuadros(h: str) -> str:
     """Citas → recuadros. «[!aviso]» o «[!decision]» en la primera línea eligen la variante;
     una primera línea solo en negrita es la etiqueta; sin nada de eso, es una cita destacada."""
@@ -355,6 +450,8 @@ def seccion(n: int, etiqueta: str, titulo: str, ident: str, cuerpo_md: str, esti
     cuerpo = resaltar(recuadros(a_html(cuerpo_md)))
     # El primer párrafo sin clase de la sección es la entradilla.
     cuerpo = re.sub(r"^\s*<p>", '<p class="entradilla">', cuerpo, count=1)
+    if SUBSECCIONES == "plegables":
+        cuerpo = plegar_subsecciones(cuerpo)
     # Sección plegable: por defecto, solo la primera abierta al cargar (secciones.plegado); se abre o pliega tocando el
     # título (assets/plegado.js añade el resto; al imprimir se abre todo).
     plegado = estilo_proyecto.param(estilo, "secciones", "plegado", "primera")
@@ -436,9 +533,13 @@ def cargar_perfil(ruta: str | None) -> dict:
     if not r.is_file():
         sys.exit(f"No encuentro el perfil del tipo de documento: {r}")
     perfil = json.loads(r.read_text(encoding="utf-8"))
-    malas = set(perfil) - {"tipo", "recursos", "css", "js", "descripcion"}
+    malas = set(perfil) - {"tipo", "recursos", "css", "js", "descripcion", "subsecciones", "anclas"}
     if malas:
-        sys.exit(f"{r} usa claves desconocidas: {', '.join(sorted(malas))}. Posibles: tipo, recursos, css, js, descripcion.")
+        sys.exit(f"{r} usa claves desconocidas: {', '.join(sorted(malas))}. "
+                 "Posibles: tipo, recursos, css, js, descripcion, subsecciones, anclas.")
+    for clave, posibles in (("subsecciones", ("no", "plegables")), ("anclas", ("con-tildes", "sin-tildes"))):
+        if perfil.get(clave, posibles[0]) not in posibles:
+            sys.exit(f"{r}: «{clave}» no válido: «{perfil[clave]}». Posibles: {', '.join(posibles)}.")
     desconocidos = set(perfil.get("recursos", BLOQUES)) - set(BLOQUES)
     if desconocidos:
         sys.exit(f"{r}: recursos desconocidos: {', '.join(sorted(desconocidos))}. Catálogo: {', '.join(BLOQUES)}.")
@@ -510,7 +611,7 @@ def elegir_tema(args, identidad: dict, ruta_id: Path | None, src: Path, ruta_est
 
 
 def main():
-    global PERMITIDOS, NOMBRE_PERFIL
+    global PERMITIDOS, NOMBRE_PERFIL, SUBSECCIONES, ANCLAS
     ap = argparse.ArgumentParser(description="Documento .md → HTML editorial (generador común de crear_documentos)")
     ap.add_argument("md")
     ap.add_argument("--perfil", default=None, help="perfil.json del tipo de documento (lo pasa el generador de cada skill de tipo)")
@@ -529,6 +630,7 @@ def main():
     perfil = cargar_perfil(args.perfil)
     PERMITIDOS = set(perfil.get("recursos", BLOQUES))
     NOMBRE_PERFIL = perfil.get("tipo", "").lower()
+    SUBSECCIONES, ANCLAS = perfil.get("subsecciones", "no"), perfil.get("anclas", "con-tildes")
 
     src = Path(args.md)
     ruta_id = buscar_identidad(src, args.identidad)
@@ -582,6 +684,15 @@ def main():
         iconos_propios(identidad, ruta_id.parent)
     texto_md = src.read_text(encoding="utf-8")
     datos, raw = leer_cabecera(texto_md)
+    # Un .md de la maqueta antigua de la visión lleva las opciones de lectura en comentarios antes del título
+    # («<!-- destino: … -->»): valen como si estuvieran en la cabecera, y convertir_cabecera.py las pasa a ella (309).
+    titulo_md = re.search(r"^#\s", raw, re.M)
+    comentarios = re.findall(r"<!--\s*(destino|herramientas)\s*:\s*(.*?)\s*-->", raw[:titulo_md.start()] if titulo_md else "")
+    for clave, valor in comentarios:
+        datos.setdefault(clave, valor)
+    if comentarios:
+        print("Aviso: las opciones de lectura van en comentarios antes del título; al migrar el documento, "
+              "scripts/convertir_cabecera.py las pasa a la cabecera «---».", file=sys.stderr)
     sueltas = avisar_etiquetas_sueltas(raw, texto_md[:len(texto_md) - len(raw)].count("\n"))
     if sueltas:
         print("Aviso: estos «<…>» no son HTML y no se verán en el documento. Escríbelos entre comillas invertidas "
@@ -607,6 +718,10 @@ def main():
                 estilo_proyecto.param(estilo, "identidad", "producto", identidad.get("producto", nombre)))
     partes = re.split(r"^##\s+(.+)$", raw[h1.end():], flags=re.M)
     portada_md, secciones = partes[0], [(cabecera_seccion(c), md) for c, md in zip(partes[1::2], partes[2::2])]
+    USADOS.clear()
+    if ANCLAS == "sin-tildes":  # el id de cada sección sin {#id}, como lo calculaba la visión
+        secciones = [((e, t, menu, i if re.search(r"\{:?\s*#[\w-]+\s*\}\s*$", c) else id_calculado(t)), md)
+                     for c, ((e, t, menu, i), md) in zip(partes[1::2], secciones)]
     # Las citas «>» antes de la primera sección son avisos de alcance global: van al principio, fuera de las secciones.
     bloques = re.split(r"\n\s*\n", portada_md.strip()) if portada_md.strip() else []
     avisos_md = "\n\n".join(b for b in bloques if b.lstrip().startswith(">"))
@@ -623,7 +738,7 @@ def main():
     compacta = forma == "compacta"
     fondo_primario = oscura and estilo_proyecto.param(estilo, "portada", "fondo") == "primario"
     con_linea = estilo_proyecto.param(estilo, "portada", "linea", "si") not in ("no", False)
-    marca = esc(datos.get("antetitulo") or nombre)
+    marca = esc(datos.get("antetitulo") or producto)  # sin antetítulo, el producto (por defecto, el título)
     if logo:  # alto de 40 px, como en el CSS
         marca = imagen_logo(logo_oscuro if oscura and logo_oscuro else logo, placa=oscura and placa) + marca
     lema = "<br>".join(esc(x) for x in lineas_lema(datos["lema"])) if datos.get("lema") else ""
@@ -668,7 +783,9 @@ def main():
                + '<button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>')
 
     cuerpo = "".join(seccion(n, e, t, i, md, estilo) for n, ((e, t, _, i), md) in enumerate(secciones, 1))
-    cuerpo = estilo_proyecto.aplicar_diagramas(etiquetar_tablas(cuerpo), estilo)
+    cuerpo = estilo_proyecto.aplicar_diagramas(colores_al_tema(etiquetar_tablas(cuerpo), tema), estilo)
+    portada_y_cuerpo = "".join(p) + avisos + cuerpo  # un .lector o una escena pueden ir antes de la primera sección
+    css_narrativa = "\n  " + bloque_kit(NARRATIVA_CSS) if USA_NARRATIVA.search(portada_y_cuerpo) else ""
     js = "\n" + bloque_kit("skills/crear_documentos/assets/plegado.js") + kit_scripts() if secciones else ""
     js += "\n" + bloque_kit("skills/crear_documentos/assets/fichas.js") if 'class="fichas' in cuerpo else ""
     # Lo propio del tipo de documento (perfil.json): después de lo común, antes de lo del proyecto.
@@ -703,7 +820,7 @@ def main():
   </style>
   <style data-kit="{RUTA_CSS}">
 {CSS}
-  </style>{css_estilo}{kit_estilos()}{lector_estilos(cuerpo)}{diagramas_estilos(cuerpo)}{css_tipo}{css_proyecto}
+  </style>{css_narrativa}{css_estilo}{kit_estilos()}{lector_estilos(portada_y_cuerpo)}{diagramas_estilos(cuerpo)}{css_tipo}{css_proyecto}
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
@@ -712,7 +829,7 @@ def main():
 <div class="hoja">
   <main id="contenido" tabindex="-1">{avisos}{cuerpo}</main>
   <footer class="pie"><p>{esc(" · ".join(x for x in (producto, tipo, version, datos.get("estado", "")) if x))}</p>{f"<p>{esc(pie_texto)}</p>" if pie_texto else ""}<p class="procedencia">{esc(origen)}</p></footer>
-</div>{js}{lector_scripts(cuerpo)}{diagramas_scripts(cuerpo, activas, bool(secciones))}{js_proyecto}
+</div>{js}{lector_scripts(portada_y_cuerpo)}{diagramas_scripts(cuerpo, activas, bool(secciones))}{js_proyecto}
 </body>
 </html>
 """

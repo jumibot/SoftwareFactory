@@ -11,8 +11,8 @@ Uso:
       y rehace la tabla Nº | Fecha | Decisión, la más reciente (el número más alto) arriba.
   python -I -X utf8 indice_decisiones.py sf/decisiones --html
       Genera sf/decisiones/README.html a partir del README.md, sin tocarlo, con el
-      generador y el aspecto de los demás documentos .html de la SF (skill
-      documento_vision). No se versiona: lo genera el panel al abrir las decisiones
+      generador único y el estilo del proyecto, como los demás documentos .html
+      (doc_to_html.py de la skill documento_vision). No se versiona: lo genera el panel al abrir las decisiones
       (decisión 163). Sale con 1 si no puede (falta el generador o sus paquetes,
       markdown y Pillow, o el README.md).
   python -I -X utf8 indice_decisiones.py sf/decisiones --nombre "Título" [--fecha AAAA-MM-DD]
@@ -119,7 +119,8 @@ def generar(carpeta: Path) -> int:
     return n
 
 
-# El generador de los documentos .html de la SF, en el mismo plugin: tools/ y skills/ viajan juntos.
+# El generador único de los documentos .html, con el perfil de la visión (anclas de siempre), en el mismo plugin:
+# tools/ y skills/ viajan juntos.
 GENERADOR = Path(__file__).resolve().parent.parent / 'skills' / 'documento_vision' / 'scripts' / 'doc_to_html.py'
 
 
@@ -140,7 +141,7 @@ def generar_html(carpeta: Path) -> str:
         return f'sin README.html: {error[-1] if error else "el generador falló"}'
     # En un índice, todas las secciones abiertas, como en el README.html de la SF.
     texto = html.read_text(encoding='utf-8')
-    html.write_text(re.sub(r'(<details id="[^"]*" class="bloque[^"]*")(?! open)>', r'\1 open>', texto), encoding='utf-8')
+    html.write_text(re.sub(r'(<details class="seccion[^"]*" id="[^"]*")(?! open)>', r'\1 open>', texto), encoding='utf-8')
     return str(html)
 
 

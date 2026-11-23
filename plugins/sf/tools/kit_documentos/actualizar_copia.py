@@ -20,7 +20,7 @@ from pathlib import Path
 KIT = Path(__file__).resolve().parent
 BASE = KIT.parent.parent
 CONOCIDOS = ["tools/kit_documentos/herramientas.css", "tools/kit_documentos/herramientas.js", "tools/kit_documentos/lectura.js",
-             "tools/kit_documentos/edicion.js", "skills/documento_vision/assets/estilo_base.css",
+             "tools/kit_documentos/edicion.js", "skills/crear_documentos/assets/narrativa.css",
              "skills/crear_documentos/assets/estilo_documento.css", "skills/crear_documentos/assets/plegado.js",
              "skills/crear_documentos/assets/fichas.js", "tools/kit_documentos/diagramas.js",
              "skills/diagramas/assets/diagramas.css", "skills/diagramas/assets/diagramas.js"]

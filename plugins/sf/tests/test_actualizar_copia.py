@@ -1,8 +1,11 @@
-"""Pruebas de actualizar_copia.py (kit_documentos): al poner al día el estilo de un documento ya generado, las
-plantillas con marcadores de color ({{primario}}, {{oscuro}}…) se rellenan con el tema del propio documento.
+"""Pruebas de actualizar_copia.py (kit_documentos): un documento ya generado se pone al día con la versión actual de
+los archivos del kit que lleva (data-kit) sin tocar su contenido; los marcadores de color de una plantilla
+({{primario}}, {{oscuro}}…) se rellenan con el tema del propio documento; y el bloque de un archivo que ya no existe
+(estilo_base.css de la maqueta antigua de la visión, retirada con el generador único) se deja como está.
 
 python -I -X utf8 -m unittest discover -s plugins/sf/tests -p "test_*.py"
 """
+import importlib.util
 import re
 import subprocess
 import sys
@@ -13,7 +16,7 @@ from pathlib import Path
 PLUGIN = Path(__file__).resolve().parents[1]
 GENERADOR = PLUGIN / 'skills' / 'documento_vision' / 'scripts' / 'doc_to_html.py'
 ACTUALIZAR = PLUGIN / 'tools' / 'kit_documentos' / 'actualizar_copia.py'
-ESTILO = 'skills/documento_vision/assets/estilo_base.css'
+ESTILO = 'skills/crear_documentos/assets/estilo_documento.css'
 BLOQUE = re.compile(r'(<style data-kit="' + re.escape(ESTILO) + r'">)(.*?)(</style>)', re.S)
 
 
@@ -22,7 +25,14 @@ def ejecutar(*args) -> subprocess.CompletedProcess:
                           encoding='utf-8')
 
 
-class RellenaColores(unittest.TestCase):
+def modulo():
+    spec = importlib.util.spec_from_file_location('actualizar_copia', ACTUALIZAR)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+class PoneAlDia(unittest.TestCase):
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
         md = Path(self._tmp.name) / 'vision.md'
@@ -41,19 +51,15 @@ class RellenaColores(unittest.TestCase):
         self.html.write_text(BLOQUE.sub(lambda m: m.group(1) + '\n/* estilo viejo */\n' + m.group(3), texto, count=1),
                              encoding='utf-8')
 
-    def test_rellena_con_el_tema_del_documento(self):
+    def test_pone_al_dia_el_estilo(self):
         generado = self.html.read_text(encoding='utf-8')
-        primario = re.search(r':root \{[^}]*--primario: (#[0-9a-f]+);', generado).group(1)
         self.envejecer()
         r = ejecutar(ACTUALIZAR, self.html)
         self.assertEqual(r.returncode, 0, r.stderr)
-        self.assertIn('actualizado: estilo_base.css', r.stdout)
-        estilo = BLOQUE.search(self.html.read_text(encoding='utf-8')).group(2)
-        # Sin marcadores de color por rellenar (el {{rol}} del comentario de cabecera no es uno).
-        self.assertEqual(set(re.findall(r'\{\{([a-z-]+)\}\}', estilo)) - {'rol'}, set())
-        self.assertIn(f"stroke='%23{primario.lstrip('#')}'", estilo)
+        self.assertIn('actualizado: estilo_documento.css', r.stdout)
         # Queda como lo deja el generador.
-        self.assertEqual(estilo.strip(), BLOQUE.search(generado).group(2).strip())
+        self.assertEqual(BLOQUE.search(self.html.read_text(encoding='utf-8')).group(2).strip(),
+                         BLOQUE.search(generado).group(2).strip())
 
     def test_al_dia_no_cambia(self):
         antes = self.html.read_text(encoding='utf-8')
@@ -62,14 +68,31 @@ class RellenaColores(unittest.TestCase):
         self.assertIn('sin cambios', r.stdout)
         self.assertEqual(self.html.read_text(encoding='utf-8'), antes)
 
-    def test_sin_tema_no_toca_nada(self):
-        self.envejecer()
-        texto = re.sub(r'--primario: #[0-9a-f]+;', '', self.html.read_text(encoding='utf-8'))
+    def test_archivo_retirado_se_deja(self):
+        texto = self.html.read_text(encoding='utf-8').replace(
+            '</head>', '<style data-kit="skills/documento_vision/assets/estilo_base.css">\n.viejo {}\n</style>\n</head>', 1)
         self.html.write_text(texto, encoding='utf-8')
         r = ejecutar(ACTUALIZAR, self.html)
-        self.assertNotEqual(r.returncode, 0)
-        self.assertIn('primario', r.stderr)
-        self.assertEqual(self.html.read_text(encoding='utf-8'), texto)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn('desconocido (se deja): estilo_base.css', r.stdout)
+        self.assertIn('.viejo {}', self.html.read_text(encoding='utf-8'))
+
+
+class Marcadores(unittest.TestCase):
+    """Los marcadores de color de una plantilla del kit se rellenan con el tema del documento, como hacían los
+    generadores; sin el color de su tema, se dice cuál falta."""
+
+    def test_rellena_con_el_tema_del_documento(self):
+        m = modulo()
+        colores = m.colores_tema('<style>\n:root { --primario: #00726b; --oscuro: #004d47; }\n</style>')
+        cuerpo = "a { background: url(\"data:image/svg+xml;utf8,<svg stroke='{{primario}}'/>\"); } /* {{rol}} */"
+        self.assertEqual(m.faltan_colores(cuerpo, colores), [])
+        relleno = m.rellenar(cuerpo, colores)
+        self.assertIn("stroke='%2300726b'", relleno)
+        self.assertIn('{{rol}}', relleno)  # el del comentario no es un marcador de color
+
+    def test_sin_tema_dice_que_falta(self):
+        self.assertEqual(modulo().faltan_colores("x { stroke: '{{primario}}' }", {}), ['primario'])
 
 
 if __name__ == '__main__':
