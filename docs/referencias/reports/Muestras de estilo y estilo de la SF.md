@@ -2,7 +2,7 @@
 antetitulo: Software Factory · Informe de diseño · Noviembre 2026
 lema: Seis muestras para elegir y el amarillo de la SF; // todas hechas por el generador, ninguna con un texto por debajo de 4,5:1.
 subtitulo: Qué juego de muestras de estilo se enseña al elegir el estilo de un proyecto, y con qué valores, logo y cabecera de sección parte el estilo de la Software Factory en su amarillo.
-version: Versión 1.0 · 23/11/2026
+version: Versión 1.1 · 23/11/2026
 estado: Propuesta · Tarea 388
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
@@ -18,7 +18,7 @@ Se propone un **juego de seis muestras**, una por tema del catálogo, cada una c
 
 Para la SF se propone un **estilo de partida en el amarillo de la web** (decisión 304) que nace del tema `tinta`, con el amarillo como `primario`, la tinta de la web como `sobre-primario` (9,9:1) y su ámbar oscuro como `primario-texto` (5,7:1 sobre la página); la letra, la de la web (decisión 312); y la portada oscura en grafito con el logo en amarillo. Pasa la comprobación de contraste del generador. Queda un problema que el generador no mira: **los diagramas pintan con el primario los trazos del foco y las flechas principales**, y el amarillo sobre la página da 1,6:1.
 
-Quedan **nueve preguntas**: cinco del estilo de la SF, dos del juego de muestras y dos de contraste. Salen tres tareas nuevas y dos pasos en tareas que ya existen.
+Quedan **nueve preguntas**: cinco del estilo de la SF, dos del juego de muestras y dos de contraste. Salen cuatro tareas nuevas y un paso en una tarea que ya existe. Hasta que la SF tenga su `estilo.json`, su tema azul sale sin etiqueta sólida, marcador ni esquinas propias (decisión 331).
 
 [Ver las nueve preguntas](#por-decidir){: .salto} [Ver las tareas](#tareas){: .salto}
 
@@ -104,7 +104,7 @@ El logo «/SF» de hoy (la web, `site/img/logo.svg`, y el del panel, `hooks/logo
 
 ### Los diagramas con un primario claro {: #diagramas}
 
-`diagramas.css` pinta con `--primario` el borde del nodo en foco, las flechas principales, sus puntas, el punto del foco y el texto de acento. Con el amarillo, el borde del foco y las flechas dan 1,6:1 sobre la página (los objetos gráficos piden 3:1), y el texto de acento, 1,6:1 (pide 4,5:1). La comprobación del generador no lo ve, porque mira el documento y no el diagrama.
+`diagramas.css` pinta con `--primario` el borde del nodo en foco, las flechas principales, sus puntas, el punto del foco y el texto de acento. Con el amarillo, el borde del foco y las flechas dan 1,6:1 sobre la página (los objetos gráficos piden 3:1), y el texto de acento, 1,6:1 (pide 4,5:1). El generador no lo ve: su aviso mira los bordes del documento, no el diagrama. Desde que el diagrama es un recurso del catálogo (391), `comprobar_diagramas.py` sí lo ve, pero se lanza a mano y el borde amarillo del foco le sale como aviso (1,57:1), no como error.
 
 <figure>
 <img src="muestras-estilo/diagrama-amarillo.jpg" alt="Diagrama con el estilo SF-1: el nodo en foco, «Colores», apenas se distingue por su borde amarillo" style="width:100%;height:auto">
@@ -255,10 +255,10 @@ Se lleva
 Se lleva
 :   Las preguntas [6](#p6) y [7](#p7): el juego de muestras y el documento de muestra viajan en el plugin.
 
-### 3 · A los diagramas en el catálogo (391) {: #a-391}
+### 3 · Tarea nueva: los diagramas con un primario claro {: #a-391}
 
 Se lleva
-:   La pregunta [8](#p8): el rol `primario-linea` y su comprobación.
+:   La pregunta [8](#p8): el rol `primario-linea` y su comprobación. Iba a «Hacer del diagrama un recurso del catálogo» (391), que se cerró sin él.
 
 ### 4 · Tarea nueva: arreglos de contraste {: #a-contraste}
 
@@ -275,7 +275,7 @@ Se lleva
 | Pasar el logo de la SF al amarillo en la web y el panel | implementar | `site/img/logo.svg` y `hooks/logo.ts` con los colores de la pregunta 4 (decisión 304, pendiente de aplicar). |
 | Arreglar el contraste del tema `pool`, el aviso de los bordes y el hueco bajo la cabecera sólida | implementar | Acento y serie de `pool` a 4,5:1, lo de la pregunta 9 y un margen bajo `.seccion-titulo` con etiqueta sólida. |
 | Construir la skill que fija los parámetros del estilo con muestras y afinado (392) | paso | Juego de muestras y documento de muestra de las preguntas 6 y 7. |
-| Hacer del diagrama un recurso del catálogo del generador único (391) | paso | Rol `primario-linea` y texto de acento con `primario-texto` (pregunta 8). |
+| Que los diagramas den 3:1 con un primario claro | implementar | Rol `primario-linea` en `diagramas.css` y texto de acento con `primario-texto` (pregunta 8), y que el generador avise de los diagramas por debajo de 3:1. |
 
 ## Anexo | El estilo.json propuesto para la SF | Anexo {#anexo}
 
