@@ -5,6 +5,7 @@ import { avisoComprobacion, avisoDependencias, proximaComprobacion, subirManifie
 import { claveIncorporacion, colorDelEstilo, tareasEnDevelop } from '../hooks/lectura'
 import { colorDeSesion } from '../hooks/constantes'
 import { PRUEBA_PYTHON } from '../hooks/python'
+import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE } from '../hooks/subagentes'
 import { firmaEstructura, firmaLista, vistaCuerpo } from '../hooks/panel'
 import { NOMBRE, NOMBRE_ANCHO, bienvenida, partir } from '../hooks/bienvenida'
 import { BARRA, COLOR_BARRA, COLOR_LETRAS, LETRAS, logoSvg } from '../hooks/logo'
@@ -6120,6 +6121,84 @@ test('Avisos de subagentes: el resultado del Agent del principal lleva los nuevo
   await escribe(m, 'hola')
   const r = await m[0].tool.call({ tool: 'Agent', description: 'Tarea 1: panel', prompt: 'x' } as never)
   expect((r as { context?: string[] }).context).toEqual([LANZA([4]), `Subagentes: ${RECOGE(1)}.`])
+})
+
+// ── Arranque solo (tarea 400) ──
+const ARRANQUE = /^Arranque de la SF, sin esperar a que el propietario escriba\. Lanza el subagente de cada tarea en curso que no lo tiene: la 1 \(«Tarea 1: …»\), la 4 \(«Tarea 4: …»\)\. Sesión nueva: los de la anterior ya no viven\. Prepara sus encargos/
+const fin = (m: Motor, turnId: string) => m[0].turn.complete({ turnId, answer: '', durationMs: 1, isAborted: false, reason: 'answer' } as never)
+
+test('Arranque solo: al abrir la sesión, Claude se pone a lanzar los subagentes sin esperar a que el propietario escriba (tarea 400)', async (...m) => {
+  m[1]('session.surfaces', () => ({ value: ['terminal'] }) as never)
+  const { prompts, reloj } = await preparar(m, { agentes: [], reloj: true })
+  await m[0].classic.SessionStart({ source: 'startup' })
+  expect(prompts).toEqual([])
+  await reloj!.advance(ESPERA_ARRANQUE)
+  expect(prompts.length).toBe(1)
+  expect(prompts[0]).toMatch(ARRANQUE)
+})
+
+test('Arranque solo: un mensaje durante el arranque no manda lanzarlos otra vez; acabado su turno, sí (tarea 400)', async (...m) => {
+  m[1]('session.surfaces', () => ({ value: ['terminal'] }) as never)
+  const { contextos, reloj } = await preparar(m, { agentes: [], reloj: true })
+  await m[0].classic.SessionStart({ source: 'startup' })
+  await reloj!.advance(ESPERA_ARRANQUE)
+  await m[0].turn.start({ text: 'arranque', turnId: 't1' })
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)).toEqual([AVISO_ARRANQUE_EN_MARCHA])
+  await fin(m, 't1')
+  await escribe(m, 'sigue')
+  expect(contextos.at(-1)).toEqual([LANZA([1, 4])])
+})
+
+test('Arranque solo: sin nada que lanzar ni recoger, sin la lista del motor, sin nadie delante o en un subagente, no encarga nada (tarea 400)', async (...m) => {
+  m[1]('session.surfaces', () => ({ value: ['terminal'] }) as never)
+  const { prompts, reloj } = await preparar(m, { agentes: [{ description: 'Tarea 1: panel', status: 'running' }, { description: 'Tarea 4: fondos', status: 'running' }], reloj: true })
+  await m[0].classic.SessionStart({ source: 'startup' })
+  await m[0].classic.SessionStart({ source: 'startup', agent_id: 'sub', agent_type: 'general-purpose' } as never)
+  await reloj!.advance(ESPERA_ARRANQUE)
+  expect(prompts).toEqual([])
+})
+
+test('Arranque solo: sin la lista de subagentes del motor, no encarga nada (tarea 400)', async (...m) => {
+  m[1]('session.surfaces', () => ({ value: ['terminal'] }) as never)
+  const { prompts, reloj } = await preparar(m, { reloj: true })
+  await m[0].classic.SessionStart({ source: 'startup' })
+  await reloj!.advance(ESPERA_ARRANQUE)
+  expect(prompts).toEqual([])
+})
+
+test('Arranque solo: en una sesión sin nadie delante (-p, SDK), no encarga nada (tarea 400)', async (...m) => {
+  m[1]('session.surfaces', () => ({ value: [] }) as never)
+  const { prompts, reloj } = await preparar(m, { agentes: [], reloj: true })
+  await m[0].classic.SessionStart({ source: 'startup' })
+  await reloj!.advance(ESPERA_ARRANQUE)
+  expect(prompts).toEqual([])
+})
+
+for (const source of ['clear', 'compact', 'resume'] as const)
+  test(`Arranque solo: también tras ${source === 'clear' ? 'un /clear' : source === 'compact' ? 'compactar' : 'reanudar'}, con lo que falte (tarea 400)`, async (...m) => {
+    m[1]('session.surfaces', () => ({ value: ['terminal'] }) as never)
+    const agentes: Agente[] = [{ description: 'Tarea 1: panel', status: 'running' }]
+    const { prompts, reloj } = await preparar(m, { agentes, reloj: true })
+    await escribe(m, 'hola')
+    prompts.length = 0
+    await m[0].classic.SessionStart({ source })
+    await reloj!.advance(ESPERA_ARRANQUE)
+    expect(prompts.length).toBe(1)
+    expect(prompts[0]).toMatch(/^Arranque de la SF, .* Lanza el subagente de cada tarea en curso que no lo tiene: la 4 \(«Tarea 4: …»\)\./)
+  })
+
+test('Arranque solo: si el motor no lo admite, lo deja en el prompt para enviarlo con Intro y lo dice; el siguiente mensaje manda lanzarlos (tarea 400)', async (...m) => {
+  m[1]('session.surfaces', () => ({ value: ['terminal'] }) as never)
+  m[1]('prompt.submit', { origin: { kind: 'plugin' } } as never, () => ({ drop: 'no ahora' }) as never)
+  const { rellenos, toasts, contextos, reloj } = await preparar(m, { agentes: [], reloj: true })
+  await m[0].classic.SessionStart({ source: 'startup' })
+  await reloj!.advance(ESPERA_ARRANQUE)
+  expect(rellenos.length).toBe(1)
+  expect(rellenos[0]).toMatch(ARRANQUE)
+  expect(toasts.some(t => t.includes('pulsa Intro'))).toBe(true)
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)).toEqual([LANZA([1, 4], true)])
 })
 
 // El estado de la sesión en un almacén del caso, que se puede vaciar como al cambiar de plugin con /reload-plugins

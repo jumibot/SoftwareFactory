@@ -14,7 +14,7 @@ import { emergente, emergenteError } from './emergentes'
 import { ofrecerPantalla, reiniciarOferta } from './pantalla'
 import { CATALOGO_PRUEBA, apagarAlCerrar, apagarAlEntrar, cambiarPrueba, desdeCopia, leerAjustes, marcarTurno } from './prueba'
 import { registrarPanel, turnarAvisos } from './panel'
-import { leerAvisoSubagentes, rearmarAvisosSubagentes, recuperarSubagentes, SIN_AVISO } from './subagentes'
+import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE, FUENTES_ARRANQUE, arranqueEnMarcha, arranqueTurnoAcabado, encargarArranque, leerAvisoSubagentes, rearmarAvisosSubagentes, recuperarSubagentes, SIN_AVISO } from './subagentes'
 import { asegurarSesion, decidirSesion, forzarActiva, forzarInactiva, latirSesion, sesionSfActual, sfApagada, soltarAlCerrar, tomarAvisoSesion } from './latido'
 
 // Valores de estado del mod: el motor exige declararlos en el archivo que los usa; con el mismo
@@ -282,6 +282,14 @@ export const register: Register = on => {
     // Con la SF apagada en la sesión, sin contexto de la SF: Claude Code sin más (decisión 297).
     await asegurarSesion($).catch(() => null)
     const apagada = await sfApagada($)
+    // Sin esperar al primer mensaje: si hay subagentes que lanzar o recoger, Claude se pone con ello solo (tarea 400).
+    // En un temporizador: el mod acaba de cargarse y el motor no admite el encargo desde este hook.
+    if (!apagada && FUENTES_ARRANQUE.has(e.source) && !e.agent_id)
+      $.clock.after(ESPERA_ARRANQUE, () => {
+        void (async () => {
+          if (!(await sfApagada($))) await encargarArranque($)
+        })().catch(err => $.ui.log(`arranque: ${String(err)}`, { to: 'debug' }))
+      })
     const textos = [
       apagada
         ? null
@@ -387,6 +395,7 @@ export const register: Register = on => {
   on('turn.complete', async ($, e, next) => {
     if (e.agentId === undefined) {
       marcarTurno(null)
+      arranqueTurnoAcabado()
       // Una incorporación a medias queda en pausa al acabar o interrumpirse el turno (tarea 333, decisión 258); si pidió
       // recargar los plugins, el mod los recarga y no la pausa: sigue sola tras recargar (tarea 366).
       if (!(await recargarSiPedido($, () => void refrescar($).catch(() => undefined)).catch(() => false))) await pausarIncorporacion($).catch(() => undefined)
@@ -420,7 +429,10 @@ export const register: Register = on => {
     // Sin pantalla completa, la oferta de activarla, una vez por conversación (tarea 264).
     const pantalla = delPropietario ? await ofrecerPantalla($).catch(() => null) : null
     // El de lanzar los subagentes que faltan, el primero: es lo primero del turno (tarea 351).
-    const { lanzar, recoger } = await leerAvisoSubagentes($).catch(() => SIN_AVISO)
+    // Con el arranque en marcha, que no los lance otra vez: ya lo hace el arranque (tarea 400).
+    const aviso = await leerAvisoSubagentes($).catch(() => SIN_AVISO)
+    const lanzar = aviso.lanzar && (await arranqueEnMarcha($)) ? AVISO_ARRANQUE_EN_MARCHA : aviso.lanzar
+    const recoger = aviso.recoger
     const avisos = [avisoSesion, lanzar, reglas, incorporar, panel, pantalla, recoger].filter((x): x is string => !!x)
     if (!avisos.length) return next(e)
     // Si el mensaje no llega a entrar (otro hook lo descarta), el aviso del panel queda pendiente para el siguiente.

@@ -5,6 +5,7 @@ import { ordenColaClaude } from './python'
 import { leerJson, leerPeticiones, leerSubagentes, raizSesion, recuperarVistos } from './lectura'
 import { guardarSesion, recordarSesion } from './memoria'
 import type { $ } from './lectura'
+import { emergente } from './emergentes'
 
 // ── Avisos de subagentes (tarea 249) ──
 // Con cada mensaje del propietario, al volver un subagente (su notificación o el final del Agent en primer plano), el
@@ -114,5 +115,82 @@ export async function recuperarSubagentes($: $): Promise<void> {
   if (guardada?.vistos) await recuperarVistos($, guardada.vistos)
   await update($, avisados, a =>
     a.sesion ? a : guardada ? { claves: guardada.claves ?? [], nueva: false, sesion: id } : { ...a, sesion: id },
+  )
+}
+
+// ── Arranque solo (tarea 400) ──
+// Al abrir la sesión (también al reanudarla), tras /clear y tras compactar, el mod no espera al primer mensaje del
+// propietario: si hay tareas en curso sin subagente o subagentes terminados sin recoger, encarga a Claude un turno
+// propio con $.prompt.submit, que empieza en cuanto la sesión está quieta. Va como mensaje del plugin, no como del
+// propietario: quien abre la sesión ve por qué Claude se pone a trabajar solo. Solo en una sesión con alguien delante
+// (no en -p ni en el SDK), con la SF activa y el interruptor `automatizaciones.avisos_subagentes` encendido.
+export const FUENTES_ARRANQUE = new Set(['startup', 'resume', 'clear', 'compact'])
+// Lo que espera el mod tras el SessionStart antes de encargarlo: que acabe de cargarse (session.start, decidir la sesión).
+export const ESPERA_ARRANQUE = 1500
+// Cuánto cuenta como «en marcha» un arranque cuyo turno no se ve acabar (si el motor no avisa del final).
+export const DURACION_ARRANQUE = 10 * 60_000
+
+// El encargo del arranque, o null sin nada que hacer.
+export function textoArranque(t: TextosAviso): string | null {
+  if (!t.lanzar && !t.recoger) return null
+  const partes = ['Arranque de la SF, sin esperar a que el propietario escriba.']
+  if (t.lanzar)
+    partes.push(
+      t.lanzar.replace(/^ANTES DE NADA, en este turno y antes de contestar: lanza/, 'Lanza') +
+        ' Prepara sus encargos y lánzalos todos en segundo plano, a la vez en lo posible, sin otro trabajo antes.',
+    )
+  if (t.recoger) partes.push(t.recoger)
+  partes.push(
+    'Si el propietario escribe mientras, atiéndelo en cuanto lo veas y sigue después con lo que falte. Al acabar, di en una línea qué has lanzado o recogido y espera.',
+  )
+  return partes.join(' ')
+}
+
+// El arranque encargado y aún sin acabar: mientras, los mensajes del propietario no vuelven a mandar lanzar los
+// subagentes (los lanzaría dos veces). Acaba con el primer final de turno del principal tras empezar el suyo.
+let arranque: { hasta: number; empezado: boolean } | null = null
+export async function arranqueEnMarcha($: $): Promise<boolean> {
+  if (arranque && (await $.clock.now()) >= arranque.hasta) arranque = null
+  return arranque !== null
+}
+export function arranqueTurnoAcabado(): void {
+  if (arranque?.empezado) arranque = null
+}
+export const AVISO_ARRANQUE_EN_MARCHA =
+  'El arranque de la SF ya está lanzando los subagentes de las tareas en curso: no los lances otra vez por este mensaje; atiéndelo y sigue con el arranque.'
+
+// Encarga el arranque, si toca. Si el motor no lo admite, lo deja escrito en el prompt para enviarlo con Intro y lo
+// dice, y lo avisado vuelve a contar para el siguiente mensaje.
+export async function encargarArranque($: $): Promise<void> {
+  if (!(await $.session.surfaces().catch(() => [] as const)).length) return
+  const antes = await read($, avisados)
+  const texto = textoArranque(await leerAvisoSubagentes($))
+  if (!texto) return
+  const hasta = (await $.clock.now()) + DURACION_ARRANQUE
+  arranque = { hasta, empezado: false }
+  const actual = arranque
+  let r: Awaited<ReturnType<typeof $.prompt.submit>> | undefined
+  try {
+    r = await $.prompt.submit({ text: texto })
+  } catch (err) {
+    $.ui.log(`arranque: ${String(err)}`, { to: 'debug' })
+  }
+  if (r && !('drop' in r && r.drop !== undefined)) {
+    actual.empezado = true
+    return
+  }
+  if (arranque === actual) arranque = null
+  // Lo avisado, como antes del arranque: el siguiente mensaje lo lleva, con «Sesión nueva» si lo era.
+  await update($, avisados, a => ({ ...a, claves: antes.claves, nueva: antes.nueva }))
+  await guardarSesion($, await raizSesion($), { claves: antes.claves }).catch(() => undefined)
+  if (r) $.ui.log(`arranque no admitido: ${String(r.drop)}`, { to: 'debug' })
+  const borrador = await $.prompt.read().catch(() => ({ text: '' }))
+  const escrito = !borrador.text.trim() && (await $.prompt.fill({ text: texto }).catch(() => ({ isFilled: false }))).isFilled
+  emergente(
+    $,
+    escrito
+      ? 'Hay tareas en curso sin subagente: te dejo en el prompt el encargo de lanzarlos; pulsa Intro.'
+      : 'Hay tareas en curso sin subagente: escribe cualquier cosa y Claude los lanzará.',
+    false,
   )
 }
