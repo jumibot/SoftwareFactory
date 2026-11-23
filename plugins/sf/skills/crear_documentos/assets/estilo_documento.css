@@ -89,6 +89,19 @@ figcaption { font-size: .875rem; font-style: italic; color: var(--texto-suave); 
 @media print { figure { break-inside: avoid; } }
 /* En modo oscuro, los esquemas (colores del tema, sin fondo) se invierten con la página, como el texto. */
 html[data-modo="oscuro"] figure.vertical svg { filter: none; }
+/* Infografía técnica incrustada («::: infografia»): un marco a lo ancho de la columna, su pie y «Abrir aparte».
+   Al imprimir, la imagen fija de la vista principal y la dirección de la página en lugar del marco. */
+.infografia-marco { height: min(var(--infografia-alto, 640px), 85vh); border-radius: var(--esquinas, 6px); overflow: hidden;
+  border: 1px solid var(--borde); background: var(--oscuro); }
+.infografia-marco iframe { display: block; width: 100%; height: 100%; border: 0; }
+.infografia-fija, .infografia-direccion { display: none; }
+.infografia-abrir { white-space: nowrap; font-style: normal; }
+@media print {
+  .infografia-marco, .infografia-abrir { display: none; }
+  .infografia-fija { display: block; width: 100%; height: auto; border-radius: var(--esquinas, 6px); }
+  .infografia-direccion { display: inline; font-style: normal; }
+}
+html[data-modo="oscuro"] .infografia-marco, html[data-modo="oscuro"] .infografia-fija { filter: invert(1) hue-rotate(180deg); }
 
 /* Secciones */
 .seccion { padding: 2.8rem 0 .4rem; }

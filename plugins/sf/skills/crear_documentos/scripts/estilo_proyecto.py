@@ -17,7 +17,7 @@ from __future__ import annotations
 import colorsys, json, re, sys
 from pathlib import Path
 
-from tema_identidad import (ROLES_VALIDOS, TEMAS, TIPOGRAFIAS, contraste, mezclar, normalizar_tema, ruta_tema,
+from tema_identidad import (ROLES_VALIDOS, TEMAS, TIPOGRAFIAS, cargar_tema, contraste, mezclar, normalizar_tema, ruta_tema,
                             sobre)
 
 HEX = re.compile(r"#[0-9a-fA-F]{6}")
@@ -251,6 +251,28 @@ def color_del_proyecto(md: Path) -> str | None:
             except (json.JSONDecodeError, AttributeError):
                 return None
     return None
+
+
+def tema_sin_estilo(src: Path, identidad: dict, ruta_id: Path | None, tema_indicado: str | None) -> tuple[dict, str]:
+    """Sin estilo.json, los valores por defecto de un tema (decisión 323) y el aviso que lo dice: el indicado (--tema),
+    el de identidad.json, el más cercano al color de sesión del proyecto o «morado». Lo usan el generador de documentos
+    y el estilo de la infografía técnica."""
+    tema_id = identidad.get("tema")
+    if tema_id and tema_id.endswith(".json") and ruta_id:
+        tema_id = str(ruta_id.parent / tema_id)
+    color = None if tema_indicado or tema_id else color_del_proyecto(src)
+    if tema_indicado:
+        nombre, por = tema_indicado, "indicado con --tema"
+    elif tema_id:
+        nombre, por = tema_id, "el de identidad.json"
+    elif color:
+        nombre, por = tema_por_color(color), f"por el color de sesión del proyecto, {color}"
+    else:
+        nombre, por = "morado", "el de siempre"
+    tema = cargar_tema(nombre)
+    aviso = (f"Aviso: el proyecto no tiene estilo (docs/identidad/estilo.json): se genera con los valores por defecto "
+             f"del tema «{tema.get('nombre', nombre)}» ({por}).")
+    return tema, aviso
 
 
 # --- Del estilo al tema ----------------------------------------------------------------------------

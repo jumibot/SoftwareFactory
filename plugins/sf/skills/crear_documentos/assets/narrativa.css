@@ -109,15 +109,15 @@ dl.faq dd { margin: 0; color: var(--texto); }
   .turno { grid-template-columns: 1fr; }
   div.ficha:not(.tarjeta) dl { grid-template-columns: 1fr; }
   div.ficha:not(.tarjeta) dd { border-top: none; padding-top: 0; }
-  /* Un gráfico ancho conserva un tamaño legible y se desplaza en horizontal, con su aviso; los verticales caben. */
-  figure:not(.vertical):not(.diagrama) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  figure:not(.vertical):not(.diagrama) > svg { min-width: 680px; }
-  figure:not(.vertical):not(.diagrama)::before { content: 'Desliza para ver el gráfico completo →'; display: block;
+  /* Un gráfico ancho conserva un tamaño legible y se desplaza en horizontal, con su aviso; los verticales y las infografías caben. */
+  figure:not(.vertical):not(.diagrama):not(.infografia) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  figure:not(.vertical):not(.diagrama):not(.infografia) > svg { min-width: 680px; }
+  figure:not(.vertical):not(.diagrama):not(.infografia)::before { content: 'Desliza para ver el gráfico completo →'; display: block;
     font-size: .8125rem; color: var(--texto-suave); text-align: right; margin-bottom: .3rem; }
-  figure:not(.vertical):not(.diagrama) figcaption { position: sticky; left: 0; max-width: calc(100vw - 2rem); text-align: left; }
+  figure:not(.vertical):not(.diagrama):not(.infografia) figcaption { position: sticky; left: 0; max-width: calc(100vw - 2rem); text-align: left; }
 }
 @media print {
   .subseccion-summary::after, .subsubseccion-summary::after { display: none; }
   .escena, .caso, div.ficha:not(.tarjeta), .cmp-fila { break-inside: avoid; }
-  figure:not(.vertical):not(.diagrama)::before { content: none; }
+  figure:not(.vertical):not(.diagrama):not(.infografia)::before { content: none; }
 }

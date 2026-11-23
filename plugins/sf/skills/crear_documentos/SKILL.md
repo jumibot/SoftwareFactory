@@ -25,11 +25,11 @@ Todos los tipos usan el **generador único** de esta skill, `scripts/documento_a
 Cada skill de tipo lleva un `perfil.json` en su carpeta:
 
 ```json
-{"tipo": "Documento fundacional", "descripcion": "…", "recursos": ["tarjetas", "columnas", "fichas", "fuentes"], "css": [], "js": []}
+{"tipo": "Documento fundacional", "descripcion": "…", "recursos": ["tarjetas", "columnas", "fichas", "fuentes", "infografia"], "css": [], "js": []}
 ```
 
 - `tipo`: el nombre por defecto del tipo (pie y título de la pestaña), si la cabecera del `.md` no da otro.
-- `recursos`: los bloques del catálogo que usa (`tarjetas`, `columnas`, `fichas`, `preguntas`, `fuentes`). Así un tipo elige: un documento técnico puede usar recursos que uno para usuarios no usa. Si el `.md` usa uno que no está, el generador se detiene y lo dice. Sin `recursos`, todos.
+- `recursos`: los bloques del catálogo que usa (`tarjetas`, `columnas`, `fichas`, `preguntas`, `fuentes`, `infografia`). Así un tipo elige: un documento técnico puede usar recursos que uno para usuarios no usa. Si el `.md` usa uno que no está, el generador se detiene y lo dice. Sin `recursos`, todos. `infografia` va en todos: una infografía técnica se puede meter en cualquier documento que la necesite (decisión 330).
 - `css` y `js`: recursos propios del tipo, con rutas relativas al perfil. Van después de los comunes y antes de los del proyecto, con su marca `data-kit` para que `actualizar_copia.py` los ponga al día.
 - `subsecciones` (`no`, por defecto, o `plegables`): con `plegables`, cada `###` del cuerpo de una sección es una subsección plegable, abierta, y cada `####`, un detalle plegado (el que la opción de lectura `bocadillos` abre encima del texto). Los títulos dentro de tarjetas, recuadros o HTML propio no se pliegan.
 - `anclas` (`con-tildes`, por defecto, o `sin-tildes`): con `sin-tildes`, el id de una sección o subsección sin `{#id}` se calcula como en la maqueta antigua de la visión (sin el número del principio, sin tildes, repetidos con `-1`, `-2`…), para que los enlaces a ella sigan valiendo al migrarla.
@@ -126,6 +126,7 @@ Los bloques empiezan con `::: tipo` y acaban con `:::`, y se pueden anidar.
 
   El generador se detiene si la recomendada o la elegida no son una de las opciones, y avisa de una pregunta abierta sin recomendación. Con su `{: #pN}` detrás, cada pregunta se enlaza desde el resumen, las separaciones y los pasos de las tareas. Ejemplo y reglas de redacción, en `informe_deliberativa` («Las preguntas»).
 - **`::: fuentes`** es la lista de fuentes: un párrafo por fuente con `{: #src-E1}` debajo.
+- **`::: infografia infografias/equipo.html alto=640`** incrusta una infografía técnica (skill `infografia_tecnica`) en un marco a lo ancho de la columna; dentro del bloque va solo su pie, en Markdown, y detrás sale «Abrir aparte ↗». La ruta es relativa al documento; `alto`, de 360 a 1200 px (640; en pantallas bajas, como mucho el 85 % del alto). **Al imprimir en A4**, en lugar del marco sale su imagen fija (`<infografia>.png` junto a ella, de `imagen_fija.py` de esa skill) con el pie y la dirección de la página; si no la hay, el generador avisa y solo sale el pie. La infografía toma el mismo estilo del proyecto que el documento (decisión 315), y la admite cualquier tipo de documento (330).
 
 ### Enlaces
 
@@ -245,7 +246,7 @@ El aspecto de los documentos es del proyecto, no de cada documento (decisiones 3
 | `pagina` | `ancho` (de 980 a 1400 px; 1240), `esquinas` (de 0 a 16 px; las de cada pieza), `codigo` (`bloque` o `linea`; bloque), `pie` (`claro` u `oscuro`; claro) |
 | `lectura` | `destino`, `herramientas` y `menu`: el valor de partida de cada documento, que puede cambiarlo en su cabecera (318) |
 | `diagramas` | Los ajustes de la herramienta «Diagramas» (`forma`, `borde`, `fondo`, `grosor`, `punta`, `esquinas`, `recorrido`… con los valores del selector) y `tema` (`documento` o uno del catálogo): el generador los pone en cada figura y el lector los sigue cambiando |
-| `aparte` | `escenario` (`derivado` o `claro`) y `hud` (`primario`, `acento` o `#rrggbb`) de la infografía técnica, que no pasa por el generador |
+| `aparte` | `escenario` (`derivado`, oscuro y sacado del `oscuro`; o `claro`; derivado) y `hud` (`primario`, su tono vivo aclarado hasta 7:1 sobre el escenario; `acento`; o `#rrggbb`, que necesita 4,5:1; primario) de la infografía técnica, que no pasa por el generador: los escribe en ella `infografia_tecnica/scripts/estilo_infografia.py` |
 
 ```json
 {

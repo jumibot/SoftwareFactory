@@ -36,9 +36,10 @@ ASSETS = AQUI.parent / "assets"
 RUTA_CSS = "skills/crear_documentos/assets/estilo_documento.css"
 CSS = (BASE / RUTA_CSS).read_text(encoding="utf-8")
 # Bloques «::: tipo» del catálogo. Un perfil elige cuáles usa su tipo de documento.
-BLOQUES = ("tarjetas", "fichas", "columnas", "fuentes", "preguntas")
+BLOQUES = ("tarjetas", "fichas", "columnas", "fuentes", "preguntas", "infografia")
 PERMITIDOS = set(BLOQUES)  # los que deja usar el perfil del tipo de documento (main)
 NOMBRE_PERFIL = ""
+CARPETA_DOC = Path(".")  # la carpeta del .md: las rutas de las infografías son relativas a ella (main)
 # Cómo se lee el tipo de documento (perfil.json): «subsecciones»: «plegables» pliega cada ### (abierta) y cada ####
 # (plegada) del cuerpo de una sección; «anclas»: «sin-tildes» calcula los id como la maqueta antigua de la visión, para
 # que los enlaces a sus secciones sigan valiendo al migrarla (decisión 309).
@@ -293,9 +294,46 @@ def emitir(nodos: list) -> list[str]:
             out += cierra()
         elif tipo == "fuentes":
             out += abre("fuentes") + emitir(hijos) + cierra()
+        elif tipo == "infografia":
+            out += ["", infografia(args, hijos), ""]
         else:
             sys.exit(f"Bloque desconocido «::: {tipo}». Posibles: {', '.join(BLOQUES)}.")
     return out
+
+
+# «::: infografia <ruta.html> [alto=640]» y, dentro, el pie: la infografía técnica en un marco a lo ancho de la columna,
+# con su pie y un enlace para abrirla aparte; al imprimir, su imagen fija (<ruta>.png, de imagen_fija.py) (decisión 315).
+def infografia(args: str, hijos: list) -> str:
+    partes = args.split()
+    ruta = next((a for a in partes if not a.startswith("alto=")), "")
+    alto = next((a[5:] for a in partes if a.startswith("alto=")), "640")
+    if not ruta.endswith(".html"):
+        sys.exit("«::: infografia» necesita la ruta de la página de la infografía (.html), relativa al documento: "
+                 "«::: infografia infografias/equipo.html alto=640».")
+    if not alto.isdigit() or not 360 <= int(alto) <= 1200:
+        sys.exit(f"«::: infografia {args}»: «alto» es un número de píxeles de 360 a 1200 (por defecto, 640).")
+    pagina = CARPETA_DOC / ruta
+    if not pagina.is_file():
+        sys.exit(f"«::: infografia»: no encuentro {pagina}. La ruta es relativa a la carpeta del documento.")
+    titulo = re.search(r"<title>(.*?)</title>", pagina.read_text(encoding="utf-8"), re.S)
+    titulo = html_mod.unescape(titulo.group(1).strip()) if titulo else Path(ruta).stem
+    pie_md = "\n".join(h for h in hijos if isinstance(h, str)).strip()
+    if any(not isinstance(h, str) for h in hijos):
+        sys.exit("«::: infografia» solo lleva dentro el pie, sin otros bloques.")
+    pie = re.sub(r"^<p>|</p>$", "", markdown.markdown(pie_md, extensions=EXTENSIONES).strip()) if pie_md else ""
+    fija = Path(ruta).with_suffix(".png").as_posix()
+    if (CARPETA_DOC / fija).is_file():
+        imagen = f'<img class="infografia-fija" src="{esc(fija)}" alt="Vista principal de {esc(titulo)}">'
+    else:
+        imagen = ""
+        print(f"Aviso: la infografía {ruta} no tiene su imagen fija ({fija}): al imprimir solo sale el pie. "
+              "Se guarda con infografia_tecnica/scripts/imagen_fija.py.", file=sys.stderr)
+    abrir = f'<a class="infografia-abrir" href="{esc(ruta)}" target="_blank" rel="noopener">Abrir aparte ↗</a>'
+    direccion = f'<span class="infografia-direccion">{esc(ruta)}</span>'
+    return (f'<figure class="infografia" style="--infografia-alto: {alto}px">'
+            f'<div class="infografia-marco"><iframe src="{esc(ruta)}" title="{esc(titulo)}" loading="lazy" '
+            f'allow="fullscreen"></iframe></div>{imagen}'
+            f'<figcaption>{pie}{" · " if pie else ""}{abrir}{direccion}</figcaption></figure>')
 
 
 def a_html(md: str) -> str:
@@ -592,26 +630,11 @@ def elegir_tema(args, identidad: dict, ruta_id: Path | None, src: Path, ruta_est
             print(f"Aviso: --tema {args.tema} no se usa: el aspecto lo fija el estilo del proyecto ({ruta_estilo}).",
                   file=sys.stderr)
         return estilo_proyecto.tema_del_estilo(estilo, ruta_estilo), ""
-    tema_id = identidad.get("tema")
-    if tema_id and tema_id.endswith(".json"):
-        tema_id = str(ruta_id.parent / tema_id)
-    color = None if args.tema or tema_id else estilo_proyecto.color_del_proyecto(src)
-    if args.tema:
-        nombre, por = args.tema, "indicado con --tema"
-    elif tema_id:
-        nombre, por = tema_id, "el de identidad.json"
-    elif color:
-        nombre, por = estilo_proyecto.tema_por_color(color), f"por el color de sesión del proyecto, {color}"
-    else:
-        nombre, por = "morado", "el de siempre"
-    tema = cargar_tema(nombre)
-    aviso = (f"Aviso: el proyecto no tiene estilo (docs/identidad/estilo.json): se genera con los valores por defecto "
-             f"del tema «{tema.get('nombre', nombre)}» ({por}).")
-    return tema, aviso
+    return estilo_proyecto.tema_sin_estilo(src, identidad, ruta_id, args.tema)
 
 
 def main():
-    global PERMITIDOS, NOMBRE_PERFIL, SUBSECCIONES, ANCLAS
+    global PERMITIDOS, NOMBRE_PERFIL, CARPETA_DOC, SUBSECCIONES, ANCLAS
     ap = argparse.ArgumentParser(description="Documento .md → HTML editorial (generador común de crear_documentos)")
     ap.add_argument("md")
     ap.add_argument("--perfil", default=None, help="perfil.json del tipo de documento (lo pasa el generador de cada skill de tipo)")
@@ -633,6 +656,7 @@ def main():
     SUBSECCIONES, ANCLAS = perfil.get("subsecciones", "no"), perfil.get("anclas", "con-tildes")
 
     src = Path(args.md)
+    CARPETA_DOC = src.resolve().parent
     ruta_id = buscar_identidad(src, args.identidad)
     identidad = json.loads(ruta_id.read_text(encoding="utf-8")) if ruta_id else {}
     desconocidas = set(identidad) - CLAVES_IDENTIDAD

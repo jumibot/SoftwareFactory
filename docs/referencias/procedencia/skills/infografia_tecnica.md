@@ -38,3 +38,16 @@ No consta que estas skills se hayan usado en la práctica: las infografías de S
 ## Preguntar destino y controles; lectura por capas (2026-11-01)
 
 Tarea 204 («Las skills de documentos HTML preguntan qué herramientas incluir»): antes de construir, se pregunta el destino de la infografía y qué controles lleva, con la recomendación primero, y la elección va a las reglas del proyecto. Se añade la lectura por capas: al abrir, lo esencial; el detalle, tras su etiqueta o su control.
+
+## Estilo del proyecto e incrustarla en un documento (2026-11-23)
+
+Tarea 394 («Que la infografía técnica tome el estilo del proyecto y se pueda incrustar en un documento», decisiones 315 y 323):
+
+| Archivo | Cambio |
+|---|---|
+| `assets/plantilla-infografia.html` | Los colores del HUD, el escenario, la página y la letra salen de un bloque «estilo» de la hoja (`/* estilo:inicio` … `/* estilo:fin */`) y de `<link id="estilo-letra">`; fuera del bloque, ningún color del HUD fijo (variables `--hud-rgb`, `--hud-fuerte`, `--sobre-hud`, `--vidrio-rgb`, `--halo-rgb`…). El JavaScript lee `--hud` y `--stage-b` (contorno y medidor). Lienzo transparente (`alpha: true`), para que se vea el escenario. Incrustada en un iframe (`html.incrustada`), sin margen ni esquinas. Sin pasar el script, se ve igual que antes (comparadas las capturas: ningún píxel cambia más de 24 niveles). |
+| `scripts/estilo_infografia.py` | Nuevo. Escribe el estilo del proyecto (`docs/identidad/estilo.json`, o el tema por defecto sin él) en ese bloque, con el contraste del HUD sobre el escenario. |
+| `scripts/imagen_fija.py` | Nuevo. Guarda la imagen fija de la vista principal (`<infografia>.png`), la que sale al imprimir el documento que la incrusta. |
+| `SKILL.md` | Sección «Estilo del proyecto e incrustarla en un documento»; el escenario y el HUD ya no son azul noche y cian fijos, sino los del estilo. |
+
+Comprobado: la plantilla con el tema por defecto (morado), con los seis temas del catálogo y con un estilo de escenario claro y HUD acento, en Chrome a 1300 × 760 y en WebKit con un iPhone simulado; la versión autónoma sin red en Chrome y WebKit; un documento con `::: infografia` en escritorio, móvil e impresión A4 (imagen fija en lugar del marco). No probado en un iPhone real.
