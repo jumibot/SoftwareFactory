@@ -2,7 +2,7 @@
 antetitulo: Software Factory · Informe de diseño · Noviembre 2026
 lema: Seis muestras para elegir y el amarillo de la SF; // todas hechas por el generador, ninguna con un texto por debajo de 4,5:1.
 subtitulo: Qué juego de muestras de estilo se enseña al elegir el estilo de un proyecto, y con qué valores, logo y cabecera de sección parte el estilo de la Software Factory en su amarillo.
-version: Versión 1.1 · 23/11/2026
+version: Versión 1.2 · 23/11/2026
 estado: Propuesta · Tarea 388
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
@@ -20,7 +20,7 @@ Para la SF se propone un **estilo de partida en el amarillo de la web** (decisi�
 
 Quedan **nueve preguntas**: cinco del estilo de la SF, dos del juego de muestras y dos de contraste. Salen cuatro tareas nuevas y un paso en una tarea que ya existe. Hasta que la SF tenga su `estilo.json`, su tema azul sale sin etiqueta sólida, marcador ni esquinas propias (decisión 331).
 
-[Ver las nueve preguntas](#por-decidir){: .salto} [Ver las tareas](#tareas){: .salto}
+[Ver las nueve preguntas](#por-decidir){: .salto} [Ver la muestra con las recomendaciones](muestras-estilo/muestra-sf/recomendada.html){: .salto} [Ver las tareas](#tareas){: .salto}
 
 ## Muestras | Seis formas, una por tema del catálogo | Muestras {#muestras}
 
@@ -263,7 +263,7 @@ Se lleva
 ### 4 · Tarea nueva: arreglos de contraste {: #a-contraste}
 
 Se lleva
-:   La pregunta [9](#p9), el tema `pool` y el hueco bajo la cabecera sólida.
+:   La pregunta [9](#p9), el tema `pool`, el hueco bajo la cabecera sólida y la marca «Elegida» con un `sobre-primario` oscuro.
 
 :::
 
@@ -273,11 +273,16 @@ Se lleva
 | --- | --- | --- |
 | Escribir el estilo de partida de la SF y su logo en amarillo | implementar | `docs/identidad/estilo.json` con lo decidido en las preguntas 1 a 5 y `logo.svg` y `logo-oscuro.svg` a su lado; regenera los documentos de la SF. |
 | Pasar el logo de la SF al amarillo en la web y el panel | implementar | `site/img/logo.svg` y `hooks/logo.ts` con los colores de la pregunta 4 (decisión 304, pendiente de aplicar). |
-| Arreglar el contraste del tema `pool`, el aviso de los bordes y el hueco bajo la cabecera sólida | implementar | Acento y serie de `pool` a 4,5:1, lo de la pregunta 9 y un margen bajo `.seccion-titulo` con etiqueta sólida. |
+| Arreglar el contraste del tema `pool`, el aviso de los bordes y el hueco bajo la cabecera sólida | implementar | Acento y serie de `pool` a 4,5:1, lo de la pregunta 9, un margen bajo `.seccion-titulo` con etiqueta sólida y la marca «Elegida» legible con un `sobre-primario` oscuro. |
 | Construir la skill que fija los parámetros del estilo con muestras y afinado (392) | paso | Juego de muestras y documento de muestra de las preguntas 6 y 7. |
 | Que los diagramas den 3:1 con un primario claro | implementar | Rol `primario-linea` en `diagramas.css` y texto de acento con `primario-texto` (pregunta 8), y que el generador avise de los diagramas por debajo de 3:1. |
 
 ## Anexo | El estilo.json propuesto para la SF | Anexo {#anexo}
+
+La [muestra con las recomendaciones](muestras-estilo/muestra-sf/recomendada.html) aplica este `estilo.json` a un documento corto con todos los recursos: portada, aviso de alcance, secciones plegables, recuadros, tarjetas con color, tabla, preguntas, código y un diagrama. El diagrama simula el rol `primario-linea` (pregunta 8) con una regla de estilo en el propio documento, porque el generador todavía no lo tiene. Cada alternativa cambia una sola respuesta: [1 B](muestras-estilo/muestra-sf/p1-b-rotulos-en-tinta.html), [2 A](muestras-estilo/muestra-sf/p2-a-sf1.html), [2 C](muestras-estilo/muestra-sf/p2-c-sf3.html), [3 B](muestras-estilo/muestra-sf/p3-b-p4-a-portada-clara.html), [3 B con el logo 4 B](muestras-estilo/muestra-sf/p3-b-p4-b-portada-clara-logo-ambar.html) y [5 B](muestras-estilo/muestra-sf/p5-b-letra-tinta.html).
+
+> [!aviso]
+> La muestra deja ver un fallo más del generador con un `sobre-primario` oscuro: la marca «Elegida» de una pregunta decidida pinta el `sobre-primario` sobre el `oscuro`, tinta sobre grafito, y no se lee (1,1:1). Va a la tarea de los arreglos de contraste.
 
 Con las recomendaciones de las preguntas 1 a 5 (la variante SF-2). Los colores que no son de la web salen del tema `tinta` (acento, segundo) o se derivan del amarillo (fondos).
 
