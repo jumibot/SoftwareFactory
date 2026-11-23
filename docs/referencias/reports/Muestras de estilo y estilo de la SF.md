@@ -2,13 +2,13 @@
 antetitulo: Software Factory · Informe de diseño · Noviembre 2026
 lema: Seis muestras para elegir y el amarillo de la SF; // todas hechas por el generador, ninguna con un texto por debajo de 4,5:1.
 subtitulo: Qué juego de muestras de estilo se enseña al elegir el estilo de un proyecto, y con qué valores, logo y cabecera de sección parte el estilo de la Software Factory en su amarillo.
-version: Versión 1.2 · 23/11/2026
-estado: Propuesta · Tarea 388
+version: Versión 1.3 · 23/11/2026
+estado: Decidido · Tarea 388
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
 menu: secciones
 tipo: Informe de diseño
-pie: Informe de la tarea «Diseñar con el propietario las muestras de estilo y el estilo de partida de la SF» (388), que sale de «Parámetros del estilo de un proyecto» (387, decisiones 316 a 324). Parte del generador único (389), los temas de crear_documentos, diagramas.css, la web de la SF (site/index.html) y su logo, leídos sin cambiarlos; las muestras se generaron con el generador en una carpeta temporal. Espera la decisión del propietario de la Software Factory.
+pie: Informe de la tarea «Diseñar con el propietario las muestras de estilo y el estilo de partida de la SF» (388), que sale de «Parámetros del estilo de un proyecto» (387, decisiones 316 a 324). Parte del generador único (389), los temas de crear_documentos, diagramas.css, la web de la SF (site/index.html) y su logo, leídos sin cambiarlos; las muestras se generaron con el generador en una carpeta temporal. El propietario de la Software Factory aceptó las nueve recomendaciones (decisión 335).
 ---
 # Muestras de estilo y estilo de partida de la SF
 
@@ -18,9 +18,9 @@ Se propone un **juego de seis muestras**, una por tema del catálogo, cada una c
 
 Para la SF se propone un **estilo de partida en el amarillo de la web** (decisión 304) que nace del tema `tinta`, con el amarillo como `primario`, la tinta de la web como `sobre-primario` (9,9:1) y su ámbar oscuro como `primario-texto` (5,7:1 sobre la página); la letra, la de la web (decisión 312); y la portada oscura en grafito con el logo en amarillo. Pasa la comprobación de contraste del generador. Queda un problema que el generador no mira: **los diagramas pintan con el primario los trazos del foco y las flechas principales**, y el amarillo sobre la página da 1,6:1.
 
-Quedan **nueve preguntas**: cinco del estilo de la SF, dos del juego de muestras y dos de contraste. Salen cuatro tareas nuevas y un paso en una tarea que ya existe. Hasta que la SF tenga su `estilo.json`, su tema azul sale sin etiqueta sólida, marcador ni esquinas propias (decisión 331).
+**Las nueve preguntas están decididas**: el propietario aceptó todas las recomendaciones (decisión 335). No queda ninguna abierta. Lo decidido lo aplican cuatro tareas nuevas y un paso en la skill de estilo (392). Hasta que la SF tenga su `estilo.json`, su tema azul sale sin etiqueta sólida, marcador ni esquinas propias (decisión 331).
 
-[Ver las nueve preguntas](#por-decidir){: .salto} [Ver la muestra con las recomendaciones](muestras-estilo/muestra-sf/recomendada.html){: .salto} [Ver las tareas](#tareas){: .salto}
+[Ver lo decidido](#decidido){: .salto} [Ver la muestra con lo decidido](muestras-estilo/muestra-sf/recomendada.html){: .salto} [Ver las tareas](#tareas){: .salto}
 
 ## Muestras | Seis formas, una por tema del catálogo | Muestras {#muestras}
 
@@ -111,13 +111,19 @@ El logo «/SF» de hoy (la web, `site/img/logo.svg`, y el del panel, `hooks/logo
 <figcaption>El nodo en foco («Colores») se distingue por su relleno, no por su borde amarillo.</figcaption>
 </figure>
 
-## Por decidir | Nueve preguntas, por importancia | Por decidir {#por-decidir}
+## Decidido | Las nueve recomendadas | Decidido {#decidido}
 
-Las cinco primeras fijan el estilo de partida de la SF; la 6 y la 7, el juego de muestras que usará la skill de estilo (392); la 8 y la 9, dos arreglos de contraste.
+| Nº | Decisión | Qué fija aquí |
+| --- | --- | --- |
+| 335 | Estilo de la SF: amarillo de la web, cabecera en banda, portada oscura y las demás recomendadas del informe de estilo | Las respuestas a las preguntas [1](#p1) a [9](#p9): el `estilo.json` del [anexo](#anexo), el logo en amarillo, el juego de muestras con su documento, el rol `primario-linea` y el aviso de los bordes. |
+
+## Preguntas | Nueve preguntas, todas decididas | Preguntas {#por-decidir}
+
+Las cinco primeras fijan el estilo de partida de la SF; la 6 y la 7, el juego de muestras que usará la skill de estilo (392); la 8 y la 9, dos arreglos de contraste. Todas se decidieron con la opción recomendada (decisión 335).
 
 ::: preguntas 2 plegables
 
-### 1 · Los roles del amarillo {recomendada=A} {: #p1}
+### 1 · Los roles del amarillo {recomendada=A estado=decidida elegida=A} {: #p1}
 
 El amarillo de la web no sirve como texto ni lleva texto blanco encima.
 
@@ -130,7 +136,10 @@ Opción B
 Recomendación
 :   **A.** Es lo que ya usa la web y deja ver el color de la SF también en los rótulos.
 
-### 2 · La cabecera de sección de la SF {recomendada=B} {: #p2}
+Decisión
+:   **A** (decisión 335). Los tres roles de la web: `primario` #f4bf36, `sobre-primario` #211c17 y `primario-texto` #895709.
+
+### 2 · La cabecera de sección de la SF {recomendada=B estado=decidida elegida=B} {: #p2}
 
 `secciones.cabecera` y `secciones.etiqueta` (decisión 321). Ver las variantes en [Estilo de la SF](#estilo-sf).
 
@@ -146,7 +155,10 @@ Opción C
 Recomendación
 :   **B.** Es la que más dice «SF» y la que más se parece a la web; la raya de C da 1,6:1 y apenas se ve.
 
-### 3 · La portada {recomendada=A} {: #p3}
+Decisión
+:   **B** (decisión 335). SF-2: `numero-titulo` con etiqueta `solida`, la banda amarilla con número y título en tinta.
+
+### 3 · La portada {recomendada=A estado=decidida elegida=A} {: #p3}
 
 Opción A
 :   Oscura, en el grafito de la franja de la web, con el logo y la marca en amarillo (SF-1).
@@ -157,7 +169,10 @@ Opción B
 Recomendación
 :   **A.** El amarillo luce sobre el grafito (10,7:1) y es el mismo contraste que la franja de la web y el terminal.
 
-### 4 · El logo {recomendada=A} {: #p4}
+Decisión
+:   **A** (decisión 335). Portada oscura en grafito, con el logo y la marca en amarillo.
+
+### 4 · El logo {recomendada=A estado=decidida elegida=A} {: #p4}
 
 Ver [El logo en amarillo](#logo).
 
@@ -170,7 +185,10 @@ Opción B
 Recomendación
 :   **A.** Las letras se leen en cualquier fondo claro y el amarillo queda en la barra, que es la tecla de «/sf».
 
-### 5 · La letra {recomendada=A} {: #p5}
+Decisión
+:   **A** (decisión 335). `logo.svg` con las letras en tinta y la barra amarilla; `logo-oscuro.svg` con las letras amarillas y la barra clara.
+
+### 5 · La letra {recomendada=A estado=decidida elegida=A} {: #p5}
 
 La web comparte los colores y la letra del estilo de la SF (decisión 312).
 
@@ -183,7 +201,10 @@ Opción B
 Recomendación
 :   **A.** La web ya está hecha y probada con ella; cambiarla sería un trabajo sin pedir.
 
-### 6 · El juego de muestras {recomendada=B} {: #p6}
+Decisión
+:   **A** (decisión 335). La letra de la web: Bricolage Grotesque, DM Sans y JetBrains Mono.
+
+### 6 · El juego de muestras {recomendada=B estado=decidida elegida=B} {: #p6}
 
 Opción A
 :   Las seis de la tabla, una por tema del catálogo.
@@ -197,7 +218,10 @@ Opción C
 Recomendación
 :   **B.** Seis formas dan donde elegir, y la séptima enseña el proyecto con su propio color desde la primera vuelta.
 
-### 7 · El documento de muestra {recomendada=B} {: #p7}
+Decisión
+:   **B** (decisión 335). Las seis muestras y una séptima con el color del proyecto sobre la forma de la muestra de tono más cercano.
+
+### 7 · El documento de muestra {recomendada=B estado=decidida elegida=B} {: #p7}
 
 Opción A
 :   Un informe real de la SF, como el de esta prueba.
@@ -208,7 +232,10 @@ Opción B
 Recomendación
 :   **B.** Se compara de un vistazo y no deja fuera ningún recurso; el informe 387 no tiene código ni recuadros de aviso.
 
-### 8 · Los diagramas con un primario claro {recomendada=A} {: #p8}
+Decisión
+:   **B** (decisión 335). Un documento de muestra corto en el plugin, con un ejemplo de cada recurso.
+
+### 8 · Los diagramas con un primario claro {recomendada=A estado=decidida elegida=A} {: #p8}
 
 Ver [Los diagramas con un primario claro](#diagramas).
 
@@ -224,7 +251,10 @@ Opción C
 Recomendación
 :   **A.** Arregla cualquier primario claro, no solo el de la SF, y deja el color de marca en los diagramas.
 
-### 9 · El aviso de los bordes {recomendada=A} {: #p9}
+Decisión
+:   **A** (decisión 335). Un rol `primario-linea` de 3:1 como mínimo para los trazos (#b37903 en la SF) y el texto de acento con `primario-texto`; el generador comprueba los dos.
+
+### 9 · El aviso de los bordes {recomendada=A estado=decidida elegida=A} {: #p9}
 
 Las seis muestras y la SF avisan por sus bordes (1,2 a 1,9:1): el aviso sale siempre y deja de servir.
 
@@ -237,33 +267,36 @@ Opción B
 Recomendación
 :   **A.** Los campos sí necesitan verse para usarse; las cajas se distinguen por su fondo.
 
+Decisión
+:   **A** (decisión 335). Los bordes de los campos a 3:1, con su propio tono; los de las cajas, fuera del aviso.
+
 :::
 
 ## Separar | Lo que es de otras tareas | Separar {#separar}
 
-Lo que se decida aquí lo aplican otras tareas: esta solo escribe su informe.
+Lo decidido aquí (335) lo aplican otras tareas: esta solo escribe su informe.
 
 ::: tarjetas 2
 
 ### 1 · Tarea nueva: escribir el estilo de la SF {: #a-estilo-sf}
 
 Se lleva
-:   Las preguntas [1](#p1) a [5](#p5), ya decididas: `docs/identidad/estilo.json` y los dos archivos del logo.
+:   Las preguntas [1](#p1) a [5](#p5), decididas (335): `docs/identidad/estilo.json` y los dos archivos del logo.
 
 ### 2 · A la skill de estilo (392) {: #a-392}
 
 Se lleva
-:   Las preguntas [6](#p6) y [7](#p7): el juego de muestras y el documento de muestra viajan en el plugin.
+:   Las preguntas [6](#p6) y [7](#p7), decididas (335): el juego de muestras y el documento de muestra viajan en el plugin.
 
 ### 3 · Tarea nueva: los diagramas con un primario claro {: #a-391}
 
 Se lleva
-:   La pregunta [8](#p8): el rol `primario-linea` y su comprobación. Iba a «Hacer del diagrama un recurso del catálogo» (391), que se cerró sin él.
+:   La pregunta [8](#p8), decidida (335): el rol `primario-linea` y su comprobación. Iba a «Hacer del diagrama un recurso del catálogo» (391), que se cerró sin él.
 
 ### 4 · Tarea nueva: arreglos de contraste {: #a-contraste}
 
 Se lleva
-:   La pregunta [9](#p9), el tema `pool`, el hueco bajo la cabecera sólida y la marca «Elegida» con un `sobre-primario` oscuro.
+:   La pregunta [9](#p9), decidida (335), el tema `pool`, el hueco bajo la cabecera sólida y la marca «Elegida» con un `sobre-primario` oscuro.
 
 :::
 
@@ -284,7 +317,7 @@ La [muestra con las recomendaciones](muestras-estilo/muestra-sf/recomendada.html
 > [!aviso]
 > La muestra deja ver un fallo más del generador con un `sobre-primario` oscuro: la marca «Elegida» de una pregunta decidida pinta el `sobre-primario` sobre el `oscuro`, tinta sobre grafito, y no se lee (1,1:1). Va a la tarea de los arreglos de contraste.
 
-Con las recomendaciones de las preguntas 1 a 5 (la variante SF-2). Los colores que no son de la web salen del tema `tinta` (acento, segundo) o se derivan del amarillo (fondos).
+Con lo decidido en las preguntas 1 a 5 (decisión 335; la variante SF-2). Los colores que no son de la web salen del tema `tinta` (acento, segundo) o se derivan del amarillo (fondos).
 
 ```json
 {

@@ -857,12 +857,12 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <header class="portada"><div class="portada-dentro"><p class="marca">Software Factory · Informe de diseño · Noviembre 2026</p><h1 class="titular">Muestras de estilo y estilo de partida de la SF<span class="lema">Seis muestras para elegir y el amarillo de la SF;<br>todas hechas por el generador, ninguna con un texto por debajo de 4,5:1.</span></h1><p class="subtitulo">Qué juego de muestras de estilo se enseña al elegir el estilo de un proyecto, y con qué valores, logo y cabecera de sección parte el estilo de la Software Factory en su amarillo.</p><hr class="portada-linea"></div></header>
-<nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><a href="#resumen">Resumen</a><a href="#muestras">Muestras</a><a href="#estilo-sf">Estilo SF</a><a href="#por-decidir">Por decidir</a><a href="#separar">Separar</a><a href="#tareas">Tareas</a><a href="#anexo">Anexo</a><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
+<nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><a href="#resumen">Resumen</a><a href="#muestras">Muestras</a><a href="#estilo-sf">Estilo SF</a><a href="#decidido">Decidido</a><a href="#por-decidir">Preguntas</a><a href="#separar">Separar</a><a href="#tareas">Tareas</a><a href="#anexo">Anexo</a><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
 <div class="hoja">
   <main id="contenido" tabindex="-1"><details class="seccion" id="resumen" open><summary class="seccion-titulo"><span class="etiqueta">01 / Resumen</span><h2>Seis muestras y un amarillo con tres roles</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Se propone un <strong>juego de seis muestras</strong>, una por tema del catálogo, cada una con una forma distinta (portada, cabecera de sección, marcador, esquinas, letra), para que se distingan a primera vista y no solo por el color. Cada muestra es un <strong><code>estilo.json</code> completo</strong>, con todos los valores resueltos y su tema como <code>origen</code> (decisión 317). Las seis se han generado con el generador único sobre un informe real y ninguna tiene un texto por debajo de 4,5:1; la del tema <code>pool</code> ha necesitado oscurecer su acento.</p>
 <p>Para la SF se propone un <strong>estilo de partida en el amarillo de la web</strong> (decisión 304) que nace del tema <code>tinta</code>, con el amarillo como <code>primario</code>, la tinta de la web como <code>sobre-primario</code> (9,9:1) y su ámbar oscuro como <code>primario-texto</code> (5,7:1 sobre la página); la letra, la de la web (decisión 312); y la portada oscura en grafito con el logo en amarillo. Pasa la comprobación de contraste del generador. Queda un problema que el generador no mira: <strong>los diagramas pintan con el primario los trazos del foco y las flechas principales</strong>, y el amarillo sobre la página da 1,6:1.</p>
-<p>Quedan <strong>nueve preguntas</strong>: cinco del estilo de la SF, dos del juego de muestras y dos de contraste. Salen cuatro tareas nuevas y un paso en una tarea que ya existe. Hasta que la SF tenga su <code>estilo.json</code>, su tema azul sale sin etiqueta sólida, marcador ni esquinas propias (decisión 331).</p>
-<p><a class="salto" href="#por-decidir">Ver las nueve preguntas</a> <a class="salto" href="muestras-estilo/muestra-sf/recomendada.html">Ver la muestra con las recomendaciones</a> <a class="salto" href="#tareas">Ver las tareas</a></p></div></details><details class="seccion" id="muestras"><summary class="seccion-titulo"><span class="etiqueta">02 / Muestras</span><h2>Seis formas, una por tema del catálogo</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Cada muestra parte de un tema del catálogo con todos sus colores resueltos (los que el tema no da, derivados como hace el generador) y le añade una forma propia. Lo que no dice la tabla toma su valor por defecto: portada clara, cabecera <code>numero-etiqueta</code>, etiqueta <code>tinte</code>, marcador <code>flecha</code>, ancho 1240, letra de 17 px, escala editorial, diagramas con el tema del documento.</p>
+<p><strong>Las nueve preguntas están decididas</strong>: el propietario aceptó todas las recomendaciones (decisión 335). No queda ninguna abierta. Lo decidido lo aplican cuatro tareas nuevas y un paso en la skill de estilo (392). Hasta que la SF tenga su <code>estilo.json</code>, su tema azul sale sin etiqueta sólida, marcador ni esquinas propias (decisión 331).</p>
+<p><a class="salto" href="#decidido">Ver lo decidido</a> <a class="salto" href="muestras-estilo/muestra-sf/recomendada.html">Ver la muestra con lo decidido</a> <a class="salto" href="#tareas">Ver las tareas</a></p></div></details><details class="seccion" id="muestras"><summary class="seccion-titulo"><span class="etiqueta">02 / Muestras</span><h2>Seis formas, una por tema del catálogo</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Cada muestra parte de un tema del catálogo con todos sus colores resueltos (los que el tema no da, derivados como hace el generador) y le añade una forma propia. Lo que no dice la tabla toma su valor por defecto: portada clara, cabecera <code>numero-etiqueta</code>, etiqueta <code>tinte</code>, marcador <code>flecha</code>, ancho 1240, letra de 17 px, escala editorial, diagramas con el tema del documento.</p>
 <table>
 <thead>
 <tr>
@@ -1003,177 +1003,210 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <figure>
 <img src="muestras-estilo/diagrama-amarillo.jpg" alt="Diagrama con el estilo SF-1: el nodo en foco, «Colores», apenas se distingue por su borde amarillo" style="width:100%;height:auto">
 <figcaption>El nodo en foco («Colores») se distingue por su relleno, no por su borde amarillo.</figcaption>
-</figure></div></details><details class="seccion" id="por-decidir"><summary class="seccion-titulo"><span class="etiqueta">04 / Por decidir</span><h2>Nueve preguntas, por importancia</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Las cinco primeras fijan el estilo de partida de la SF; la 6 y la 7, el juego de muestras que usará la skill de estilo (392); la 8 y la 9, dos arreglos de contraste.</p>
+</figure></div></details><details class="seccion" id="decidido"><summary class="seccion-titulo"><span class="etiqueta">04 / Decidido</span><h2>Las nueve recomendadas</h2></summary><div class="seccion-cuerpo"><table>
+<thead>
+<tr>
+<th>Nº</th>
+<th>Decisión</th>
+<th>Qué fija aquí</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td data-label="Nº">335</td>
+<td data-label="Decisión">Estilo de la SF: amarillo de la web, cabecera en banda, portada oscura y las demás recomendadas del informe de estilo</td>
+<td data-label="Qué fija aquí">Las respuestas a las preguntas <a href="#p1">1</a> a <a href="#p9">9</a>: el <code>estilo.json</code> del <a href="#anexo">anexo</a>, el logo en amarillo, el juego de muestras con su documento, el rol <code>primario-linea</code> y el aviso de los bordes.</td>
+</tr>
+</tbody>
+</table></div></details><details class="seccion" id="por-decidir"><summary class="seccion-titulo"><span class="etiqueta">05 / Preguntas</span><h2>Nueve preguntas, todas decididas</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Las cinco primeras fijan el estilo de partida de la SF; la 6 y la 7, el juego de muestras que usará la skill de estilo (392); la 8 y la 9, dos arreglos de contraste. Todas se decidieron con la opción recomendada (decisión 335).</p>
 <div class="tarjetas preguntas cols-2">
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p1" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p1" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">1 · Los roles del amarillo</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">1 · Los roles del amarillo</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p>El amarillo de la web no sirve como texto ni lleva texto blanco encima.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada"><code>primario</code> #f4bf36, <code>sobre-primario</code> #211c17 (9,9:1), <code>primario-texto</code> #895709 (5,7:1): los tres de la web (<code>--accent</code>, <code>--on-accent</code>, <code>--accent-ink</code>).</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Lo mismo, pero <code>primario-texto</code> en la tinta #211c17: los rótulos y enlaces en negro y el amarillo solo de fondo.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida"><code>primario</code> #f4bf36, <code>sobre-primario</code> #211c17 (9,9:1), <code>primario-texto</code> #895709 (5,7:1): los tres de la web (<code>--accent</code>, <code>--on-accent</code>, <code>--accent-ink</code>).</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Lo mismo, pero <code>primario-texto</code> en la tinta #211c17: los rótulos y enlaces en negro y el amarillo solo de fondo.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Es lo que ya usa la web y deja ver el color de la SF también en los rótulos.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A</strong> (decisión 335). Los tres roles de la web: <code>primario</code> #f4bf36, <code>sobre-primario</code> #211c17 y <code>primario-texto</code> #895709.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="B" id="p2" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="B" data-recomendada="B" id="p2" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">2 · La cabecera de sección de la SF</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">2 · La cabecera de sección de la SF</h3><span class="estado-pregunta decidida">Decidida · B</span></summary>
 <div class="tarjeta-cuerpo">
 <p><code>secciones.cabecera</code> y <code>secciones.etiqueta</code> (decisión 321). Ver las variantes en <a href="#estilo-sf">Estilo de la SF</a>.</p>
 <dl>
-<dt class="opcion">Opción A</dt>
-<dd class="opcion">SF-1: <code>numero-etiqueta</code> con etiqueta <code>tinte</code>, la de hoy en ámbar.</dd>
-<dt class="opcion recomendada">Opción B<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">SF-2: <code>numero-titulo</code> en banda amarilla sólida con texto en tinta, como el botón de la web. Con las secciones plegadas, la página es una pila de bandas amarillas.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">SF-3: <code>titulo</code> con raya amarilla, sin número.</dd>
+<dt class="opcion descartada">Opción A</dt>
+<dd class="opcion descartada">SF-1: <code>numero-etiqueta</code> con etiqueta <code>tinte</code>, la de hoy en ámbar.</dd>
+<dt class="opcion recomendada elegida">Opción B<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">SF-2: <code>numero-titulo</code> en banda amarilla sólida con texto en tinta, como el botón de la web. Con las secciones plegadas, la página es una pila de bandas amarillas.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">SF-3: <code>titulo</code> con raya amarilla, sin número.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>B.</strong> Es la que más dice «SF» y la que más se parece a la web; la raya de C da 1,6:1 y apenas se ve.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>B</strong> (decisión 335). SF-2: <code>numero-titulo</code> con etiqueta <code>solida</code>, la banda amarilla con número y título en tinta.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p3" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p3" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">3 · La portada</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">3 · La portada</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Oscura, en el grafito de la franja de la web, con el logo y la marca en amarillo (SF-1).</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Clara, con el logo en tinta y la raya amarilla bajo el titular (SF-4).</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Oscura, en el grafito de la franja de la web, con el logo y la marca en amarillo (SF-1).</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Clara, con el logo en tinta y la raya amarilla bajo el titular (SF-4).</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> El amarillo luce sobre el grafito (10,7:1) y es el mismo contraste que la franja de la web y el terminal.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A</strong> (decisión 335). Portada oscura en grafito, con el logo y la marca en amarillo.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p4" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p4" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">4 · El logo</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">4 · El logo</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p>Ver <a href="#logo">El logo en amarillo</a>.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada"><code>logo.svg</code> con las letras en tinta y la barra amarilla, para la portada clara; <code>logo-oscuro.svg</code> con las letras amarillas y la barra clara, para la oscura.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion"><code>logo.svg</code> con las letras en ámbar #b37903 (3,4:1) y la barra amarilla; el mismo <code>logo-oscuro.svg</code>.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida"><code>logo.svg</code> con las letras en tinta y la barra amarilla, para la portada clara; <code>logo-oscuro.svg</code> con las letras amarillas y la barra clara, para la oscura.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada"><code>logo.svg</code> con las letras en ámbar #b37903 (3,4:1) y la barra amarilla; el mismo <code>logo-oscuro.svg</code>.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Las letras se leen en cualquier fondo claro y el amarillo queda en la barra, que es la tecla de «/sf».</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A</strong> (decisión 335). <code>logo.svg</code> con las letras en tinta y la barra amarilla; <code>logo-oscuro.svg</code> con las letras amarillas y la barra clara.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p5" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p5" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">5 · La letra</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">5 · La letra</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p>La web comparte los colores y la letra del estilo de la SF (decisión 312).</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">La de la web: Bricolage Grotesque en los títulos, DM Sans en el texto y JetBrains Mono en el código.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">La del tema de origen, <code>tinta</code>: Geist e Instrument Serif; la web la toma después (tarea 395).</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">La de la web: Bricolage Grotesque en los títulos, DM Sans en el texto y JetBrains Mono en el código.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">La del tema de origen, <code>tinta</code>: Geist e Instrument Serif; la web la toma después (tarea 395).</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> La web ya está hecha y probada con ella; cambiarla sería un trabajo sin pedir.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A</strong> (decisión 335). La letra de la web: Bricolage Grotesque, DM Sans y JetBrains Mono.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="B" id="p6" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="B" data-recomendada="B" id="p6" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">6 · El juego de muestras</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">6 · El juego de muestras</h3><span class="estado-pregunta decidida">Decidida · B</span></summary>
 <div class="tarjeta-cuerpo">
 <dl>
-<dt class="opcion">Opción A</dt>
-<dd class="opcion">Las seis de la tabla, una por tema del catálogo.</dd>
-<dt class="opcion recomendada">Opción B<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Las seis y, si el color del proyecto no se parece a ninguno, una séptima: su color como <code>primario</code> sobre la forma de la muestra de tono más cercano.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Tres: una clara (A), una editorial (F) y una de portada oscura (D).</dd>
+<dt class="opcion descartada">Opción A</dt>
+<dd class="opcion descartada">Las seis de la tabla, una por tema del catálogo.</dd>
+<dt class="opcion recomendada elegida">Opción B<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Las seis y, si el color del proyecto no se parece a ninguno, una séptima: su color como <code>primario</code> sobre la forma de la muestra de tono más cercano.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Tres: una clara (A), una editorial (F) y una de portada oscura (D).</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>B.</strong> Seis formas dan donde elegir, y la séptima enseña el proyecto con su propio color desde la primera vuelta.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>B</strong> (decisión 335). Las seis muestras y una séptima con el color del proyecto sobre la forma de la muestra de tono más cercano.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="B" id="p7" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="B" data-recomendada="B" id="p7" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">7 · El documento de muestra</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">7 · El documento de muestra</h3><span class="estado-pregunta decidida">Decidida · B</span></summary>
 <div class="tarjeta-cuerpo">
 <dl>
-<dt class="opcion">Opción A</dt>
-<dd class="opcion">Un informe real de la SF, como el de esta prueba.</dd>
-<dt class="opcion recomendada">Opción B<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Un documento corto hecho para eso, en el plugin, con un ejemplo de cada recurso: portada, secciones, tarjetas, recuadros, pregunta, tabla, código y un diagrama.</dd>
+<dt class="opcion descartada">Opción A</dt>
+<dd class="opcion descartada">Un informe real de la SF, como el de esta prueba.</dd>
+<dt class="opcion recomendada elegida">Opción B<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Un documento corto hecho para eso, en el plugin, con un ejemplo de cada recurso: portada, secciones, tarjetas, recuadros, pregunta, tabla, código y un diagrama.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>B.</strong> Se compara de un vistazo y no deja fuera ningún recurso; el informe 387 no tiene código ni recuadros de aviso.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>B</strong> (decisión 335). Un documento de muestra corto en el plugin, con un ejemplo de cada recurso.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p8" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p8" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">8 · Los diagramas con un primario claro</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">8 · Los diagramas con un primario claro</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p>Ver <a href="#diagramas">Los diagramas con un primario claro</a>.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Un rol nuevo, <code>primario-linea</code>, para los trazos: el primario si da 3:1 sobre la página y, si no, oscurecido hasta darlo (para la SF, #b37903, 3,4:1); el texto de acento, con <code>primario-texto</code>. El generador comprueba los dos.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Los diagramas usan <code>primario-texto</code> para todo: se leen, pero pierden el amarillo.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Los diagramas de la SF llevan su propio tema (<code>diagramas.tema: tinta</code>) y no el del documento.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Un rol nuevo, <code>primario-linea</code>, para los trazos: el primario si da 3:1 sobre la página y, si no, oscurecido hasta darlo (para la SF, #b37903, 3,4:1); el texto de acento, con <code>primario-texto</code>. El generador comprueba los dos.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Los diagramas usan <code>primario-texto</code> para todo: se leen, pero pierden el amarillo.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Los diagramas de la SF llevan su propio tema (<code>diagramas.tema: tinta</code>) y no el del documento.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Arregla cualquier primario claro, no solo el de la SF, y deja el color de marca en los diagramas.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A</strong> (decisión 335). Un rol <code>primario-linea</code> de 3:1 como mínimo para los trazos (#b37903 en la SF) y el texto de acento con <code>primario-texto</code>; el generador comprueba los dos.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p9" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p9" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">9 · El aviso de los bordes</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">9 · El aviso de los bordes</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p>Las seis muestras y la SF avisan por sus bordes (1,2 a 1,9:1): el aviso sale siempre y deja de servir.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Los bordes de los campos (el buscador, las preguntas) a 3:1, con su propio tono derivado; los de las cajas, que son decorativos, fuera del aviso.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Como hoy: avisa por todos.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Los bordes de los campos (el buscador, las preguntas) a 3:1, con su propio tono derivado; los de las cajas, que son decorativos, fuera del aviso.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Como hoy: avisa por todos.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Los campos sí necesitan verse para usarse; las cajas se distinguen por su fondo.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A</strong> (decisión 335). Los bordes de los campos a 3:1, con su propio tono; los de las cajas, fuera del aviso.</dd>
 </dl>
 </div>
 </details>
-</div></div></details><details class="seccion" id="separar"><summary class="seccion-titulo"><span class="etiqueta">05 / Separar</span><h2>Lo que es de otras tareas</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Lo que se decida aquí lo aplican otras tareas: esta solo escribe su informe.</p>
+</div></div></details><details class="seccion" id="separar"><summary class="seccion-titulo"><span class="etiqueta">06 / Separar</span><h2>Lo que es de otras tareas</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Lo decidido aquí (335) lo aplican otras tareas: esta solo escribe su informe.</p>
 <div class="tarjetas cols-2">
 <article class="tarjeta">
 <h3 id="a-estilo-sf">1 · Tarea nueva: escribir el estilo de la SF</h3>
 <dl>
 <dt>Se lleva</dt>
-<dd>Las preguntas <a href="#p1">1</a> a <a href="#p5">5</a>, ya decididas: <code>docs/identidad/estilo.json</code> y los dos archivos del logo.</dd>
+<dd>Las preguntas <a href="#p1">1</a> a <a href="#p5">5</a>, decididas (335): <code>docs/identidad/estilo.json</code> y los dos archivos del logo.</dd>
 </dl>
 </article>
 <article class="tarjeta">
 <h3 id="a-392">2 · A la skill de estilo (392)</h3>
 <dl>
 <dt>Se lleva</dt>
-<dd>Las preguntas <a href="#p6">6</a> y <a href="#p7">7</a>: el juego de muestras y el documento de muestra viajan en el plugin.</dd>
+<dd>Las preguntas <a href="#p6">6</a> y <a href="#p7">7</a>, decididas (335): el juego de muestras y el documento de muestra viajan en el plugin.</dd>
 </dl>
 </article>
 <article class="tarjeta">
 <h3 id="a-391">3 · Tarea nueva: los diagramas con un primario claro</h3>
 <dl>
 <dt>Se lleva</dt>
-<dd>La pregunta <a href="#p8">8</a>: el rol <code>primario-linea</code> y su comprobación. Iba a «Hacer del diagrama un recurso del catálogo» (391), que se cerró sin él.</dd>
+<dd>La pregunta <a href="#p8">8</a>, decidida (335): el rol <code>primario-linea</code> y su comprobación. Iba a «Hacer del diagrama un recurso del catálogo» (391), que se cerró sin él.</dd>
 </dl>
 </article>
 <article class="tarjeta">
 <h3 id="a-contraste">4 · Tarea nueva: arreglos de contraste</h3>
 <dl>
 <dt>Se lleva</dt>
-<dd>La pregunta <a href="#p9">9</a>, el tema <code>pool</code>, el hueco bajo la cabecera sólida y la marca «Elegida» con un <code>sobre-primario</code> oscuro.</dd>
+<dd>La pregunta <a href="#p9">9</a>, decidida (335), el tema <code>pool</code>, el hueco bajo la cabecera sólida y la marca «Elegida» con un <code>sobre-primario</code> oscuro.</dd>
 </dl>
 </article>
-</div></div></details><details class="seccion" id="tareas"><summary class="seccion-titulo"><span class="etiqueta">06 / Tareas</span><h2>Las tareas que salen</h2></summary><div class="seccion-cuerpo"><table>
+</div></div></details><details class="seccion" id="tareas"><summary class="seccion-titulo"><span class="etiqueta">07 / Tareas</span><h2>Las tareas que salen</h2></summary><div class="seccion-cuerpo"><table>
 <thead>
 <tr>
 <th>Tarea</th>
@@ -1208,9 +1241,9 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <td data-label="Qué hace">Rol <code>primario-linea</code> en <code>diagramas.css</code> y texto de acento con <code>primario-texto</code> (pregunta 8), y que el generador avise de los diagramas por debajo de 3:1.</td>
 </tr>
 </tbody>
-</table></div></details><details class="seccion" id="anexo"><summary class="seccion-titulo"><span class="etiqueta">07 / Anexo</span><h2>El estilo.json propuesto para la SF</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La <a href="muestras-estilo/muestra-sf/recomendada.html">muestra con las recomendaciones</a> aplica este <code>estilo.json</code> a un documento corto con todos los recursos: portada, aviso de alcance, secciones plegables, recuadros, tarjetas con color, tabla, preguntas, código y un diagrama. El diagrama simula el rol <code>primario-linea</code> (pregunta 8) con una regla de estilo en el propio documento, porque el generador todavía no lo tiene. Cada alternativa cambia una sola respuesta: <a href="muestras-estilo/muestra-sf/p1-b-rotulos-en-tinta.html">1 B</a>, <a href="muestras-estilo/muestra-sf/p2-a-sf1.html">2 A</a>, <a href="muestras-estilo/muestra-sf/p2-c-sf3.html">2 C</a>, <a href="muestras-estilo/muestra-sf/p3-b-p4-a-portada-clara.html">3 B</a>, <a href="muestras-estilo/muestra-sf/p3-b-p4-b-portada-clara-logo-ambar.html">3 B con el logo 4 B</a> y <a href="muestras-estilo/muestra-sf/p5-b-letra-tinta.html">5 B</a>.</p>
+</table></div></details><details class="seccion" id="anexo"><summary class="seccion-titulo"><span class="etiqueta">08 / Anexo</span><h2>El estilo.json propuesto para la SF</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La <a href="muestras-estilo/muestra-sf/recomendada.html">muestra con las recomendaciones</a> aplica este <code>estilo.json</code> a un documento corto con todos los recursos: portada, aviso de alcance, secciones plegables, recuadros, tarjetas con color, tabla, preguntas, código y un diagrama. El diagrama simula el rol <code>primario-linea</code> (pregunta 8) con una regla de estilo en el propio documento, porque el generador todavía no lo tiene. Cada alternativa cambia una sola respuesta: <a href="muestras-estilo/muestra-sf/p1-b-rotulos-en-tinta.html">1 B</a>, <a href="muestras-estilo/muestra-sf/p2-a-sf1.html">2 A</a>, <a href="muestras-estilo/muestra-sf/p2-c-sf3.html">2 C</a>, <a href="muestras-estilo/muestra-sf/p3-b-p4-a-portada-clara.html">3 B</a>, <a href="muestras-estilo/muestra-sf/p3-b-p4-b-portada-clara-logo-ambar.html">3 B con el logo 4 B</a> y <a href="muestras-estilo/muestra-sf/p5-b-letra-tinta.html">5 B</a>.</p>
 <aside class="recuadro aviso"><p>La muestra deja ver un fallo más del generador con un <code>sobre-primario</code> oscuro: la marca «Elegida» de una pregunta decidida pinta el <code>sobre-primario</code> sobre el <code>oscuro</code>, tinta sobre grafito, y no se lee (1,1:1). Va a la tarea de los arreglos de contraste.</p></aside>
-<p>Con las recomendaciones de las preguntas 1 a 5 (la variante SF-2). Los colores que no son de la web salen del tema <code>tinta</code> (acento, segundo) o se derivan del amarillo (fondos).</p>
+<p>Con lo decidido en las preguntas 1 a 5 (decisión 335; la variante SF-2). Los colores que no son de la web salen del tema <code>tinta</code> (acento, segundo) o se derivan del amarillo (fondos).</p>
 <pre><code class="language-json">{
   <span class="sx-p">"version"</span>: <span class="sx-n">1</span>,
   <span class="sx-p">"origen"</span>: <span class="sx-s">"tinta"</span>,
@@ -1306,7 +1339,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
   }
 }
 </code></pre></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Informe de diseño · Versión 1.2 · 23/11/2026 · Propuesta · Tarea 388</p><p>Informe de la tarea «Diseñar con el propietario las muestras de estilo y el estilo de partida de la SF» (388), que sale de «Parámetros del estilo de un proyecto» (387, decisiones 316 a 324). Parte del generador único (389), los temas de crear_documentos, diagramas.css, la web de la SF (site/index.html) y su logo, leídos sin cambiarlos; las muestras se generaron con el generador en una carpeta temporal. Espera la decisión del propietario de la Software Factory.</p><p class="procedencia">Generado el 23/11/2026 18:23 · fuente Muestras de estilo y estilo de la SF.md · huella e09361f4b9cc · commit 0392112 (con cambios sin commit)</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Informe de diseño · Versión 1.3 · 23/11/2026 · Decidido · Tarea 388</p><p>Informe de la tarea «Diseñar con el propietario las muestras de estilo y el estilo de partida de la SF» (388), que sale de «Parámetros del estilo de un proyecto» (387, decisiones 316 a 324). Parte del generador único (389), los temas de crear_documentos, diagramas.css, la web de la SF (site/index.html) y su logo, leídos sin cambiarlos; las muestras se generaron con el generador en una carpeta temporal. El propietario de la Software Factory aceptó las nueve recomendaciones (decisión 335).</p><p class="procedencia">Generado el 23/11/2026 19:25 · fuente Muestras de estilo y estilo de la SF.md · huella e65f25c9597b · commit 7fb319c (con cambios sin commit)</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
