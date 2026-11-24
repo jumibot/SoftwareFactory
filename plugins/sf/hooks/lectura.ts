@@ -491,7 +491,7 @@ export async function ramaActiva($: $, git: Git): Promise<Estado['rama']> {
 }
 
 // Los subagentes de las tareas, por su número: el principal los lanza con la descripción «Tarea NN: …», y el panel
-// pone su ⚙ (decisión del propietario, 2026-10-29). Trabajando: pending, running y waiting. Esperando instrucciones
+// pone su ● (decisión del propietario, 2026-10-29). Trabajando: pending, running y waiting. Esperando instrucciones
 // (verde y roja, decisión 162): idle y completed, que el motor deja retomar con su contexto; failed y killed, parados.
 // $.agent.list() deja de dar un subagente poco después de que entregue su informe, aunque siga retomable: por eso
 // se apuntan en la sesión ($.state, que no pasa a otra sesión: tras reiniciar Claude Code no queda ninguno) los vistos
@@ -609,7 +609,7 @@ async function leerPorSubir($: $, raiz: string, git: Git, remoto: string): Promi
 }
 
 // Las tareas mergeadas en develop (decisión del propietario, 2026-10-29): las que tienen un commit en la historia de
-// develop, el squash de la C, con su número como «(N)» al final del título o como trailer «SF-Tarea: N» (decisión
+// develop, el squash de Cerrar, con su número como «(N)» al final del título o como trailer «SF-Tarea: N» (decisión
 // 207). Un «Revert "<título>"» posterior deja fuera sus commits más antiguos que él: el de un título «… (N)» nombra
 // la tarea; si no, la del commit más cercano, por debajo, con ese título. Como tareas_en_develop de cola.py. Aquí sí
 // se ejecuta git (log): solo cuando develop cambia, porque se guarda lo leído con su commit.

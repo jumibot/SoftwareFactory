@@ -152,7 +152,7 @@ async function quitarAvisos($: $): Promise<void> {
   turnarAvisos($, await $.clock.now())
 }
 
-// El botón que espera el segundo clic: la E que elimina, la D que descarta o la E que quita un paso, «eliminar:7»,
+// El botón que espera el segundo clic: Eliminar, Descartar o la «×» que quita un paso, «eliminar:7»,
 // «descartar:8» o «paso:7:2»; null, ninguno (decisión del propietario, 2026-10-29).
 const porConfirmar = atom({ plugin: 'sf', key: 'porConfirmar' } as const, null as string | null)
 // Cada primer clic lleva su turno: el temporizador que devuelve el botón a E o D solo actúa si sigue siendo el último.
@@ -337,7 +337,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     )
   })
 
-  // Un clic en cualquier otro botón del panel deja la E o la D pendiente como estaba, sin eliminar ni descartar
+  // Un clic en cualquier otro botón del panel deja Eliminar o Descartar pendiente como estaba, sin eliminar ni descartar
   // (decisión del propietario, 2026-10-29).
   on('ui.press', async ($, e, next) => {
     if (e.plugin === 'sf' && !['eliminar-tarea:', 'descartar-tarea:', 'revertir-tarea:', 'quitar-paso:', 'release', 'actualizar', 'refrescar'].some(x => e.element.startsWith(x))) {
@@ -585,7 +585,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
               )}
               {enCaja(
                 <Button key={`info-paso:${donde}:${id}:${i}`} label="?" plain onPress={() => preguntarPaso($, id, x)}>
-                  {/* En verde, como Activar rama y la C: así se ve que es un botón (decisión del propietario, 2026-10-30). */}
+                  {/* En verde, como Activar rama y Cerrar: así se ve que es un botón (decisión del propietario, 2026-10-30). */}
                   <Text color="success">{lineas.at(-1) === '' ? '?' : ' ?'}</Text>
                 </Button>,
                 'success',
@@ -610,8 +610,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const subagente = subagenteDe(p)
       if (subagente === undefined) return null
       const aviso = subagente.esperando
-        ? `⚙: el subagente de la ${String(p.id)} espera instrucciones (${subagente.descripcion})`
-        : `⚙: un subagente trabaja en la ${String(p.id)} (${subagente.descripcion})`
+        ? `${MARCA_SUBAGENTE}: el subagente de la ${String(p.id)} espera instrucciones (${subagente.descripcion})`
+        : `${MARCA_SUBAGENTE}: un subagente trabaja en la ${String(p.id)} (${subagente.descripcion})`
       const avisar = () => emergente($, aviso, false)
       return enCaja(
         <Button key={`subagente-tarea:${donde}:${p.id}`} label={MARCA_SUBAGENTE} plain onPress={avisar}>

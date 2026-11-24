@@ -3199,7 +3199,7 @@ test('Descartar: si cola.py no puede (cambios sin commit, la rama en otro worktr
   expect(colas).toEqual(['descartar 6'])
   expect(archivos[COLA]).toBe(antes)
   // Un error: marca roja y la ruta del worktree, abreviada (tarea 257).
-  expect(marcados.map(t => t.text)).toContain('🟥 D: La rama feature/6-algo está en el worktree agent-1. Para ese agente y quita el worktree antes.')
+  expect(marcados.map(t => t.text)).toContain('🟥 Descartar: La rama feature/6-algo está en el worktree agent-1. Para ese agente y quita el worktree antes.')
 })
 
 test('Descartar: si la tarea ha cambiado en la cola, no llama a cola.py', async (...m) => {
@@ -3539,7 +3539,7 @@ test('Subagente: con uno trabajando en la 12, ⚙ delante y siguen Activar rama,
   for (const b of ['probar', 'cerrar']) expect(await hay(ui, { type: 'Button', key: `${b}-tarea:arriba:16` })).toBe(true)
   await ui.press({ key: 'subagente-tarea:arriba:12' })
   expect(a.ordenes.some(o => o.startsWith('git'))).toBe(false)
-  expect(a.toasts).toContain('⚙: un subagente trabaja en la 12 (Tarea 12: cerrar la lista)')
+  expect(a.toasts).toContain('●: un subagente trabaja en la 12 (Tarea 12: cerrar la lista)')
   await ui.unmount()
 })
 
@@ -3577,12 +3577,12 @@ test('Subagente: el que espera avisa distinto; si otro trabaja en la tarea, mand
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   expect(await marca(ui, 12)).toEqual({ color: 'error' })
   await ui.press({ key: 'subagente-tarea:arriba:12' })
-  expect(a.toasts).toContain('⚙: el subagente de la 12 espera instrucciones (Tarea 12: cerrar la lista)')
+  expect(a.toasts).toContain('●: el subagente de la 12 espera instrucciones (Tarea 12: cerrar la lista)')
   agentes.push({ description: 'Tarea 12: segundo paso', status: 'running' })
   await a.cambiarCola(CERRABLES)
   expect(await marca(ui, 12)).toEqual({ color: 'success' })
   await ui.press({ key: 'subagente-tarea:arriba:12' })
-  expect(a.toasts).toContain('⚙: un subagente trabaja en la 12 (Tarea 12: segundo paso)')
+  expect(a.toasts).toContain('●: un subagente trabaja en la 12 (Tarea 12: segundo paso)')
   await ui.unmount()
 })
 
@@ -3608,7 +3608,7 @@ test('Subagente: el latido pasa la ⚙ de trabajando a esperando sin que pase na
   await a.reloj!.advance(60_000)
   expect(await marca(ui, 12)).toEqual({ color: 'error' })
   await ui.press({ key: 'subagente-tarea:arriba:12' })
-  expect(a.toasts).toContain('⚙: el subagente de la 12 espera instrucciones (Tarea 12: cerrar la lista)')
+  expect(a.toasts).toContain('●: el subagente de la 12 espera instrucciones (Tarea 12: cerrar la lista)')
   await ui.unmount()
 })
 
@@ -3717,17 +3717,17 @@ test('Subagente: un worktree con la rama de la 12, sin subagente, no da ⚙', as
 })
 
 // Avisos emergentes (tarea 257): lo importante primero, las rutas abreviadas y una marca distinta para los errores.
-test('Emergentes: la C con subagente recogido dice la tarea y lo quitado, con las rutas abreviadas y la marca azul', async (...m) => {
+test('Emergentes: Cerrar con subagente recogido dice la tarea y lo quitado, con las rutas abreviadas y la marca azul', async (...m) => {
   const mensaje = 'Cerrada la 12 en develop (c0ffee1). Quitados: D:/Projectes/SoftwareFactory-wt-12, sub-12.'
   const { marcados, ui } = await cerrarLa12(m, {}, { respuesta: { ok: true, mensaje } })
   expect(marcados.map(t => t.text)).toContain('🟦 Cerrada la 12 en develop (c0ffee1). Quitados: wt-12, sub-12.')
   await ui.unmount()
 })
 
-test('Emergentes: un fallo de la C, con la marca roja y más tiempo a la vista', async (...m) => {
+test('Emergentes: un fallo de Cerrar, con la marca roja y más tiempo a la vista', async (...m) => {
   const mensaje = 'Hay cambios sin commit en la rama activa. Haz commit antes.'
   const { marcados, ui } = await cerrarLa12(m, {}, { respuesta: { ok: false, mensaje } })
-  expect(marcados).toContainEqual({ text: `🟥 C: ${mensaje}`, timeoutMs: 8000 })
+  expect(marcados).toContainEqual({ text: `🟥 Cerrar: ${mensaje}`, timeoutMs: 8000 })
   await ui.unmount()
 })
 
@@ -3813,7 +3813,7 @@ test('Cerrar: si cola.py no puede (cambios sin commit, la rama en otro worktree)
   const mensaje = 'Hay cambios sin commit en la rama activa. Haz commit antes.'
   const { archivos, antes, toasts, prompts, ui } = await cerrarLa12(m, {}, { respuesta: { ok: false, mensaje } })
   expect(archivos[COLA]).toBe(antes)
-  expect(toasts).toContain(`C: ${mensaje}`)
+  expect(toasts).toContain(`Cerrar: ${mensaje}`)
   expect(prompts).toHaveLength(0)
   await ui.unmount()
 })
@@ -3835,7 +3835,7 @@ test('Cerrar: con choques, cola.py lo deshace y el panel se lo pasa a Claude par
 test('Cerrar: si falla el commit, también se lo pasa a Claude', async (...m) => {
   const respuesta = { ok: false, mensaje: 'x', fallo: 'commit', motivo: 'el hook de commit lo rechaza' }
   const { toasts, prompts, reloj, ui } = await cerrarLa12(m, {}, { respuesta })
-  expect(toasts).toContain('C: no se pudo hacer el commit de la 12 en develop: se lo paso a Claude.')
+  expect(toasts).toContain('Cerrar: no se pudo hacer el commit de la 12 en develop: se lo paso a Claude.')
   await reloj!.advance(100)
   expect(JSON.stringify(prompts[0])).toContain('el hook de commit lo rechaza')
   await ui.unmount()
@@ -3971,7 +3971,7 @@ test('Revertir: con choques, cola.py lo deshace y el panel se lo pasa a Claude; 
 test('Revertir: si cola.py no puede (cambios sin commit, develop en otro worktree), dice por qué', async (...m) => {
   const mensaje = 'develop está en el worktree /sf/principal. Revierte allí.'
   const { toasts, prompts, ui } = await revertirLa20(m, { respuesta: { ok: false, mensaje } })
-  expect(toasts).toContain('R: develop está en el worktree principal. Revierte allí.')
+  expect(toasts).toContain('Revertir: develop está en el worktree principal. Revierte allí.')
   expect(prompts).toHaveLength(0)
   expect(await colores(ui, 20)).toEqual(['success'])
   await ui.unmount()

@@ -225,7 +225,7 @@ export const register: Register = on => {
         immediate: true,
       })
     }
-    // La duración de la sesión: un latido por minuto que redibuja el panel y relee los subagentes: cambia la ⚙ de uno
+    // La duración de la sesión: un latido por minuto que redibuja el panel y relee los subagentes: cambia el ● de uno
     // que entregó su informe o se paró sin que pase nada más.
     // ACTUALIZAR: si hay versión publicada nueva del plugin; al empezar, en un temporizador para no esperar a la red;
     // la publicada, cada 5 minutos con el latido (decisión del propietario, 2026-10-29; 5 y no 30, tarea 229), y lo
@@ -330,7 +330,7 @@ export const register: Register = on => {
 
   // La cola cambia a mitad de turno (Claude marca una petición en curso y trabaja en ella): tras cada herramienta
   // que puede escribir, se relee sin esperar, para que el panel muestre al momento la tarea en curso.
-  // También tras el Agent: el de un subagente en primer plano acaba con él, y su ⚙ se va al momento.
+  // También tras el Agent: el de un subagente en primer plano acaba con él, y su ● se va al momento.
   for (const tool of ['Bash', 'PowerShell', 'Write', 'Edit', 'Agent'] as const) {
     on('tool.call', { tool }, async ($, e, next) => {
       const r = await next(e)
@@ -368,7 +368,7 @@ export const register: Register = on => {
     return r
   }).catch(($, e, next) => next(e))
 
-  // Un subagente parado con TaskStop: su ⚙ se va al momento, aunque el motor ya no lo liste (tarea 225). Si TaskStop
+  // Un subagente parado con TaskStop: su ● se va al momento, aunque el motor ya no lo liste (tarea 225). Si TaskStop
   // falla (ya había entregado su informe y no hay nada que parar), sigue esperando instrucciones.
   on('tool.call', { tool: 'TaskStop' }, async ($, e, next) => {
     const r = await next(e)
@@ -378,7 +378,7 @@ export const register: Register = on => {
     return r
   }).catch(($, e, next) => next(e))
 
-  // Un subagente que empieza: su ⚙, al momento (decisión del propietario, 2026-10-29).
+  // Un subagente que empieza: su ●, al momento (decisión del propietario, 2026-10-29).
   on('agent.spawn', async ($, e, next) => {
     const r = await next(e)
     void refrescar($).catch(() => undefined)

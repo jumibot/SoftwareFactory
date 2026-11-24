@@ -23,7 +23,7 @@ export const colorLetraApagada = (l: string) => (l === 'C' ? LETRA.cerrada : LET
 // La marca del subagente de una tarea, verde si trabaja y roja si espera (decisión 162). Windows Terminal dibuja la
 // ⚙ (U+2699) como emoji, gris, sin el color del texto: va ● (U+25CF), que está en las fuentes de terminal y toma
 // el color. La alternativa es '⚙︎', la ⚙ con el selector de texto, que no todos los terminales respetan. Ocupa
-// una columna, como Activar rama, la C y la D; con los espacios, tres.
+// una columna; con los espacios, tres.
 export const MARCA_SUBAGENTE = '●'
 // Las órdenes de una tarea que destruyen (Eliminar, Descartar, Revertir), en rojo; las demás, con la letra normal
 // (decisión 168, precisada por el propietario el 2026-11-01). El rojo claro de ACTUALIZAR, legible sobre el gris.

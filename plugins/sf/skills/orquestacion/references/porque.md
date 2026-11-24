@@ -48,12 +48,12 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 - **El encargo y el informe con formato fijo** (083). Lleva las reglas de «Cómo escribir», porque el subagente no carga esta skill, y el informe dice qué documentos compartidos actualizar, porque el subagente no los toca (auditoría de la orquestación («Auditar que la skill de orquestación recoge todo lo ordenado», 216)). Solo el principal escribe la cola; el mod lo impone a las herramientas de archivos («El mod impide que un subagente escriba la cola», 110).
 - **Recoger en cuanto vuelve** (149): si no, el panel queda desfasado.
 - **Ramas del subagente, borradas al cerrar** («Borrar las ramas del subagente al volver», 135): se acumulaban ramas sueltas.
-- **El worktree se quita al cerrar, no para probar** (149): con el subagente en su rama auxiliar, la rama de la tarea queda libre; la C falló en la 194 porque su worktree tenía activa la propia rama de la tarea.
-- **Cerrar con la C también para el subagente**: el panel cierra sin poder pararlo ni quitar su worktree; quedaba vivo (auditoría de la orquestación («Auditar que la skill de orquestación recoge todo lo ordenado», 216)).
+- **El worktree se quita al cerrar, no para probar** (149): con el subagente en su rama auxiliar, la rama de la tarea queda libre; Cerrar falló en la 194 porque su worktree tenía activa la propia rama de la tarea.
+- **Cerrar desde el panel también para el subagente**: el panel cierra sin poder pararlo ni quitar su worktree; quedaba vivo (auditoría de la orquestación («Auditar que la skill de orquestación recoge todo lo ordenado», 216)).
 
 ## Probar y cerrar
 
-- **`listo --prueba` al acabar el último paso** (090, 149): sin los pasos de cierre el panel no muestra la C.
+- **`listo --prueba` al acabar el último paso** (090, 149): sin los pasos de cierre el panel no muestra Cerrar.
 - **Probar antes de cerrar** (074): la observación se llenaba de tareas cerradas sin probar en su rama.
 - **Cerrar directamente lo que no tiene nada que probar**: deliberar, investigar, documentar o especificar no se prueban como el código; el propietario aprueba el resultado («Cerrar directamente lo que no tiene prueba», 154).
 - **El cierre espera el OK** («Preguntar antes de cerrar una petición; lo nuevo, a la cola», 048): Claude cerró y publicó una skill sin permiso. Los commits en la rama, sin preguntar.
@@ -73,7 +73,7 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 
 ## Documentos compartidos
 
-- **Tarea aparte** (112, 116): cada cierre chocaba en esos documentos; el paso de documentar bloqueaba la C, y ahora es «Creada la tarea NN…», hecho.
+- **Tarea aparte** (112, 116): cada cierre chocaba en esos documentos; el paso de documentar bloqueaba Cerrar, y ahora es «Creada la tarea NN…», hecho.
 - **También por subagente, de una en una** («Documentos compartidos, también por subagente», 152, que precisa la 112): de una en una para no tener dos en paralelo sobre el mismo documento, no para que las hiciera el principal.
 - **Las de código, sin pasos de documentación** («Las tareas de código no llevan pasos de documentación», 240): en sprite_animation, «Hacer el código de la demo más legible para los alumnos» acabó con un paso para explicar algo en el material del curso. Una documental solo toca su documento; una de código, solo el código y lo que va con él.
 - **Una tarea por documento, con un paso por tarea** (142, 147): la de «Cómo funciona el panel» llegó a 19 pasos casi iguales. **Las reglas del método, en una sola** (148): los tres documentos repetían lo mismo.

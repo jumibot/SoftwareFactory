@@ -1446,7 +1446,7 @@ def o_cerrar(cola: Cola, a) -> str:
         cola.anotar(t, 'cerrada', 'sin rama')
         mensaje = f'Cerrada la {a.n}, sin rama.'
     mensaje += recogida(cola, t, sin_integrar) + ''.join(f' Aviso: {x}.' for x in avisos)
-    for p in pasos(t):  # la C es el OK del propietario: «Activar rama para poder probar», si está, queda hecho
+    for p in pasos(t):  # Cerrar es el OK del propietario: «Activar rama para poder probar», si está, queda hecho
         if p.get('texto') in PASOS_CIERRE:
             p['estado'] = 'hecho'
     cola.sacar(t, 'cerrada')
@@ -2602,7 +2602,7 @@ def analizador() -> argparse.ArgumentParser:
           'hecho el paso de prueba', 'n')
     orden('observando', o_observando, 'en observación, el propietario la mira ahora', 'n')
     orden('seguir', o_seguir, 'sigue en observación', 'n')
-    s = orden('cerrar', o_cerrar, 'cierra, con «Cerrar la tarea»: con rama, squash en develop (la C); sin rama, sale de la cola; en observación, sale de la cola sin git', 'n')
+    s = orden('cerrar', o_cerrar, 'cierra, con «Cerrar la tarea»: con rama, squash en develop (Cerrar, en el panel); sin rama, sale de la cola; en observación, sale de la cola sin git', 'n')
     s.add_argument('--coautor', help='la línea Co-Authored-By del squash, sobre la de .sf/proyecto.json')
     s = orden('a-observacion', o_a_observacion, 'cierra y la deja en observación: squash en develop', 'n')
     s.add_argument('--coautor', help='la línea Co-Authored-By del squash, sobre la de .sf/proyecto.json')
@@ -2613,7 +2613,7 @@ def analizador() -> argparse.ArgumentParser:
     orden('limpiar', o_limpiar, 'saca de la cola las descartadas')
     s = orden('revertir', o_revertir, 'git revert en develop de sus commits; después, eliminada o a Pendientes', 'n')
     g = s.add_mutually_exclusive_group(required=True)
-    g.add_argument('--eliminar', action='store_true', help='sale de la cola sin rastro, como con la E')
+    g.add_argument('--eliminar', action='store_true', help='sale de la cola sin rastro, como con Eliminar')
     g.add_argument('--pendiente', action='store_true', help='vuelve a Pendientes, en cola y reabierta, sin rama')
     s.add_argument('--commit', nargs='+', help='los commits que revertir, si no están en el historial')
     s = orden('reabrir', o_reabrir, 'vuelve a en curso, con rama nueva desde develop', 'n', 'texto')

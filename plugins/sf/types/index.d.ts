@@ -6,7 +6,7 @@ export type Paso = { texto: string; estado: 'hecho' | 'en-curso' | 'pendiente'; 
 export type Peticion = {
   id: number
   texto: string
-  // descartada: con la D del panel o pidiéndoselo a Claude; se ve en Cerradas con D hasta que se limpian
+  // descartada: con Descartar, del panel, o pidiéndoselo a Claude; se ve en Cerradas hasta que se limpian
   estado: 'en-curso' | 'en-cola' | 'en-observacion' | 'descartada'
   prueba: string | null // qué debe mirar el propietario (en curso o en observación)
   descripcion: string | null // los detalles de la petición; el panel la muestra al desplegarla

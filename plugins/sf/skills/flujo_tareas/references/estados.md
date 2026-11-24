@@ -23,8 +23,8 @@ El campo `estado` de cada tarea en `.sf/peticiones.json` admite cuatro valores (
 
 La tarea sale del archivo y pasa, con su historial, a `.sf/historial.jsonl` (115). Allí su `estado` es el de salida: `cerrada`, `eliminada`, `absorbida`, `descartada` (limpiada) o, en las revertidas antes de la decisión 134, `revertida` (sección 3).
 
-- **Cerrada**: salió por la C, cerrada en observación o por un cierre sin rama (050, 090, 101).
-- **Eliminada**: salió con la E, al revertirla con [eliminar] o por Claude, sin pasar por Cerradas; su número no se reutiliza. Se recupera del historial (079, 115, 134).
+- **Cerrada**: salió por Cerrar, cerrada en observación o por un cierre sin rama (050, 090, 101).
+- **Eliminada**: salió con Eliminar, al revertirla con [eliminar] o por Claude, sin pasar por Cerradas; su número no se reutiliza. Se recupera del historial (079, 115, 134).
 - **Absorbida**: salió por `/sf_fusionar`, dentro de la de número más alto (099).
 - **Revertida**: cerrada o en observación, con su squash deshecho en `develop` con `git revert` (107, 115). Solo las de antes de la decisión 134: ahora una revertida sale eliminada o vuelve a Pendientes.
 
@@ -39,9 +39,9 @@ Una cola, una copia o un historial con los nombres de antes de la decisión 215 
 - `reabierta: true`: vuelve a la cola por un bug después de haber salido (061, 064).
 - `historial`: cada cambio, con fecha y quién (sección 3).
 
-### Letras del panel
+### Letras de estado
 
-La letra es el estado; el número, el código. Los dos son iguales en todos los sitios: «57-A» (054, 058). El panel la saca del historial de cada tarea (145):
+La letra es el estado de la tarea (054, 058). El panel no la muestra: da el color del número (propietario, 2026-10-31). La saca del historial de cada tarea (145):
 
 - **A**: en cola o en curso, creada (o nacida de un `/sf_split`) después de abrir la sesión.
 - **H**: en cola o en curso, ya estaba al abrir la sesión, está reabierta o no tiene historial. Una H no pasa a A (053, 069).
@@ -123,7 +123,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Quién:** principal. Para un subagente, la crea y la anota antes de lanzarlo.
 - **Autorización:** ninguna; avisa al crearla.
 - **Repositorio:** `git switch -c feature/NN-nombre develop`, o `git branch` sin activarla si va a un subagente.
-- **Panel:** la E deja paso a Activar rama y la D.
+- **Panel:** Eliminar deja paso a Activar rama y Descartar.
 - **CLI:** `cola.py rama 92 flujo-tareas [--sin-activar]`; `--anotar` apunta una rama que ya existe.
 - **Sale de:** 082, 079, 115 (16).
 
@@ -155,7 +155,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 - **De → a:** paso `pendiente` → fuera. Los de cierre, «Activar rama para poder probar» y «Cerrar la tarea», no se quitan: cerrar no pide el de prueba y lo marca al cerrar (172, 174).
 - **Cuándo:** sobra un paso sin empezar.
-- **Quién:** panel con la E; principal.
+- **Quién:** panel con Eliminar; principal.
 - **Autorización:** el clic del propietario.
 - **Repositorio:** nada.
 - **Panel:** desaparece el paso.
@@ -180,7 +180,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Quién:** principal.
 - **Autorización:** ninguna; avisa en una línea. Trabajo de la tarea en el principal, solo con instrucción expresa del propietario.
 - **Repositorio:** worktree propio para el subagente, siempre en su rama auxiliar `sub-NN` desde la de la tarea, que se crea con `--sin-activar` (149). En una deliberativa, nada: su subagente lee en la carpeta del proyecto y solo escribe su documento, sin worktree ni `sub-NN`; no se anota (`subagente` se niega) y `encargo` da el suyo sin worktree (256, 278).
-- **Panel:** ⚙ en la tarea mientras el subagente trabaja (tarea 145).
+- **Panel:** ● verde en la tarea mientras el subagente trabaja (tarea 145; 162).
 - **CLI:** `cola.py subagente 92 --worktree <ruta> [--rama <auxiliar>]`; la ruta, absoluta o relativa al proyecto. Lo anotado es lo que el CLI recoge al dejar la tarea sin subagente (169).
 - **Sale de:** 083, 086, 105, 115 (14, 15, 17), 149, 151, 152 (documentos compartidos, también por subagente), 160 (TURBO).
 
@@ -191,7 +191,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Quién:** principal, tras revisar el diff y, si se puede, la comprobación.
 - **Autorización:** ninguna; lo que pida el subagente, al propietario, y la respuesta, al subagente (SendMessage).
 - **Repositorio:** commits del subagente en su rama auxiliar (`sub-NN`); el principal los trae con `git merge --ff-only`. La rama de la tarea queda libre, así que se prueba en la carpeta principal con el worktree puesto: el subagente y su worktree siguen hasta el cierre (149). Al cerrar, el CLI quita el worktree y borra la rama auxiliar (169); el principal detiene el subagente y borra a mano solo una `worktree-agent-<id>` sin commits fuera de la rama de la tarea.
-- **Panel:** pasos al día; fuera el ⚙.
+- **Panel:** pasos al día; el ● pasa a rojo mientras espera instrucciones y se va al pararlo (162).
 - **CLI:** `cola.py informe 92 --terminado|--interrumpido ["qué necesita"]`; los pasos, con `paso marcar`.
 - **Sale de:** 083, 115 (15), 135, 149, 151.
 
@@ -215,7 +215,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Quién:** principal.
 - **Autorización:** ninguna. Propone probar, con cómo. Si la tarea no tiene nada que probar (deliberar, investigar, documentar, especificar…), propone cerrarla directamente, enseñando el resultado: el OK del propietario es la aprobación; se cierra (18 o 20), sin pasar por observación, y el cierre marca «Activar rama para poder probar» (172).
 - **Repositorio:** nada.
-- **Panel:** cuando los pasos de trabajo están hechos, aparecen «Cerrar» (la C) y «A observación», con rama o sin ella (188).
+- **Panel:** cuando los pasos de trabajo están hechos, aparecen Cerrar y A observación, con rama o sin ella (188).
 - **CLI:** `cola.py listo 92 --prueba "qué mirar"`.
 - **Sale de:** 074, 090, 121, 154, 174.
 
@@ -265,10 +265,10 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 ### Cierre
 
-#### 18 · Cerrar con la C (squash)
+#### 18 · Cerrar con squash
 
 - **De → a:** `en-curso` con rama → fuera de la cola.
-- **Cuándo:** tarea en curso con rama existente (sin rama, 20) que tiene el paso «Cerrar la tarea» y ningún otro pendiente salvo «Activar rama para poder probar» y las ayudas de prueba, que quedan como estén (184). Pulsar la C es el OK del propietario, «ciérrala»: «Activar rama para poder probar», si está, queda hecho. También la propuesta que toca un activo: lleva rama y squash, sin pasar por observación.
+- **Cuándo:** tarea en curso con rama existente (sin rama, 20) que tiene el paso «Cerrar la tarea» y ningún otro pendiente salvo «Activar rama para poder probar» y las ayudas de prueba, que quedan como estén (184). Pulsar Cerrar es el OK del propietario, «ciérrala»: «Activar rama para poder probar», si está, queda hecho. También la propuesta que toca un activo: lleva rama y squash, sin pasar por observación.
 - **Quién:** panel; principal, con el OK del propietario en el chat.
 - **Autorización:** dos clics, o el OK.
 - **Repositorio:** antes de nada, se niega si una `sub-NN` tiene commits que no están en la rama de la tarea: el principal no los trajo y el squash los perdería; el mensaje dice cómo traerlos (`git merge --ff-only sub-NN` con la rama activa, `git fetch . sub-NN:<rama>` sin activar). Igual en `a-observacion` (271). Después, `git switch develop`, `git merge --squash <rama>`, commit con los pasos hechos en el cuerpo y el número según el `commits` de `.sf/proyecto.json` («<tarea> (N)» con `libre`; con `conventional` o `propio`, el título «<prefijo>: <tarea>», con el prefijo del tipo de tarea (implementar, `feat`; corregir, `fix`; documentar, especificar, investigar, deliberar y diseñar, `docs`; sin tipo, `chore`, aunque antes de cerrar el principal pregunta el tipo si falta o hay dudas y lo anota con `tipo N T`; decisión 233), y el trailer `SF-Tarea: N` al pie, decisión 207), `git push <remoto> develop` (el `remoto` de la configuración; `origin` si no dice otro), `git branch -D <rama>`. El hash del squash entra en el historial (`cerrada`, «develop <hash>»). Con el remoto público, antes del push revisa lo que sale (`revision_publica.py`, decisión 259): si encuentra algo, no sube. Si el push falla o no se hace, cierra igual, lo anota (`push-fallido`) y avisa; se sube después con `subir`. Después recoge el subagente: `git worktree remove` y `git branch -D sub-NN`, sin forzar; un worktree con cambios sin commit se queda, y una auxiliar con commits que no entraron en `develop` se queda, con su worktree, y se avisa: nunca se borra (`recogida` o `recogida-con-avisos`, 169, 271). El panel no para el subagente: el aviso del mensaje siguiente pide al principal detenerlo y dice lo que quedó (11).
@@ -292,7 +292,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 - **De → a:** `en-curso` sin rama → fuera de la cola.
 - **Cuándo:** la tarea no tocó ningún activo (no pasa por observación); siempre, una deliberativa, cuyo único paso de cierre es «Cerrar la tarea» (278). Pide los mismos pasos que 18: «Cerrar la tarea» y ningún otro pendiente salvo «Activar rama para poder probar». Una propuesta que toca un activo lleva rama: se cierra como en 18.
-- **Quién:** panel con «Cerrar» (la C); principal.
+- **Quién:** panel con Cerrar; principal.
 - **Autorización:** dos clics, o el principal pregunta antes de cerrar.
 - **Repositorio:** nada: sin squash ni commit.
 - **Panel:** Cerradas, con C, sin commit («○»).
@@ -338,7 +338,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 - **De → a:** `en-cola` o `en-curso` con rama → `descartada`. Una en observación ya entró en `develop`: se revierte (26).
 - **Cuándo:** se abandona una tarea con trabajo que no ha entrado en `develop`.
-- **Quién:** panel con la D; principal si se lo piden.
+- **Quién:** panel con Descartar; principal si se lo piden.
 - **Autorización:** dos clics, o la petición del propietario. Sin motivo.
 - **Repositorio:** si la rama es la activa, `git switch develop`; `git branch -D <rama>`. No lo hace con la rama en otro worktree o con cambios sin commit. Si git falla, no toca la cola. Después recoge el subagente, como al cerrar, salvo que quita todo, también la auxiliar con commits que no entraron y el worktree con cambios sin commit (`git worktree remove --force`): el descarte descarta todo; `limpiar` hace lo mismo con lo que quedó (18, 189).
 - **Recogida en el resto:** `a-observacion`, `eliminar`, `revertir` y `limpiar` también recogen el subagente, o lo que quedó de una recogida con avisos, sin forzar (169).
@@ -370,7 +370,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 #### 26 · Revertir (R)
 
-- **De → a:** cerrada en `develop`, o en observación → eliminada, fuera de la cola sin rastro, como con la E; o `en-cola`, reabierta con su número (`reabierta: true`) y sin rama. Nunca queda en Cerradas con R.
+- **De → a:** cerrada en `develop`, o en observación → eliminada, fuera de la cola sin rastro, como con Eliminar; o `en-cola`, reabierta con su número (`reabierta: true`) y sin rama. Nunca queda en Cerradas con R.
 - **Cuándo:** hay que deshacer una tarea ya entrada en `develop`: se abandona (eliminar) o hay que rehacerla (pendiente). Revertir sale en el menú de las C de Cerradas con un commit en `develop` con su número («… (N)» o el trailer `SF-Tarea: N`) sin un revert posterior, y en En observación, en las que tienen commits en `develop`.
 - **Quién:** panel con Revertir; principal si se lo piden o si hay choques.
 - **Autorización:** dos clics: el primero cambia Revertir por «¿Revertir?» con [eliminar] y [a Pendientes]; el segundo, en uno de ellos, revierte y elige el destino. A los 5 s, o con un clic en otro sitio, vuelve a ser Revertir. O la petición del propietario, que dice el destino.
@@ -395,7 +395,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 - **De → a:** `en-cola` o `en-curso` sin rama → fuera de la cola y de la vista; su historial, a `.sf/historial.jsonl`.
 - **Cuándo:** la tarea no ha cambiado ningún activo.
-- **Quién:** panel con la E; principal, que comprueba que no tiene rama.
+- **Quién:** panel con Eliminar; principal, que comprueba que no tiene rama.
 - **Autorización:** dos clics, o la petición del propietario.
 - **Repositorio:** nada.
 - **Panel:** desaparece; no entra en Cerradas; su número no se reutiliza.
@@ -515,22 +515,22 @@ Lista de cambios, el más antiguo primero. La escribe el CLI en cada orden; nadi
 - `evento`: el nombre del cambio de la sección 2: `creada`, `en-curso`, `en-cola`, `rama`, `paso` (añadido, marcado o quitado), `renombrada`, `subagente`, `informe`, `listo`, `comprobado`, `probar` (Activar rama), `probar-fallido` (choques al integrar `develop`), `observando`, `seguir`, `cerrada` (también la de una en observación, con «en observación»), `cierre-fallido`, `push-fallido`, `recogida` (worktree y auxiliar quitados) o `recogida-con-avisos` (lo que quedó o se perdió), `a-observacion`, `reobservada`, `descartada`, `limpiada`, `revertida`, `reabierta`, `eliminada`, `a-propuesta` (con «P<nn> devuelta» o «P<nn> nueva»), `restaurada`, `absorbida`, `fusion` (en la que queda, con las absorbidas), `separada` (en la de origen) y `nacida` (en la nueva, con la de origen).
 - `fecha`: ISO 8601 con zona.
 - `quien`: `propietario` o `principal` (115, 10).
-- `via`: `cli` o `panel`; distingue la C pulsada por el propietario de un cierre del principal.
+- `via`: `cli` o `panel`; distingue Cerrar pulsado por el propietario de un cierre del principal.
 - `detalle`: lo propio del evento (rama, «develop <hash>» de un squash o un revert, worktree, números de la fusión, motivo del fallo).
 
 ### `.sf/historial.jsonl`
 
 Una línea JSON por tarea que sale de la cola (cerrada, limpiada, revertida, eliminada, absorbida), con todos sus campos y su historial. Su `estado` dice cómo salió:
 
-- `cerrada`: por la C, sin rama o en observación (`cerrada`).
-- `eliminada`: con la E, al revertirla con [eliminar] o con «A propuesta» (su último evento, `a-propuesta`); el evento `eliminada` guarda en `detalle` el estado de antes, el que le devuelve `restaurar` (tras un revert, `en-cola`, y vuelve reabierta).
+- `cerrada`: por Cerrar, sin rama o en observación (`cerrada`).
+- `eliminada`: con Eliminar, al revertirla con [eliminar] o con «A propuesta» (su último evento, `a-propuesta`); el evento `eliminada` guarda en `detalle` el estado de antes, el que le devuelve `restaurar` (tras un revert, `en-cola`, y vuelve reabierta).
 - `absorbida`: por una fusión.
 - `descartada`: limpiada tras descartarse.
-- `revertida`: con la R, desde En observación o ya cerrada, antes de la decisión 134. Ahora Revertir la deja `eliminada` o la devuelve a la cola, sin línea nueva.
+- `revertida`: con Revertir, desde En observación o ya cerrada, antes de la decisión 134. Ahora Revertir la deja `eliminada` o la devuelve a la cola, sin línea nueva.
 
 Si sale más de una vez, la última línea de su número manda. De aquí salen `reabrir`, `restaurar`, `revertir` y `ver`, y los números ya dados.
 
-Con el historial, el panel deja de deducir (tarea 145): A si `creada` es posterior al inicio de la sesión; H en otro caso o con `reabierta`; Cerradas, las tareas con un evento de cierre en la sesión; ⚙, un `subagente` sin `informe` posterior.
+Con el historial, el panel deja de deducir (tarea 145): A si `creada` es posterior al inicio de la sesión; H en otro caso o con `reabierta`; Cerradas, las tareas con un evento de cierre en la sesión; ●, un `subagente` sin `informe` posterior.
 
 ## 4. Copias rotativas
 

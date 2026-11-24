@@ -92,7 +92,7 @@ export function recogidaDe(h: Evento[]): Evento | null {
   return null
 }
 
-// El texto del aviso, o null sin cambios. Tras un cierre con la C o un descarte de una tarea que tuvo subagente, pide
+// El texto del aviso, o null sin cambios. Tras un cierre con Cerrar o un descarte de una tarea que tuvo subagente, pide
 // pararlo: el panel no puede. Su worktree y su rama auxiliar ya los quitó cola.py; si algo quedó, lo dice, y sin
 // recogida anotada (un cola.py anterior) pide quitarlos también.
 export function avisoPanel(cambios: CambioPanel[], tareas: Tarea[]): string | null {

@@ -59,7 +59,7 @@ export type Respuesta = { ok: boolean; mensaje: string; id?: number; fallo?: str
 
 // La copia de cola.py que ejecuta el panel (decisión 136): al cargar el mod (al empezar la sesión y con
 // /reload-plugins) copia el cola.py de su plugin fuera del repositorio, en ~/.claude/sf/cola-<sesión>.py, y lanza
-// siempre esa copia. Así el panel cargado y el CLI van a juego aunque la C, la R o Activar rama cambien de rama la carpeta del
+// siempre esa copia. Así el panel cargado y el CLI van a juego aunque Cerrar, Revertir o Activar rama cambien de rama la carpeta del
 // plugin. La copia lleva en su primera línea la raíz del plugin, para sus módulos (tarea 322). Sin copia (falla al copiar), el del disco, con un aviso. Copia también el lanzador de Claude (tarea 252) a
 // ~/.claude/sf/cola.py, si ha cambiado: Claude lanza siempre ordenColaClaude(), que pasa la orden a esta copia.
 let copiaCola: string | null = null
@@ -175,10 +175,10 @@ export async function subirDevelop($: $): Promise<Respuesta> {
   return cambiarCola($, ['subir', '--repetir', REPETIR_SUBIDA])
 }
 
-// Lo que se dice al propietario cuando la orden de un botón no sale: el mensaje de cola.py, tras la letra del botón.
-const conLetra = (letra: string, r: Respuesta) => (r.ok ? r.mensaje : `${letra}: ${r.mensaje}`)
+// Lo que se dice al propietario cuando la orden de un botón no sale: el mensaje de cola.py, tras el nombre del botón.
+const conNombre = (nombre: string, r: Respuesta) => (r.ok ? r.mensaje : `${nombre}: ${r.mensaje}`)
 
-// Pasos que quedan al acabar una tarea: los que hace la C al cerrarla. El de prueba es «Activar rama para poder
+// Pasos que quedan al acabar una tarea: los que hace Cerrar al cerrarla. El de prueba es «Activar rama para poder
 // probar», que se llamaba «Probar la tarea» (decisión 172): cola.py lo renombra al escribir la cola; hasta entonces, el
 // panel acepta los dos.
 const PROBAR = 'Activar rama para poder probar'
@@ -191,7 +191,7 @@ export function pasoQuitable(x: { texto?: unknown; estado?: unknown }): boolean 
   return x.estado === 'pendiente' && !PASOS_DE_CIERRE.includes(String(x.texto))
 }
 
-// Quita un paso pendiente de una tarea (la E del panel, confirmada; decisión del propietario, 2026-10-29), con
+// Quita un paso pendiente de una tarea (la «×» del panel, confirmada; decisión del propietario, 2026-10-29), con
 // «cola.py paso quitar». Solo si en ese sitio sigue el mismo paso, sin empezar y no es de cierre: Claude
 // puede haber cambiado la cola entretanto; entonces no hace nada, sin avisar. Devuelve el aviso si cola.py no lo quita.
 export async function quitarPaso($: $, id: number, indice: number, textoPaso: string): Promise<string | null> {
@@ -201,7 +201,7 @@ export async function quitarPaso($: $, id: number, indice: number, textoPaso: st
   })
   if (!tarea) return null
   const r = await cambiarCola($, ['paso', 'quitar', String(id), String(indice + 1)])
-  return r.ok ? null : conLetra('E', r)
+  return r.ok ? null : conNombre('Quitar paso', r)
 }
 
 // Se puede eliminar una tarea en cola o en curso sin rama: aún no ha cambiado ningún activo (decisión del
@@ -211,12 +211,12 @@ export function eliminable(p: { estado?: unknown; rama?: unknown }): boolean {
 }
 
 // Se descarta una tarea con rama que aún no ha entrado en develop: en cola o en curso (decisión del propietario,
-// 2026-10-29). Una en observación ya entró en develop al cerrarla: no se descarta, se revierte con la R (decisión 115, 4).
+// 2026-10-29). Una en observación ya entró en develop al cerrarla: no se descarta, se revierte con Revertir (decisión 115, 4).
 export function descartable(p: { estado?: unknown; rama?: unknown }): boolean {
   return (p.estado === 'en-cola' || p.estado === 'en-curso') && texto(p.rama) !== null
 }
 
-// La R en observación: una tarea en observación con commits en develop, según su historial o la historia de develop.
+// Revertir en observación: una tarea en observación con commits en develop, según su historial o la historia de develop.
 export function revertibleEnObservacion(p: Peticion, mergeadas: Record<string, string[]>): boolean {
   return p.estado === 'en-observacion' && (commitsDe(p.historial).length > 0 || (mergeadas[String(p.id)]?.length ?? 0) > 0)
 }
@@ -251,7 +251,7 @@ function motivoGit(r: { stderr: string }): string {
   return r.stderr.trim() || 'git no responde'
 }
 
-// La D del panel, confirmada: descarta la tarea sin Claude (decisión del propietario, 2026-10-29, precisada por
+// Descartar, del panel, confirmada: descarta la tarea sin Claude (decisión del propietario, 2026-10-29, precisada por
 // «Comandos antes que inferencia»), con «cola.py descartar»: si la rama está en el worktree de otro agente, o es la
 // activa con cambios sin commit, no hace nada y dice por qué; si es la activa, pasa antes a develop; borra la rama y
 // pasa la tarea a `descartada`, sin sacarla: sale al limpiar Cerradas. Si git falla, no toca la cola.
@@ -259,7 +259,7 @@ export async function descartarTarea($: $, id: number, textoTarea: string): Prom
   if (!(await tareaVigente($, id, textoTarea, descartable)))
     return { ok: false, mensaje: `La ${String(id)} ya no se puede descartar: ha cambiado en la cola.` }
   const r = await cambiarCola($, ['descartar', String(id)])
-  return { ok: r.ok, mensaje: conLetra('D', r) }
+  return { ok: r.ok, mensaje: conNombre('Descartar', r) }
 }
 
 // A propuesta (tarea 243): una tarea en cola y sin rama vuelve a sf/propuestas.md (o al docs/propuestas.md de antes), lo contrario de «A Pendientes» en Propuestas.
@@ -300,8 +300,8 @@ export async function enCursoTarea($: $, id: number, textoTarea: string): Promis
   return { ok: true, mensaje: `${r.mensaje} Le pido a Claude que lance su subagente.` }
 }
 
-// Se cierra con la C una tarea en curso que tiene «Cerrar la tarea» y ningún otro paso sin hacer, salvo el de prueba,
-// que la C marca hecho, y las ayudas de prueba, que no se exigen; sin pasos, no hay C (decisiones del propietario,
+// Se cierra con Cerrar una tarea en curso que tiene «Cerrar la tarea» y ningún otro paso sin hacer, salvo el de prueba,
+// que Cerrar marca hecho, y las ayudas de prueba, que no se exigen; sin pasos, no hay Cerrar (decisiones del propietario,
 // 2026-10-29, 172 y 184). Con rama, la rama debe existir; sin rama, también, sin squash ni commit (188).
 export function cerrable(p: Peticion, ramas: Record<string, boolean>): boolean {
   return (
@@ -312,7 +312,7 @@ export function cerrable(p: Peticion, ramas: Record<string, boolean>): boolean {
   )
 }
 
-// Las deliberativas (investigar, deliberar y diseñar) no se prueban ni pasan por observación: se cierran con la C
+// Las deliberativas (investigar, deliberar y diseñar) no se prueban ni pasan por observación: se cierran con Cerrar
 // (218, 278). Como DELIBERATIVAS de cola.py.
 const DELIBERATIVAS = ['investigar', 'deliberar', 'diseñar']
 export function observable(p: { tipo?: string | null }): boolean {
@@ -332,23 +332,23 @@ export async function cerrarTarea($: $, id: number, textoTarea: string, rama: st
   const vale = (t: Record<string, unknown>) => t.estado === 'en-curso' && texto(t.rama) === rama
   if (!(await tareaVigente($, id, textoTarea, vale)))
     return { ok: false, mensaje: `La ${String(id)} ya no se puede cerrar: ha cambiado en la cola.` }
-  const letra = orden === 'cerrar' ? 'C' : 'A observación'
+  const nombre = orden === 'cerrar' ? 'Cerrar' : 'A observación'
   const r = await cambiarCola($, [orden, String(id)])
-  if (r.ok || !r.fallo) return { ok: r.ok, mensaje: conLetra(letra, r) }
-  // El cierre que no sale se lo pasa a Claude, con lo que necesita. Desde un temporizador, como la R: el motor no deja
+  if (r.ok || !r.fallo) return { ok: r.ok, mensaje: conNombre(nombre, r) }
+  // El cierre que no sale se lo pasa a Claude, con lo que necesita. Desde un temporizador, como Revertir: el motor no deja
   // enviar un prompt desde el hook que atiende el panel.
   const pedido =
-    `${orden === 'cerrar' ? 'Cierra' : 'Pasa a observación'} la ${String(id)} («${textoTarea}»): ${orden === 'cerrar' ? 'la C' : 'A observación'} del panel no pudo, ${r.motivo ?? r.mensaje}. Está deshecho y estás en la rama de antes. ` +
+    `${orden === 'cerrar' ? 'Cierra' : 'Pasa a observación'} la ${String(id)} («${textoTarea}»): ${nombre}, del panel, no pudo, ${r.motivo ?? r.mensaje}. Está deshecho y estás en la rama de antes. ` +
     `Resuélvelo en \`${rama ?? 'develop'}\` (por ejemplo, integrando develop) y repite el cierre con \`${ordenColaClaude()} ${orden} ${String(id)}\`.`
   $.clock.after(50, () => {
-    void encargarAClaude($, pedido).catch(err => emergenteError($, `${letra}: no se pudo avisar a Claude (${String(err)}).`))
+    void encargarAClaude($, pedido).catch(err => emergenteError($, `${nombre}: no se pudo avisar a Claude (${String(err)}).`))
   })
   return {
     ok: false,
     mensaje:
       r.fallo === 'choques'
         ? `Choques al pasar la ${String(id)} a develop: se lo paso a Claude.`
-        : `${letra}: no se pudo hacer el commit de la ${String(id)} en develop: se lo paso a Claude.`,
+        : `${nombre}: no se pudo hacer el commit de la ${String(id)} en develop: se lo paso a Claude.`,
   }
 }
 
@@ -358,7 +358,7 @@ export async function cerrarObservada($: $, id: number, textoTarea: string): Pro
   if (!(await tareaVigente($, id, textoTarea, t => t.estado === 'en-observacion')))
     return { ok: false, mensaje: `La ${String(id)} ya no se puede cerrar: ha cambiado en la cola.` }
   const r = await cambiarCola($, ['cerrar', String(id)])
-  return { ok: r.ok, mensaje: conLetra('Cerrar', r) }
+  return { ok: r.ok, mensaje: conNombre('Cerrar', r) }
 }
 
 // «A observación», en las cerradas (296): la cerrada por error vuelve a observación («en-observacion» en la cola) con su commit
@@ -374,7 +374,7 @@ export async function reobservarTarea($: $, id: number): Promise<Resultado> {
   const lista = Array.isArray(datos.peticiones) ? (datos.peticiones as Record<string, unknown>[]) : []
   if (lista.some(x => x.id === id)) return { ok: false, mensaje: `La ${String(id)} ya está en la cola.` }
   const r = await cambiarCola($, ['reobservar', String(id)])
-  return { ok: r.ok, mensaje: conLetra('A observación', r) }
+  return { ok: r.ok, mensaje: conNombre('A observación', r) }
 }
 
 /// RELEASE (decisión del propietario, 2026-10-29): la versión actual, la del último tag vX.Y.Z del repositorio, también
@@ -830,11 +830,11 @@ async function anotarVersion($: $, raiz: string, scopes: string[], version: stri
   if (!leida.some(x => scopes.includes(String(x.scope)) && x.version === version)) throw new Error(`${ruta} no ha cambiado`)
 }
 
-// La R del panel, confirmada: revierte en develop una tarea cerrada o en observación, sin Claude (decisión del
+// Revertir, del panel, confirmada: revierte en develop una tarea cerrada o en observación, sin Claude (decisión del
 // propietario, 2026-10-29), con «cola.py revertir», que lee sus commits del historial (o, sin él, de develop): con
 // cambios sin commit o con develop en otro worktree, no hace nada y dice por qué; si la rama activa no es develop, pasa
 // a develop y se queda en ella; `git revert --no-edit` de sus commits, el más reciente primero, sin push: el push es
-// del cierre. Después, según `destino` (decisión 134), la tarea sale de la cola sin rastro, como con la E
+// del cierre. Después, según `destino` (decisión 134), la tarea sale de la cola sin rastro, como con Eliminar
 // («eliminar»), o vuelve a Pendientes, en cola y reabierta, sin rama («pendiente»); nunca queda en Cerradas con R. Si
 // hay choques, cola.py lo deshace y vuelve a la rama de antes, sin tocar la cola, y el panel se lo pasa a Claude.
 // `hashes`: los commits de develop con los que se pintó el botón; si develop ha cambiado desde entonces, no hace nada.
@@ -847,11 +847,11 @@ export async function revertirTarea($: $, id: number, textoTarea: string, hashes
     if (ahora.join(' ') !== hashes.join(' ')) return { ok: false, mensaje: `La ${String(id)} ya no se puede revertir: ha cambiado en develop.` }
   }
   const r = await cambiarCola($, ['revertir', String(id), `--${destino}`])
-  if (r.ok || !r.fallo) return { ok: r.ok, mensaje: conLetra('R', r) }
+  if (r.ok || !r.fallo) return { ok: r.ok, mensaje: conNombre('Revertir', r) }
   const despues = destino === 'eliminar' ? `y elimínala con \`${ordenColaClaude()} revertir ${String(id)} --eliminar\`` : `y déjala en Pendientes con \`${ordenColaClaude()} revertir ${String(id)} --pendiente\``
-  const pedido = `La R del panel no ha podido revertir la ${String(id)} («${textoTarea}») en develop: ${r.motivo ?? r.mensaje}. Ha hecho git revert --abort y ha vuelto a la rama de antes. Revierte la tarea en develop resolviendo los choques, sin push, ${despues} (o, ya revertida a mano, con --commit).`
+  const pedido = `Revertir, del panel, no ha podido revertir la ${String(id)} («${textoTarea}») en develop: ${r.motivo ?? r.mensaje}. Ha hecho git revert --abort y ha vuelto a la rama de antes. Revierte la tarea en develop resolviendo los choques, sin push, ${despues} (o, ya revertida a mano, con --commit).`
   $.clock.after(50, () => {
-    void encargarAClaude($, pedido).catch(err => emergenteError($, `R: no se pudo pasar a Claude: ${String(err)}`))
+    void encargarAClaude($, pedido).catch(err => emergenteError($, `Revertir: no se pudo pasar a Claude: ${String(err)}`))
   })
   return { ok: false, mensaje: `Choques al revertir la ${String(id)}: se lo paso a Claude.` }
 }
@@ -898,7 +898,7 @@ export async function probarTarea($: $, id: number, rama: string): Promise<Resul
         : `Choques al integrar develop en la ${String(id)}: se lo paso a Claude.`,
     }
   }
-  if (!r.ok) return { ok: false, mensaje: conLetra('Activar rama', r) }
+  if (!r.ok) return { ok: false, mensaje: conNombre('Activar rama', r) }
   const abiertos = await abrirDocumentos($, await raizSesion($), rama)
   return { ok: true, mensaje: r.mensaje + abiertos }
 }
@@ -927,13 +927,13 @@ export async function limpiarCerradas($: $, quitar: { id: number; fecha: number 
   return r.ok ? null : `limpiar: ${r.mensaje}`
 }
 
-// La E del panel, confirmada: saca la tarea de la cola con «cola.py eliminar», sin pasar por Cerradas (decisión del
+// Eliminar, del panel, confirmada: saca la tarea de la cola con «cola.py eliminar», sin pasar por Cerradas (decisión del
 // propietario, 2026-10-29); su historial queda en .sf/historial.jsonl, de donde se restaura. Solo si sigue siendo la
 // misma y eliminable: Claude puede haber cambiado la cola entretanto. Devuelve el aviso si no la elimina.
 export async function eliminarTarea($: $, id: number, textoTarea: string): Promise<string | null> {
   if (!(await tareaVigente($, id, textoTarea, eliminable))) return `La ${String(id)} ya no se puede eliminar: ha cambiado en la cola.`
   const r = await cambiarCola($, ['eliminar', String(id)])
-  return r.ok ? null : conLetra('E', r)
+  return r.ok ? null : conNombre('Eliminar', r)
 }
 
 // El «?» de los pasos de cierre enseña el flujo de tareas a quien no conoce la SF (tarea 253): dónde está el paso,
@@ -1045,7 +1045,7 @@ export function separable(p: Peticion): boolean {
   return (p.estado === 'en-curso' || p.estado === 'en-cola') && p.pasos.length >= 2
 }
 
-// La S del panel (decisión del propietario, 2026-10-29): en las tareas en cola o en curso con dos pasos pendientes o
+// Separar pasos, del panel (decisión del propietario, 2026-10-29): en las tareas en cola o en curso con dos pasos pendientes o
 // más. Los de cierre no cuentan: no se separan (decisión del propietario, 2026-10-29).
 const separablePaso = (x: Paso) => !PASOS_DE_CIERRE.includes(x.texto) && x.ayuda !== true
 export function separablePendientes(p: Peticion): boolean {
@@ -1065,7 +1065,7 @@ export function numerosDe(t: string): number[] {
 // Etiqueta de una opción del diálogo: sin comas, que separan las elegidas en la respuesta.
 export const etiqueta = (n: number, t: string) => `${String(n)} ${t}`.replace(/,/g, ' ').slice(0, 60)
 
-// /sf_split con la tarea ya elegida: pregunta qué pasos, con varios a la vez; con `soloPendientes` (la S del panel),
+// /sf_split con la tarea ya elegida: pregunta qué pasos, con varios a la vez; con `soloPendientes` (Separar pasos, del panel),
 // solo los pendientes, cada uno con su número en la tarea. El diálogo admite cuatro opciones como mucho: con más
 // pasos, en vez de preguntar, se listan y se pide la forma corta. Devuelve la línea para el propietario; null si
 // pregunta.
@@ -1207,7 +1207,7 @@ export async function refrescar($: $): Promise<Estado> {
   return nuevo
 }
 
-// Solo los subagentes, para el latido: si cambian, el panel quita o pone la ⚙ sin releer todo el estado.
+// Solo los subagentes, para el latido: si cambian, el panel quita o pone el ● sin releer todo el estado.
 export async function refrescarSubagentes($: $): Promise<void> {
   const ahora = await subagentesDeTareas($)
   const actual = await read($, estado)
