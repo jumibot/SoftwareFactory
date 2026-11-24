@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 341 | 2026-11-24 | [Al mudar las decisiones y propuestas de la SF a sf/ se reescriben todos sus enlaces](341-2026-11-24-al-mudar-las-decisiones-y-propuestas-de-la-sf-a-sf-se-reescriben-todos-sus-enlaces.md) |
 | 340 | 2026-11-24 | [La SF entra en fase de desarrollo al mudarse a su .sf/estado.json](340-2026-11-24-la-sf-entra-en-fase-de-desarrollo-al-mudarse-a-su-sf-estado-json.md) |
 | 339 | 2026-11-23 | [El orquestador decide el modelo de inferencia más adecuado para cada hilo](339-2026-11-23-el-orquestador-decide-el-modelo-de-inferencia-mas-adecuado-para-cada-hilo.md) |
 | 338 | 2026-11-23 | [Al cambiar el color principal del estilo se recalculan solos sus derivados](338-2026-11-23-al-cambiar-el-color-principal-del-estilo-se-recalculan-solos-sus-derivados.md) |
