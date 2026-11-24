@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 354 | 2026-11-24 | [El estilo de la SF toma lo afinado en la prueba del estilo donde choca con la 335](354-2026-11-24-el-estilo-de-la-sf-toma-lo-afinado-en-la-prueba-del-estilo-donde-choca-con-la-335.md) |
 | 353 | 2026-11-24 | [El estilo de la SF es el de un proyecto más, sin tema propio en el plugin](353-2026-11-24-el-estilo-de-la-sf-es-el-de-un-proyecto-mas-sin-tema-propio-en-el-plugin.md) |
 | 352 | 2026-11-24 | [Todo documento que genera la SF se guarda en su proyecto como un activo](352-2026-11-24-todo-documento-que-genera-la-sf-se-guarda-en-su-proyecto-como-un-activo.md) |
 | 351 | 2026-11-24 | [La cabecera destacada usa un color propio, derivado del primario, para claro y para oscuro](351-2026-11-24-la-cabecera-destacada-usa-un-color-propio-derivado-del-primario-para-claro-y-para-oscuro.md) |
