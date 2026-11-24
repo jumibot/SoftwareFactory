@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 350 | 2026-11-24 | [Los colores de significado y del resaltado de código se aclaran solos en oscuro](350-2026-11-24-los-colores-de-significado-y-del-resaltado-de-codigo-se-aclaran-solos-en-oscuro.md) |
 | 349 | 2026-11-24 | [El rol oscuro se parte en superficie oscura y tinta fuerte](349-2026-11-24-el-rol-oscuro-se-parte-en-superficie-oscura-y-tinta-fuerte.md) |
 | 348 | 2026-11-24 | [Los temas sin paleta oscura la derivan solos de la clara](348-2026-11-24-los-temas-sin-paleta-oscura-la-derivan-solos-de-la-clara.md) |
 | 347 | 2026-11-24 | [El modo oscuro de los documentos usa la paleta oscura del estilo en lugar de invertir la página](347-2026-11-24-el-modo-oscuro-de-los-documentos-usa-la-paleta-oscura-del-estilo-en-lugar-de-invertir-la-pagina.md) |
