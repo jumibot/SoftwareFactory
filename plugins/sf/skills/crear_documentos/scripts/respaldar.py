@@ -5,7 +5,8 @@ _respaldo/», decisión 217).
 
 Copia el .md, y su .html si lo tiene, a la subcarpeta _respaldo/ de la misma carpeta, como
 <nombre>_antes-<motivo>.<ext>. El motivo son una o dos palabras de lo que cambia la versión nueva («rediseno»,
-«sin-mapa»). Volver atrás es copiar de vuelta la versión respaldada, sin tocar git.
+«sin-mapa»); si ya empieza por «antes», no se repite («antes-rediseno» da <nombre>_antes-rediseno). Volver
+atrás es copiar de vuelta la versión respaldada, sin tocar git.
 
 Si ya hay un respaldo con ese nombre, se detiene sin tocar nada: qué hacer con dos vueltas del mismo motivo está por
 decidir (pregunta 10 del informe «Tipos de tarea», en la tarea 297); mientras tanto, se elige otro motivo.
@@ -21,6 +22,7 @@ def motivo_limpio(texto: str) -> str:
     t = unicodedata.normalize("NFD", texto.strip().lower())
     t = "".join(c for c in t if unicodedata.category(c) != "Mn")
     t = re.sub(r"[^\w-]+", "-", t).strip("-")
+    t = re.sub(r"^(?:antes(?:-+|$))+", "", t)  # el nombre ya lleva «_antes-»: que no salga «_antes-antes-»
     if not t:
         sys.exit("El motivo no puede quedar vacío: una o dos palabras de lo que cambia la versión nueva.")
     return t

@@ -186,6 +186,21 @@ class Respaldo(unittest.TestCase):
             self.assertNotEqual(r.returncode, 0)
             self.assertIn('Ya hay un respaldo', r.stderr)
 
+    def test_no_duplica_antes(self):
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as d:
+            md = Path(d) / 'Informe.md'
+            md.write_text('uno', encoding='utf-8')
+            for motivo, nombre in (('antes-rediseno', 'rediseno'), ('Antes de mapa', 'de-mapa'), ('antes-antes-x', 'x')):
+                r = subprocess.run([sys.executable, '-I', '-X', 'utf8', str(RESPALDAR), str(md), motivo],
+                                   capture_output=True, text=True, encoding='utf-8')
+                self.assertEqual(r.returncode, 0, r.stderr)
+                self.assertTrue((Path(d) / '_respaldo' / f'Informe_antes-{nombre}.md').is_file(), motivo)
+            self.assertFalse(list((Path(d) / '_respaldo').glob('*antes-antes*')))
+            r = subprocess.run([sys.executable, '-I', '-X', 'utf8', str(RESPALDAR), str(md), 'antes'],
+                               capture_output=True, text=True, encoding='utf-8')
+            self.assertNotEqual(r.returncode, 0)
+            self.assertIn('no puede quedar vacío', r.stderr)
+
 
 class Avisos(Base):
     def test_etiquetas_sueltas_fuera_del_codigo(self):
