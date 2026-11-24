@@ -378,7 +378,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
 
   on('ui.render', { component: 'Pane', requestId: PANEL }, async ($, e) => {
     anotarPantalla(e)
-    const { Box, Text, Button } = $.ui.resolve(e)
+    const { Box, Text, Button, Markdown } = $.ui.resolve(e)
     const est = await read($, estado)
 
     if (est === null) return <Text dimColor>Leyendo el estado…</Text>
@@ -488,18 +488,28 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // ese color, legible con la letra clara del botón nativo; sin color, un gris apagado.
     // Desde la tarea 397, sin relleno a los lados: el botón nativo ya trae el suyo, que es lo que se pulsa, y la columna
     // de más a cada lado hacía que, con el panel estrecho, la cabecera y las órdenes de una tarea pasaran a dos filas.
-    const enCaja = (boton: RenderChildren, color?: string, fondo?: string, contorno = true) => {
+    // Y sin contorno ni relleno arriba y abajo: en la app, el contorno redondeado se dibuja a la medida de la superficie,
+    // no de la celda, y sumaba su alto y sus esquinas al del botón nativo (dos líneas y media por botón); la caja queda
+    // del alto del botón, con su color de fondo. El alto del botón nativo no se puede cambiar desde el mod.
+    const enCaja = (boton: RenderChildren, color?: string, fondo?: string) => {
       if (!grafica) return boton
-      const lleno = fondo ?? rellenoBoton(color)
       return (
-        <Box
-          flexShrink={0}
-          borderStyle={contorno ? 'round' : undefined}
-          borderColor={contorno ? lleno : undefined}
-          backgroundColor={lleno}
-          paddingX={0}
-        >
+        <Box flexShrink={0} backgroundColor={fondo ?? rellenoBoton(color)} paddingX={0} paddingY={0}>
           {boton}
+        </Box>
+      )
+    }
+    // El texto de un botón: en el terminal, centrado en su ancho de columnas; en una superficie gráfica, tal cual, sin
+    // los espacios que lo rellenan, que allí solo ensanchan el botón nativo (tarea 397).
+    const rotulo = (t: string, w: number) => (grafica ? t : centrar(t, w))
+    // Un marcador pulsable en línea, para una superficie gráfica: un enlace de una Markdown cuyo clic responde el panel
+    // (onLinkPress), sin el botón nativo, que agrandaba la fila (tarea 397). La dirección no se abre: solo identifica el
+    // enlace, y .invalid no existe.
+    const enlace = (key: string, glifo: string, pulsar: () => void) => {
+      const href = `https://sf.invalid/${encodeURIComponent(key)}`
+      return (
+        <Box flexShrink={0} marginLeft="xs">
+          <Markdown key={key} text={`[${glifo}](${href})`} pressableLinks={[href]} onLinkPress={() => pulsar()} />
         </Box>
       )
     }
@@ -535,6 +545,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           })
           .catch(() => undefined)
       }
+      // En una superficie gráfica, un enlace en línea, como el «?» del paso (tarea 397).
+      if (grafica) return enlace(`quitar-paso:${donde}:${id}:${i}`, confirmando ? '¿Quitar? sí' : '×', pulsar)
       return enCaja(
         <Button key={`quitar-paso:${donde}:${id}:${i}`} label={confirmando ? '¿Quitar? sí' : '×'} plain onPress={pulsar}>
           <Text color="error" weight={confirmando ? 'bold' : undefined}>
@@ -588,12 +600,14 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                   {lineas.at(-1)}
                 </Text>
               )}
-              {enCaja(
+              {/* En una superficie gráfica, un «?» en línea, pequeño, que no agranda la fila (tarea 397). */}
+              {grafica ? (
+                enlace(`info-paso:${donde}:${id}:${i}`, '?', () => void preguntarPaso($, id, x))
+              ) : (
                 <Button key={`info-paso:${donde}:${id}:${i}`} label="?" plain onPress={() => preguntarPaso($, id, x)}>
                   {/* En verde, como Activar rama y Cerrar: así se ve que es un botón (decisión del propietario, 2026-10-30). */}
                   <Text color="success">{lineas.at(-1) === '' ? '?' : ' ?'}</Text>
-                </Button>,
-                'success',
+                </Button>
               )}
               {quitable && botonQuitarPaso(x, id, i, donde)}
             </Box>
@@ -620,7 +634,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const avisar = () => emergente($, aviso, false)
       return enCaja(
         <Button key={`subagente-tarea:${donde}:${p.id}`} label={MARCA_SUBAGENTE} plain onPress={avisar}>
-          <Text color={subagente.esperando ? 'error' : 'success'}>{` ${MARCA_SUBAGENTE} `}</Text>
+          <Text color={subagente.esperando ? 'error' : 'success'}>{grafica ? MARCA_SUBAGENTE : ` ${MARCA_SUBAGENTE} `}</Text>
         </Button>,
         subagente.esperando ? 'error' : 'success',
       )
@@ -640,7 +654,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         {enCaja(
           <Button key={key} label={nombre} plain onPress={pulsar}>
             <Text color={color} weight="regular" backgroundColor={FONDO_ORDEN}>
-              {` ${nombre} `}
+              {grafica ? nombre : ` ${nombre} `}
             </Text>
           </Button>,
           color,
@@ -1344,7 +1358,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           {enCaja(
             <Button key="turbo" label="TURBO" plain onPress={() => pedirTurbo($)}>
               <Text color={COLOR_TURBO} weight="bold" backgroundColor={FONDO_ETIQUETA}>
-                {centrar('TURBO', anchoDe('TURBO'))}
+                {rotulo('TURBO', anchoDe('TURBO'))}
               </Text>
             </Button>,
             COLOR_TURBO,
@@ -1385,7 +1399,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Con `w`, centrado en ese ancho; sin él (las versiones a elegir), con un espacio a cada lado.
     const textoRelease = (t: string, w = t.length + 2) => (
       <Text color={COLOR_RELEASE} weight="bold" backgroundColor={FONDO_ETIQUETA}>
-        {centrar(t, w)}
+        {rotulo(t, w)}
       </Text>
     )
     const elegida = aConfirmar?.startsWith('release:') && fuente ? aConfirmar.slice('release:'.length) : null
@@ -1457,7 +1471,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           {enCaja(
             <Button key={boton} label={textoBoton} plain onPress={pulsarActualizar}>
               <Text color={COLOR_ACTUALIZAR} weight="bold" backgroundColor={FONDO_ETIQUETA}>
-                {centrar(textoBoton, anchoDe(textoBoton))}
+                {rotulo(textoBoton, anchoDe(textoBoton))}
               </Text>
             </Button>,
             COLOR_ACTUALIZAR,
@@ -1506,7 +1520,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           >
             {activo ? (
               <Text color="#000000" backgroundColor={COLOR_PRUEBA}>
-                {centrar('PRUEBA', anchoDe('PRUEBA'))}
+                {rotulo('PRUEBA', anchoDe('PRUEBA'))}
               </Text>
             ) : (
               <Text>
@@ -1638,12 +1652,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
             <Button key="subir-develop" label={t} plain onPress={pulsar}>
               {confirmando ? (
                 <Text color={COLOR_SUBIR} weight="bold" backgroundColor={FONDO_ETIQUETA} wrap="truncate-end">
-                  {` ${recortar(t, Math.max(6, libre))} `}
+                  {grafica ? recortar(t, Math.max(6, libre)) : ` ${recortar(t, Math.max(6, libre))} `}
                 </Text>
               ) : (
                 <Text backgroundColor={FONDO_ETIQUETA} wrap="truncate-end">
-                  <Text dimColor> develop </Text>
-                  <Text color={COLOR_SUBIR} weight="bold">{`↑${String(n)}`}</Text>{' '}
+                  <Text dimColor>{grafica ? 'develop ' : ' develop '}</Text>
+                  <Text color={COLOR_SUBIR} weight="bold">{`↑${String(n)}`}</Text>
+                  {grafica ? '' : ' '}
                 </Text>
               )}
             </Button>,
@@ -2057,7 +2072,6 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                         </Button>,
                         undefined,
                         marca,
-                        false,
                       )}
                     </Box>
                   ) : null
