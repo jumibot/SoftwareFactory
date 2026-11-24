@@ -4,6 +4,7 @@ opciones, perfiles por tipo de documento y respaldo.
 
 python -I -X utf8 -m unittest discover -s plugins/sf/tests -p "test_*.py"
 """
+import re
 import subprocess
 import sys
 import tempfile
@@ -71,6 +72,14 @@ class Tarjetas(Base):
         h = self.generar("::: tarjetas 2\n\n### A {color=#123456}\n\nTexto.\n\n:::\n")
         self.assertIn('<article class="tarjeta con-cabecera con-color" style="--c:#123456', h)
         self.assertRegex(h, r'<div class="tarjeta-cabecera">\s*<h3 class="tarjeta-titulo">A</h3>\s*</div>')
+
+    def test_colores_de_significado_en_el_informe(self):
+        # Tarea 409: el informe genera {color=correcto} (y aviso, error, info) sin estilo.json; la 1.9.3 paraba
+        # con «Color de tarjeta no válido: correcto». El valor de cada color lo fija el estilo: aquí, solo que lo hay.
+        tarjetas = ''.join(f"#### {c} {{color={c}}}\n\nX.\n\n" for c in ('correcto', 'aviso', 'error', 'info'))
+        h = self.generar(f"::: tarjetas 2\n\n{tarjetas}:::\n", generador=INFORME)
+        self.assertEqual(len(re.findall(r'class="tarjeta con-cabecera con-color" style="--c:#[0-9a-fA-F]{6};', h)), 4)
+        self.assertNotIn('{color', h.split('<main')[1])
 
     def test_errores(self):
         self.assertIn('Color de tarjeta no válido', self.generar("::: tarjetas 2\n\n### A {color=rosa}\n\nX.\n\n:::\n", ok=False))
