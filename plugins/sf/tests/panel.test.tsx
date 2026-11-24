@@ -6869,6 +6869,28 @@ test('desktop: las órdenes de la tarea, llenas de su color: verde, rojo las que
   await ui.unmount()
 })
 
+// En la app, los botones más pequeños: la caja llena, sin relleno a los lados (el botón nativo trae el suyo), y entre
+// dos botones de una fila, el paso más pequeño de la superficie, no una celda; con sus nombres de siempre. En el
+// terminal, como estaba: sin caja y una columna entre botones (tarea 397).
+for (const surface of ['desktop', 'terminal'] as const)
+  test(`${surface}: botones de la cabecera y de la tarea sin relleno a los lados y más juntos en la app (397)`, async (...m) => {
+    await preparar(m, { desplegadas: true, cola: CERRABLES, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
+    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const grafica = surface === 'desktop'
+    const tarea = ['cerrar', 'explicar', 'descartar', 'paso'].map(k => `${k}-tarea:arriba:12`)
+    for (const key of ['turbo', 'release', ...tarea]) {
+      const llena = await cajaDe(ui, key)
+      if (grafica) expect(llena?.props).toMatchObject({ borderStyle: 'round', paddingX: 0 })
+      else expect(llena?.props.borderStyle).toBe(undefined)
+      const cajas = await conBoton(ui, key)
+      expect(cajas.some(x => x.props.marginRight === (grafica ? 'xs' : 1))).toBe(true)
+      expect(cajas.some(x => x.props.marginRight === (grafica ? 1 : 'xs'))).toBe(false)
+    }
+    for (const [key, label] of [['turbo', 'TURBO'], ['release', 'RELEASE'], ['cerrar-tarea:arriba:12', 'Cerrar'], ['explicar-tarea:arriba:12', '?'], ['paso-tarea:arriba:12', 'Paso +']] as const)
+      expect(((await ui.find({ type: 'Button', key })) as Nodo337 | undefined)?.props.label).toBe(label)
+    await ui.unmount()
+  })
+
 test('desktop: Bienvenida sin espacios de relleno, centrada por su caja, y la orden en una pastilla morada', async (...m) => {
   await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
   const ui = await m[0].ui.mount({ ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface: 'desktop' })

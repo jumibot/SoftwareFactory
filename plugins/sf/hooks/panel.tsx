@@ -475,6 +475,9 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // toman el ancho de su contenido, las filas de la cabecera se parten entre etiquetas y los títulos plegados se
     // cortan con puntos suspensivos. El terminal sigue como estaba.
     const grafica = e.surface !== 'terminal'
+    // La separación entre dos botones de una fila (la cabecera y las órdenes de una tarea): en el terminal, una columna;
+    // en una superficie gráfica, el paso más pequeño de la suya, no una celda entera (tarea 397).
+    const separa: 1 | 'xs' = grafica ? 'xs' : 1
     const enLinea = (t: string, ocupado: number) => recortar(t, Math.max(12, ancho - ocupado))
     // En una superficie gráfica, cada Button es un botón nativo que pinta solo su `label`: ni el color ni el fondo de sus
     // hijos (tarea 337). Allí, el botón va en una caja con contorno redondeado, en el color que en el terminal lleva su
@@ -483,6 +486,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Desde la tarea 367, la caja va llena, como la etiqueta de la versión: su fondo (y su contorno, del mismo color,
     // que la redondea) es `fondo` o, sin él, el relleno del color de su letra (rellenoBoton), un tono más oscuro que
     // ese color, legible con la letra clara del botón nativo; sin color, un gris apagado.
+    // Desde la tarea 397, sin relleno a los lados: el botón nativo ya trae el suyo, que es lo que se pulsa, y la columna
+    // de más a cada lado hacía que, con el panel estrecho, la cabecera y las órdenes de una tarea pasaran a dos filas.
     const enCaja = (boton: RenderChildren, color?: string, fondo?: string, contorno = true) => {
       if (!grafica) return boton
       const lleno = fondo ?? rellenoBoton(color)
@@ -492,7 +497,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           borderStyle={contorno ? 'round' : undefined}
           borderColor={contorno ? lleno : undefined}
           backgroundColor={lleno}
-          paddingX={1}
+          paddingX={0}
         >
           {boton}
         </Box>
@@ -631,7 +636,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // propietario el 2026-11-01).
     type Tarea = { id: number; texto: string; rama?: string | null }
     const etiquetaOrden = (key: string, color: string | undefined, nombre: string, pulsar: () => void) => (
-      <Box marginRight={1} flexShrink={0}>
+      <Box marginRight={separa} flexShrink={0}>
         {enCaja(
           <Button key={key} label={nombre} plain onPress={pulsar}>
             <Text color={color} weight="regular" backgroundColor={FONDO_ORDEN}>
@@ -700,7 +705,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         }
         return (
           <Box flexDirection="row" flexShrink={0}>
-            <Box marginRight={1} flexShrink={0}>
+            <Box marginRight={separa} flexShrink={0}>
               <Text dimColor>¿Revertir?</Text>
             </Box>
             {DESTINOS_REVERTIR.map(d => etiquetaOrden(`${clave}:${donde}:${p.id}:${d}`, color, TEXTO_DESTINO[d], revertirA(d)))}
@@ -1335,7 +1340,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // cian, en negrita: no se confunde con los fondos llenos de PRUEBA ni del nombre.
     const etiquetaTurbo =
       est.tipo !== 'sin-sf' ? (
-        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('TURBO'))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
+        <Box marginRight={separa} flexShrink={0} width={caja(anchoDe('TURBO'))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
           {enCaja(
             <Button key="turbo" label="TURBO" plain onPress={() => pedirTurbo($)}>
               <Text color={COLOR_TURBO} weight="bold" backgroundColor={FONDO_ETIQUETA}>
@@ -1386,7 +1391,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const elegida = aConfirmar?.startsWith('release:') && fuente ? aConfirmar.slice('release:'.length) : null
     const etiquetaRelease =
       est.tipo === 'sin-sf' ? null : elegida ? (
-        <Box marginRight={1} flexShrink={0} width={caja(anchoDe(`¿Publicar v${elegida}? sí`))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
+        <Box marginRight={separa} flexShrink={0} width={caja(anchoDe(`¿Publicar v${elegida}? sí`))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
           {enCaja(
             <Button key={`release-v:${elegida}`} label={`¿Publicar v${elegida}? sí`} plain onPress={elegirVersion(elegida)}>
               {textoRelease(`¿Publicar v${elegida}? sí`, anchoDe(`¿Publicar v${elegida}? sí`))}
@@ -1395,10 +1400,10 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           )}
         </Box>
       ) : aConfirmar === 'release' && fuente ? (
-        <Box flexDirection="row" marginRight={1} flexShrink={0}>
+        <Box flexDirection="row" marginRight={separa} flexShrink={0}>
           {fuente.actual === null && <Text dimColor>{'¿Primera versión? '}</Text>}
           {siguientesVersiones(fuente.actual).map(v => (
-            <Box marginRight={1} flexShrink={0}>
+            <Box marginRight={separa} flexShrink={0}>
               {enCaja(
                 <Button key={`release-v:${v}`} label={`v${v}`} plain onPress={elegirVersion(v)}>
                   {textoRelease(`v${v}`)}
@@ -1409,7 +1414,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           ))}
         </Box>
       ) : (
-        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('RELEASE'))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
+        <Box marginRight={separa} flexShrink={0} width={caja(anchoDe('RELEASE'))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
           {enCaja(
             <Button key="release" label="RELEASE" plain onPress={abrirRelease}>
               {textoRelease('RELEASE', anchoDe('RELEASE'))}
@@ -1448,7 +1453,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       : aConfirmar === boton ? `¿Actualizar a v${nueva?.version ?? ''}? sí` : 'ACTUALIZAR'
     const etiquetaActualizar =
       est.tipo === 'sin-sf' || !nueva ? null : (
-        <Box marginRight={1} flexShrink={0} width={caja(anchoDe(textoBoton))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
+        <Box marginRight={separa} flexShrink={0} width={caja(anchoDe(textoBoton))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
           {enCaja(
             <Button key={boton} label={textoBoton} plain onPress={pulsarActualizar}>
               <Text color={COLOR_ACTUALIZAR} weight="bold" backgroundColor={FONDO_ETIQUETA}>
@@ -1491,7 +1496,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const activo = await desdeCopia($)
     const etiquetaPrueba =
       est.tipo === 'sf' && (mp.disponible || activo) ? (
-        <Box marginRight={1} flexShrink={0} width={caja(anchoDe('PRUEBA'))} backgroundColor={fondoFuera(activo ? COLOR_PRUEBA : undefined)}>
+        <Box marginRight={separa} flexShrink={0} width={caja(anchoDe('PRUEBA'))} backgroundColor={fondoFuera(activo ? COLOR_PRUEBA : undefined)}>
           {enCaja(
           <Button
             key="modo-prueba"
