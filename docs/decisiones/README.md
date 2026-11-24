@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 347 | 2026-11-24 | [El modo oscuro de los documentos usa la paleta oscura del estilo en lugar de invertir la página](347-2026-11-24-el-modo-oscuro-de-los-documentos-usa-la-paleta-oscura-del-estilo-en-lugar-de-invertir-la-pagina.md) |
 | 346 | 2026-11-24 | [Todos los informes de las tareas de la SF se mudan a sf/informes/](346-2026-11-24-todos-los-informes-de-las-tareas-de-la-sf-se-mudan-a-sf-informes.md) |
 | 345 | 2026-11-24 | [Se mantiene la frase del prompt de sistema que marca el repositorio fuente de la SF](345-2026-11-24-se-mantiene-la-frase-del-prompt-de-sistema-que-marca-el-repositorio-fuente-de-la-sf.md) |
 | 344 | 2026-11-24 | [La SF muda sus documentos a sf/ justo antes de cerrar la tarea que la lleva como un proyecto más](344-2026-11-24-la-sf-muda-sus-documentos-a-sf-justo-antes-de-cerrar-la-tarea-que-la-lleva-como-un-proyecto-mas.md) |
