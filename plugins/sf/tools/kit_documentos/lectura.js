@@ -33,7 +33,11 @@
 
   // ── Modo claro / oscuro / sistema ──
   const sistema = matchMedia('(prefers-color-scheme: dark)');
-  function aplicarModo() { raiz.dataset.modo = pref.modo === 'sistema' ? (sistema.matches ? 'oscuro' : 'claro') : pref.modo; }
+  // El oscuro aplica la paleta oscura del estilo (decisión 347): data-theme="dark" en <html>, como los diagramas.
+  function aplicarModo() {
+    raiz.dataset.modo = pref.modo === 'sistema' ? (sistema.matches ? 'oscuro' : 'claro') : pref.modo;
+    if (raiz.dataset.modo === 'oscuro') raiz.dataset.theme = 'dark'; else delete raiz.dataset.theme;
+  }
   sistema.addEventListener('change', aplicarModo);
   aplicarModo();
 
@@ -355,6 +359,6 @@
     const bt = lec.q('.lc-tablas');
     if (bt) bt.addEventListener('click', () => { anchos = {}; escribir(CLAVE_T, anchos); tablas.forEach(t => ponerAnchos(t, null)); });
   }
-  alCopiar.push(c => { delete c.dataset.modo; });
+  alCopiar.push(c => { delete c.dataset.modo; delete c.dataset.theme; });
   seguir();
 })();

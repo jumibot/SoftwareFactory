@@ -251,8 +251,11 @@ def comprobar(ruta: Path, anchos, letra_min: float, modos=('claro',)):
                 pagina.on('pageerror', lambda e: errores_js.append(str(e)))
                 pagina.goto(ruta.resolve().as_uri())
                 if modo == 'oscuro':
+                    # Sin transiciones: en una figura oculta (la otra orientación) no avanzan y el color medido sería el
+                    # del claro.
+                    pagina.add_style_tag(content='*, *::before, *::after { transition: none !important; }')
                     pagina.evaluate("document.documentElement.setAttribute('data-theme', 'dark')")
-                    pagina.wait_for_timeout(400)  # que acaben las transiciones de color
+                    pagina.wait_for_timeout(400)
                 pagina.evaluate('document.fonts.ready')
                 medida = revisar(pagina.evaluate(MEDIR, [letra_min]), letra_min)
                 medida['ancho'], medida['modo'] = ancho, modo

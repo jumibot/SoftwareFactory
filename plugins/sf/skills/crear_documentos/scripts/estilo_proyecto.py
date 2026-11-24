@@ -1,7 +1,7 @@
 """El estilo del proyecto (docs/identidad/estilo.json) para el generador de documentos.
 
 Lo usa documento_a_html.py. El estilo es del proyecto y vale para todos sus documentos (decisiones 305, 316 y 317):
-nueve grupos de parámetros con sus valores resueltos, la referencia a los archivos del logo, una versión y un historial.
+diez grupos de parámetros con sus valores resueltos, la referencia a los archivos del logo, una versión y un historial.
 Cada parámetro que falta toma su valor por defecto, que es lo que el generador hacía antes de tenerlo: sin el parámetro,
 la salida no cambia. Un grupo, un parámetro o un valor desconocidos detienen el generador y enseñan los posibles.
 
@@ -17,8 +17,8 @@ from __future__ import annotations
 import colorsys, json, re, sys
 from pathlib import Path
 
-from tema_identidad import (ROLES_VALIDOS, TEMAS, TIPOGRAFIAS, cargar_tema, contraste, mezclar, normalizar_tema, ruta_tema,
-                            sobre)
+from tema_identidad import (ROLES_VALIDOS, TEMAS, TIPOGRAFIAS, cargar_tema, contraste, mezclar, normalizar_tema, oscuro_de,
+                            ruta_tema, sobre, tonos_serie_oscuro)
 
 HEX = re.compile(r"#[0-9a-fA-F]{6}")
 
@@ -101,7 +101,7 @@ def _diagramas():
     return selectores
 
 
-# Los nueve grupos: parámetro → validación. El valor por defecto de cada uno es lo que el generador hacía sin él.
+# Los diez grupos: parámetro → validación. El valor por defecto de cada uno es lo que el generador hacía sin él.
 CATALOGO = {
     "identidad": {"producto": _texto, "logo": _ruta_o_lista, "logo-oscuro": _texto, "enlace": _url},
     "colores": {**{rol: _hex for rol in sorted(ROLES_VALIDOS)}, "colores-oscuro": None, "serie": None,
@@ -115,7 +115,8 @@ CATALOGO = {
                   "marcador": _opciones("flecha", "circulo", "cuadrado", "ninguno"),
                   "plegado": _opciones("primera", "todas", "ninguna")},
     "pagina": {"ancho": _numero(980, 1400, entero=True), "esquinas": _numero(0, 16), "codigo": _opciones("bloque", "linea"),
-               "pie": _opciones("claro", "oscuro")},
+               "pie": _opciones("claro", "oscuro"), "filetes": _si_no},
+    "recuadros": {"filete": _si_no},
     "lectura": {"destino": _opciones("proyecto", "usuario"), "herramientas": _herramientas,
                 "menu": _opciones("botones", "secciones", "no")},
     "diagramas": None,  # se rellena al validar, con los selectores de la skill de diagramas
@@ -129,11 +130,12 @@ POR_DEFECTO = {
     "portada": {"forma": "la del .md o clara", "fondo": "oscuro", "linea": "si"},
     "secciones": {"cabecera": "numero-etiqueta", "etiqueta": "tinte", "opacidad": 1, "marcador": "flecha",
                   "plegado": "primera"},
-    "pagina": {"ancho": 1240, "esquinas": "las de cada pieza", "codigo": "bloque", "pie": "claro"},
+    "pagina": {"ancho": 1240, "esquinas": "las de cada pieza", "codigo": "bloque", "pie": "claro", "filetes": "si"},
+    "recuadros": {"filete": "si"},
     "lectura": {"menu": "botones"},
     "aparte": {"escenario": "derivado", "hud": "primario"},
 }
-CLAVES = {"version", "origen", "historial", *CATALOGO}
+CLAVES = {"version", "origen", "nombre", "historial", *CATALOGO}
 
 
 def _parar(ruta, texto):
@@ -146,11 +148,13 @@ def validar(estilo: dict, ruta) -> dict:
         _parar(ruta, "debe ser un objeto JSON.")
     raras = set(estilo) - CLAVES
     if raras:
-        _parar(ruta, f"grupos desconocidos: {', '.join(sorted(raras))}. Posibles: version, origen, historial, "
+        _parar(ruta, f"grupos desconocidos: {', '.join(sorted(raras))}. Posibles: version, origen, nombre, historial, "
                      + ", ".join(CATALOGO) + ".")
     version = estilo.get("version")
     if not isinstance(version, int) or isinstance(version, bool) or version < 1:
         _parar(ruta, "falta «version» (un entero desde 1; cada afinado la sube, decisión 322).")
+    if "nombre" in estilo and not _texto(estilo["nombre"]):
+        _parar(ruta, "«nombre» es el nombre del estilo, un texto («Áureo»).")
     historial = estilo.get("historial", [])
     if not isinstance(historial, list) or not all(isinstance(h, dict) for h in historial):
         _parar(ruta, "«historial» es una lista de {version, fecha, cambio, motivo}.")
@@ -302,38 +306,54 @@ def param(estilo: dict | None, grupo: str, clave: str, defecto=None):
 
 def comprobar_contraste(tema: dict, estilo: dict | None) -> tuple[list[str], list[str]]:
     """(textos por debajo de 4,5:1 —3:1 el grande—, bordes y líneas por debajo de 3:1) con los colores del tema y lo que
-    el estilo pide. Cada par es un uso real de la maqueta: color del texto, fondo, dónde se ve y si es grande."""
-    c = dict(tema["colores"], blanco="#ffffff")
+    el estilo pide, en claro y en oscuro (decisión 347). Cada par es un uso real de la maqueta: color del texto, fondo,
+    dónde se ve y si es grande. Lo del oscuro lo dice delante («en oscuro»)."""
+    errores, avisos = _contraste_modo(tema["colores"], tema, estilo, oscuro=False)
+    e2, a2 = _contraste_modo(tema["colores-oscuro"], tema, estilo, oscuro=True)
+    return errores + [f"en oscuro, {x}" for x in e2], avisos + [f"en oscuro, {x}" for x in a2]
+
+
+def _contraste_modo(colores: dict, tema: dict, estilo: dict | None, oscuro: bool) -> tuple[list[str], list[str]]:
+    c = dict(colores, blanco="#ffffff")
     pares = [  # (texto, fondo, dónde, grande)
         ("texto", "pagina", "texto sobre la página", False),
-        ("texto", "blanco", "texto de tarjetas y tablas", False),
+        ("texto", "superficie", "texto de tarjetas y tablas", False),
         ("texto-suave", "pagina", "texto secundario", False),
-        ("texto-suave", "blanco", "texto secundario en tarjetas y tablas", False),
+        ("texto-suave", "superficie", "texto secundario en tarjetas y tablas", False),
         ("primario-texto", "pagina", "enlaces y rótulos sobre la página", False),
-        ("primario-texto", "blanco", "enlaces y rótulos en la portada, tarjetas y menú", False),
+        ("primario-texto", "superficie", "enlaces y rótulos en la portada, tarjetas y menú", False),
         ("primario-texto", "fondo", "rótulos de los recuadros", False),
         ("sobre-primario", "primario", "texto de los botones y las marcas sobre el primario", False),
-        ("blanco", "oscuro", "texto de la portada oscura y de las cabeceras de tabla", False),
-        ("tenue", "oscuro", "marca de la portada oscura y rótulos de los recuadros de decisión", False),
+        ("primario-linea", "pagina", "líneas y bordes de los diagramas en el color del proyecto", True),
+        ("primario-linea", "superficie", "líneas y bordes de los diagramas sobre las tarjetas", True),
+        ("sobre-cabecera", "cabecera", "texto de la portada destacada con el color del proyecto", False),
+        ("blanco", "oscuro", "texto de la portada oscura, de las cabeceras de tabla y de los botones al pasar", False),
+        ("primario" if oscuro else "tenue", "oscuro",
+         "marca de la portada oscura y rótulos de los recuadros de decisión", False),
         ("acento", "acento-fondo", "rótulo de los recuadros de aviso", False),
-        ("acento", "blanco", "pregunta abierta", False),
-        ("oscuro", "fondo-medio", "insignias y decisiones", False),
+        ("acento", "superficie", "pregunta abierta", False),
+        ("tinta-oscura", "fondo-medio", "insignias y decisiones", False),
+        ("tinta-oscura", "superficie", "botones y rótulos de las herramientas", False),
     ]
     if param(estilo, "secciones", "etiqueta") == "solida":
         op = float(param(estilo, "secciones", "opacidad", 1))
         tras = mezclar(c["pagina"], c["primario"], op)
         c["cabecera-solida"] = tras
-        rotulo = "sobre-primario" if op >= .75 else "oscuro"
+        rotulo = "sobre-primario" if op >= .75 else "tinta-oscura"
         pares.append((rotulo, "cabecera-solida", "número y etiqueta de la cabecera de sección sólida", False))
         pares.append((rotulo, "cabecera-solida", "título de la cabecera de sección sólida", True))
     for i, s in enumerate(tema.get("serie", []), 1):
-        c[f"serie-{i}"] = s
-        c[f"sobre-serie-{i}"] = sobre(s, c["texto"])
+        tonos = tonos_serie_oscuro(s, colores) if oscuro else {"primario": s, "sobre-primario": sobre(s, c["texto"])}
+        c[f"serie-{i}"] = tonos["primario"]
+        c[f"sobre-serie-{i}"] = tonos["sobre-primario"]
         pares.append((f"serie-{i}", "pagina", f"rótulos de las secciones en el color {i} de la serie", False))
         pares.append((f"sobre-serie-{i}", f"serie-{i}", f"texto sobre el color {i} de la serie", False))
     for nombre, valor in significado(estilo).items():
         c[f"significado-{nombre}"] = valor
         pares.append(("blanco", f"significado-{nombre}", f"cabecera de las tarjetas «{nombre}»", False))
+        if oscuro:
+            c[f"texto-{nombre}"] = oscuro_de(valor, colores)
+            pares.append((f"texto-{nombre}", "superficie", f"campos de las tarjetas «{nombre}»", False))
     errores = []
     for texto, fondo, donde, grande in pares:
         minimo = 3 if grande else 4.5
@@ -342,8 +362,9 @@ def comprobar_contraste(tema: dict, estilo: dict | None) -> tuple[list[str], lis
             errores.append(f"{donde}: {_nombre(texto)} {c[texto]} sobre {_nombre(fondo)} {c[fondo]} da {r:.2f}:1 "
                            f"(mínimo {minimo:g}:1)")
     avisos = []
-    for linea, fondo, donde in (("borde", "pagina", "bordes de las cajas y los campos"),
-                                ("borde", "blanco", "bordes de los campos sobre blanco"),
+    # Los campos, a 3:1; las cajas, fuera del aviso: su borde es suave a propósito (decisión 335, 9).
+    for linea, fondo, donde in (("borde-campo", "pagina", "bordes de los campos"),
+                                ("borde-campo", "superficie", "bordes de los campos sobre las tarjetas"),
                                 ("texto-tenue", "pagina", "líneas y zonas de los diagramas")):
         r = contraste(c[linea], c[fondo])
         if r < 3 - 1e-9:
@@ -379,16 +400,22 @@ def css_parametros(estilo: dict | None) -> str:
                    " .portada.compacta .subtitulo { font-size: 1rem; margin-bottom: .7rem; }"
                    " .portada.compacta .idea p { font-size: .95rem; }")
     if portada.get("fondo") == "primario":
-        css.append(".portada.oscura { background: var(--primario); color: var(--sobre-primario); }"
-                   " .portada.oscura .marca, .portada.oscura .subtitulo, .portada.oscura .idea p,"
-                   " .portada.oscura a { color: var(--sobre-primario); }")
+        # El color de cabecera del estilo, un tono del primario menos brillante, y su texto (decisión 351)
+        css.append(".portada.oscura { background: var(--cabecera); color: var(--sobre-cabecera); }"
+                   " .portada.oscura .marca, .portada.oscura .subtitulo, .portada.oscura .idea p, .portada.oscura a,"
+                   " .portada.oscura .datos-version, .portada.oscura .datos-version span, .portada.oscura .cifras strong,"
+                   " .portada.oscura .cifras span { color: var(--sobre-cabecera); }")
+        css.append("@media print { .portada.oscura, .portada.oscura :is(.marca, .subtitulo, .idea p, a, .datos-version,"
+                   " .datos-version span, .cifras strong, .cifras span) { color: var(--texto); } }")
     secc = estilo.get("secciones", {})
     etiqueta = secc.get("etiqueta", "tinte")
     if etiqueta == "solida":
         op = float(secc.get("opacidad", 1))
         fondo = "var(--primario)" if op >= 1 else f"rgba(var(--primario-rgb), {op:g})"
-        rotulo = "var(--sobre-primario)" if op >= .75 else "var(--oscuro)"
+        rotulo = "var(--sobre-primario)" if op >= .75 else "var(--tinta-oscura)"
+        # Con un hueco debajo: sin él, la entradilla queda pegada a la banda (informe de estilo, SF-2)
         css.append(f".seccion-titulo {{ background: {fondo}; padding: .8rem 1rem; }}"
+                   " .seccion[open] > .seccion-titulo { margin-bottom: 1.1rem; }"
                    f" .seccion-titulo .etiqueta, .seccion-titulo h2, .seccion-titulo:hover h2,"
                    f" .seccion-titulo .seccion-numero {{ color: {rotulo}; }}"
                    f" .seccion-titulo::after {{ border-color: {rotulo}; }}")
@@ -417,6 +444,10 @@ def css_parametros(estilo: dict | None) -> str:
     if pagina.get("codigo") == "linea":  # «bloque», el de por defecto, está en estilo_documento.css
         css.append("pre { background: none; border-left: 0; border-radius: 0; border-top: 1px solid var(--borde);"
                    " border-bottom: 1px solid var(--borde); padding: .8rem 0; }")
+    if pagina.get("filetes") in ("no", False):  # sin los filetes que separan la portada clara, el menú y el pie
+        css.append(".portada, .menu { border-bottom: 0; } .pie { border-top: 0; }")
+    if estilo.get("recuadros", {}).get("filete") in ("no", False):  # recuadros sin la barra izquierda
+        css.append(".recuadro:not(.decision) { border-left: 0; border-radius: var(--esquinas, 8px); }")
     if pagina.get("pie") == "oscuro":
         css.append(".pie { background: var(--oscuro); color: rgba(255,255,255,.86); border: 0; padding: 1.2rem 1.4rem 2rem;"
                    " border-radius: var(--esquinas, 6px) var(--esquinas, 6px) 0 0; } .pie a { color: #fff; }"

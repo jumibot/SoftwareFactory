@@ -1,0 +1,13 @@
+{
+  "muestra": "E",
+  "nombre": "Sobrio",
+  "caracter": "Verde azulado, Assistant",
+  "origen": "teal",
+  "cambios": [
+    "portada.forma=oscura",
+    "portada.fondo=primario",
+    "secciones.cabecera=titulo",
+    "secciones.marcador=ninguno",
+    "pagina.esquinas=6"
+  ]
+}

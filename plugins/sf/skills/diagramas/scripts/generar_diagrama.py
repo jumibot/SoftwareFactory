@@ -1355,6 +1355,12 @@ def figura(m, tema=''):
 def css_tema(nombre):
     ruta = Path(nombre) if nombre.endswith('.json') else TEMAS / f'{nombre}.json'
     tema = json.loads(ruta.read_text(encoding='utf-8'))
+    comun = SKILL.parent / 'crear_documentos' / 'scripts'
+    if (comun / 'tema_identidad.py').is_file():  # los roles completos, con la paleta oscura derivada si falta (348)
+        sys.path.insert(0, str(comun))
+        from tema_identidad import normalizar_tema
+        completo = normalizar_tema(json.loads(json.dumps(tema)), ruta.name)
+        tema['colores'], tema['colores-oscuro'] = completo['colores'], completo['colores-oscuro']
     claro = ' '.join(f'--{k}:{v};' for k, v in tema['colores'].items())
     oscuro = ' '.join(f'--{k}:{v};' for k, v in tema.get('colores-oscuro', {}).items())
     b_claro = ' '.join(f'--b-{k}:{v[0]};' for k, v in BOTONES.items())

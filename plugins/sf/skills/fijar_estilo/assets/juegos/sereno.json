@@ -1,0 +1,10 @@
+{
+  "muestra": "A",
+  "nombre": "Sereno",
+  "caracter": "Morado con acento ámbar, Space Grotesk",
+  "origen": "morado",
+  "cambios": [
+    "secciones.marcador=circulo",
+    "pagina.esquinas=10"
+  ]
+}

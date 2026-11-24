@@ -1,0 +1,13 @@
+{
+  "muestra": "B",
+  "nombre": "Desenfadado",
+  "caracter": "Un color por sección, Outfit",
+  "origen": "colorido",
+  "cambios": [
+    "secciones.cabecera=numero-titulo",
+    "secciones.etiqueta=solida",
+    "secciones.opacidad=0.4",
+    "secciones.marcador=ninguno",
+    "pagina.esquinas=16"
+  ]
+}

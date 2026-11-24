@@ -1,5 +1,5 @@
 """Pruebas del estilo del proyecto en el generador único (docs/identidad/estilo.json, decisiones 316 a 323):
-lectura y validación de los nueve grupos, «sin cambios con el valor por defecto», logo, aviso del aspecto en la cabecera
+lectura y validación de los diez grupos, «sin cambios con el valor por defecto», logo, aviso del aspecto en la cabecera
 y conversor, roles del primario claro, contraste, forma de la cabecera de sección, versión en el pie, tema por defecto
 sin estilo y enlace legible en la portada oscura.
 
@@ -105,8 +105,7 @@ class SinEstilo(Base):
 
     def test_contraste_del_tema_no_bloquea(self):
         self.generar()
-        self.assertIn('Contraste del tema', self.stderr)
-        self.assertIn('«borde»', self.stderr)
+        self.assertNotIn('«borde»', self.stderr)  # el borde de las cajas no avisa (335, 9)
 
     def test_portada_del_md_vale_y_avisa(self):
         h = self.generar('portada: oscura\n')
@@ -191,8 +190,9 @@ class Parametros(Base):
                  ({'letra': {'escala': 'compacta'}}, '.seccion h2 { font-size: 1.05rem'),
                  ({'letra': {'codigo': "'JetBrains Mono', monospace"}}, "code, pre, kbd, .formula { font-family: 'JetBrains Mono'"),
                  ({'portada': {'forma': 'compacta'}}, '.portada.compacta'),
-                 ({'portada': {'forma': 'oscura', 'fondo': 'primario'}}, '.portada.oscura { background: var(--primario)'),
+                 ({'portada': {'forma': 'oscura', 'fondo': 'primario'}}, '.portada.oscura { background: var(--cabecera); color: var(--sobre-cabecera)'),
                  ({'secciones': {'etiqueta': 'solida', 'opacidad': 0.4}}, 'rgba(var(--primario-rgb), 0.4)'),
+                 ({'secciones': {'etiqueta': 'solida'}}, '.seccion[open] > .seccion-titulo { margin-bottom: 1.1rem; }'),
                  ({'secciones': {'etiqueta': 'linea'}}, 'border-left: 4px solid var(--primario)'),
                  ({'secciones': {'etiqueta': 'ninguna'}}, 'color: var(--texto-suave)'),
                  ({'secciones': {'marcador': 'circulo'}}, 'border-radius: 50%'),
@@ -200,10 +200,17 @@ class Parametros(Base):
                  ({'pagina': {'ancho': 1100}}, 'min(1100px, 100% - 32px)'),
                  ({'pagina': {'esquinas': 0}}, '--esquinas: 0px'),
                  ({'pagina': {'codigo': 'linea'}}, 'border-top: 1px solid var(--borde)'),
-                 ({'pagina': {'pie': 'oscuro'}}, '.pie { background: var(--oscuro)')]
+                 ({'pagina': {'pie': 'oscuro'}}, '.pie { background: var(--oscuro)'),
+                 ({'pagina': {'filetes': 'no'}}, '.portada, .menu { border-bottom: 0; } .pie { border-top: 0; }'),
+                 ({'recuadros': {'filete': 'no'}}, '.recuadro:not(.decision) { border-left: 0;')]
         for grupos, esperado in casos:
             with self.subTest(grupos=grupos):
                 self.assertIn(esperado, self.css(**grupos))
+
+    def test_filetes_por_defecto_no_cambian_nada(self):
+        self.assertEqual(self.css(pagina={'filetes': 'si'}, recuadros={'filete': 'si'}), '')
+        self.escribir_estilo(estilo_morado(recuadros={'filete': 'tal vez'}))
+        self.assertIn('«recuadros.filete: "tal vez"» no vale. Posibles: si | no.', self.generar(ok=False))
 
     def test_portada_del_estilo_manda_sobre_el_md(self):
         self.escribir_estilo(estilo_morado(portada={'forma': 'oscura'}))
@@ -315,7 +322,10 @@ class Colores(Base):
     def test_bordes_solo_avisan(self):
         self.escribir_estilo(estilo_morado())
         self.generar()
-        self.assertIn('bordes y líneas con poco contraste', self.stderr)
+        self.assertNotIn('bordes y líneas con poco contraste', self.stderr)  # campos derivados a 3:1, cajas fuera
+        self.escribir_estilo(estilo_morado(colores={'primario': '#7b2cbf', 'borde-campo': '#eeeeee'}))
+        self.generar()
+        self.assertIn('bordes de los campos: «borde-campo» #eeeeee', self.stderr)
 
 
 class Logo(Base):
@@ -326,6 +336,26 @@ class Logo(Base):
         h = self.generar()
         self.assertIn('<img src="data:image/svg+xml;base64,', h)
         self.assertIn('width="160" height="40">', h)
+
+    def test_en_la_cabecera_destacada_el_logo_va_con_su_texto(self):
+        """Con portada destacada (fondo primario) y una cabecera de texto oscuro en claro y claro en oscuro, el logo
+        claro va en el modo claro y el oscuro en el oscuro (351)."""
+        (self.ident / 'logo.svg').write_text('<svg viewBox="0 0 40 40"><rect fill="#111111"/></svg>', encoding='utf-8')
+        (self.ident / 'logo-oscuro.svg').write_text('<svg viewBox="0 0 40 40"><rect fill="#eeeeee"/></svg>',
+                                                    encoding='utf-8')
+        sys.path.insert(0, str(SKILLS / 'fijar_estilo' / 'scripts'))
+        import estilo as herramienta
+        estilo = herramienta.aplicar_cambios(herramienta.resolver_tema('tinta', self.ident), [
+            'colores.primario=#f5c400', 'colores.sobre-primario=#1a1a1a', 'portada.forma=oscura',
+            'portada.fondo=primario', 'identidad.logo=["logo.svg"]', 'identidad.logo-oscuro=logo-oscuro.svg'])
+        self.escribir_estilo(estilo)
+        h = self.generar()
+        marca = re.search(r'<p class="marca">(.*?)</p>', h, re.S).group(1)
+        imgs = re.findall(r'<img class="(logo-claro|logo-oscuro)" src="data:image/svg\+xml;base64,([^"]+)"', marca)
+        import base64
+        contenido = {clase: base64.b64decode(datos).decode() for clase, datos in imgs}
+        self.assertIn('#111111', contenido['logo-claro'])  # cabecera clara (texto oscuro): el logo de letras oscuras
+        self.assertIn('#eeeeee', contenido['logo-oscuro'])  # en oscuro, la cabecera es oscura: el logo claro
 
     def test_logo_que_falta_se_detiene(self):
         self.escribir_estilo(estilo_morado(identidad={'logo': 'no-esta.svg'}))
@@ -347,6 +377,361 @@ class Arreglos(Base):
         h = self.generar()
         self.assertIn('<pre><code class="language-json">{<span class="sx-p">"clave"</span>', h)
         self.assertIn('pre { background: var(--fondo-suave); border-left: 3px solid var(--primario);', h)
+
+
+TEMAS_DEL_CATALOGO = ('colorido', 'morado', 'pool', 'rojo', 'teal', 'tinta')
+
+
+def abrir_navegador(pw):
+    for canal in (None, 'chrome', 'msedge'):
+        try:
+            return pw.chromium.launch(channel=canal) if canal else pw.chromium.launch()
+        except Exception:  # noqa: BLE001 — se prueba el siguiente
+            continue
+    return None
+
+
+def navegador_disponible() -> bool:
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as pw:
+            nav = abrir_navegador(pw)
+            if nav:
+                nav.close()
+                return True
+    except BaseException:  # noqa: BLE001 — sin Playwright, se salta
+        pass
+    return False
+
+
+class ModoOscuro(Base):
+    """El modo oscuro de «Lectura» aplica la paleta oscura del estilo (decisiones 347 a 350)."""
+
+    def setUp(self):
+        super().setUp()
+        sys.path.insert(0, str(SCRIPTS))
+        import estilo_proyecto
+        import tema_identidad
+        self.ep, self.ti = estilo_proyecto, tema_identidad
+
+    def test_los_seis_temas_tienen_paleta_oscura_completa_y_legible(self):
+        for nombre in TEMAS_DEL_CATALOGO:
+            with self.subTest(nombre):
+                tema = self.ti.cargar_tema(nombre)
+                o = tema['colores-oscuro']
+                self.assertEqual(set(o), self.ti.ROLES_VALIDOS)
+                self.assertLess(self.ti.luminancia(o['pagina']), .05)
+                self.assertGreater(self.ti.luminancia(o['tinta-oscura']), .3)  # la tinta fuerte, clara (349)
+                self.assertGreaterEqual(self.ti.contraste('#ffffff', o['oscuro']), 4.5)  # la superficie, oscura
+                errores, _ = self.ep.comprobar_contraste(tema, None)
+                self.assertEqual([e for e in errores if e.startswith('en oscuro')], [])
+
+    def test_los_temas_que_pasan_en_claro_siguen_pasando(self):
+        for nombre in ('colorido', 'morado', 'rojo', 'teal', 'tinta'):
+            with self.subTest(nombre):
+                self.assertEqual(self.ep.comprobar_contraste(self.ti.cargar_tema(nombre), None)[0], [])
+
+    def test_una_paleta_oscura_dada_se_respeta_y_se_completa(self):
+        tema = self.ti.normalizar_tema({'colores': {'primario': '#7b2cbf'},
+                                        'colores-oscuro': {'primario': '#c9a3ff', 'pagina': '#101010'}}, 'prueba')
+        o = tema['colores-oscuro']
+        self.assertEqual((o['primario'], o['pagina']), ('#c9a3ff', '#101010'))
+        self.assertEqual(o['sobre-primario'], '#101010')  # la tinta de la página, más contraste que el blanco
+
+    def test_paleta_oscura_antigua_con_oscuro_claro_pasa_a_tinta(self):
+        o = self.ti.derivar_oscuro(self.ti.cargar_tema('morado')['colores'], {'oscuro': '#f2f2f0'})
+        self.assertEqual(o['tinta-oscura'], '#f2f2f0')
+        self.assertLess(self.ti.luminancia(o['oscuro']), .1)
+
+    def test_el_contraste_en_oscuro_detiene_el_generador(self):
+        e = estilo_morado()
+        e['colores']['colores-oscuro'] = {'primario': '#3a1d5c'}  # un primario oscuro sobre la página oscura
+        self.escribir_estilo(e)
+        salida = self.generar(ok=False)
+        self.assertIn('en oscuro, enlaces y rótulos sobre la página', salida)
+
+    def test_el_documento_no_invierte_y_lleva_la_paleta_oscura(self):
+        self.escribir_estilo(estilo_morado())
+        h = self.generar()
+        self.assertNotIn('invert(', h)
+        self.assertIn('@media screen {', h)
+        self.assertRegex(h, r':root\[data-theme="dark"\] \{ --primario: #[0-9a-f]{6};[^}]*--sobre-primario: #')
+        self.assertIn('--tinta-oscura: #4c1d80;', h)
+        self.assertIn('--superficie: #ffffff;', h)
+        self.assertIn('--sx-cadena:', h)
+
+    def test_tarjetas_con_color_llevan_su_tono_oscuro(self):
+        self.escribir_estilo(estilo_morado())
+        md = MD.format(extra='') + ('\n::: tarjetas 2\n#### Bien {color=correcto}\n\nCampo\n:   valor\n\n'
+                                    '#### Mal {color=error}\n\nTexto.\n:::\n')
+        self.assertIn('--c-oscuro-o:', self.generar(md=md))
+
+    def test_logo_de_la_portada_clara_cambia_en_oscuro(self):
+        (self.ident / 'logo.svg').write_text('<svg viewBox="0 0 40 40"></svg>', encoding='utf-8')
+        self.escribir_estilo(estilo_morado(identidad={'logo': 'logo.svg', 'logo-oscuro': 'placa'}))
+        h = self.generar()
+        self.assertIn('<img class="logo-claro" src=', h)
+        self.assertIn('<img class="placa logo-oscuro" src=', h)
+
+    @unittest.skipUnless(navegador_disponible(), 'sin Playwright o sin navegador')
+    def test_en_el_navegador_el_boton_toma_el_primario_oscuro(self):
+        """Con un primario amarillo y texto oscuro, en oscuro el botón es el amarillo con texto legible."""
+        from playwright.sync_api import sync_playwright
+        sys.path.insert(0, str(SKILLS / 'fijar_estilo' / 'scripts'))
+        import estilo as herramienta
+        estilo = herramienta.resolver_tema('tinta', self.ident)
+        estilo = herramienta.aplicar_cambios(estilo, ['colores.primario=#f5c400', 'colores.sobre-primario=#1a1a1a'])
+        self.escribir_estilo(estilo)
+        self.generar()
+        html = self.md.with_suffix('.html')
+        o = estilo['colores']['colores-oscuro']
+        rgb = lambda x: 'rgb(' + ', '.join(str(int(x[i:i + 2], 16)) for i in (1, 3, 5)) + ')'
+        with sync_playwright() as pw:
+            nav = abrir_navegador(pw)
+            try:
+                p = nav.new_page()
+                p.goto(html.resolve().as_uri())
+                p.evaluate("document.documentElement.dataset.modo = 'oscuro'; "
+                           "document.documentElement.dataset.theme = 'dark'")
+                p.wait_for_timeout(300)
+                medido = p.evaluate("""() => { const b = getComputedStyle(document.querySelector('.imprimir'));
+                    return {filtro: getComputedStyle(document.documentElement).filter,
+                            pagina: getComputedStyle(document.body).backgroundColor,
+                            boton: b.backgroundColor, texto: b.color}; }""")
+            finally:
+                nav.close()
+        self.assertEqual(medido['filtro'], 'none')
+        self.assertEqual(medido['pagina'], rgb(o['pagina']))
+        self.assertEqual(medido['boton'], rgb(o['primario']))
+        self.assertEqual(medido['texto'], rgb(o['sobre-primario']))
+        self.assertEqual(o['primario'], '#f5c400')
+        self.assertGreaterEqual(self.ti.contraste(o['primario'], o['sobre-primario']), 4.5)
+
+
+class ColorDeCabecera(Base):
+    """La portada destacada usa «cabecera», un tono del primario menos brillante, en claro y en oscuro (351)."""
+
+    def setUp(self):
+        super().setUp()
+        sys.path.insert(0, str(SCRIPTS))
+        import tema_identidad
+        self.ti = tema_identidad
+
+    def test_los_seis_temas_la_derivan_menos_brillante_y_legible(self):
+        for nombre in TEMAS_DEL_CATALOGO:
+            for modo in ('colores', 'colores-oscuro'):
+                with self.subTest(nombre, modo=modo):
+                    tema = self.ti.cargar_tema(nombre)
+                    c = tema['colores'] if modo == 'colores' else tema['colores-oscuro']
+                    self.assertGreaterEqual(self.ti.contraste(c['sobre-cabecera'], c['cabecera']), 4.5)
+                    if modo == 'colores':
+                        self.assertLessEqual(self.ti.luminancia(c['cabecera']), self.ti.LUMINANCIA_CABECERA)
+                    else:  # profunda: más oscura que el primario oscuro, sin deslumbrar sobre la página
+                        self.assertLess(self.ti.luminancia(c['cabecera']), self.ti.luminancia(c['primario']))
+
+    def test_un_amarillo_da_una_cabecera_apagada(self):
+        tema = self.ti.normalizar_tema({'colores': {'primario': '#f5c400', 'texto': '#25283a'}}, 'amarillo')
+        self.assertLessEqual(self.ti.luminancia(tema['colores']['cabecera']), .3)
+        self.assertLess(self.ti.luminancia(tema['colores-oscuro']['cabecera']), .15)
+
+    def test_la_portada_con_fondo_primario_la_usa(self):
+        self.escribir_estilo(estilo_morado(portada={'forma': 'oscura', 'fondo': 'primario'}))
+        h = self.generar()
+        self.assertIn('.portada.oscura { background: var(--cabecera); color: var(--sobre-cabecera)', h)
+        self.assertRegex(h, r'--cabecera: #[0-9a-f]{6}')
+
+    def test_su_texto_sin_contraste_detiene_el_generador(self):
+        self.escribir_estilo(estilo_morado(colores={'primario': '#7b2cbf', 'cabecera': '#7b2cbf',
+                                                    'sobre-cabecera': '#8a3cd0'}))
+        self.assertIn('texto de la portada destacada con el color del proyecto', self.generar(ok=False))
+
+
+class ContrasteDeLosTemas(Base):
+    """Ningún tema del catálogo detiene el generador por contraste, ni en claro ni en oscuro (392)."""
+
+    def test_todos_pasan_en_claro_y_en_oscuro(self):
+        sys.path.insert(0, str(SCRIPTS))
+        import estilo_proyecto as ep
+        import tema_identidad as ti
+        for nombre in sorted(p.stem for p in TEMAS.glob('*.json')):
+            with self.subTest(nombre):
+                errores, _ = ep.comprobar_contraste(ti.cargar_tema(nombre), None)
+                self.assertEqual(errores, [])
+
+
+class ListasDeMuchasCifras(Base):
+    """Una lista numerada reserva el ancho de su número más largo, sin límite de cifras (425)."""
+
+    def lista(self, n: int) -> str:
+        items = "\n".join(f"{i}. Elemento {i} con un texto que ocupa la línea." for i in range(1, n + 1))
+        return MD.format(extra='').replace('Entrada con un', items + '\n\nEntrada con un', 1)
+
+    def test_el_generador_pone_las_cifras_del_numero_mas_largo(self):
+        self.assertNotIn('style="--cifras', self.generar(md=self.lista(99)))  # dos cifras: la regla por defecto
+        self.assertIn('<ol style="--cifras: 3">', self.generar(md=self.lista(100)))
+        self.assertIn('<ol style="--cifras: 4">', self.generar(md=self.lista(1000)))
+        self.assertIn('<ol style="--cifras: 5">', self.generar(md=self.lista(10000)))
+
+    @unittest.skipUnless(navegador_disponible(), 'sin Playwright o sin navegador')
+    def test_en_el_navegador_el_numero_no_se_monta_en_el_texto(self):
+        from playwright.sync_api import sync_playwright
+        for n in (1000, 10000):
+            self.generar(md=self.lista(n))
+            html = self.md.with_suffix('.html').resolve().as_uri()
+            with sync_playwright() as pw:
+                nav = abrir_navegador(pw)
+                try:
+                    for ancho in (1280, 375):
+                        with self.subTest(n=n, ancho=ancho):
+                            p = nav.new_page(viewport={'width': ancho, 'height': 800})
+                            p.goto(html)
+                            m = p.evaluate("""() => { const li = document.querySelector('.seccion ol > li:last-child');
+                                const antes = getComputedStyle(li, '::before');
+                                return {numero: parseFloat(antes.width), sangria: parseFloat(getComputedStyle(li).paddingLeft),
+                                        alto: parseFloat(antes.height), linea: parseFloat(antes.lineHeight)}; }""")
+                            p.close()
+                            self.assertLess(m['numero'], m['sangria'])  # el número cabe en la sangría
+                            self.assertLess(m['alto'], m['linea'] * 1.5)  # en una sola línea, sin apilar
+                finally:
+                    nav.close()
+
+
+class PrimarioLinea(Base):
+    """Las líneas y bordes de los diagramas en el color del proyecto llegan a 3:1 con un primario claro (335, 8)."""
+
+    def test_un_amarillo_da_lineas_de_3_a_1_en_claro_y_en_oscuro(self):
+        sys.path.insert(0, str(SCRIPTS))
+        import tema_identidad as ti
+        tema = ti.normalizar_tema({'colores': {'primario': '#f5c400', 'texto': '#25283a'}}, 'amarillo')
+        for modo in ('colores', 'colores-oscuro'):
+            c = tema[modo]
+            for fondo in ('pagina', 'superficie'):
+                with self.subTest(modo=modo, fondo=fondo):
+                    self.assertGreaterEqual(ti.contraste(c['primario-linea'], c[fondo]), 3)
+        self.assertNotEqual(tema['colores']['primario-linea'], '#f5c400')  # el amarillo tal cual no llega
+
+    def test_los_diagramas_usan_el_rol(self):
+        css = (SKILLS / 'diagramas' / 'assets' / 'diagramas.css').read_text(encoding='utf-8')
+        self.assertNotRegex(css, r'(?<!, )var\(--primario, #00726b\)')  # siempre dentro de primario-linea o -texto
+        self.assertIn('.d-gen .d-fl.d-principal { stroke: var(--primario-linea, var(--primario, #00726b)); }', css)
+
+
+class MarcaElegida(Base):
+    """La marca «Elegida» de una pregunta decidida se lee con un primario claro, en claro y en oscuro (427)."""
+
+    @unittest.skipUnless(navegador_disponible(), 'sin Playwright o sin navegador')
+    def test_con_el_amarillo_se_lee_en_claro_y_en_oscuro(self):
+        from playwright.sync_api import sync_playwright
+        sys.path.insert(0, str(SKILLS / 'fijar_estilo' / 'scripts'))
+        sys.path.insert(0, str(SCRIPTS))
+        import estilo as herramienta
+        import tema_identidad as ti
+        estilo = herramienta.aplicar_cambios(herramienta.resolver_tema('tinta', self.ident),
+                                             ['colores.primario=#f5c400', 'colores.sobre-primario=#1a1a1a'])
+        self.escribir_estilo(estilo)
+        md = MD.format(extra='').replace('Entrada con un', """::: preguntas 1
+
+### ¿Cuál? {recomendada=A estado=decidida elegida=B}
+
+Opción A
+:   Una.
+
+Opción B
+:   Otra.
+
+Recomendación
+:   La A.
+
+Decisión
+:   La B.
+
+:::
+
+Entrada con un""", 1)
+        self.generar(md=md)
+        html = self.md.with_suffix('.html').resolve().as_uri()
+        hexa = lambda rgb: '#' + ''.join(f'{int(x):02x}' for x in rgb[rgb.index('(') + 1:rgb.index(')')].split(',')[:3])
+        with sync_playwright() as pw:
+            nav = abrir_navegador(pw)
+            try:
+                for modo in ('claro', 'oscuro'):
+                    p = nav.new_page()
+                    p.goto(html)
+                    if modo == 'oscuro':
+                        p.evaluate("document.documentElement.dataset.modo = 'oscuro'; "
+                                   "document.documentElement.dataset.theme = 'dark'")
+                    m = p.evaluate("""() => { const e = getComputedStyle(document.querySelector('.marca-opcion.elegida'));
+                        return [e.color, e.backgroundColor]; }""")
+                    p.close()
+                    with self.subTest(modo):
+                        self.assertGreaterEqual(ti.contraste(hexa(m[0]), hexa(m[1])), 4.5)
+            finally:
+                nav.close()
+
+
+class TarjetasPlegables(Base):
+    """Las tarjetas con cabecera de color se pliegan con un clic o con el teclado y se imprimen abiertas (427)."""
+
+    @unittest.skipUnless(navegador_disponible(), 'sin Playwright o sin navegador')
+    def test_clic_teclado_e_impresion(self):
+        from playwright.sync_api import sync_playwright
+        md = MD.format(extra='').replace('Entrada con un', """::: tarjetas 2 plegables
+
+### Qué es {color=turquesa icono=documento}
+
+Para quién
+:   El equipo.
+
+### Estado {color=naranja icono=check}
+
+Fecha
+:   Hoy.
+
+:::
+
+Entrada con un""", 1)
+        self.generar(md=md)
+        html = self.md.with_suffix('.html').resolve().as_uri()
+        abierta = "document.querySelector('details.tarjeta.con-color').open"
+        with sync_playwright() as pw:
+            nav = abrir_navegador(pw)
+            try:
+                p = nav.new_page(viewport={'width': 1280, 'height': 900})
+                p.goto(html)
+                self.assertTrue(p.evaluate(abierta))  # abiertas en pantalla ancha
+                p.click('details.tarjeta.con-color > summary')
+                self.assertFalse(p.evaluate(abierta))  # la cabecera la pliega
+                p.focus('details.tarjeta.con-color > summary')
+                p.keyboard.press('Enter')
+                self.assertTrue(p.evaluate(abierta))  # y el teclado la abre
+                p.click('details.tarjeta.con-color > summary')
+                p.evaluate("window.dispatchEvent(new Event('beforeprint'))")
+                self.assertTrue(p.evaluate(abierta))  # al imprimir, abierta
+                p.close()
+            finally:
+                nav.close()
+
+
+class SerieEnOscuro(Base):
+    """En oscuro, cada bloque de la serie redefine también los neutros: tinta, superficies de tabla y líneas (392)."""
+
+    def test_los_bloques_no_se_quedan_con_los_neutros_claros(self):
+        sys.path.insert(0, str(SCRIPTS))
+        import tema_identidad as ti
+        tema = ti.cargar_tema('colorido')
+        o = tema['colores-oscuro']
+        css = ti.variables_css(tema)
+        regla = re.search(r':root\[data-theme="dark"\] \.bloque-1 \{([^}]*)\}', css).group(1)
+        for rol in ('tinta-oscura', 'oscuro', 'fondo-suave', 'fondo-medio', 'linea'):
+            with self.subTest(rol):
+                self.assertIn(f'--{rol}: {o[rol]};', regla)
+
+    def test_el_catalogo_puede_generar_un_tema_sin_contraste_avisando(self):
+        estilo = estilo_morado(colores={'primario': '#7b2cbf', 'acento': '#d9a441'})
+        self.escribir_estilo(estilo)
+        self.generar(ok=False)
+        h = self.generar(args=['--contraste-avisa'])
+        self.assertIn('<html', h)
 
 
 class Conversor(Base):

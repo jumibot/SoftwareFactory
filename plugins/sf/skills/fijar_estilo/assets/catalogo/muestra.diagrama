@@ -1,0 +1,16 @@
+tipo: proceso
+titulo: Del borrador al documento
+descripcion: Un proceso corto con una decisión y una salida.
+foco: gen
+nodos:
+  esc: Escribir | el .md
+  gen: Generar | el HTML
+  dec: ¿Se lee bien? | dec
+  pub: Publicar | en docs/
+  rev: Revisar | vuelve a escribir | salida
+flechas:
+  inicio > esc
+  esc > gen
+  gen > dec
+  dec > pub: SÍ
+  dec > rev: NO | rojo

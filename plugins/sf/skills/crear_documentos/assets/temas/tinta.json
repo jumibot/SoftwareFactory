@@ -22,7 +22,7 @@
   },
   "colores-oscuro": {
     "primario": "#f08a59",
-    "oscuro": "#f2f2f0",
+    "tinta-oscura": "#f2f2f0",
     "primario-vivo": "#f4a57f",
     "fondo": "#3c323e",
     "borde": "#575d75",

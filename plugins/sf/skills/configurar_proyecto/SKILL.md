@@ -1,7 +1,7 @@
 ---
 name: configurar_proyecto
 user-invocable: false
-description: Cambia la configuración de un proyecto ya incorporado a la Software Factory (SF), la de .sf/proyecto.json — nombre, descripción, metodología, kanban, línea de coautoría de los commits, idioma, formato de commit, remoto de GitHub, rama de publicación (rama_main), manifiestos con versión y automatizaciones — sin tarea y fuera del panel; el color de las sesiones no se pregunta: sale del primario del estilo del proyecto. Claude enseña lo que hay, pregunta qué cambiar con menús de hasta cuatro preguntas, pide el OK y lo aplica en develop con su commit. La lanza la orden /sf_config; también se ofrece al poner al día el proyecto. Úsala cuando pidan cambiar, ver o revisar la configuración del proyecto o uno de sus valores (activar o quitar la metodología, elegir o quitar el kanban, cambiar o quitar la firma de coautoría de los commits, cambiar el remoto, el idioma, el formato de los commits, la rama de publicación, el manifiesto, el nombre o la descripción, apagar o encender una automatización).
+description: Cambia la configuración de un proyecto ya incorporado a la Software Factory (SF), la de .sf/proyecto.json — nombre, descripción, metodología, kanban, línea de coautoría de los commits, idioma, formato de commit, remoto de GitHub, rama de publicación (rama_main), manifiestos con versión y automatizaciones — sin tarea y fuera del panel; el color de las sesiones no se pregunta, sale del primario del estilo del proyecto. Claude enseña lo que hay, pregunta qué cambiar con menús de hasta cuatro preguntas, pide el OK y lo aplica en develop con su commit. La lanza la orden /sf_config; también se ofrece al poner al día el proyecto. Úsala cuando pidan cambiar, ver o revisar la configuración del proyecto o uno de sus valores (activar o quitar la metodología, elegir o quitar el kanban, cambiar o quitar la firma de coautoría de los commits, cambiar el remoto, el idioma, el formato de los commits, la rama de publicación, el manifiesto, el nombre o la descripción, apagar o encender una automatización).
 ---
 
 # Configurar un proyecto con la SF
@@ -31,18 +31,18 @@ Con `--json`, la salida para leerla. Si el mod dice que en esta máquina Python 
 
 ## Procedimiento
 
-1. **Lo que hay.** Se ejecutan `ver` y `detectar`, y se enseña la configuración en una tabla corta en palabras llanas: qué es (por ejemplo, «Color de las sesiones», «Cómo se escriben los commits», «Dónde se publica»), su valor legible y «por defecto» si no está en el archivo. El color de las sesiones sale del primario del estilo del proyecto (`docs/identidad/estilo.json`), el más cercano de los de `/color`, y `ver` dice si viene de él; sin estilo, es el de `.sf/proyecto.json` (decisiones 310 y 311). Se enseña, pero no se cambia aquí: se cambia con el estilo. Debajo, los problemas que dé `ver`, cada uno con lo que pasa y lo que se propone, sin jerga (por ejemplo, «El kanban está apuntado a la manera antigua: lo paso a la nueva, sin cambiar de kanban»). Si el propietario ya ha dicho qué quiere cambiar («pon los commits en conventional», `/sf_config idioma`), no se pregunta el paso 2: se va a su pregunta del paso 3 con lo pedido como opción recomendada.
+1. **Lo que hay.** Se ejecutan `ver` y `detectar`, y se enseña la configuración en una tabla corta en palabras llanas: qué es (por ejemplo, «Color de las sesiones», «Cómo se escriben los commits», «Dónde se publica»), su valor legible y «por defecto» si no está en el archivo. El color de las sesiones sale del primario del estilo del proyecto (`docs/identidad/estilo.json`), el más cercano de los de `/color`, y `ver` dice si viene de él; sin estilo, es el de `.sf/proyecto.json` (decisiones 310 y 311). Se enseña, pero no se cambia aquí: se cambia con el estilo, que lleva `sf:fijar_estilo`. Debajo, los problemas que dé `ver`, cada uno con lo que pasa y lo que se propone, sin jerga (por ejemplo, «El kanban está apuntado a la manera antigua: lo paso a la nueva, sin cambiar de kanban»). Si el propietario ya ha dicho qué quiere cambiar («pon los commits en conventional», `/sf_config idioma`), no se pregunta el paso 2: se va a su pregunta del paso 3 con lo pedido como opción recomendada.
 
 2. **Qué cambiar (menú 1).** Un menú de selección múltiple, con una pregunta por grupo; los problemas de `ver` vienen ya marcados en la descripción de su opción («Hay que arreglarlo: el repositorio de GitHub apuntado no existe»):
 
    | Pregunta | Opciones |
    | --- | --- |
-   | ¿Qué cambio de cómo se presenta el proyecto? | Nombre / Descripción / Nada de esto |
+   | ¿Qué cambio de cómo se presenta el proyecto? | Nombre / Descripción / Estilo de los documentos / Nada de esto |
    | ¿Qué cambio de cómo se trabaja? | Metodología / Kanban / Firma de Claude en los commits / Nada de esto |
    | ¿Qué cambio de cómo se escribe? | Idioma / Forma de los commits / Archivos con la versión / Nada de esto |
    | ¿Qué cambio del repositorio y la ayuda automática? | Repositorio de GitHub / Rama donde se publica / Automatizaciones / Nada de esto |
 
-   Si en todos se elige «Nada de esto», se acaba sin cambiar nada.
+   Si en todos se elige «Nada de esto», se acaba sin cambiar nada. «Estilo de los documentos» (colores, letra, portada, cabeceras, logo) no es de `.sf/proyecto.json`: lo lleva `sf:fijar_estilo`, con muestras, después de aplicar lo demás.
 
 3. **Los valores (menús 2 y siguientes).** Una pregunta por campo elegido, hasta cuatro por menú, por este orden: identidad, método, kanban y firma, convenciones, repositorio. La opción recomendada va primero, con lo que la delata en su descripción, y el valor actual lleva «(actual)». Cada opción, con su valor en palabras llanas y lo que cambia en la descripción. Un valor libre (un nombre, una descripción, un remoto nuevo) se escribe en «Other».
 

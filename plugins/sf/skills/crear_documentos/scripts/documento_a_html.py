@@ -25,9 +25,9 @@ AQUI = Path(__file__).resolve().parent
 sys.path.insert(0, str(AQUI))
 from tema_identidad import (BASE, CLAVES_IDENTIDAD, bloque_kit, buscar_identidad, cargar_tema,  # noqa: E402
                             colores_a_variables, destino_documento, diagramas_estilos, diagramas_scripts, enlaces_externos,
-                            herramientas_activas, kit_estilos, kit_scripts,
+                            herramientas_activas, kit_estilos, kit_scripts, luminancia,
                             lector_estilos, lector_scripts,
-                            logo_data_uri, procedencia, traducir_colores, variables_css)
+                            logo_data_uri, oscuro_de, procedencia, traducir_colores, variables_css)
 import diagramas_recurso  # noqa: E402
 import estilo_proyecto  # noqa: E402
 from resaltar_codigo import resaltar  # noqa: E402  coloreado de sintaxis de los bloques de código
@@ -115,6 +115,7 @@ def trocear(hijos: list, por_titulo: bool) -> tuple[list, list[list]]:
 # «#### Título {color=turquesa icono=codigo}» en la primera línea de una tarjeta: cabecera con el color
 # de fondo y el icono; «::: tarjetas 3 plegables»: cada tarjeta es un <details> con la cabecera siempre a la vista.
 
+OSCURO = {}  # la paleta oscura del documento, para los colores de las tarjetas en oscuro (la fija main)
 COLORES = {"turquesa": "#1f7a7a", "naranja": "#a6501a", "verde": "#1f812d", "frambuesa": "#be185d",
            **estilo_proyecto.SIGNIFICADO}  # y los de significado (correcto, aviso, error, info), que fija el estilo
 ICONOS = {  # trazos de 24 × 24, sin relleno
@@ -196,7 +197,12 @@ def tarjeta(clase: str, piezas: list, plegable: bool, pregunta: bool = False) ->
         if not re.fullmatch(r"#[0-9a-fA-F]{6}", color):
             sys.exit(f"Color de tarjeta no válido: «{opciones['color']}». Posibles: {', '.join(COLORES)} o #rrggbb.")
         estilo = (f' style="--c:{color};--c-oscuro:{mezclar(color, "#000000", .35)};'
-                  f'--c-borde:{mezclar(color, "#ffffff", .7)};--c-suave:{mezclar(color, "#ffffff", .9)}"')
+                  f'--c-borde:{mezclar(color, "#ffffff", .7)};--c-suave:{mezclar(color, "#ffffff", .9)}')
+        if OSCURO:  # en oscuro, los campos y los chips con el color aclarado hasta 4,5:1 (decisión 350)
+            claro = oscuro_de(color, OSCURO)
+            estilo += (f';--c-oscuro-o:{claro};--c-borde-o:{mezclar(OSCURO["pagina"], claro, .55)};'
+                       f'--c-suave-o:{mezclar(OSCURO["superficie"], claro, .16)}')
+        estilo += '"'
         clases += " con-color"
     if pregunta:
         extra, datos, marca = opciones_pregunta(opciones, texto)
@@ -338,7 +344,33 @@ def infografia(args: str, hijos: list) -> str:
 
 def a_html(md: str) -> str:
     md = "\n".join(emitir(arbol_bloques(md.splitlines())))
-    return marcar_preguntas(markdown.Markdown(extensions=EXTENSIONES).convert(md))
+    return cifras_de_listas(marcar_preguntas(markdown.Markdown(extensions=EXTENSIONES).convert(md)))
+
+
+def cifras_de_listas(html: str) -> str:
+    """Cada lista numerada lleva en --cifras las del número más largo que pinta (dos como mínimo: «01»), para que su
+    sangría le reserve el ancho sin un límite fijo de cifras (1000 elementos, o más)."""
+    etiqueta = re.compile(r"<(/?)(ol|ul|li)\b([^>]*)>")
+    pila, cuentas = [], {}
+    for m in etiqueta.finditer(html):
+        cierre, nombre, attrs = m.groups()
+        if nombre in ("ol", "ul") and not cierre:
+            inicio = re.search(r'\bstart="(-?\d+)"', attrs)
+            pila.append([m.start(), nombre, int(inicio.group(1)) if inicio else 1, 0])
+        elif nombre in ("ol", "ul") and pila:
+            pos, tipo, inicio, n = pila.pop()
+            if tipo == "ol":
+                cuentas[pos] = max(2, len(str(abs(inicio + max(n, 1) - 1))))
+        elif nombre == "li" and not cierre and pila:
+            pila[-1][3] += 1
+    if not any(c > 2 for c in cuentas.values()):
+        return html
+    partes, ultimo = [], 0
+    for pos in sorted(cuentas):
+        if cuentas[pos] > 2:
+            partes += [html[ultimo:pos + 3], f' style="--cifras: {cuentas[pos]}"']
+            ultimo = pos + 3
+    return "".join(partes) + html[ultimo:]
 
 
 # --- Retoques del HTML ---------------------------------------------------------------------------
@@ -599,11 +631,13 @@ def bloque_propio(ruta: Path) -> str:
 ASPECTO_CABECERA = ("portada", "tema", "logo")
 
 
-def imagen_logo(ruta: Path, placa: bool = False) -> str:
-    """<img> del logo a 40 px de alto, con ancho y alto explícitos para que la portada no salte al cargar. SVG o imagen."""
+def imagen_logo(ruta: Path, placa: bool = False, modo: str = "") -> str:
+    """<img> del logo a 40 px de alto, con ancho y alto explícitos para que la portada no salte al cargar. SVG o imagen.
+    «modo» (claro u oscuro): el logo solo se ve en ese modo de «Lectura»."""
     if not ruta.is_file():
         sys.exit(f"No encuentro el logo: {ruta}")
-    clase = ' class="placa"' if placa else ""
+    clases = " ".join(x for x in ("placa" if placa else "", f"logo-{modo}" if modo else "") if x)
+    clase = f' class="{clases}"' if clases else ""
     if ruta.suffix.lower() == ".svg":
         import base64
         texto = ruta.read_text(encoding="utf-8")
@@ -643,6 +677,8 @@ def main():
     ap.add_argument("--tema", default=None, help="sin estilo del proyecto: tema de crear_documentos (assets/temas/) o ruta a "
                     "un .json; por defecto, el de la identidad o el del color de sesión del proyecto")
     ap.add_argument("--identidad", default=None, help="carpeta con identidad.json; por defecto se busca docs/identidad/ subiendo desde el .md")
+    # El catálogo de temas (fijar_estilo) enseña cada tema tal cual: su contraste insuficiente se avisa sin detenerse.
+    ap.add_argument("--contraste-avisa", action="store_true", help=argparse.SUPPRESS)
     ap.add_argument("--logo", default=None, help="ruta del logo; 'ninguno' para no ponerlo")
     ap.add_argument("--producto", default=None, help="nombre del producto; por defecto, el del estilo, el de la identidad o el título")
     ap.add_argument("--tipo", default=None, help="tipo de documento; por defecto, el de la cabecera del .md, el del perfil o «Documento»")
@@ -665,15 +701,18 @@ def main():
     def archivos(clave):
         v = identidad.get(clave, [])
         return [ruta_id.parent / x for x in ([v] if isinstance(v, str) else v)]
-    # El estilo del proyecto (decisiones 316 y 317): nueve grupos de parámetros con sus valores resueltos.
+    # El estilo del proyecto (decisiones 316 y 317): diez grupos de parámetros con sus valores resueltos.
     ruta_estilo = estilo_proyecto.buscar_estilo(src, args.identidad, args.estilo)
     estilo = estilo_proyecto.cargar(ruta_estilo) if ruta_estilo else None
     tema, aviso_sin_estilo = elegir_tema(args, identidad, ruta_id, src, ruta_estilo, estilo)
     COLORES.update(estilo_proyecto.significado(estilo))
+    OSCURO.update(tema["colores-oscuro"])
     # Contraste (decisión 320): un texto por debajo de 4,5:1 (3:1 el grande) detiene el generador; un borde o una línea
     # por debajo de 3:1, solo avisa. Sin estilo.json, el tema por defecto no bloquea (323): todo va en el aviso.
     errores, avisos_linea = estilo_proyecto.comprobar_contraste(tema, estilo)
-    if estilo and errores:
+    if estilo and errores and args.contraste_avisa:
+        print("Aviso: contraste insuficiente en el estilo:\n  " + "\n  ".join(errores), file=sys.stderr)
+    elif estilo and errores:
         sys.exit(f"Contraste insuficiente en el estilo del proyecto ({ruta_estilo}); se fija en su skill o a mano:\n  "
                  + "\n  ".join(errores))
     if aviso_sin_estilo:
@@ -764,7 +803,16 @@ def main():
     con_linea = estilo_proyecto.param(estilo, "portada", "linea", "si") not in ("no", False)
     marca = esc(datos.get("antetitulo") or producto)  # sin antetítulo, el producto (por defecto, el título)
     if logo:  # alto de 40 px, como en el CSS
-        marca = imagen_logo(logo_oscuro if oscura and logo_oscuro else logo, placa=oscura and placa) + marca
+        if fondo_primario and logo_oscuro:
+            # La cabecera destacada (351) puede ser clara u oscura según el modo: el logo que va con su texto en cada uno
+            claro_en = {m: luminancia(c["sobre-cabecera"]) < .4 for m, c in (("claro", tema["colores"]),
+                                                                           ("oscuro", tema["colores-oscuro"]))}
+            marca = "".join(imagen_logo(logo if claro_en[m] else logo_oscuro, modo=m) for m in ("claro", "oscuro")) + marca
+        elif oscura or not (logo_oscuro or placa):
+            marca = imagen_logo(logo_oscuro if oscura and logo_oscuro else logo, placa=oscura and placa) + marca
+        else:  # portada clara: en el modo oscuro de «Lectura», el logo para fondo oscuro o en su placa (347)
+            marca = (imagen_logo(logo, modo="claro") + imagen_logo(logo_oscuro or logo, placa=not logo_oscuro, modo="oscuro")
+                     + marca)
     lema = "<br>".join(esc(x) for x in lineas_lema(datos["lema"])) if datos.get("lema") else ""
     clase_portada = {"oscura": " oscura", "compacta": " compacta"}.get(forma, "")
     p = [f'<header class="portada{clase_portada}"><div class="portada-dentro">']
@@ -828,7 +876,7 @@ def main():
                f'  <link href="{url_fuentes}" rel="stylesheet">\n') if url_fuentes else ""
     css_estilo = estilo_proyecto.css_parametros(estilo)
     css_estilo = f'\n  <style data-estilo="v{estilo["version"]}">\n    {css_estilo}\n  </style>' if css_estilo else ""
-    color_tema = (tema["colores"]["primario"] if fondo_primario else tema["colores"]["oscuro"]) if oscura else "#ffffff"
+    color_tema = (tema["colores"]["cabecera"] if fondo_primario else tema["colores"]["oscuro"]) if oscura else "#ffffff"
     # El pie cita la versión del estilo con que se generó (decisión 322).
     origen = procedencia(src) + (f" · estilo v{estilo['version']}" if estilo else "")
 

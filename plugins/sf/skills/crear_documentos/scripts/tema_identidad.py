@@ -26,9 +26,14 @@ ROLES = [
     ("segundo", "#2f5597", "#2f5598"),   # segundo color: lo que no es el foco ni el acento (el recorrido de un diagrama)
 ]
 
-# Roles que no traducen colores del .md (no están en ROLES): se derivan si faltan (decisión 319).
-ROLES_PRIMARIO = ("sobre-primario", "primario-texto")
-ROLES_VALIDOS = {r for r, _, _ in ROLES} | set(ROLES_PRIMARIO)
+# Roles que no traducen colores del .md (no están en ROLES): se derivan si faltan. «sobre-primario» y
+# «primario-texto», los del primario claro (decisión 319); «tinta-oscura», la tinta fuerte sobre fondo claro, que en
+# oscuro pasa a clara, mientras «oscuro» queda como superficie oscura (349); «superficie», el fondo de tarjetas,
+# tablas, menús y paneles (blanco en claro); «cabecera» y «sobre-cabecera», el fondo de la portada destacada con el
+# color del proyecto y su texto: un tono del primario menos brillante (351).
+ROLES_PROPIOS = ("sobre-primario", "primario-texto", "tinta-oscura", "superficie", "cabecera", "sobre-cabecera",
+                 "primario-linea", "borde-campo")
+ROLES_VALIDOS = {r for r, _, _ in ROLES} | set(ROLES_PROPIOS)
 
 # Tonos derivados: si el tema no da un rol, se calcula mezclando otro rol con blanco o negro.
 # (rol, rol de partida, color de mezcla, proporción de mezcla). Proporciones tomadas del tema morado.
@@ -88,6 +93,123 @@ def sobre(fondo: str, tinta: str = "#2b2b2f") -> str:
     """El color de texto con más contraste sobre «fondo»: blanco o la tinta del texto. En empate, blanco."""
     return "#ffffff" if contraste("#ffffff", fondo) >= contraste(tinta, fondo) else tinta
 
+def legible(color: str, fondos: list, hacia: str, minimo: float = 4.5) -> str:
+    """El color, mezclado con «hacia» (negro o blanco) lo justo para leerse a «minimo»:1 sobre todos los fondos."""
+    for paso in range(41):
+        c = mezclar(color, hacia, paso / 40)
+        if all(contraste(c, f) >= minimo for f in fondos):
+            return c
+    return mezclar(color, hacia, 1)
+
+NEGRO, BLANCO = "#000000", "#ffffff"
+
+def legible_sobre_su_fondo(color: str, fondos: list, pagina: str, mezcla: float = .16, hacia: str = BLANCO) -> str:
+    """Como legible, contando también su propio fondo tintado (la página con un «mezcla» del color), que cambia con él:
+    los rótulos de los recuadros sobre su fondo."""
+    for paso in range(41):
+        c = mezclar(color, hacia, paso / 40)
+        if all(contraste(c, f) >= 4.5 for f in fondos + [mezclar(pagina, c, mezcla)]):
+            return c
+    return hacia
+
+LUMINANCIA_CABECERA = .3  # tope de la cabecera clara: un primario más luminoso, como un amarillo, deslumbra a lo ancho
+MEZCLA_CABECERA_OSCURA = .35  # la cabecera oscura: la página oscura con un 35 % del primario
+
+def _con_texto(fondo: str, tintas: tuple, hacia: str) -> tuple:
+    """(fondo, texto): el texto, la tinta de más contraste; si ninguna llega a 4,5:1, el fondo se mueve hacia «hacia»."""
+    for _ in range(40):
+        texto = max(tintas, key=lambda t: contraste(t, fondo))
+        if contraste(texto, fondo) >= 4.5:
+            return fondo, texto
+        fondo = mezclar(fondo, hacia, .05)
+    return fondo, max(tintas, key=lambda t: contraste(t, fondo))
+
+def cabecera_clara(primario: str, texto: str) -> dict:
+    """La cabecera destacada en claro (decisión 351): el primario con un 10 % de la tinta del texto, que le quita brillo
+    y croma, y oscurecido con ella hasta una luminancia de 0,3 como mucho; su texto, blanco o la tinta, a 4,5:1."""
+    c = mezclar(primario, texto, .1)
+    while luminancia(c) > LUMINANCIA_CABECERA:
+        c = mezclar(c, texto, .05)
+    c, t = _con_texto(c, (BLANCO, texto), texto)
+    return {"cabecera": c, "sobre-cabecera": t}
+
+def cabecera_oscura(po: str, pagina: str, texto: str) -> dict:
+    """La cabecera destacada en oscuro (351): un tono profundo del primario, la página oscura con un 35 % de él, que no
+    deslumbra; su texto, el claro de la página o la tinta oscura, a 4,5:1."""
+    c, t = _con_texto(mezclar(pagina, po, MEZCLA_CABECERA_OSCURA), (texto, pagina), pagina)
+    return {"cabecera": c, "sobre-cabecera": t}
+
+def primario_linea(primario: str, fondos: list, hacia: str) -> str:
+    """Las líneas y bordes en el color del proyecto (decisión 335, 8): el primario, oscurecido (o aclarado, en oscuro)
+    lo justo para 3:1 sobre los fondos. Con un primario claro, como un amarillo, las flechas de los diagramas se ven."""
+    return legible(primario, fondos, hacia, 3)
+
+def familia_primario_oscuro(po: str, pagina: str) -> dict:
+    """Los tonos del primario en oscuro (decisión 338), con el primario ya legible sobre la página oscura."""
+    return {"primario": po, "primario-vivo": mezclar(po, BLANCO, .25), "primario-texto": po,
+            "primario-linea": primario_linea(po, [pagina, mezclar(pagina, po, .16)], BLANCO),
+            "sobre-primario": sobre(po, tinta=pagina), "fondo": mezclar(pagina, po, .16),
+            "tenue": mezclar(pagina, po, .42)}
+
+def derivar_oscuro(claro: dict, dado: dict | None = None) -> dict:
+    """La paleta oscura completa (decisión 348): la que se da, rol por rol, y lo que falta derivado de la clara con
+    reglas fijas. Página y fondos, de la tinta del texto mezclada con negro; textos claros; primario, acento y segundo
+    aclarados lo justo para 4,5:1 sobre la página oscura y las superficies, como en la 338. «oscuro» sigue siendo una
+    superficie oscura y «tinta-oscura» pasa a clara (349).
+
+    Una paleta oscura anterior a la 349, con «oscuro» claro (la tinta fuerte), se lee como «tinta-oscura»."""
+    o = dict(dado or {})
+    if "oscuro" in o and "tinta-oscura" not in o and luminancia(o["oscuro"]) > .3:
+        o["tinta-oscura"] = o.pop("oscuro")
+    pagina = o.get("pagina")
+    if not pagina:
+        pagina = mezclar(claro["texto"], NEGRO, .3)
+        while luminancia(pagina) > .018:
+            pagina = mezclar(pagina, NEGRO, .15)
+    d = {"pagina": pagina}
+    d["fondo-suave"] = o.get("fondo-suave") or mezclar(pagina, BLANCO, .035)
+    d["superficie"] = o.get("superficie") or d["fondo-suave"]
+    d["fondo-medio"] = o.get("fondo-medio") or mezclar(pagina, BLANCO, .09)
+    d["linea"] = o.get("linea") or mezclar(pagina, BLANCO, .14)
+    superficies = [pagina, d["superficie"]]
+    d["borde"] = o.get("borde") or legible(mezclar(pagina, BLANCO, .25), superficies, BLANCO, 3)
+    d["borde-campo"] = o.get("borde-campo") or legible(d["borde"], superficies, BLANCO, 3)
+    fondos_texto = superficies + [d["fondo-medio"]]
+    d["texto"] = o.get("texto") or legible(mezclar(claro["pagina"], NEGRO, .04), fondos_texto, BLANCO, 7)
+    d["texto-suave"] = o.get("texto-suave") or legible(mezclar(d["texto"], pagina, .3), fondos_texto, BLANCO)
+    d["texto-tenue"] = o.get("texto-tenue") or legible(mezclar(d["texto"], pagina, .45), superficies, BLANCO, 3)
+    d["tinta-oscura"] = o.get("tinta-oscura") or d["texto"]
+    # «oscuro» es una superficie oscura con texto blanco (portada, decisiones, cabeceras de tabla): sigue oscura.
+    # Se aclara lo justo para distinguirse de la página oscura (1,4:1), sin bajar de 4,5:1 con el blanco.
+    po = o.get("primario") or legible_sobre_su_fondo(claro["primario"], superficies, pagina)
+    # Se aclara lo justo para distinguirse de la página oscura (1,4:1), sin bajar de 4,5:1 con el blanco; y se oscurece
+    # si hace falta para que el primario se lea encima (rótulos de las decisiones y de la portada oscura).
+    oscuro = legible(claro["oscuro"], [BLANCO, po], NEGRO)
+    for paso in range(1, 21):
+        if contraste(oscuro, pagina) >= 1.4:
+            break
+        siguiente = mezclar(oscuro, BLANCO, .03)
+        if contraste(BLANCO, siguiente) < 4.5 or contraste(po, siguiente) < 4.5:
+            break
+        oscuro = siguiente
+    d["oscuro"] = o.get("oscuro") or oscuro
+    for rol, valor in {**familia_primario_oscuro(po, pagina), **cabecera_oscura(po, pagina, d["texto"])}.items():
+        d[rol] = o.get(rol) or valor
+    if claro["acento"] in (claro["primario"], claro.get("primario-texto")):
+        acento = o.get("acento") or d["primario-texto"]
+    else:
+        acento = o.get("acento") or legible_sobre_su_fondo(claro["acento"], superficies, pagina)
+    d["acento"] = acento
+    d["acento-fondo"] = o.get("acento-fondo") or mezclar(pagina, acento, .16)
+    d["acento-borde"] = o.get("acento-borde") or mezclar(pagina, acento, .55)
+    d["segundo"] = o.get("segundo") or legible(claro["segundo"], superficies, BLANCO)
+    return d
+
+def oscuro_de(color: str, oscuro: dict) -> str:
+    """Un color con significado (tarjetas, resaltado de código), aclarado hasta 4,5:1 sobre la página y las superficies
+    oscuras (decisión 350)."""
+    return legible(color, [oscuro["pagina"], oscuro["superficie"], oscuro["fondo-suave"]], BLANCO)
+
 def normalizar_tema(tema: dict, nombre: str) -> dict:
     """Completa un tema (o los colores de un estilo.json): roles mínimos, tonos derivados, versión oscura, serie,
     opciones de aspecto y tipografías. Se detiene con un rol, un color o una opción desconocidos."""
@@ -109,9 +231,19 @@ def normalizar_tema(tema: dict, nombre: str) -> dict:
     # Si faltan, se derivan: blanco o la tinta del texto, el de más contraste, y el propio primario.
     colores.setdefault("sobre-primario", sobre(colores["primario"], tinta=colores["texto"]))
     colores.setdefault("primario-texto", colores["primario"])
+    colores.setdefault("tinta-oscura", colores["oscuro"])
+    colores.setdefault("superficie", BLANCO)
+    for rol, valor in cabecera_clara(colores["primario"], colores["texto"]).items():
+        colores.setdefault(rol, valor)
+    # El borde de los campos (notas, buscador), a 3:1 para verse; el de las cajas sigue suave (decisión 335, 9).
+    colores.setdefault("borde-campo", legible(colores["borde"], [colores["pagina"], colores["superficie"]],
+                                              colores["texto"], 3))
+    colores.setdefault("primario-linea", primario_linea(
+        colores["primario"], [colores["pagina"], colores["superficie"], colores["fondo"]], NEGRO))
     tema["colores"] = colores
-    # Opcional: la versión oscura del tema, rol por rol. La usan las páginas con data-theme="dark" (diagramas,
-    # artifacts); el modo oscuro de «Lectura» de los documentos sigue invirtiendo la página.
+    # La versión oscura del tema, rol por rol: la que da el tema y lo que falta derivado de la clara (decisión 348).
+    # La usan el modo oscuro de «Lectura» de los documentos (347) y las páginas con data-theme="dark" (diagramas,
+    # artifacts).
     oscuro = {k: v.lower() for k, v in tema.get("colores-oscuro", {}).items()}
     raros = set(oscuro) - ROLES_VALIDOS
     if raros:
@@ -119,7 +251,7 @@ def normalizar_tema(tema: dict, nombre: str) -> dict:
     for rol, valor in oscuro.items():
         if not re.fullmatch(r"#[0-9a-f]{6}", valor):
             sys.exit(f"El tema {nombre} tiene un color no válido en «colores-oscuro»: {rol} {valor} (formato #rrggbb)")
-    tema["colores-oscuro"] = oscuro
+    tema["colores-oscuro"] = derivar_oscuro(colores, oscuro)
     serie = [c.lower() for c in tema.get("serie", [])]
     for c in serie:
         if not re.fullmatch(r"#[0-9a-f]{6}", c):
@@ -151,33 +283,51 @@ ESTILO_OPCIONES = {
     "marcador": ("circulo", "cuadrado", "ninguno"),
 }
 
+TODOS_LOS_ROLES = [r for r, _, _ in ROLES] + list(ROLES_PROPIOS)
+# Colores fijos del resaltado de código (estilo_documento.css, --sx-…): en oscuro, aclarados (decisión 350).
+ERROR = "#b3261e"  # el rojo de borrar y de «sin resultados» (herramientas.css, var(--error))
+SX_FIJOS = {"cadena": "#1f812d", "numero": "#a6501a", "funcion": "#1f7a7a", "atributo": "#a6501a"}
+
+def _decl(colores: dict, roles=None) -> str:
+    out = " ".join(f"--{r}: {colores[r]};" for r in (roles or TODOS_LOS_ROLES) if r in colores)
+    if "primario" in colores:
+        out += " --primario-rgb: " + ", ".join(str(x) for x in _rgb(colores["primario"])) + ";"
+    return out
+
+def tonos_serie(c: str, texto: str) -> dict:
+    return {"primario": c, "oscuro": mezclar(c, NEGRO, .38), "tinta-oscura": mezclar(c, NEGRO, .38),
+            "fondo": mezclar(c, BLANCO, .95), "borde": mezclar(c, BLANCO, .81), "linea": mezclar(c, BLANCO, .88),
+            "tenue": mezclar(c, BLANCO, .55), "fondo-suave": mezclar(c, BLANCO, .97),
+            "fondo-medio": mezclar(c, BLANCO, .84), "primario-vivo": mezclar(c, BLANCO, .25),
+            "primario-texto": c, "sobre-primario": sobre(c, texto),
+            "primario-linea": primario_linea(c, [BLANCO, mezclar(c, BLANCO, .95)], NEGRO)}
+
+def tonos_serie_oscuro(c: str, oscuro: dict) -> dict:
+    """Los tonos oscuros de un color de la serie. Redefine todos los roles que da tonos_serie: los neutros (tinta,
+    superficies de tabla, líneas) vuelven a los del oscuro, para que no se queden con los claros del bloque."""
+    po = legible(c, [oscuro["pagina"], oscuro["superficie"]], BLANCO)
+    neutros = {k: oscuro[k] for k in ("oscuro", "tinta-oscura", "fondo-suave", "fondo-medio", "linea")}
+    return {**neutros, **familia_primario_oscuro(po, oscuro["pagina"]), "borde": mezclar(oscuro["pagina"], po, .55)}
+
 def variables_css(tema: dict) -> str:
+    """Las variables de los roles: las claras en :root y las oscuras con data-theme="dark" en <html>, que pone el modo
+    oscuro de «Lectura» (decisión 347) y usan los diagramas y los artifacts. El oscuro es solo de pantalla: al imprimir,
+    los colores claros. El lector electrónico (.lector) imita un aparato y sigue en claro."""
     c, t = tema["colores"], tema["tipografias"]
-    lineas = [f"--{rol}: {c[rol]};" for rol, _, _ in ROLES]
-    lineas += [f"--{rol}: {c[rol]};" for rol in ROLES_PRIMARIO if rol in c]
-    lineas.append("--primario-rgb: " + ", ".join(str(x) for x in _rgb(c["primario"])) + ";")
-    lineas += [f"--fuente-{k}: {t[k]};" for k in ("texto", "titulos", "escena")]
+    lineas = [_decl(c)] + [f"--fuente-{k}: {t[k]};" for k in ("texto", "titulos", "escena")]
     css = ":root { " + " ".join(lineas) + " }"
-    oscuro = tema.get("colores-oscuro", {})
-    if oscuro:
-        roles = [r for r, _, _ in ROLES] + list(ROLES_PRIMARIO)
-        css += "\n    :root[data-theme=\"dark\"] { " + " ".join(f"--{r}: {oscuro[r]};" for r in roles if r in oscuro)
-        if "primario" in oscuro:
-            css += " --primario-rgb: " + ", ".join(str(x) for x in _rgb(oscuro["primario"])) + ";"
-        css += " }"
+    oscuro = tema.get("colores-oscuro") or derivar_oscuro(c, {})
+    sx = " ".join(f"--sx-{k}: {oscuro_de(v, oscuro)};" for k, v in SX_FIJOS.items())
+    sx += f" --error: {oscuro_de(ERROR, oscuro)};"
+    reglas = [f':root[data-theme="dark"] {{ {_decl(oscuro)} {sx} color-scheme: dark; }}',
+              f':root[data-theme="dark"] .lector {{ {_decl(c)} color-scheme: light; }}']
     # Serie opcional: cada bloque (H2) toma un color de la lista, en ciclo, con sus tonos derivados.
     serie = tema.get("serie", [])
     for n in range(1, 41) if serie else ():
-        c = serie[(n - 1) % len(serie)]
-        tonos = {"primario": c, "oscuro": mezclar(c, "#000000", .38), "fondo": mezclar(c, "#ffffff", .95),
-                 "borde": mezclar(c, "#ffffff", .81), "linea": mezclar(c, "#ffffff", .88),
-                 "tenue": mezclar(c, "#ffffff", .55), "fondo-suave": mezclar(c, "#ffffff", .97),
-                 "fondo-medio": mezclar(c, "#ffffff", .84), "primario-vivo": mezclar(c, "#ffffff", .25),
-                 "primario-texto": c, "sobre-primario": sobre(c, tema["colores"]["texto"])}
-        decl = " ".join(f"--{k}: {v};" for k, v in tonos.items())
-        decl += " --primario-rgb: " + ", ".join(str(x) for x in _rgb(c)) + ";"
-        css += f"\n    .bloque-{n} {{ {decl} }}"
-    return css
+        s = serie[(n - 1) % len(serie)]
+        css += f"\n    .bloque-{n} {{ {_decl(tonos_serie(s, c['texto']))} }}"
+        reglas.append(f':root[data-theme="dark"] .bloque-{n} {{ {_decl(tonos_serie_oscuro(s, oscuro))} }}')
+    return css + "\n    @media screen {\n    " + "\n    ".join(reglas) + "\n    }"
 
 _ATRIBUTOS_COLOR = ("fill", "stroke", "stop-color", "flood-color", "lighting-color")
 
@@ -191,10 +341,12 @@ def colores_a_variables(html: str) -> str:
     a_rol = {}
     for rol, teal, morado in ROLES:
         a_rol[teal] = a_rol[morado] = rol
+    a_rol["#ffffff"] = a_rol["#fff"] = a_rol["white"] = "superficie"  # el blanco de los esquemas pasa a oscuro con la página
     hex_re = re.compile(r"#[0-9a-fA-F]{6}(?![0-9a-fA-F])|#[0-9a-fA-F]{3}(?![0-9a-fA-F])")
 
     def en_css(texto: str) -> str:
         texto = hex_re.sub(lambda m: f"var(--{a_rol[m.group(0).lower()]})" if m.group(0).lower() in a_rol else m.group(0), texto)
+        texto = re.sub(r"(?<![\w-])white(?![\w-])", "var(--superficie)", texto, flags=re.I)
         for pref in ("rgba(0, 114, 107, ", "rgba(123, 44, 191, ", "rgba(0,114,107,", "rgba(123,44,191,"):
             texto = texto.replace(pref, "rgba(var(--primario-rgb), ")
         return texto
@@ -461,9 +613,10 @@ def temas_diagramas() -> list:
 def diagramas_estilos(html: str) -> str:
     if not tiene_diagramas(html):
         return ""
-    reglas = []
+    reglas, oscuras = [], []
     for nombre, _, t in temas_diagramas():
         v = " ".join(f"--{k}: {c};" for k, c in t["colores"].items())
+        oscuras.append(f':root[data-theme="dark"] .diagrama[data-d-tema="{nombre}"] {{ {_decl(t["colores-oscuro"])} }}')
         f = t.get("tipografias", {})
         fuentes = "".join(f" --fuente-{k}: {f[k]};" for k in ("texto", "titulos", "escena") if f.get(k))
         reglas.append(f'.diagrama[data-d-tema="{nombre}"] {{ {v}{fuentes} --diagrama-papel: var(--pagina); '
@@ -473,7 +626,7 @@ def diagramas_estilos(html: str) -> str:
     urls = [t.get("tipografias", {}).get("url") for n, _, t in temas_diagramas() if n in usados]
     enlaces = "".join(f'\n  <link href="{u}" rel="stylesheet">' for u in dict.fromkeys(u for u in urls if u))
     return (enlaces + "\n  " + bloque_kit(DIAGRAMAS_CSS) + '\n  <style data-diagramas-temas>\n'
-            + "\n".join(reglas) + "\n  </style>")
+            + "\n".join(reglas) + "\n@media screen {\n" + "\n".join(oscuras) + "\n}\n  </style>")
 
 
 def diagramas_scripts(html: str, activas: str, con_kit: bool) -> str:

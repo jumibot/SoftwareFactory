@@ -14,19 +14,19 @@
     "pagina": "#f3f6f5",
     "texto": "#203743",
     "texto-suave": "#526b78",
-    "texto-tenue": "#8a9fa9",
-    "acento": "#b36e1d",
+    "texto-tenue": "#819197",
+    "acento": "#9b621d",
     "acento-fondo": "#fff2df",
     "acento-borde": "#efd2a6",
     "segundo": "#1d4ed8"
   },
   "serie": [
     "#08786f",
-    "#b36e1d",
+    "#9b621d",
     "#2c6e9b",
     "#b23a2a",
     "#4f6f82",
-    "#7a9a54"
+    "#5c7936"
   ],
   "tipografias": {
     "texto": "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",

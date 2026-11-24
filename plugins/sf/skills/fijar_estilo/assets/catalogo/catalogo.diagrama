@@ -1,0 +1,19 @@
+tipo: proceso
+titulo: Elegir el tema de partida
+descripcion: Del catálogo al estilo aceptado, con la herramienta estilo.py de fijar_estilo.
+foco: partir
+nodos:
+  cat: Catálogo | estilo.py catalogo
+  partir: Partir | estilo.py partir
+  cambiar: Afinar | estilo.py cambiar
+  muestras: Muestras | sobre un documento real
+  dec: ¿Le gusta? | dec
+  acep: Aceptar | estilo.py aceptar
+flechas:
+  inicio > cat
+  cat > partir
+  partir > cambiar
+  cambiar > muestras
+  muestras > dec
+  dec > acep: SÍ
+  dec > cambiar

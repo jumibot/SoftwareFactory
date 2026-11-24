@@ -1,0 +1,14 @@
+{
+  "muestra": "D",
+  "nombre": "Institucional",
+  "caracter": "Rojo y negro, títulos con serifa",
+  "origen": "rojo",
+  "cambios": [
+    "portada.forma=oscura",
+    "portada.fondo=oscuro",
+    "secciones.etiqueta=linea",
+    "secciones.marcador=cuadrado",
+    "pagina.esquinas=2",
+    "pagina.ancho=1100"
+  ]
+}

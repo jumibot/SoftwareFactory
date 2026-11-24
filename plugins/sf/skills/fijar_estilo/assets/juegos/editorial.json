@@ -1,0 +1,14 @@
+{
+  "muestra": "F",
+  "nombre": "Editorial",
+  "caracter": "Papel, tinta y óxido, Instrument Serif",
+  "origen": "tinta",
+  "cambios": [
+    "secciones.cabecera=numero-titulo",
+    "secciones.etiqueta=linea",
+    "secciones.marcador=ninguno",
+    "pagina.esquinas=4",
+    "pagina.codigo=linea",
+    "letra.tamano=18"
+  ]
+}

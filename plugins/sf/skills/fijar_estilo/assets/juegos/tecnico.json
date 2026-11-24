@@ -1,0 +1,15 @@
+{
+  "muestra": "C",
+  "nombre": "Técnico",
+  "caracter": "Azul marino y verde, letra del sistema",
+  "origen": "pool",
+  "cambios": [
+    "portada.forma=oscura",
+    "portada.fondo=oscuro",
+    "letra.escala=compacta",
+    "letra.tamano=16",
+    "secciones.marcador=cuadrado",
+    "secciones.plegado=ninguna",
+    "pagina.pie=oscuro"
+  ]
+}

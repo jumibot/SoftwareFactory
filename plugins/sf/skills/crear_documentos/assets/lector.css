@@ -3,8 +3,8 @@
    o class="lector"; su script es lector.js. Sintaxis y atributos, en SKILL.md («Catálogo de recursos»). */
 /* Página de libro: el arranque o el cierre de la historia como una página de ebook. Columna estrecha centrada,
    letra serif de lectura, interlineado amplio, encabezado de capítulo, capitular en el primer párrafo, sangría en
-   los siguientes y separador decorativo (.libro-ornamento). Sin colores fijos oscuros: el modo oscuro de «Lectura»
-   invierte la página entera, y el papel claro pasa a oscuro con el resto. */
+   los siguientes y separador decorativo (.libro-ornamento). En el modo oscuro de «Lectura», el papel toma la
+   superficie oscura del estilo (decisión 347); dentro del lector electrónico, que imita un aparato, sigue en claro. */
 .libro { max-width: 34rem; margin: 2rem auto 2.4rem; padding: 2.2rem 2.4rem 2rem; background: #fcfbf8;
          border: 1px solid #ece8df; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
          font-family: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, serif;
@@ -13,10 +13,10 @@
 .libro .libro-capitulo { text-align: center; text-indent: 0; font-family: var(--fuente-texto); font-size: .72rem;
                          font-weight: 700; letter-spacing: .22em; text-transform: uppercase; color: var(--primario); margin-bottom: .3rem; }
 .libro .libro-titulo { text-align: center; text-indent: 0; font-style: italic; font-size: 1.3rem; line-height: 1.35;
-                       color: var(--oscuro); margin-bottom: 1.6rem; }
+                       color: var(--tinta-oscura); margin-bottom: 1.6rem; }
 .libro .libro-titulo + p, .libro .libro-ornamento + p { text-indent: 0; }
 .libro .libro-titulo + p::first-letter { float: left; font-size: 3.6em; line-height: .82; padding: .08em .1em 0 0;
-                                         color: var(--oscuro); font-weight: 600; }
+                                         color: var(--tinta-oscura); font-weight: 600; }
 .libro .libro-ornamento { text-align: center; text-indent: 0; color: var(--texto-tenue); letter-spacing: .6em;
                           font-size: .95rem; margin: 1.1rem 0; }
 .libro .libro-ornamento::before { content: '✦ ✦ ✦'; }
@@ -100,7 +100,10 @@
 .lector-marca { flex: none; font: 700 .78rem/1 var(--fuente-texto); letter-spacing: .02em; color: var(--lector-marca-claro, #e4e4e8); }
 .lector-marca b { color: var(--lector-marca, #b8b8bd); font-weight: 700; }
 .lector .libro-fin button { background: #161616; color: #e7e3d9; border-radius: 4px; }
-html[data-modo="oscuro"] .lector { filter: invert(1) hue-rotate(180deg); }
+@media screen {
+  :root[data-theme="dark"] .libro:not(.lector .libro) { background: var(--superficie); border-color: var(--linea); color: var(--texto);
+                                                         box-shadow: none; }
+}
 /* Paginado (lo activa el script): la pantalla tiene alto fijo y el texto corre en columnas de su ancho. */
 .lector.paginado .libro { height: min(600px, 72vh); box-sizing: border-box; overflow: hidden; }
 .lector.paginado .libro-flujo { height: 100%; column-count: 1; column-gap: 3rem; column-fill: auto; overflow: visible; }
@@ -112,9 +115,9 @@ html[data-modo="oscuro"] .lector { filter: invert(1) hue-rotate(180deg); }
 /* La historia completa: el botón tras el primer lector y la capa a pantalla completa con el lector del tamaño
    de un móvil, su índice de capítulos y el diálogo de las escenas en forma de libro. */
 .lector-abrir { text-align: center; margin: -1.2rem 0 2.2rem; }
-.lector-abrir button { font: 600 .9rem var(--fuente-texto); color: var(--oscuro); background: #fff; border: 1px solid var(--borde);
+.lector-abrir button { font: 600 .9rem var(--fuente-texto); color: var(--tinta-oscura); background: #fff; border: 1px solid var(--borde);
                        border-radius: 999px; padding: .5rem 1.2rem; cursor: pointer; }
-.lector-abrir button:hover { border-color: var(--oscuro); }
+.lector-abrir button:hover { border-color: var(--tinta-oscura); }
 .lector-abrir button:focus-visible { outline: 3px solid var(--primario); outline-offset: 3px; }
 html.lector-abierto { overflow: hidden; }
 .lector-capa { position: fixed; inset: 0; z-index: 2147483000; background: #141418; display: flex;
@@ -156,10 +159,10 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
                         background: none; border: 0; border-bottom: 1px solid #c9c4b8; padding: .6rem .2rem; cursor: pointer; }
 .lector-indice button:hover { text-decoration: underline; }
 .lector-indice button:focus-visible { outline: 2px solid #161616; outline-offset: 2px; }
-.lector-indice-pag { color: #4a4843; font-variant-numeric: tabular-nums; }
+.lector-indice-pag { color: #4a4843; font-variant-numeric: tabular-nums; flex-shrink: 0; white-space: nowrap; }  /* sin apilar las cifras, sean cuantas sean */
 .libro .libro-contexto { text-indent: 0; font-style: italic; color: var(--texto-suave); margin-bottom: .4rem; }
 .libro .libro-dialogo { text-indent: 0; margin: .35rem 0; }
-.libro .libro-quien { font-variant: small-caps; letter-spacing: .04em; color: var(--oscuro); font-weight: 600; }
+.libro .libro-quien { font-variant: small-caps; letter-spacing: .04em; color: var(--tinta-oscura); font-weight: 600; }
 .lector-completo .libro-capitulo { break-before: column; margin-top: .4rem; }
 .lector-completo .libro-capitulo:first-child { break-before: auto; }
 @media (max-width: 720px) { .lector { border-radius: 26px; padding: 8px 7px 7px; } .lector .libro { padding: 1.3rem 1.1rem 1.2rem; } }

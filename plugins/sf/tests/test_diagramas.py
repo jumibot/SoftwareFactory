@@ -62,8 +62,10 @@ class TemaTinta(unittest.TestCase):
         c, o = self.tema['colores'], self.tema['colores-oscuro']
         self.assertEqual((c['primario'], c['texto'], c['pagina']), ('#b8431c', '#25283a', '#fbfbfa'))
         self.assertEqual((o['primario'], o['texto'], o['pagina']), ('#f08a59', '#f2f2f0', '#1b1d2c'))
-        self.assertEqual(set(c), {r for r, _, _ in self.ti.ROLES} | set(self.ti.ROLES_PRIMARIO))
-        self.assertEqual(set(o), {r for r, _, _ in self.ti.ROLES})
+        self.assertEqual(set(c), {r for r, _, _ in self.ti.ROLES} | set(self.ti.ROLES_PROPIOS))
+        self.assertEqual(set(o), set(c))  # la oscura, completa: lo que el tema no da, derivado (decisión 348)
+        self.assertEqual(o['tinta-oscura'], '#f2f2f0')  # la tinta fuerte, clara en oscuro (349)
+        self.assertGreaterEqual(cd.contraste((255, 255, 255), tuple(int(o['oscuro'][i:i + 2], 16) for i in (1, 3, 5))), 4.5)
         css = self.ti.variables_css(self.tema)
         self.assertIn('--primario: #b8431c;', css)
         self.assertIn(':root[data-theme="dark"] { --primario: #f08a59;', css)
@@ -72,7 +74,7 @@ class TemaTinta(unittest.TestCase):
         h = lambda x: tuple(int(x[i:i + 2], 16) for i in (1, 3, 5))
         for colores in (self.tema['colores'], self.tema['colores-oscuro']):
             for fondo in ('pagina', 'fondo-suave'):
-                for texto in ('texto', 'texto-suave', 'texto-tenue', 'primario', 'acento', 'oscuro'):
+                for texto in ('texto', 'texto-suave', 'texto-tenue', 'primario', 'acento', 'tinta-oscura'):
                     k = cd.contraste(h(colores[texto]), h(colores[fondo]))
                     self.assertGreaterEqual(k, 4.5, f'{texto} sobre {fondo}: {k:.2f}')
 
