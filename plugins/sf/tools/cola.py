@@ -108,10 +108,35 @@ CAMPOS_VIEJOS = {'probando': 'observando'}  # migración 215
 EVENTOS_VIEJOS = {'a-testing': 'a-observacion', 'probada': 'cerrada', 'probando': 'observando', 'pendiente': 'seguir'}  # migración 215
 ESPERA_BLOQUEO = 10  # segundos
 BLOQUEO_VIEJO = 120  # segundos: un bloqueo más antiguo se da por abandonado
+# Windows no deja sustituir un archivo mientras otro proceso lo tiene abierto (el panel, al leer la cola): la
+# sustitución se reintenta con esperas cortas que crecen, unos dos segundos en total (tarea 402).
+REINTENTOS_SUSTITUIR = 8
+ESPERA_SUSTITUIR = 0.05  # segundos: la primera espera; cada una dobla la anterior, hasta 0.5
 
 
 class Rechazo(Exception):
     """El cambio no se hace: la cola queda como estaba."""
+
+
+def sustituir(temporal: Path, destino: Path) -> None:
+    """Pone `temporal` en lugar de `destino` con os.replace, reintentando si Windows lo tiene bloqueado (tarea 402).
+
+    Si `destino` sigue bloqueado tras REINTENTOS_SUSTITUIR intentos, borra el temporal y rechaza la orden con un
+    mensaje claro: `destino` queda como estaba y la orden puede repetirse."""
+    espera = ESPERA_SUSTITUIR
+    for intento in range(REINTENTOS_SUSTITUIR):
+        try:
+            os.replace(temporal, destino)
+            return
+        except PermissionError as e:
+            error = e
+            if intento + 1 < REINTENTOS_SUSTITUIR:
+                time.sleep(espera)
+                espera = min(espera * 2, 0.5)
+    temporal.unlink(missing_ok=True)
+    raise Rechazo(f'No se pudo guardar {destino}: otro proceso lo tiene abierto (¿el panel lo está leyendo?) y '
+                  f'sigue bloqueado tras {REINTENTOS_SUSTITUIR} intentos ({error}). No se ha guardado el cambio: '
+                  f'{destino.name} queda como estaba; repite la orden.')
 
 
 # ---------- Configuración del proyecto (.sf/proyecto.json; informe «Configuración inicial», tarea 263) ----------
@@ -363,7 +388,7 @@ class Cola:
         texto = json.dumps(self.datos, ensure_ascii=False, indent=2) + '\n'
         temporal = self.archivo.with_name(self.archivo.name + '.tmp')
         temporal.write_bytes(texto.encode('utf-8'))
-        os.replace(temporal, self.archivo)
+        sustituir(temporal, self.archivo)
         self.original = texto
 
     def archivadas(self) -> dict:
@@ -398,7 +423,7 @@ class Cola:
         if cambio:
             temporal = self.historial.with_name(self.historial.name + '.tmp')
             temporal.write_bytes(''.join(x + '\n' for x in lineas).encode('utf-8'))
-            os.replace(temporal, self.historial)
+            sustituir(temporal, self.historial)
 
     def archivar(self, t: dict) -> None:
         with self.historial.open('ab') as f:

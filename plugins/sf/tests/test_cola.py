@@ -1064,6 +1064,76 @@ class Bloqueo(Base):
         self.orden('lista')
 
 
+class Sustituir(Base):
+    """Windows no deja sustituir la cola mientras otro proceso la lee: se reintenta (tarea 402)."""
+
+    def setUp(self):
+        super().setUp()
+        self.orden('crear', 'Una')
+        espera = cola.ESPERA_SUSTITUIR
+        cola.ESPERA_SUSTITUIR = 0.001
+        self.addCleanup(setattr, cola, 'ESPERA_SUSTITUIR', espera)
+        self.temporal = self.archivo.with_name(self.archivo.name + '.tmp')
+
+    def reemplazo(self, fallos: int):
+        """Un os.replace que da PermissionError las primeras `fallos` veces y luego sustituye de verdad."""
+        real, llamadas = os.replace, []
+
+        def falso(origen, destino):
+            llamadas.append(destino)
+            if len(llamadas) <= fallos:
+                raise PermissionError(13, 'Acceso denegado', str(destino))
+            real(origen, destino)
+        return falso, llamadas
+
+    def test_reintenta_y_guarda(self):
+        falso, llamadas = self.reemplazo(3)
+        with mock.patch.object(cola.os, 'replace', falso):
+            self.orden('renombrar', '11', 'Otra')
+        self.assertEqual((len(llamadas), self.tarea(11)['texto']), (4, 'Otra'))
+        self.assertFalse(self.temporal.exists())
+
+    def test_si_sigue_bloqueada_lo_dice_y_no_deja_el_temporal(self):
+        antes = self.archivo.read_bytes()
+        falso, llamadas = self.reemplazo(cola.REINTENTOS_SUSTITUIR)
+        with mock.patch.object(cola.os, 'replace', falso):
+            mensaje = self.orden('renombrar', '11', 'Otra', ok=False)
+        self.assertEqual(len(llamadas), cola.REINTENTOS_SUSTITUIR)
+        self.assertIn('No se pudo guardar', mensaje)
+        self.assertIn('bloqueado', mensaje)
+        self.assertIn('repite la orden', mensaje)
+        self.assertEqual(self.archivo.read_bytes(), antes)
+        self.assertFalse(self.temporal.exists())
+        self.assertFalse((self.raiz / '.sf' / 'peticiones.lock').exists())  # suelta su bloqueo
+        self.orden('renombrar', '11', 'Otra')  # desbloqueada, la orden repetida entra
+        self.assertEqual(self.tarea(11)['texto'], 'Otra')
+
+    def test_otro_error_no_se_reintenta(self):
+        llamadas = []
+
+        def falso(origen, destino):
+            llamadas.append(destino)
+            raise FileNotFoundError(2, 'No existe', str(origen))
+        with mock.patch.object(cola.os, 'replace', falso), self.assertRaises(FileNotFoundError):
+            self.orden('renombrar', '11', 'Otra')
+        self.assertEqual(len(llamadas), 1)
+
+    @unittest.skipUnless(sys.platform == 'win32', 'el bloqueo al sustituir es de Windows')
+    def test_con_la_cola_abierta_de_verdad_en_windows(self):
+        import threading
+        cola.ESPERA_SUSTITUIR = 0.05
+        abierta = self.archivo.open('rb')  # como el panel al leerla: Windows no deja sustituirla
+        cerrar = threading.Timer(0.2, abierta.close)
+        cerrar.start()
+        try:
+            self.orden('renombrar', '11', 'Otra')
+        finally:
+            cerrar.join()
+            abierta.close()
+        self.assertEqual(self.tarea(11)['texto'], 'Otra')
+        self.assertFalse(self.temporal.exists())
+
+
 class ConGit(Base):
     git = True
 
