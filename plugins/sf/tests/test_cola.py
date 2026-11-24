@@ -2382,5 +2382,51 @@ class RamaVacia(Base):
         self.assertEqual(self.tarea(11)['estado'], 'en-curso')
 
 
+class DesdeWorktree(Base):
+    """Sin --raiz, desde el worktree de un subagente (sin .sf/peticiones.json, que no se versiona), cola.py lee la
+    cola de la carpeta principal del repositorio (tarea 404). Con --raiz, la de esa ruta, como siempre."""
+    git = True
+
+    def setUp(self):
+        super().setUp()
+        self.orden('crear', 'La del subagente')
+        self.wt = Path(self._tmp.name) / 'proyecto-wt-11'
+        git(self.raiz, 'worktree', 'add', '-q', '-b', 'sub-11', str(self.wt), 'develop')
+
+    def sin_raiz(self, carpeta: Path, *args: str) -> tuple[int, dict]:
+        salida, antes = io.StringIO(), Path.cwd()
+        os.chdir(carpeta)
+        try:
+            with contextlib.redirect_stdout(salida):
+                codigo = cola.main(['--json', *args])
+        finally:
+            os.chdir(antes)
+        return codigo, json.loads(salida.getvalue())
+
+    def test_ver_desde_el_worktree_lee_la_cola_principal(self):
+        self.assertFalse((self.wt / '.sf' / 'peticiones.json').exists())
+        codigo, r = self.sin_raiz(self.wt, 'ver', '11')
+        self.assertEqual((codigo, r['ok']), (0, True), r['mensaje'])
+        self.assertIn('La del subagente', json.dumps(r, ensure_ascii=False))
+        self.assertTrue(cola.misma_ruta(cola.raiz_por_omision(self.wt.resolve()), self.raiz.resolve()))
+
+    def test_desde_la_principal_y_con_cola_propia_no_cambia(self):
+        self.assertEqual(cola.raiz_por_omision(self.raiz), self.raiz)
+        (self.wt / '.sf').mkdir()
+        (self.wt / '.sf' / 'peticiones.json').write_text('{"ultimo": 0, "peticiones": []}\n', encoding='utf-8')
+        self.assertEqual(cola.raiz_por_omision(self.wt), self.wt)
+
+    def test_con_raiz_explicita_no_busca_la_principal(self):
+        salida = io.StringIO()
+        with contextlib.redirect_stdout(salida):
+            codigo = cola.main(['--raiz', str(self.wt), '--json', 'ver', '11'])
+        self.assertEqual((codigo, json.loads(salida.getvalue())['ok']), (1, False))
+
+    def test_fuera_de_git_sigue_en_la_carpeta_actual(self):
+        suelta = Path(self._tmp.name) / 'suelta'
+        suelta.mkdir()
+        self.assertEqual(cola.raiz_por_omision(suelta), suelta)
+
+
 if __name__ == '__main__':
     unittest.main()

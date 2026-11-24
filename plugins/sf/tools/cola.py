@@ -4,7 +4,8 @@ Uso:
   python -I -X utf8 cola.py [--raiz RUTA] [--quien propietario|principal] [--via cli|panel] [--json] <orden> …
 
   --raiz   la carpeta del proyecto (la cola es .sf/peticiones.json) o la ruta de una cola; por omisión, la carpeta
-           actual. Con una cola suelta, el repositorio es la carpeta que contiene su .sf/.
+           actual o, si es el worktree de un subagente y no tiene cola, la carpeta principal de su repositorio
+           (tarea 404). Con una cola suelta, el repositorio es la carpeta que contiene su .sf/.
   --quien  quién decide el cambio (principal por omisión); --via, por dónde llega (cli por omisión).
   --json   la respuesta en una línea JSON: {"ok", "mensaje", …}, para el panel. Además, «crear» y «split» dan el
            número nuevo («id»); un cierre, una reversión o un «probar» que choca, «fallo» (choques, commit, merge
@@ -2656,10 +2657,28 @@ def salida_utf8() -> None:
             flujo.reconfigure(encoding='utf-8')
 
 
+def raiz_por_omision(carpeta: Path) -> Path:
+    """La carpeta del proyecto sin --raiz: la actual si tiene cola; si no, y es un worktree de git (el de un
+    subagente, sin .sf/peticiones.json, que no se versiona), la carpeta principal del repositorio, la que tiene la
+    cola, sacada de «git rev-parse --git-common-dir» (tarea 404). Si git no responde o la principal tampoco tiene
+    cola, la actual: el error dirá dónde la ha buscado."""
+    if (carpeta / '.sf' / 'peticiones.json').exists():
+        return carpeta
+    try:
+        r = git(carpeta, 'rev-parse', '--git-common-dir')
+    except OSError:  # sin git
+        return carpeta
+    if r.returncode or not r.stdout.strip():
+        return carpeta
+    comun = (carpeta / r.stdout.strip()).resolve()  # relativa a la carpeta, o absoluta
+    principal = comun.parent if comun.name == '.git' else comun
+    return principal if (principal / '.sf' / 'peticiones.json').exists() else carpeta
+
+
 def main(argv: list | None = None) -> int:
     salida_utf8()
     a = analizador().parse_args(argv)
-    raiz = getattr(a, 'raiz', Path.cwd())
+    raiz = getattr(a, 'raiz', None) or raiz_por_omision(Path.cwd())
     como_json = getattr(a, 'json', False)
     cola = Cola(raiz, getattr(a, 'quien', 'principal'), getattr(a, 'via', 'cli'))
     try:

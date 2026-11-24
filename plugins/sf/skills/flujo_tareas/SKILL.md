@@ -17,7 +17,7 @@ python -I -X utf8 "$HOME/.claude/sf/cola.py" [--raiz RUTA] [--quien propietario|
 ```
 
 - Siempre esa orden, igual en bash, zsh y PowerShell, en cualquier proyecto; también los subagentes. Si el mod dice al empezar la sesión que en esta máquina Python se lanza con otro nombre (en macOS, `python3`), con ese en lugar de `python`, aquí y en toda orden de Python de la SF («La orden de Python sale del intérprete que se detecta», 236); el encargo de `cola.py encargo` lo dice también. Nunca el `tools/cola.py` de una carpeta (en la SF, `plugins/sf/tools/cola.py` cambia con la rama activa): el que manda es el del plugin cargado. Al cargar, el panel copia su `cola.py` a `~/.claude/sf/cola-<sesión>.py` y lo lanza («El panel ejecuta una copia de cola.py hecha al cargar», 136); `~/.claude/sf/cola.py` es un lanzador que pasa la orden a esa copia, por `CLAUDE_CODE_SESSION_ID`: Claude y el panel usan el mismo (tarea 252). Sin la copia sale con 2 y lo dice: `/reload-plugins` la rehace.
-- `--raiz`: la carpeta del proyecto, por omisión la actual. Para probar, la ruta de una copia de la cola.
+- `--raiz`: la carpeta del proyecto, por omisión la actual. Para probar, la ruta de una copia de la cola. Sin `--raiz`, desde el worktree de un subagente (sin `.sf/peticiones.json`, que no se versiona), cola.py usa la cola de la carpeta principal del repositorio: el subagente consulta su tarea con `cola.py ver N` desde su worktree.
 - `--quien`: `principal` por omisión; `propietario` cuando el cambio es una decisión suya (su OK a cerrar).
 - Sale con 0 si hace el cambio, 1 si no lo hace (dice por qué y no toca nada) y 2 si la orden está mal escrita; `choques`, que solo consulta, con 3 si hay choques. `cola.py <orden> -h` da el uso de cada una.
 
