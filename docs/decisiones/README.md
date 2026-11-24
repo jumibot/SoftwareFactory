@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 345 | 2026-11-24 | [Se mantiene la frase del prompt de sistema que marca el repositorio fuente de la SF](345-2026-11-24-se-mantiene-la-frase-del-prompt-de-sistema-que-marca-el-repositorio-fuente-de-la-sf.md) |
 | 344 | 2026-11-24 | [La SF muda sus documentos a sf/ justo antes de cerrar la tarea que la lleva como un proyecto más](344-2026-11-24-la-sf-muda-sus-documentos-a-sf-justo-antes-de-cerrar-la-tarea-que-la-lleva-como-un-proyecto-mas.md) |
 | 343 | 2026-11-24 | [Las decisiones antiguas de la SF se mueven sin reescribir su texto](343-2026-11-24-las-decisiones-antiguas-de-la-sf-se-mueven-sin-reescribir-su-texto.md) |
 | 342 | 2026-11-24 | [El commit de versión de la SF se titula con el tag, como en los demás proyectos](342-2026-11-24-el-commit-de-version-de-la-sf-se-titula-con-el-tag-como-en-los-demas-proyectos.md) |
