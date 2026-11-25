@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 381 | 2026-11-25 | [Un juego fijo de emojis de estado en las respuestas del principal, coherente con el panel](381-2026-11-25-un-juego-fijo-de-emojis-de-estado-en-las-respuestas-del-principal-coherente-con-el-panel.md) |
 | 380 | 2026-11-25 | [La línea del foco abre cada respuesta y lo de otras tareas va al final](380-2026-11-25-la-linea-del-foco-abre-cada-respuesta-y-lo-de-otras-tareas-va-al-final.md) |
 | 379 | 2026-11-25 | [El mod entrega las reglas y sf:orquestacion al empezar la sesión, tras /clear y tras compactar](379-2026-11-25-el-mod-entrega-las-reglas-y-sf-orquestacion-al-empezar-la-sesion-tras-clear-y-tras-compactar.md) |
 | 378 | 2026-11-25 | [Al anotar sin foco, un menú breve: paso de una tarea, en curso o en cola](378-2026-11-25-al-anotar-sin-foco-un-menu-breve-paso-de-una-tarea-en-curso-o-en-cola.md) |
