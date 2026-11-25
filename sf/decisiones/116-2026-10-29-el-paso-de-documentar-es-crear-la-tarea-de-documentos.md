@@ -4,4 +4,4 @@
 - **Contexto:** la decisión 112 hacía que una tarea que necesita cambiar un documento compartido añadiera el paso «Documentar: tarea NN». Ese paso quedaba pendiente hasta hacer la tarea de documentos, y la C no salía, aunque el trabajo era de otra tarea.
 - **Decisión:** el paso es crear la tarea de documentos. Se anota en cuanto se crea, ya hecho: «Creada la tarea NN para actualizar la documentación». No bloquea el cierre.
 - **Consecuencias:** una tarea se cierra sin esperar a su documentación; la tarea NN la recuerda en la cola. Precisa la decisión 112.
-- **Aplicada en:** cola (pasos de las tareas abiertas); metodología, 2, plantilla `claude-sf.md` y `CLAUDE.md`, en la tarea 146.
+- **Aplicada en:** `sf:orquestacion` («Documentos compartidos»); metodología, «Documentos compartidos».
