@@ -4,6 +4,7 @@ import { abreviarRutas, duracionEmergente, pareceError, textoEmergente } from '.
 import { avisoComprobacion, avisoDependencias, proximaComprobacion, subirManifiesto } from '../hooks/cola'
 import { claveIncorporacion, colorDelEstilo, tareasEnDevelop } from '../hooks/lectura'
 import { colorDeSesion } from '../hooks/constantes'
+import { numeroTarea } from '../hooks/foco'
 import { PRUEBA_PYTHON } from '../hooks/python'
 import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE } from '../hooks/subagentes'
 import { firmaEstructura, firmaLista, vistaCuerpo } from '../hooks/panel'
@@ -6990,7 +6991,12 @@ test('Sugerencia de lo pendiente: a los 10 minutos sin prompt tras un turno, «�
   await reloj!.advance(DIEZ_MIN - 60_000)
   expect(vistas).toEqual([])
   await reloj!.advance(60_000)
-  expect(vistas).toEqual(['¿Seguimos con «Fondos por bloque» (T 4)?'])
+  expect(vistas).toEqual(['¿Seguimos con «Fondos por bloque» (T❹ )?'])
+})
+test('Número de tarea en el chat: dígitos en círculo negro pegados a la T y un espacio detrás de cada uno, el cero ⓿', () => {
+  expect(numeroTarea(392)).toBe('T❸ ❾ ❷ ')
+  expect(numeroTarea('104')).toBe('T❶ ⓿ ❹ ')
+  expect(numeroTarea(7)).toBe('T❼ ')
 })
 test('Sugerencia de lo pendiente: con la rama de una tarea activa, esa', async (...m) => {
   const vistas = sugerencias(m[1])
@@ -6998,7 +7004,7 @@ test('Sugerencia de lo pendiente: con la rama de una tarea activa, esa', async (
   const { reloj } = await preparar(m, { reloj: true, cola, extra: GIT('ref: refs/heads/feature/1-panel\n') })
   await fin(m, 't1')
   await reloj!.advance(DIEZ_MIN)
-  expect(vistas).toEqual(['¿Seguimos con «Panel lateral» (T 1)?'])
+  expect(vistas).toEqual(['¿Seguimos con «Panel lateral» (T❶ )?'])
 })
 test('Sugerencia de lo pendiente: un prompt del propietario o un turno nuevo antes de los 10 minutos la anulan', async (...m) => {
   const vistas = sugerencias(m[1])

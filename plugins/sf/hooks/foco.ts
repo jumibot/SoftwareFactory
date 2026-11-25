@@ -25,7 +25,14 @@ export function textoSugerencia(est: Estado | null): string | null {
   const enCurso = enCursoRecientes(est)
   const rama = est.rama && !est.rama.separada ? est.rama.nombre : null
   const p = enCurso.find(x => rama !== null && x.rama === rama) ?? enCurso[0]
-  return p ? `¿Seguimos con «${p.texto}» (T ${String(p.id)})?` : null
+  return p ? `¿Seguimos con «${p.texto}» (${numeroTarea(p.id)})?` : null
+}
+
+// El número de una tarea en el chat (tarea 417): dígitos en círculo negro pegados a la T y un espacio detrás de cada uno,
+// porque el terminal los pinta más anchos y sin espacio se montan: 392 → «T❸ ❾ ❷ ».
+const CIRCULOS = '⓿❶❷❸❹❺❻❼❽❾'
+export function numeroTarea(id: number | string): string {
+  return 'T' + [...String(id)].map(d => (/[0-9]/.test(d) ? `${[...CIRCULOS][Number(d)]} ` : d)).join('')
 }
 
 // Un turno del principal empieza o el propietario escribe: la sugerencia pendiente ya no va.
