@@ -381,6 +381,7 @@ export async function leerEstado($: $, desde = 0): Promise<Estado> {
   const cola = await leerPeticiones($, raiz)
   base.peticiones = cola.peticiones
   base.errorPeticiones = cola.error
+  Object.assign(base, conAbsorbidas(base, base.peticiones))
   base.salidas = await leerSalidas($, raiz, desde).catch(() => [])
   base.incorporacion = await leerIncorporacion($, raiz).catch(() => null)
 
@@ -545,6 +546,35 @@ export async function leerSubagentes($: $): Promise<LecturaSubagentes> {
 }
 export async function subagentesDeTareas($: $): Promise<SubagentesDeTareas> {
   const { subagentes, subagentesEsperando, subagentesParados } = await leerSubagentes($)
+  return { subagentes, subagentesEsperando, subagentesParados }
+}
+
+// Las tareas que absorbió una al fusionarse (tarea 426), de su historial: el `fusion` de cola.py, «absorbe 392» o
+// «absorbe 391, 392 y 393». El subagente de una absorbida sigue con su descripción («Tarea 392: …») y trabaja en la
+// rama que queda: es el de la que queda.
+export function absorbidas(p: { historial: Evento[] }): number[] {
+  return p.historial.flatMap(e =>
+    e.evento === 'fusion' && e.detalle?.startsWith('absorbe ') ? (e.detalle.slice(8).match(/\d+/g) ?? []).map(Number) : [],
+  )
+}
+
+// Los subagentes de las tareas, con los de las absorbidas pasados a la que queda (tarea 426): si la que queda ya tiene
+// uno, manda el suyo; uno que trabaja gana a otro que espera, y los dos a uno parado, como en leerSubagentes.
+export function conAbsorbidas(s: SubagentesDeTareas, peticiones: { id: number; historial: Evento[] }[]): SubagentesDeTareas {
+  const subagentes = { ...s.subagentes }
+  const subagentesEsperando = { ...s.subagentesEsperando }
+  const subagentesParados = { ...s.subagentesParados }
+  for (const p of peticiones)
+    for (const n of absorbidas(p)) {
+      if (n === p.id) continue
+      for (const m of [subagentes, subagentesEsperando, subagentesParados])
+        if (m[n] !== undefined) {
+          m[p.id] ??= m[n]!
+          delete m[n]
+        }
+    }
+  for (const id of Object.keys(subagentes)) delete subagentesEsperando[Number(id)]
+  for (const id of [...Object.keys(subagentes), ...Object.keys(subagentesEsperando)]) delete subagentesParados[Number(id)]
   return { subagentes, subagentesEsperando, subagentesParados }
 }
 

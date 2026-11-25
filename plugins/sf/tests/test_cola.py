@@ -371,10 +371,9 @@ class SinGit(Base):
         self.assertEqual([p['texto'] for p in self.tarea(11)['pasos']], ['Hacer'] + cierre)
         self.assertEqual([p['texto'] for p in self.tarea(12)['pasos']], ['Otro', 'Tercero'])
         self.assertIn('de trabajo', self.orden('split', '11', '1', ok=False))
-        # fusionar dos en curso: los de cierre, una vez y al final
-        self.orden('en-curso', '12')
+        # fusionar una en cola en la que está en curso: queda esta, con los de cierre una vez y al final (174, 358)
         self.orden('fusionar', '11', '12')
-        self.assertEqual([p['texto'] for p in self.tarea(12)['pasos']], ['Hacer', 'Otro', 'Tercero'] + cierre)
+        self.assertEqual([p['texto'] for p in self.tarea(11)['pasos']], ['Hacer', 'Otro', 'Tercero'] + cierre)
 
     def test_la_linea_del_historial_lleva_el_estado_de_salida(self):
         for texto in ('Cerrada', 'Eliminada', 'Una', 'Dos', 'Observada'):
@@ -382,6 +381,7 @@ class SinGit(Base):
         self.orden('listo', '11', '--prueba', 'mirar')
         self.orden('cerrar', '11')
         self.orden('eliminar', '12')
+        self.orden('en-cola', '14')  # sin trabajo: se absorbe en la 13, en curso (358)
         self.orden('fusionar', '13', '14')
         self.orden('listo', '15', '--prueba', 'mirar')
         self.orden('a-observacion', '15')
@@ -390,7 +390,7 @@ class SinGit(Base):
             {'id': 16, 'texto': 'Descartada', 'estado': 'descartada'}]})
         self.orden('limpiar')
         salida = {n: t['estado'] for n, t in cola.Cola(self.raiz, 'principal', 'cli').archivadas().items()}
-        self.assertEqual(salida, {11: 'cerrada', 12: 'eliminada', 13: 'absorbida', 15: 'cerrada', 16: 'descartada'})
+        self.assertEqual(salida, {11: 'cerrada', 12: 'eliminada', 14: 'absorbida', 15: 'cerrada', 16: 'descartada'})
         self.assertEqual(json.loads(self.orden('ver', '11'))['estado'], 'cerrada')
         self.assertIn('cerrada', self.orden('en-curso', '11', ok=False))
         self.orden('restaurar', '12')
@@ -440,19 +440,83 @@ class SinGit(Base):
         self.assertIn('descartar', self.orden('eliminar', '11', ok=False))
 
     def test_fusionar(self):
+        # Queda la que tiene el trabajo, la 11 en curso, aunque no sea la de número mayor; sus pasos y su descripción,
+        # primero; después, que se retitule (decisión 358).
         self.escribir({'ultimo': 13, 'peticiones': [
             {'id': 11, 'texto': 'Una', 'estado': 'en-curso', 'descripcion': 'A.'},
             {'id': 12, 'texto': 'Dos', 'estado': 'en-cola', 'rama': 'feature/12-dos',
              'pasos': [{'texto': 'P1', 'estado': 'hecho'}, {'texto': 'P2', 'estado': 'pendiente'}]},
             {'id': 13, 'texto': 'Tres', 'estado': 'en-cola', 'descripcion': 'C.'},
         ]})
-        self.assertIn('Fusionadas en la 13 las 11 y 12', self.orden('fusionar', '11', '13', '12'))
-        t = self.tarea(13)
-        self.assertEqual((t['estado'], t['rama'], t['descripcion']), ('en-curso', 'feature/12-dos', 'C.\n\nA.'))
+        mensaje = self.orden('fusionar', '13', '11', '12')
+        self.assertIn('Fusionadas en la 11 las 12 y 13', mensaje)
+        self.assertIn('Falta retitularla, revisar su descripción y ordenar sus pasos: renombrar 11, redescribir 11, '
+                      'paso mover 11 DE A.', mensaje)
+        t = self.tarea(11)
+        self.assertEqual((t['texto'], t['estado'], t['rama'], t['descripcion']), ('Una', 'en-curso', 'feature/12-dos', 'A.\n\nC.'))
         self.assertEqual([p['texto'] for p in t['pasos']], ['Una', 'P1', 'P2', 'Tres', 'Activar rama para poder probar', 'Cerrar la tarea'])
-        self.assertEqual([x['id'] for x in self.leer()['peticiones']], [13])
-        self.assertEqual({a['id']: self.eventos(a)[-1] for a in self.archivadas()}, {11: 'absorbida', 12: 'absorbida'})
+        self.assertEqual([x['id'] for x in self.leer()['peticiones']], [11])
+        self.assertEqual({a['id']: self.eventos(a)[-1] for a in self.archivadas()}, {12: 'absorbida', 13: 'absorbida'})
         self.assertEqual(self.leer()['ultimo'], 13)
+
+    def test_fusionar_sin_trabajo_queda_la_de_numero_mayor(self):
+        self.escribir({'ultimo': 13, 'peticiones': [
+            {'id': 11, 'texto': 'Una', 'estado': 'en-cola', 'descripcion': 'A.'},
+            {'id': 13, 'texto': 'Tres', 'estado': 'en-cola', 'descripcion': 'C.'},
+        ]})
+        self.assertIn('Fusionadas en la 13 la 11', self.orden('fusionar', '11', '13'))
+        t = self.tarea(13)
+        self.assertEqual((t['texto'], t['estado'], t['descripcion']), ('Tres', 'en-cola', 'C.\n\nA.'))
+        self.assertEqual([p['texto'] for p in t['pasos']], ['Tres', 'Una'])
+
+    def test_fusionar_con_trabajo_en_varias_no(self):
+        # En curso la 11 y con subagente anotado la 12: no se fusionan, y lo dice con cuáles (decisión 358).
+        self.escribir({'ultimo': 13, 'peticiones': [
+            {'id': 11, 'texto': 'Una', 'estado': 'en-curso'},
+            {'id': 12, 'texto': 'Dos', 'estado': 'en-cola',
+             'historial': [{'evento': 'subagente', 'fecha': '2026-11-24T10:00:00+01:00', 'detalle': 'wt-12 · sub-12'}]},
+            {'id': 13, 'texto': 'Tres', 'estado': 'en-cola'},
+        ]})
+        antes = self.leer()
+        self.assertEqual(self.orden('fusionar', '11', '12', '13', ok=False),
+                         'Tienen trabajo las 11 y 12: no se fusionan (decisión 358).')
+        self.assertEqual(self.leer(), antes)
+
+    def test_paso_mover(self):
+        self.orden('crear', 'Una', '--en-curso')
+        for texto in ('A', 'B', 'C'):
+            self.orden('paso', 'añadir', '11', texto)
+        self.orden('paso', 'añadir', '11', 'Mirar', '--prueba')
+        self.assertIn('Paso 3 de la 11, ahora el 1: «C»', self.orden('paso', 'mover', '11', '3', '1'))
+        self.orden('paso', 'mover', '11', '1', '3')
+        self.orden('paso', 'mover', '11', '2', '1')
+        cierre = ['Activar rama para poder probar', 'Mirar', 'Cerrar la tarea']
+        self.assertEqual([p['texto'] for p in self.tarea(11)['pasos']], ['B', 'A', 'C'] + cierre)
+        self.assertEqual(self.eventos(self.tarea(11))[-1], 'paso')
+        self.assertEqual(self.tarea(11)['historial'][-1]['detalle'], 'movido 2 a 1: B')
+        # Ni los de cierre ni las ayudas de prueba se mueven, ni se lleva uno de trabajo detrás de ellos.
+        self.assertIn('no se mueve', self.orden('paso', 'mover', '11', '4', '1', ok=False))
+        self.assertIn('no se mueve', self.orden('paso', 'mover', '11', '5', '1', ok=False))
+        self.assertIn('de 1 a 3', self.orden('paso', 'mover', '11', '1', '4', ok=False))
+        self.assertEqual([p['texto'] for p in self.tarea(11)['pasos']], ['B', 'A', 'C'] + cierre)
+
+    def test_fusionar_anota_las_absorbidas_de_las_absorbidas(self):
+        # La 12 había absorbido la 9 y la 10: al absorber la 12, la 13 las anota también (tarea 426).
+        self.escribir({'ultimo': 13, 'peticiones': [
+            {'id': 11, 'texto': 'Una', 'estado': 'en-cola'},
+            {'id': 12, 'texto': 'Dos', 'estado': 'en-cola',
+             'historial': [{'evento': 'fusion', 'fecha': '2026-11-24T10:00:00+01:00', 'detalle': 'absorbe 9 y 10'}]},
+            {'id': 13, 'texto': 'Tres', 'estado': 'en-cola'},
+        ]})
+        self.orden('fusionar', '11', '12', '13')
+        self.assertEqual(self.tarea(13)['historial'][-1]['detalle'], 'absorbe 11 y 12 (con las 9 y 10, que habían absorbido)')
+        self.escribir({'ultimo': 13, 'peticiones': [
+            {'id': 12, 'texto': 'Dos', 'estado': 'en-cola',
+             'historial': [{'evento': 'fusion', 'fecha': '2026-11-24T10:00:00+01:00', 'detalle': 'absorbe 9'}]},
+            {'id': 13, 'texto': 'Tres', 'estado': 'en-cola'},
+        ]})
+        self.orden('fusionar', '12', '13')
+        self.assertEqual(self.tarea(13)['historial'][-1]['detalle'], 'absorbe 12 (con la 9, que había absorbido)')
 
     def test_fusionar_rechaza(self):
         self.escribir({'ultimo': 13, 'peticiones': [
@@ -1743,78 +1807,73 @@ class ConGit(Base):
     def ramas(self) -> list:
         return git(self.raiz, 'branch', '--format=%(refname:short)').split()
 
-    def test_fusionar_con_rama_integrada(self):
-        self.dos_con_rama()
-        git(self.raiz, 'branch', 'sub-11', 'feature/11-una')
-        git(self.raiz, 'switch', '-q', 'feature/12-dos')
-        git(self.raiz, 'merge', '-q', '--no-edit', 'feature/11-una')
-        git(self.raiz, 'switch', '-q', 'develop')
+    def en_cola_con_rama(self, texto: str, nombre: str) -> int:
+        """Una tarea nueva en cola con su rama, creada desde develop sin commits propios (como la deja en-cola)."""
+        self.orden('crear', texto)
+        id_ = self.leer()['ultimo']
+        rama = f'feature/{id_}-{nombre}'
+        git(self.raiz, 'branch', rama, 'develop')
+        datos = self.leer()
+        next(t for t in datos['peticiones'] if t['id'] == id_)['rama'] = rama
+        self.escribir(datos)
+        return id_
+
+    def una_con_trabajo(self) -> None:
+        """La 11 en curso, con su rama y un commit en ella; develop avanza y la 12, en cola, tiene una rama sin commits
+        propios que no está en la de la 11."""
+        self.orden('crear', 'Una', '--en-curso')
+        self.orden('rama', '11', 'una', '--sin-activar')
+        self.commit_en('feature/11-una', 'b.txt', 'b\n')
+        self.commit_en('develop', 'd.txt', 'd\n')
+        self.en_cola_con_rama('Dos', 'dos')
+
+    def test_fusionar_queda_la_que_tiene_el_trabajo(self):  # decisión 358
+        self.una_con_trabajo()
         mensaje = self.orden('fusionar', '11', '12')
-        self.assertIn('feature/11-una', mensaje)
-        self.assertEqual(self.tarea(12)['rama'], 'feature/12-dos')
-        self.assertNotIn('feature/11-una', self.ramas())
-        self.assertNotIn('sub-11', self.ramas())
-        self.assertIn('feature/12-dos', self.ramas())
+        self.assertIn('Fusionadas en la 11 la 12', mensaje)
+        self.assertEqual(self.tarea(11)['rama'], 'feature/11-una')
+        self.assertIsNone(self.tarea(12))
+        self.assertIn('feature/11-una', self.ramas())
+        self.assertNotIn('feature/12-dos', self.ramas())  # sin commits propios: se borra aunque no esté en la 11
 
     def test_fusionar_con_rama_ya_borrada(self):
-        self.dos_con_rama()
-        git(self.raiz, 'branch', '-D', 'feature/11-una')
+        self.una_con_trabajo()
+        git(self.raiz, 'branch', '-D', 'feature/12-dos')
         self.orden('fusionar', '11', '12')
-        self.assertEqual(self.tarea(12)['rama'], 'feature/12-dos')
-        self.assertIsNone(self.tarea(11))
+        self.assertEqual(self.tarea(11)['rama'], 'feature/11-una')
+        self.assertIsNone(self.tarea(12))
 
-    def test_fusionar_rama_destino_de_otra(self):
-        self.dos_con_rama()
-        git(self.raiz, 'switch', '-q', 'feature/12-dos')
-        git(self.raiz, 'merge', '-q', '--no-edit', 'feature/11-una')
-        git(self.raiz, 'switch', '-q', 'develop')
-        self.orden('crear', 'Tres')  # la 13, sin rama: se lleva la que contiene a las demás
-        self.assertIn('Rama: feature/12-dos', self.orden('fusionar', '11', '12', '13'))
-        self.assertEqual(self.tarea(13)['rama'], 'feature/12-dos')
-        self.assertNotIn('feature/11-una', self.ramas())
-
-    def test_fusionar_rama_sin_integrar_no(self):
-        self.dos_con_rama()
-        mensaje = self.orden('fusionar', '11', '12', ok=False)
-        self.assertIn('feature/11-una', mensaje)
-        self.assertIn('feature/12-dos', mensaje)
-        self.assertEqual(len(self.leer()['peticiones']), 2)
+    def test_fusionar_la_que_queda_sin_rama_se_lleva_la_de_otra(self):
+        self.en_cola_con_rama('Una', 'una')
+        self.orden('crear', 'Dos', '--en-curso')  # la 12, con el trabajo y sin rama
+        self.assertIn('Rama: feature/11-una', self.orden('fusionar', '11', '12'))
+        self.assertEqual(self.tarea(12)['rama'], 'feature/11-una')
         self.assertIn('feature/11-una', self.ramas())
 
-    def test_fusionar_recoge_el_subagente_de_la_absorbida(self):
+    def test_fusionar_con_trabajo_en_varias_no_toca_nada(self):  # decisión 358
         self.dos_con_rama()
-        otro = Path(self._tmp.name) / 'otro'
-        git(self.raiz, 'worktree', 'add', '-q', '-b', 'sub-11', str(otro), 'feature/11-una')
-        self.orden('subagente', '11', '--worktree', otro.as_posix(), '--rama', 'sub-11')
-        wt12 = Path(self._tmp.name) / 'wt-12'
-        git(self.raiz, 'worktree', 'add', '-q', '-b', 'sub-12', str(wt12), 'feature/12-dos')
-        self.orden('subagente', '12', '--worktree', wt12.as_posix(), '--rama', 'sub-12')
-        git(self.raiz, 'switch', '-q', 'feature/12-dos')
-        git(self.raiz, 'merge', '-q', '--no-edit', 'feature/11-una')
-        git(self.raiz, 'switch', '-q', 'develop')
-        self.assertIn('La 11: Quitados:', self.orden('fusionar', '11', '12'))
-        self.assertFalse(otro.exists())
-        self.assertNotIn('sub-11', self.ramas())
-        self.assertTrue(wt12.exists())  # la que queda conserva el suyo
-        self.assertIn('sub-12', self.ramas())
-        self.assertEqual(self.eventos(self.archivadas()[-1])[-2:], ['recogida', 'absorbida'])
+        antes = self.leer()
+        self.assertEqual(self.orden('fusionar', '11', '12', ok=False),
+                         'Tienen trabajo las 11 y 12: no se fusionan (decisión 358).')
+        self.assertEqual(self.leer(), antes)
+        self.assertIn('feature/11-una', self.ramas())
+        self.assertIn('feature/12-dos', self.ramas())
 
-    def test_fusionar_con_subagente_sin_integrar_avisa_y_lo_deja(self):
-        self.dos_con_rama()
-        otro = Path(self._tmp.name) / 'otro'
-        git(self.raiz, 'worktree', 'add', '-q', '-b', 'sub-11', str(otro), 'feature/11-una')
-        self.orden('subagente', '11', '--worktree', otro.as_posix(), '--rama', 'sub-11')
-        (otro / 'd.txt').write_text('d\n', encoding='utf-8')
-        git(otro, 'add', 'd.txt')
-        git(otro, 'commit', '-q', '-m', 'Sin integrar')
-        git(self.raiz, 'switch', '-q', 'feature/12-dos')
-        git(self.raiz, 'merge', '-q', '--no-edit', 'feature/11-una')
+    def test_fusionar_rama_con_commits_es_trabajo(self):  # decisión 358
+        self.en_cola_con_rama('Una', 'una')
+        self.commit_en('feature/11-una', 'b.txt', 'b\n')
         git(self.raiz, 'switch', '-q', 'develop')
-        mensaje = self.orden('fusionar', '11', '12')
-        self.assertIn('sub-11 tiene 1 commit que no está en feature/12-dos', mensaje)
-        self.assertTrue(otro.exists())
+        self.orden('crear', 'Dos', '--en-curso')
+        self.assertIn('Tienen trabajo las 11 y 12', self.orden('fusionar', '11', '12', ok=False))
+
+    def test_fusionar_conserva_el_subagente_de_la_que_queda(self):
+        self.una_con_trabajo()
+        wt = Path(self._tmp.name) / 'wt-11'
+        git(self.raiz, 'worktree', 'add', '-q', '-b', 'sub-11', str(wt), 'feature/11-una')
+        self.orden('subagente', '11', '--worktree', wt.as_posix(), '--rama', 'sub-11')
+        self.orden('fusionar', '11', '12')
+        self.assertTrue(wt.exists())
         self.assertIn('sub-11', self.ramas())
-        self.assertNotIn('feature/11-una', self.ramas())
 
     def test_reabrir_limpia_el_worktree_viejo_aunque_tenga_cambios(self):
         id_, wt = self.con_subagente('tarea')

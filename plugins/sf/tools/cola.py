@@ -16,7 +16,7 @@ Uso:
   crear "texto" [--descripcion D] [--tipo T] [--en-curso]   en-curso N | en-cola N
            (--descripcion, obligatoria cuando crea Claude: --quien principal, el de omisión, salvo --via panel)
   rama N nombre [--sin-activar | --anotar]           paso añadir N "texto" [--prueba] | paso marcar N P estado [--texto T]
-  paso quitar N P                                    renombrar N "texto" | tipo N T
+  paso quitar N P | paso mover N DE A                renombrar N "texto" | tipo N T
   subagente N --worktree RUTA [--rama AUX]           informe N --terminado|--interrumpido ["texto"]
   listo N --prueba "qué mirar"                       comprobado N "texto"
   probar N | observando N | seguir N                 cerrar N | a-observacion N [--prueba P] [--coautor L]
@@ -1162,6 +1162,25 @@ def o_paso_quitar(cola: Cola, a) -> str:
     return f'Quitado el paso {a.i} de la {a.n}: «{x.get("texto")}».'
 
 
+def o_paso_mover(cola: Cola, a) -> str:
+    """Lleva un paso a otro sitio, entre los de trabajo: tras fusionar, para dejarlos en un orden con sentido
+    (decisión 358). Los de cierre y las ayudas de prueba no se mueven ni se saltan."""
+    t = cola.tarea(a.n, 'en-cola', 'en-curso', 'en-observacion')
+    p = pasos(t)
+    x = paso(t, a.de)
+    trabajo = next((i for i, y in enumerate(p) if es_de_cierre(y.get('texto')) or es_ayuda(y)), len(p))
+    if a.de > trabajo:
+        raise Rechazo(f'El paso {a.de} de la {a.n} es «{x.get("texto")}», de cierre o de ayuda de prueba: no se mueve.')
+    if not 1 <= a.a <= trabajo:
+        raise Rechazo(f'La {a.n} tiene {trabajo} pasos de trabajo: el sitio va de 1 a {trabajo}.')
+    if a.a == a.de:
+        return f'El paso {a.de} de la {a.n} ya está ahí: «{x.get("texto")}».'
+    p.insert(a.a - 1, p.pop(a.de - 1))
+    cola.anotar(t, 'paso', f'movido {a.de} a {a.a}: {x.get("texto")}')
+    cola.guardar()
+    return f'Paso {a.de} de la {a.n}, ahora el {a.a}: «{x.get("texto")}».'
+
+
 def o_renombrar(cola: Cola, a) -> str:
     t = cola.tarea(a.n)
     if not a.texto.strip():
@@ -2168,14 +2187,18 @@ def ramas_de_fusion(cola: Cola, queda: dict, con_rama: list) -> tuple[dict, list
         destino = queda
     elif not vivas:
         destino = con_rama[-1]  # ninguna existe: la de número más alto
-    else:  # la que contiene a todas las vivas (con empate, la de número más alto)
-        llenas = [t for t in vivas if all(contenida(repo, o['rama'], t['rama']) for o in vivas)]
+    else:  # la que contiene a todas las vivas con commits propios (con empate, la de número más alto)
+        con_commits = [t for t in vivas if propios(repo, t['rama'])]
+        llenas = [t for t in vivas if all(contenida(repo, o['rama'], t['rama']) for o in con_commits)]
         if not llenas:
             raise Rechazo(f'Las ramas {enumerar([t["rama"] for t in vivas])} tienen commits distintos: integra las '
                           f'demás en una antes de fusionar.')
         destino = llenas[-1]
     dest = destino['rama']
-    sin_integrar = [t['rama'] for t in vivas if t is not destino and not (existe_rama(repo, dest) and contenida(repo, t['rama'], dest))]
+    # Una rama sin commits propios (los suyos, todos en develop) no lleva trabajo: se borra aunque no esté en la de
+    # destino (decisión 358: con trabajo, solo la que queda).
+    sin_integrar = [t['rama'] for t in vivas if t is not destino and propios(repo, t['rama'])
+                    and not (existe_rama(repo, dest) and contenida(repo, t['rama'], dest))]
     if sin_integrar:
         raise Rechazo(f'{"La rama" if len(sin_integrar) == 1 else "Las ramas"} {enumerar(sin_integrar)} '
                       f'{"tiene" if len(sin_integrar) == 1 else "tienen"} commits que no están en {dest}: '
@@ -2190,6 +2213,21 @@ def ramas_de_fusion(cola: Cola, queda: dict, con_rama: list) -> tuple[dict, list
     return destino, sobran
 
 
+def con_trabajo(cola: Cola, t: dict) -> bool:
+    """Si la tarea tiene trabajo, para fusionar (decisión 358): en curso, con rama con commits o con subagente anotado
+    sin recoger."""
+    rama = t.get('rama')
+    return (t.get('estado') == 'en-curso' or bool(subagentes_de(t))
+            or bool(rama and existe_rama(cola.repo, rama) and propios(cola.repo, rama)))
+
+
+def absorbidas(t: dict) -> list[int]:
+    """Los números que absorbió una tarea al fusionarse, de los `fusion` «absorbe …» de su historial (con los que
+    aquellas habían absorbido)."""
+    return [int(n) for e in t.get('historial') or [] if isinstance(e, dict) and e.get('evento') == 'fusion'
+            and str(e.get('detalle') or '').startswith('absorbe ') for n in re.findall(r'\d+', e['detalle'][8:])]
+
+
 def o_fusionar(cola: Cola, a) -> str:
     ids = sorted(set(a.ids))
     if len(ids) < 2:
@@ -2202,7 +2240,14 @@ def o_fusionar(cola: Cola, a) -> str:
         if t.get('estado') not in ('en-cola', 'en-curso'):
             raise Rechazo(f'La {id_} está {nombre_estado(t)}: no se fusiona.')
         todas.append(t)
-    queda, salen = todas[-1], todas[:-1]
+    # Queda la que tiene el trabajo; sin trabajo en ninguna, la de número mayor; con trabajo en varias, no se fusionan
+    # (decisión 358). Los pasos, los de la que queda primero.
+    trabajo = [t for t in todas if con_trabajo(cola, t)]
+    if len(trabajo) > 1:
+        raise Rechazo(f'Tienen trabajo las {enumerar([t["id"] for t in trabajo])}: no se fusionan (decisión 358).')
+    queda = trabajo[0] if trabajo else todas[-1]
+    salen = [t for t in todas if t is not queda]
+    todas = [queda, *salen]
     con_rama = [t for t in todas if t.get('rama')]
     destino, sobran = ramas_de_fusion(cola, queda, con_rama) if len(con_rama) > 1 else (con_rama[0] if con_rama else None, [])
     for rama in sobran:  # integradas en la de destino: se borran antes de tocar la cola
@@ -2244,7 +2289,12 @@ def o_fusionar(cola: Cola, a) -> str:
     if queda['estado'] == 'en-curso':  # con su tipo y su rama ya puestos: una deliberativa sin rama no se prueba (278)
         asegurar_cierre(queda)
     otras = [t['id'] for t in salen]
-    cola.anotar(queda, 'fusion', f'absorbe {enumerar(otras)}')
+    # Las que absorbieron antes las que salen, también en el detalle: sus subagentes siguen con su número y el mod
+    # los reconoce como de la que queda por los números del «absorbe» (tarea 426).
+    heredadas = sorted({n for t in salen for n in absorbidas(t)} - set(ids))
+    con = (f' (con {"la" if len(heredadas) == 1 else "las"} {enumerar(heredadas)}, que '
+           f'{"había" if len(otras) == 1 else "habían"} absorbido)') if heredadas else ''
+    cola.anotar(queda, 'fusion', f'absorbe {enumerar(otras)}{con}')
     for t in salen:
         propia = t.get('rama') if t is not destino else None
         borrada = f', rama {propia} {"borrada" if propia in sobran else "ya no existía"}' if propia else ''
@@ -2252,9 +2302,13 @@ def o_fusionar(cola: Cola, a) -> str:
         cola.sacar(t, 'absorbida')
     cola.guardar()
     rama = f' Rama: {queda["rama"]}.' if destino and destino is not queda else ''
-    borradas = f' Borradas, ya integradas: {enumerar(sobran)}.' if sobran else ''
-    return (f'Fusionadas en la {queda["id"]} {"la" if len(otras) == 1 else "las"} {enumerar(otras)}: {len(pasos(queda))} pasos.'
-            f'{rama}{borradas}' + ''.join(recogidos))
+    borradas = f' Borradas, ya integradas o sin commits propios: {enumerar(sobran)}.' if sobran else ''
+    # La resultante se retitula, se redescribe y ordena sus pasos (decisión 358): lo propone Claude.
+    n = queda['id']
+    return (f'Fusionadas en la {n} {"la" if len(otras) == 1 else "las"} {enumerar(otras)}: {len(pasos(queda))} pasos.'
+            f'{rama}{borradas}' + ''.join(recogidos)
+            + f' Falta retitularla, revisar su descripción y ordenar sus pasos: renombrar {n}, redescribir {n}, '
+              f'paso mover {n} DE A.')
 
 
 def o_split(cola: Cola, a) -> str:
@@ -2590,7 +2644,7 @@ def analizador() -> argparse.ArgumentParser:
     g = s.add_mutually_exclusive_group()
     g.add_argument('--sin-activar', action='store_true', help='la crea sin cambiar a ella (para un subagente)')
     g.add_argument('--anotar', action='store_true', help='solo la anota: ya existe')
-    sp = o.add_parser('paso', help='añadir, marcar o quitar un paso').add_subparsers(dest='accion', required=True, metavar='acción')
+    sp = o.add_parser('paso', help='añadir, marcar, quitar o mover un paso').add_subparsers(dest='accion', required=True, metavar='acción')
     s = orden('añadir', o_paso_anadir, 'paso nuevo, pendiente, antes de los de cierre', 'n', 'texto', padre=sp, aliases=['anadir'])
     s.add_argument('--prueba', action='store_true',
                    help='ayuda de prueba: tras «Activar rama para poder probar», sin exigirla para cerrar (decisión 184)')
@@ -2598,6 +2652,9 @@ def analizador() -> argparse.ArgumentParser:
     s.add_argument('estado', choices=ESTADOS_PASO)
     s.add_argument('--texto', help='texto nuevo (al hacerse, en participio)')
     orden('quitar', o_paso_quitar, 'quita un paso pendiente (no «Cerrar la tarea»)', 'n', 'i', padre=sp)
+    s = orden('mover', o_paso_mover, 'lleva el paso DE al sitio A, antes de los de cierre y las ayudas de prueba', 'n', padre=sp)
+    s.add_argument('de', type=int)
+    s.add_argument('a', type=int)
     orden('renombrar', o_renombrar, 'nombre nuevo, mismo número', 'n', 'texto')
     s = orden('tipo', o_tipo, 'pone o cambia el tipo de la tarea', 'n')
     s.add_argument('tipo', choices=TIPOS)
@@ -2643,7 +2700,8 @@ def analizador() -> argparse.ArgumentParser:
     s.add_argument('--descripcion')
     s.add_argument('--tipo', choices=TIPOS)
     s.set_defaults(en_curso=False)
-    s = orden('fusionar', o_fusionar, 'junta tareas en la de número más alto')
+    s = orden('fusionar', o_fusionar, 'junta tareas en la que tiene el trabajo (sin trabajo, la de número mayor; '
+              'con trabajo en varias, no se fusionan: decisión 358)')
     s.add_argument('ids', type=int, nargs='+')
     orden('split', o_split, 'separa pasos en una tarea nueva', 'n', 'pasos')
     orden('copias', o_copias, 'lista las copias de la cola')

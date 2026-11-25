@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { AvisosSubagentes, Peticion, SubagenteVisto } from '../types'
 import { PROYECTO } from './constantes'
 import { ordenColaClaude } from './python'
-import { leerJson, leerPeticiones, leerSubagentes, raizSesion, recuperarVistos } from './lectura'
+import { absorbidas, leerJson, leerPeticiones, leerSubagentes, raizSesion, recuperarVistos } from './lectura'
 import { guardarSesion, recordarSesion } from './memoria'
 import type { $ } from './lectura'
 import { emergente } from './emergentes'
@@ -29,14 +29,16 @@ function ultimoInforme(p: Peticion): number | null {
 }
 
 // Lo que hay que avisar ahora, por tarea en curso: sin subagente vivo (ni trabajando ni esperando), si se tiene la
-// lista; o con uno que dejó de trabajar después del último informe anotado («cola.py informe» es recogerlo).
+// lista; o con uno que dejó de trabajar después del último informe anotado («cola.py informe» es recogerlo). Los de
+// las tareas que absorbió al fusionarse cuentan como suyos (tarea 426).
 export function avisosSubagentes(peticiones: Peticion[], vistos: Record<string, SubagenteVisto>, conLista: boolean): AvisoSubagente[] {
   const avisos: AvisoSubagente[] = []
   const lista = Object.values(vistos)
   for (const p of peticiones) {
     if (p.estado !== 'en-curso') continue
     const n = String(p.id)
-    const suyos = lista.filter(v => v.tarea === p.id)
+    const tareas = new Set([p.id, ...absorbidas(p)])
+    const suyos = lista.filter(v => tareas.has(v.tarea))
     if (suyos.some(v => v.estado === 'trabajando')) continue
     const esperan = suyos.filter(v => v.estado === 'esperando')
     if (!esperan.length) {

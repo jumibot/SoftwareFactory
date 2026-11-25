@@ -25,7 +25,7 @@ La tarea sale del archivo y pasa, con su historial, a `.sf/historial.jsonl` (115
 
 - **Cerrada**: salió por Cerrar, cerrada en observación o por un cierre sin rama (050, 090, 101).
 - **Eliminada**: salió con Eliminar, al revertirla con [eliminar] o por Claude, sin pasar por Cerradas; su número no se reutiliza. Se recupera del historial (079, 115, 134).
-- **Absorbida**: salió por `/sf_fusionar`, dentro de la de número más alto (099).
+- **Absorbida**: salió por `/sf_fusionar`, dentro de la que tiene el trabajo o, si ninguna lo tiene, de la de número mayor (099, 358).
 - **Revertida**: cerrada o en observación, con su squash deshecho en `develop` con `git revert` (107, 115). Solo las de antes de la decisión 134: ahora una revertida sale eliminada o vuelve a Pendientes.
 
 Son cuatro estados guardados, una marca y cuatro situaciones fuera de la cola.
@@ -417,14 +417,14 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 #### 29 · Fusionar
 
-- **De → a:** varias en `en-cola` o `en-curso` → queda la de número más alto (en curso si alguna lo estaba, con los pasos de cierre una vez y al final, 174); las demás, absorbidas, fuera de la cola.
-- **Cuándo:** dos tareas tratan lo mismo. El principal lo sugiere con la orden lista y, a continuación, propone redescribir la tarea resultante (`/sf_redescribir`) (141).
+- **De → a:** varias en `en-cola` o `en-curso` → queda la que tiene el trabajo: en curso, con rama con commits o con subagente anotado sin recoger. Si ninguna lo tiene, queda la de número mayor. Si varias lo tienen, no se fusionan: `fusionar` se niega y dice cuáles (358). La que queda conserva su número, su título y su descripción delante; sus pasos van primero y después los de las demás. Queda en curso si alguna lo estaba, con los pasos de cierre una vez y al final (174). Las demás, absorbidas, fuera de la cola.
+- **Cuándo:** dos tareas tratan lo mismo. El principal lo sugiere con la orden lista (141). Tras fusionar, propone al propietario un título nuevo que diga lo que reúne, la descripción revisada y un orden de los pasos con sentido, y con su OK los aplica con `renombrar`, `redescribir` y `paso mover` (358).
 - **Quién:** panel con `/sf_fusionar`; el principal, con `cola.py fusionar`, en la excepción de los documentos.
 - **Autorización:** la escribe el propietario. Excepción: dos tareas de actualizar el mismo documento las fusiona el principal directamente (142).
-- **Repositorio:** la que queda se lleva la rama de destino: la suya, o si no tiene, la que contiene a las demás. Las otras ramas, integradas en ella o ya inexistentes, se borran. Rechaza si alguna tiene commits fuera de la de destino (integrarla antes), o si una que se borraría está en otro worktree o es la activa. El subagente de cada absorbida se recoge si su worktree está limpio y su `sub-NN` ya está en la de destino; si no, se queda y se avisa. La que queda conserva el suyo (169).
+- **Repositorio:** la que queda se lleva la rama de destino: la suya, o si no tiene, la que contiene a las demás. Las otras ramas, integradas en ella, sin commits propios o ya inexistentes, se borran. Rechaza si alguna tiene commits fuera de la de destino (integrarla antes), o si una que se borraría está en otro worktree o es la activa. El subagente de cada absorbida se recoge si su worktree está limpio y su `sub-NN` ya está en la de destino; si no, se queda y se avisa. La que queda conserva el suyo (169).
 - **Panel:** la que queda, con los pasos de todas; las otras desaparecen sin cerrarse. Historial: `fusion` en la que queda, `absorbida` en las otras.
-- **CLI:** `cola.py fusionar 104 105`.
-- **Sale de:** 098, 099, 100, 141, 142 y la tarea «fusionar no admite dos tareas con rama aunque una ya esté integrada en la otra» (227).
+- **CLI:** `cola.py fusionar 104 105`; después, `renombrar N "texto"`, `redescribir N "texto"` y `paso mover N DE A`.
+- **Sale de:** 098, 099, 100, 141, 142, 358 y la tarea «fusionar no admite dos tareas con rama aunque una ya esté integrada en la otra» (227).
 
 #### 30 · Deshacer una fusión o una eliminación
 

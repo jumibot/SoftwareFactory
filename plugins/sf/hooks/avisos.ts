@@ -68,6 +68,8 @@ const FRASES: Record<string, (n: string, d: string) => string> = {
 function frasePaso(d: string): string {
   const m = /^(añadido|quitado) \d+: (.*)$/s.exec(d)
   if (m) return m[1] === 'añadido' ? `paso añadido: «${m[2]!}»` : `paso quitado: «${m[2]!}»`
+  const mv = /^movido (\d+) a (\d+): (.*)$/s.exec(d)
+  if (mv) return `paso ${mv[1]!} movido al ${mv[2]!}: «${mv[3]!}»`
   const e = /^(\d+) ([\w-]+):/.exec(d)
   return e ? `paso ${e[1]!} ${e[2]!.replace('-', ' ')}` : 'pasos cambiados'
 }
@@ -98,6 +100,12 @@ export function recogidaDe(h: Evento[]): Evento | null {
 export function avisoPanel(cambios: CambioPanel[], tareas: Tarea[]): string | null {
   if (!cambios.length) return null
   let aviso = `Desde el panel: ${cambios.map(frase).join('; ')}.`
+  // Tras fusionar, la resultante se retitula, se redescribe y ordena sus pasos (decisión 358): lo propone Claude.
+  const fusionadas = [...new Set(cambios.filter(c => c.evento === 'fusion').map(c => c.id))]
+  for (const id of fusionadas) {
+    const n = String(id)
+    aviso += ` Propón al propietario el título nuevo de la ${n}, su descripción revisada y el orden de sus pasos; con su OK, cola.py renombrar ${n}, redescribir ${n} y paso mover ${n} DE A.`
+  }
   const cerradas = [...new Set(cambios.filter(c => c.evento === 'cerrada' || c.evento === 'descartada').map(c => c.id))]
   for (const id of cerradas) {
     const h = tareas.find(t => t.id === id)?.historial ?? []

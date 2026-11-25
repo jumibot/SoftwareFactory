@@ -501,15 +501,22 @@ async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = 
       }
       case 'fusionar': {
         const ids = args.slice(1).map(Number).sort((a, b) => a - b)
-        const todas = ids.map(id => lista.find(x => x.id === id)!)
-        const queda = todas.at(-1)!
-        const salen = todas.slice(0, -1)
+        const elegidas = ids.map(id => lista.find(x => x.id === id)!)
+        const y = (l: string[]) => (l.length < 2 ? l.join('') : `${l.slice(0, -1).join(', ')} y ${l.at(-1)!}`)
+        // Queda la que tiene el trabajo (decisión 358); sin git de verdad, en curso o con subagente anotado.
+        const trabajo = elegidas.filter(x => x.estado === 'en-curso' || (x.historial ?? []).some(e => e.evento === 'subagente'))
+        if (trabajo.length > 1) return no(`Tienen trabajo las ${y(trabajo.map(x => String(x.id)))}: no se fusionan (decisión 358).`)
+        const queda = trabajo[0] ?? elegidas.at(-1)!
+        const salen = elegidas.filter(x => x !== queda)
+        const todas = [queda, ...salen]
         const nuevos = todas.flatMap(x => (pasos(x).length ? pasos(x) : [{ texto: x.texto, estado: x.estado === 'en-curso' ? 'en-curso' : 'pendiente' }]))
         const descripcion = [queda, ...salen].map(x => x.descripcion).filter(Boolean).join('\n\n')
         // Sin git de verdad: con dos ramas o más, como cola.py cuando alguna no está integrada en la de destino.
-        const ramas = todas.filter(x => x.rama).map(x => x.rama as string)
-        if (ramas.length > 1)
-          return no(`La rama ${ramas[0]!} tiene commits que no están en ${ramas.at(-1)!}: intégrala en ${ramas.at(-1)!} antes de fusionar.`)
+        // La de destino, la de la que queda o, si no tiene, la de número mayor.
+        const ramas = elegidas.filter(x => x.rama).map(x => x.rama as string)
+        const destino = (queda.rama as string | undefined) ?? ramas.at(-1)
+        const otra = ramas.find(r => r !== destino)
+        if (otra) return no(`La rama ${otra} tiene commits que no están en ${destino!}: intégrala en ${destino!} antes de fusionar.`)
         const conRama = todas.find(x => x.rama)
         queda.estado = todas.some(x => x.estado === 'en-curso') ? 'en-curso' : 'en-cola'
         queda.pasos = nuevos
@@ -524,9 +531,9 @@ async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = 
         }
         guardar()
         const otras = salen.map(x => String(x.id))
-        const y = (l: string[]) => (l.length < 2 ? l.join('') : `${l.slice(0, -1).join(', ')} y ${l.at(-1)!}`)
         const rama = conRama && conRama !== queda ? ` Rama: ${conRama.rama as string}.` : ''
-        return { ok: true, mensaje: `Fusionadas en la ${String(queda.id)} ${otras.length === 1 ? 'la' : 'las'} ${y(otras)}: ${String(nuevos.length)} pasos.${rama}` }
+        const n = String(queda.id)
+        return { ok: true, mensaje: `Fusionadas en la ${n} ${otras.length === 1 ? 'la' : 'las'} ${y(otras)}: ${String(nuevos.length)} pasos.${rama} Falta retitularla, revisar su descripción y ordenar sus pasos: renombrar ${n}, redescribir ${n}, paso mover ${n} DE A.` }
       }
     }
     return no(`orden desconocida: ${orden}`)
@@ -1975,10 +1982,14 @@ const FUSION: Pet[] = [
 const idsDe = (archivos: Record<string, string>) =>
   (JSON.parse(archivos[COLA] ?? '{}') as { peticiones: Pet[] }).peticiones.map(x => x.id)
 
-test('/sf_fusionar 4 6 9: queda la 9, con los pasos de todas en orden y las descripciones sin origen, sin Claude', async (...m) => {
+// Lo que cola.py añade tras fusionar: la resultante se retitula, se redescribe y ordena sus pasos (decisión 358).
+const RETITULAR = (n: number) =>
+  ` Falta retitularla, revisar su descripción y ordenar sus pasos: renombrar ${String(n)}, redescribir ${String(n)}, paso mover ${String(n)} DE A.`
+
+test('/sf_fusionar 4 6 9: sin trabajo en ninguna queda la 9, la de número mayor, con sus pasos primero y las descripciones sin origen, sin Claude', async (...m) => {
   const { archivos, prompts } = await preparar(m, { cola: FUSION })
   const r = await m[0].command.run({ command: 'sf_fusionar', args: '9 4,6' })
-  expect(r.text).toBe('Fusionadas en la 9 las 4 y 6: 4 pasos.')
+  expect(r.text).toBe(`Fusionadas en la 9 las 4 y 6: 4 pasos.${RETITULAR(9)}`)
   expect(prompts).toHaveLength(0)
   expect(idsDe(archivos)).toEqual([2, 7, 8, 9])
   expect(tareaCola(archivos, 9)).toEqual({
@@ -1988,18 +1999,18 @@ test('/sf_fusionar 4 6 9: queda la 9, con los pasos de todas en orden y las desc
     descripcion: 'La suya.\n\nGrises suaves.',
     prueba: 'mirar el fondo',
     pasos: [
+      { texto: 'Su paso', estado: 'pendiente' },
       { texto: 'Elegir el gris', estado: 'hecho' },
       { texto: 'Aplicarlo', estado: 'pendiente' },
       { texto: 'Sin pasos en cola', estado: 'pendiente' },
-      { texto: 'Su paso', estado: 'pendiente' },
     ],
   })
 })
 
-test('/sf_fusionar: la que queda sin pasos aporta su nombre; una en curso la pasa a en curso y le da su rama', async (...m) => {
+test('/sf_fusionar: la que queda sin pasos aporta su nombre; queda la que tiene el trabajo, con su número y su rama (358)', async (...m) => {
   const { archivos } = await preparar(m, { cola: FUSION })
   const r1 = await m[0].command.run({ command: 'sf_fusionar', args: '4 6' })
-  expect(r1.text).toBe('Fusionadas en la 6 la 4: 3 pasos.')
+  expect(r1.text).toBe(`Fusionadas en la 6 la 4: 3 pasos.${RETITULAR(6)}`)
   expect(tareaCola(archivos, 6)).toEqual({
     id: 6,
     texto: 'Sin pasos en cola',
@@ -2007,22 +2018,36 @@ test('/sf_fusionar: la que queda sin pasos aporta su nombre; una en curso la pas
     descripcion: 'Grises suaves.',
     prueba: 'mirar el fondo',
     pasos: [
+      { texto: 'Sin pasos en cola', estado: 'pendiente' },
       { texto: 'Elegir el gris', estado: 'hecho' },
       { texto: 'Aplicarlo', estado: 'pendiente' },
-      { texto: 'Sin pasos en cola', estado: 'pendiente' },
     ],
   })
+  // La 8, en curso, tiene el trabajo: queda ella aunque la 9 tenga número mayor.
   const r2 = await m[0].command.run({ command: 'sf_fusionar', args: '8 9' })
-  expect(r2.text).toBe('Fusionadas en la 9 la 8: 2 pasos. Rama: feature/08-en-curso.')
-  expect(tareaCola(archivos, 9)).toMatchObject({
+  expect(r2.text).toBe(`Fusionadas en la 8 la 9: 2 pasos.${RETITULAR(8)}`)
+  expect(tareaCola(archivos, 8)).toMatchObject({
+    texto: 'Sin pasos en curso',
     estado: 'en-curso',
     rama: 'feature/08-en-curso',
+    descripcion: 'La suya.',
     pasos: [
       { texto: 'Sin pasos en curso', estado: 'en-curso' },
       { texto: 'Su paso', estado: 'pendiente' },
     ],
   })
-  expect(idsDe(archivos)).toEqual([2, 6, 7, 9])
+  expect(idsDe(archivos)).toEqual([2, 6, 7, 8])
+})
+
+test('/sf_fusionar: con trabajo en varias, no se fusionan; lo dice con cuáles y no cambia nada (358)', async (...m) => {
+  // La 9, con subagente anotado; la 8, en curso.
+  const cola = FUSION.map(p => (p.id === 9 ? { ...p, historial: [ev('subagente', 'wt-9 · sub-9')] } : p))
+  const { archivos, prompts } = await preparar(m, { cola })
+  const antes = archivos[COLA]
+  const r = await m[0].command.run({ command: 'sf_fusionar', args: '8 9' })
+  expect(r.text).toBe('/sf_fusionar: Tienen trabajo las 8 y 9: no se fusionan (decisión 358).')
+  expect(prompts).toHaveLength(0)
+  expect(archivos[COLA]).toBe(antes)
 })
 
 test('/sf_fusionar: dos con rama, En observación, descartada, fuera de la cola o menos de dos, lo dice y no cambia nada', async (...m) => {
@@ -2077,7 +2102,7 @@ test('/sf_fusionar a secas pregunta cuáles, con varias a la vez; con menos de d
   const ui = await $.ui.mount({ ...PANEL, surface: 'terminal' })
   expect(preguntas[0]!.options.map(o => o.label)).toEqual(['9 La que queda', '8 Sin pasos en curso', '7 Con rama', '6 Sin pasos en cola'])
   expect(preguntas[0]!.multiSelect).toBe(true)
-  expect(toasts).toContain('Fusionadas en la 9 la 6: 2 pasos.')
+  expect(toasts).toContain(`Fusionadas en la 9 la 6: 2 pasos.${RETITULAR(9)}`)
   expect(idsDe(archivos)).toEqual([2, 4, 7, 8, 9])
   // Una sola elegida: lo dice y no toca la cola.
   const antes = archivos[COLA]
@@ -6084,14 +6109,16 @@ test('Avisos del panel: si no se puede leer la cola, el mensaje no gasta el avis
 test('Avisos del panel: cada evento, como frase corta, sin la rama ni el detalle crudo', async (...m) => {
   const cola: Pet[] = [
     { id: 20, texto: 'Con la T', estado: 'en-curso', rama: 'feature/20-t', historial: [ev('probar', 'feature/20-t', 1)] },
-    { id: 21, texto: 'Con pasos', estado: 'en-curso', historial: [ev('paso', 'añadido 2: Revisar el color', 2), ev('paso', '1 hecho: Elegir', 3), ev('tipo', 'corregir (antes: implementar)', 4)] },
+    { id: 21, texto: 'Con pasos', estado: 'en-curso', historial: [ev('paso', 'añadido 2: Revisar el color', 2), ev('paso', '1 hecho: Elegir', 3), ev('tipo', 'corregir (antes: implementar)', 4), ev('paso', 'movido 3 a 1: Probar', 4)] },
     { id: 22, texto: 'Fusionada', estado: 'en-cola', historial: [ev('fusion', 'absorbe 23', 5)] },
   ]
   const { contextos, reloj } = await preparar(m, { cola, salidas: [{ id: 23, texto: 'x', estado: 'absorbida', historial: [ev('absorbida', 'en 22', 5)] }], reloj: true })
   await reloj!.advance(10_000)
   await escribe(m, 'hola')
+  // Tras la fusión, pide a Claude proponer título, descripción y orden de los pasos de la que queda (decisión 358).
   expect(contextos.at(-1)).toEqual([
-    'Desde el panel: la 20, en prueba; la 21, paso añadido: «Revisar el color»; la 21, paso 1 hecho; la 21, de tipo corregir; la 22 absorbe la 23.',
+    'Desde el panel: la 20, en prueba; la 21, paso añadido: «Revisar el color»; la 21, paso 1 hecho; la 21, de tipo corregir; la 21, paso 3 movido al 1: «Probar»; la 22 absorbe la 23. ' +
+      'Propón al propietario el título nuevo de la 22, su descripción revisada y el orden de sus pasos; con su OK, cola.py renombrar 22, redescribir 22 y paso mover 22 DE A.',
   ])
 })
 
@@ -6104,6 +6131,43 @@ const LANZA = (ns: number[], nueva = false) =>
   `ANTES DE NADA, en este turno y antes de contestar: lanza el subagente de cada tarea en curso que no lo tiene: ${ns.map(n => `la ${String(n)} («Tarea ${String(n)}: …»)`).join(', ')}.` +
   (nueva ? ' Sesión nueva: los de la anterior ya no viven.' : '')
 const RECOGE = (n: number) => `el subagente de la ${String(n)} ha terminado: recógelo (revisar el diff, merge --ff-only, \`python -I -X utf8 "$HOME/.claude/sf/cola.py" informe ${String(n)}\`, pasos, listo)`
+
+// La 4 absorbió la 9 al fusionarse: el subagente de la 9 («Tarea 9: …»), en la rama que queda, es el de la 4 (tarea 426).
+const FUSIONADA: Pet[] = INICIAL.map(p => (p.id === 4 ? { ...p, historial: [ev('fusion', 'absorbe 8 y 9')] } : p))
+
+test('Avisos de subagentes: el subagente vivo de una absorbida cuenta como el de la que queda; termina y pide recogerlo por esta (426)', async (...m) => {
+  const agentes: Agente[] = [{ description: 'Tarea 1: panel', status: 'running' }, { description: 'Tarea 9: estilo', status: 'running' }]
+  const { contextos, reloj } = await preparar(m, { cola: FUSIONADA, agentes, reloj: true })
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)).toBe(undefined)
+  await reloj!.advance(5000)
+  agentes[1]!.status = 'completed'
+  await m[0].prompt.submit({ text: 'El subagente ha terminado', origin: { kind: 'task-notification' }, wait: false })
+  expect(contextos.at(-1)).toEqual([`Subagentes: ${RECOGE(4)}.`])
+})
+
+test('Subagente: el de una absorbida da el ● de la que queda (426)', async (...m) => {
+  const a = await preparar(m, { cola: FUSIONADA, agentes: [{ description: 'Tarea 9: estilo', status: 'running' }] })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Button', key: 'subagente-tarea:arriba:4' })).toBe(true)
+  expect(await ui.find({ type: 'Button', key: 'subagente-tarea:arriba:1' })).toBe(undefined)
+  await ui.press({ key: 'subagente-tarea:arriba:4' })
+  expect(a.toasts).toContain('●: un subagente trabaja en la 4 (Tarea 9: estilo)')
+  await ui.unmount()
+})
+
+// La 4 absorbió la 8, que había absorbido la 9: cola.py anota las dos (tarea 426).
+const FUSIONADA_DOS_VECES: Pet[] = INICIAL.map(p => (p.id === 4 ? { ...p, historial: [ev('fusion', 'absorbe 8 (con la 9, que había absorbido)')] } : p))
+
+test('Subagente: el de la absorbida de una absorbida da el ● de la que queda y no pide lanzar otro (426)', async (...m) => {
+  const agentes: Agente[] = [{ description: 'Tarea 1: panel', status: 'running' }, { description: 'Tarea 9: estilo', status: 'running' }]
+  const { contextos } = await preparar(m, { cola: FUSIONADA_DOS_VECES, agentes })
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)).toBe(undefined)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Button', key: 'subagente-tarea:arriba:4' })).toBe(true)
+  await ui.unmount()
+})
 
 test('Avisos de subagentes: al abrir la sesión, lanzar el de cada tarea en curso; y en cada mensaje mientras falten, sin «Sesión nueva» (tarea 351)', async (...m) => {
   const agentes: Agente[] = []

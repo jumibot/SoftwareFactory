@@ -5,7 +5,7 @@ import { lanzar, ponerIdentidad } from './identidad'
 import { CARPETA_COPIAS, CLI_COLA, CLI_LANZADOR, PETICIONES, PROYECTO } from './constantes'
 import { CANDIDATOS_PYTHON, detectarPython, ordenColaClaude, recordarPython } from './python'
 import { configuracion, formatoManifiesto } from './configuracion'
-import { carpetaClaude, carpetaGit, commitsDe, leerEstado, leerJson, leerMergeadas, leerPasos, raizSesion, subagentesDeTareas, texto } from './lectura'
+import { carpetaClaude, carpetaGit, commitsDe, conAbsorbidas, leerEstado, leerJson, leerMergeadas, leerPasos, raizSesion, subagentesDeTareas, texto } from './lectura'
 import type { $ } from './lectura'
 import { emergente, emergenteError } from './emergentes'
 import { encargarAClaude } from './avisos'
@@ -1176,9 +1176,11 @@ export function motivoFusion(peticiones: Peticion[], ids: number[]): string | nu
   return null
 }
 
-// /sf_fusionar, sin Claude, como /sf_split, con «cola.py fusionar». Queda la de número más alto, con su número y su nombre:
-// el hueco queda en el histórico. Reúne los pasos de todas por orden de tarea, cada uno con su estado; una sin pasos
-// aporta uno con su nombre. Pasa a en curso si alguna lo estaba. Las demás salen de la cola sin cerrarse, absorbidas.
+// /sf_fusionar, sin Claude, como /sf_split, con «cola.py fusionar». Queda la que tiene el trabajo (en curso, con rama con
+// commits o con subagente) o, si ninguna lo tiene, la de número mayor, con su número y su nombre; con trabajo en varias,
+// cola.py se niega y dice cuáles (decisión 358). El hueco queda en el histórico. Reúne los pasos de todas, los de la que
+// queda primero, cada uno con su estado; una sin pasos aporta uno con su nombre. Después, Claude propone retitularla
+// (el aviso del panel se lo pide). Pasa a en curso si alguna lo estaba. Las demás salen de la cola sin cerrarse, absorbidas.
 // Antes se relee: si alguna ya no es la que vio el propietario (`vistas`), avisa y no cambia nada. Devuelve la línea
 // que lo resume.
 export async function pedirFusion($: $, vistas: Peticion[]): Promise<string> {
@@ -1230,10 +1232,12 @@ export async function refrescar($: $): Promise<Estado> {
 }
 
 // Solo los subagentes, para el latido: si cambian, el panel quita o pone el ● sin releer todo el estado.
+// Los de las absorbidas, en la que queda (tarea 426).
 export async function refrescarSubagentes($: $): Promise<void> {
-  const ahora = await subagentesDeTareas($)
+  const leidos = await subagentesDeTareas($)
   const actual = await read($, estado)
   if (!actual) return
+  const ahora = conAbsorbidas(leidos, actual.peticiones)
   const antes = { subagentes: actual.subagentes, subagentesEsperando: actual.subagentesEsperando ?? {}, subagentesParados: actual.subagentesParados ?? {} }
   if (JSON.stringify(antes) === JSON.stringify(ahora)) return
   await update($, estado, e => (e ? { ...e, ...ahora } : e))

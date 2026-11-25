@@ -569,8 +569,8 @@ export const register: Register = on => {
     return { text: `Elige de qué tarea separas pasos (${tareas.map(p => p.id).join(', ')}).` }
   })
 
-  // /sf_fusionar (decisión del propietario, 2026-10-29): junta en una tareas en cola o en curso; queda la de número más
-  // alto. El mod lo pide a cola.py, sin Claude. «/sf_fusionar 104 105» fusiona sin preguntar; «/sf_fusionar» a
+  // /sf_fusionar (decisión del propietario, 2026-10-29): junta en una tareas en cola o en curso; queda la que tiene el
+  // trabajo o, sin trabajo en ninguna, la de número mayor; con trabajo en varias, no se fusionan (decisión 358). El mod lo pide a cola.py, sin Claude. «/sf_fusionar 104 105» fusiona sin preguntar; «/sf_fusionar» a
   // secas pregunta cuáles, con varias a la vez, entre las cuatro más recientes.
   on('command.run', { command: 'sf_fusionar' }, async ($, e) => {
     const args = e.args.trim()
