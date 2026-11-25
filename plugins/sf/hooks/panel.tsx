@@ -490,11 +490,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // de más a cada lado hacía que, con el panel estrecho, la cabecera y las órdenes de una tarea pasaran a dos filas.
     // Y sin contorno ni relleno arriba y abajo: en la app, el contorno redondeado se dibuja a la medida de la superficie,
     // no de la celda, y sumaba su alto y sus esquinas al del botón nativo (dos líneas y media por botón); la caja queda
-    // del alto del botón, con su color de fondo. El alto del botón nativo no se puede cambiar desde el mod.
+    // del alto del botón, con su color de fondo. El alto del botón nativo no se puede cambiar desde el mod. Arriba y
+    // abajo, el paso más pequeño de la superficie, para que el fondo asome un poco (propietario, 1.9.7: «un pelín más
+    // altos»).
     const enCaja = (boton: RenderChildren, color?: string, fondo?: string) => {
       if (!grafica) return boton
       return (
-        <Box flexShrink={0} backgroundColor={fondo ?? rellenoBoton(color)} paddingX={0} paddingY={0}>
+        <Box flexShrink={0} backgroundColor={fondo ?? rellenoBoton(color)} paddingX={0} paddingY="xs">
           {boton}
         </Box>
       )
@@ -632,12 +634,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         ? `${MARCA_SUBAGENTE}: el subagente de la ${String(p.id)} espera instrucciones (${subagente.descripcion})`
         : `${MARCA_SUBAGENTE}: un subagente trabaja en la ${String(p.id)} (${subagente.descripcion})`
       const avisar = () => emergente($, aviso, false)
-      return enCaja(
+      const boton = (
         <Button key={`subagente-tarea:${donde}:${p.id}`} label={MARCA_SUBAGENTE} plain onPress={avisar}>
           <Text color={subagente.esperando ? 'error' : 'success'}>{grafica ? MARCA_SUBAGENTE : ` ${MARCA_SUBAGENTE} `}</Text>
-        </Button>,
-        subagente.esperando ? 'error' : 'success',
+        </Button>
       )
+      // En la app, sin caja ni fondo, como las órdenes de la tarea: el ● en su color (tarea 397).
+      return grafica ? boton : enCaja(boton, subagente.esperando ? 'error' : 'success')
     }
 
     // Las órdenes de una tarea, en un menú de etiquetas en la primera fila de la tarea desplegada (decisión 168;
@@ -648,17 +651,16 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Cerrar, A observación (o Cerrar en observación, 241), Redescribir, «?» (254), A propuesta (243) y la que destruye (Eliminar, Descartar o Revertir); después, las de sus pasos: Separar pasos
     // y Paso +, al final y con la letra atenuada, para distinguirlas de las de la tarea (decisión 168, precisada por el
     // propietario el 2026-11-01).
+    // En la app, desde la tarea 397, sin caja ni fondo: el texto en su color (verde, rojo o atenuado), como en el
+    // terminal; las de la cabecera sí siguen llenas de su color (enCaja).
     type Tarea = { id: number; texto: string; rama?: string | null }
     const etiquetaOrden = (key: string, color: string | undefined, nombre: string, pulsar: () => void) => (
       <Box marginRight={separa} flexShrink={0}>
-        {enCaja(
-          <Button key={key} label={nombre} plain onPress={pulsar}>
-            <Text color={color} weight="regular" backgroundColor={FONDO_ORDEN}>
-              {grafica ? nombre : ` ${nombre} `}
-            </Text>
-          </Button>,
-          color,
-        )}
+        <Button key={key} label={nombre} plain onPress={pulsar}>
+          <Text color={color} weight="regular" backgroundColor={grafica ? undefined : FONDO_ORDEN}>
+            {grafica ? nombre : ` ${nombre} `}
+          </Text>
+        </Button>
       </Box>
     )
     // Eliminar, en las eliminables: en cola o en curso y sin rama. Descartar, en las descartables: con rama, en cola o

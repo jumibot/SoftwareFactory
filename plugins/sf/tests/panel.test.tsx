@@ -2581,10 +2581,11 @@ test('Poner en curso: solo en las en cola de Pendientes, y la primera de su fila
   await ui.unmount()
 })
 
-test('desktop: Poner en curso, en una caja llena de verde con su texto como label', async (...m) => {
+test('desktop: Poner en curso, sin fondo y en verde, con su texto como label (397)', async (...m) => {
   await preparar(m, { desplegadas: true, cola: ELIMINABLES, reloj: true })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
-  expect((await cajaDe(ui, 'en-curso-tarea:cola:7'))?.props.backgroundColor).toBe('#15803d')
+  expect((await cajaDe(ui, 'en-curso-tarea:cola:7'))?.props.backgroundColor).toBe(undefined)
+  expect(((await ui.findAll({ type: 'Text', text: 'Poner en curso' })) as Nodo337[]).some(x => x.props.color === 'success')).toBe(true)
   expect(((await ui.find({ type: 'Button', key: 'en-curso-tarea:cola:7' })) as { props: { label?: string } } | undefined)?.props.label).toBe('Poner en curso')
   await ui.unmount()
 })
@@ -6814,7 +6815,7 @@ test('desktop: número y título fuera del botón, que despliega con «▸»; el
   await ter.unmount()
 })
 
-test('desktop: las órdenes de la tarea, con label y en una caja llena de su color; en el terminal, sin caja', async (...m) => {
+test('desktop: las órdenes de la tarea, con label y sin caja ni fondo; en el terminal, sin caja (397)', async (...m) => {
   await preparar(m, { cola: [{ id: 7, texto: 'Otra', estado: 'en-observacion' }] })
   for (const surface of ['desktop', 'terminal'] as const) {
     const ui = await m[0].ui.mount({ ...PANEL, surface })
@@ -6823,7 +6824,7 @@ test('desktop: las órdenes de la tarea, con label y en una caja llena de su col
     const boton = (await ui.find({ type: 'Button', key: 'explicar-tarea:observacion:7' })) as Nodo337 | undefined
     expect(boton?.props.label).toBe('?')
     const cajas = (await ui.findAll({ type: 'Box' })) as Nodo337[]
-    expect(cajas.some(x => x.props.borderStyle === undefined && x.props.backgroundColor === '#15803d')).toBe(surface === 'desktop')
+    expect(cajas.some(x => x.props.backgroundColor === '#15803d')).toBe(false)
     // Plegadas otra vez, para que el montaje siguiente empiece igual.
     await ui.press({ key: 'pet:observacion:7' })
     await ui.press({ key: 'sec:observacion' })
@@ -6861,13 +6862,17 @@ for (const surface of ['desktop', 'terminal'] as const)
     await ui.unmount()
   })
 
-test('desktop: las órdenes de la tarea, llenas de su color: verde, rojo las que destruyen, gris apagado las discretas (367)', async (...m) => {
+// Desde la 397, sin fondo: el texto en su color, como en el terminal; verde, rojo las que destruyen, atenuado las de
+// los pasos.
+test('desktop: las órdenes de la tarea, sin fondo y con la letra de su color: verde, rojo las que destruyen, atenuado las de los pasos (397)', async (...m) => {
   await preparar(m, { desplegadas: true, cola: CERRABLES, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
-  const fondo = async (k: string) => (await cajaDe(ui, `${k}-tarea:arriba:12`))?.props.backgroundColor
-  for (const k of ['probar', 'cerrar']) expect(await fondo(k)).toBe('#15803d')
-  expect(await fondo('descartar')).toBe('#dc2626')
-  expect(await fondo('paso')).toBe('#52525b')
+  for (const k of ['probar', 'cerrar', 'descartar', 'paso'])
+    expect((await cajaDe(ui, `${k}-tarea:arriba:12`))?.props.backgroundColor).toBe(undefined)
+  const letra = async (texto: string) => ((await ui.findAll({ type: 'Text', text: texto })) as Nodo337[]).map(x => x.props.color)
+  for (const t of ['Activar rama', 'Cerrar']) expect(await letra(t)).toContain('success')
+  expect((await letra('Descartar')).some(c => c !== undefined && c !== 'success')).toBe(true)
+  expect(await letra('Paso +')).toContain('#717171')
   await ui.unmount()
 })
 
@@ -6882,8 +6887,10 @@ for (const surface of ['desktop', 'terminal'] as const)
     const tarea = ['cerrar', 'explicar', 'descartar', 'paso'].map(k => `${k}-tarea:arriba:12`)
     for (const key of ['turbo', 'release', ...tarea]) {
       const llena = await cajaDe(ui, key)
-      // Sin contorno ni relleno arriba y abajo: la caja, del alto del botón nativo (segunda vuelta de la 397).
-      if (grafica) expect(llena?.props).toMatchObject({ paddingX: 0, paddingY: 0 })
+      // Sin contorno; arriba y abajo, el paso más pequeño de la superficie (tercera vuelta de la 397). Las de la tarea,
+      // sin caja llena.
+      if (grafica && !tarea.includes(key)) expect(llena?.props).toMatchObject({ paddingX: 0, paddingY: 'xs' })
+      if (grafica && tarea.includes(key)) expect(llena?.props.backgroundColor).toBe(undefined)
       expect(llena?.props.borderStyle).toBe(undefined)
       const cajas = await conBoton(ui, key)
       expect(cajas.some(x => x.props.marginRight === (grafica ? 'xs' : 1))).toBe(true)
