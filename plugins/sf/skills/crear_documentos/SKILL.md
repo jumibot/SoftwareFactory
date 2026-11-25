@@ -384,20 +384,24 @@ Copia el `.md` y su `.html` como `<nombre>_antes-<motivo>.<ext>`; el motivo son 
 
 ## Comprobación
 
-Antes de entregar, con Playwright y el navegador instalado. Si Playwright no tiene su Chromium descargado, usa el Chrome del equipo: `p.chromium.launch(channel="chrome")` (o `"msedge"`).
+Antes de entregar, con Playwright y el navegador instalado (sin el Chromium de Playwright, usa el Chrome o el Edge del equipo). **Primero, una sola orden**, que tiene que salir sin errores:
 
-- **Escritorio** (≈1300 px) y **móvil** (390 × 844): sin desplazamiento horizontal, tarjetas en una columna en el móvil y menú sin solaparse.
-- **Sin errores de página.** El buscador de fichas filtra y cuenta. «Plegar las tarjetas» pliega y despliega su bloque. Los componentes propios responden.
+```bash
+python -I -X utf8 <skills>/crear_documentos/scripts/comprobar_documento.py <documento>.html [--pdf <ruta.pdf>] [--json]
+```
+
+Abre el documento en **escritorio** (1300 px) y en **móvil** (390 × 844), en claro y en oscuro (si tiene la paleta oscura de «Lectura», que tienen todos los temas), con las secciones y las tarjetas abiertas, y dice qué falla: **desplazamiento horizontal y desbordes** (lo que se sale por un lado; una tabla ancha dentro de su caja con desplazamiento no cuenta), **errores de JS** de la página (los de la consola, como un recurso que no carga, como aviso), **contraste** del texto (4,5:1, 3:1 el grande; el texto sobre una imagen o un degradado no se mide), **restos de sintaxis** en el texto visible (`:::`, `{:`, `[!aviso]` o `**`, fuera del código) y **enlaces internos** a un `#id` que no existe. Lo **imprime en A4** (el PDF, en `--pdf` o en la carpeta temporal) y mira nada cortado por la derecha, sin menú ni herramientas, la portada sola en la primera página y ninguna tarjeta ni figura más alta que una página. Si tiene **diagramas**, pasa `diagramas/scripts/comprobar_diagramas.py` (a 375 y 1440, con `--oscuro`): solapes, desbordes, letra mínima, contraste y la ficha de cada nodo con teclado. Sale con 1 si hay errores.
+
+Después, a mano, lo que la orden no ve:
+
+- En el **móvil**, tarjetas en una columna y menú sin solaparse.
+- El buscador de fichas filtra y cuenta. «Plegar las tarjetas» pliega y despliega su bloque. Los componentes propios responden.
 - **Sin avisos del generador** (`<…>` sueltos, preguntas sin recomendación).
-- **Diagramas**, si el documento tiene alguno: `python -I -X utf8 <skills>/diagramas/scripts/comprobar_diagramas.py <documento>.html` (con `--oscuro`, que todos los temas tienen) sale sin errores: solapes, desbordes, letra mínima y contraste a 375 y 1440, y la ficha de cada nodo con teclado.
 - **Recursos desde la primera versión** («Desde la primera versión»): el esquema SVG del proceso, si lo hay; los bloques largos, plegables; ninguna sección de más de unas 500 palabras sin partir ni con más de cinco párrafos seguidos sin un recurso; dos secciones seguidas sin el mismo recurso principal. Se comprueba también en la primera versión, no solo al revisar.
 - **Secciones plegables:** solo la primera abierta al cargar; un enlace interno (menú, referencia, insignia o `#id` en la dirección) abre la sección de destino; al imprimir se abre todo.
 - **Herramientas:** la columna desde 1400 px; por debajo, minimizada hasta «Buscar». El buscador no distingue mayúsculas ni tildes y abre la sección plegada.
-- **Impresión A4** (`page.pdf`): portada sola en la primera página, sin menú ni herramientas, tarjetas sin cortar.
-- **Sin restos de sintaxis** en el HTML: `:::`, `{:`, `[!aviso]` o `**` en el texto visible.
 - **Sin párrafos que empiecen en negrita** (`<p><strong>` al principio) salvo las cifras destacadas (`.metrica` o el valor de un campo) y los títulos de las fuentes.
-- **Enlaces internos**: cada `#id` enlazado existe.
 - En una conversión, la **comparación de palabras** con el original.
-- **Lectura y accesibilidad**, que ya resuelve la hoja de estilos y un componente propio tiene que respetar: texto de lectura a 17 px en pantalla (18 px desde 1600 px); nada que se lea por debajo de 13 px; página de hasta 1240 px; contraste AA; foco visible; controles de al menos 24 px de alto; campos con `name` y etiqueta.
+- **Lectura y accesibilidad**, que ya resuelve la hoja de estilos y un componente propio tiene que respetar: texto de lectura a 17 px en pantalla (18 px desde 1600 px); nada que se lea por debajo de 13 px; página de hasta 1240 px; foco visible; controles de al menos 24 px de alto; campos con `name` y etiqueta.
 
 Las capturas van a la carpeta temporal de la sesión. La página usa desplazamiento suave: para capturar una sección, desactivarlo antes (`html{scroll-behavior:auto}`).
