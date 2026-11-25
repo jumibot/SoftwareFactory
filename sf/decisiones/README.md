@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 363 | 2026-11-25 | [Las tareas de definición proponen con pros y contras y dejan madurar la decisión](363-2026-11-25-las-tareas-de-definicion-proponen-con-pros-y-contras-y-dejan-madurar-la-decision.md) |
 | 362 | 2026-11-25 | [Lo que permite probar una tarea va en la misma tarea](362-2026-11-25-lo-que-permite-probar-una-tarea-va-en-la-misma-tarea.md) |
 | 361 | 2026-11-25 | [Un cambio pequeño es un paso, y las tareas afines se fusionan](361-2026-11-25-un-cambio-pequeno-es-un-paso-y-las-tareas-afines-se-fusionan.md) |
 | 360 | 2026-11-25 | [Las decisiones superadas se deprecan enteras y lo vigente va a una decisión nueva](360-2026-11-25-las-decisiones-superadas-se-deprecan-enteras-y-lo-vigente-va-a-una-decision-nueva.md) |
