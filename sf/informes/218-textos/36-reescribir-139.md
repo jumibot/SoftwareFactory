@@ -1,0 +1,9 @@
+# Menú al anotar: paso, en curso o en cola
+
+Estado: deprecada el 2026-11-25 por «Al anotar sin foco, un menú breve: paso de una tarea, en curso o en cola» ({V-139}); lo demás, por «El principal no abre menús con texto a medio escribir ni fuera del foco» (333) y «Reglas del foco y del off-topic: las once recomendaciones del informe de la 431» (357).
+
+- **Origen:** SoftwareFactory, 2026-10-30, tarea 197. El propietario pide que «al añadir una tarea abra un menú para saber si en curso o en la cola de pendientes» y precisa: «A criterio de la inferencia preguntar si añadir el paso en cierta tarea, si se ve que tal cosa es adecuado. Si no lo es, o bien si el usuario descarta que sea un paso, preguntar si poner en curso o dejar pendiente en la cola».
+- **Contexto:** una petición nueva entraba en cola salvo que ya se hubiera dado su primer paso, y solo con una tarea en curso se preguntaba si era paso o tarea. El propietario no elegía en el momento si la quería empezar.
+- **Decisión:** al anotar una petición, Claude abre un menú. Si, a su juicio, encaja como paso de una tarea, cualquiera de la cola, pregunta primero si se añade a ella. Si no encaja, o el propietario lo descarta, pregunta si va en curso o se queda en cola. Con «En curso», sigue lo de poner una tarea en curso: `cola.py choques` y, sin choques, su rama y su lanzamiento. El «→» del panel crea en cola, sin menú. El menú es breve y no pregunta lo que el propietario ya ha dicho: «tarea» salta la pregunta del paso; «paso de la NN», «en curso» o «en cola», el menú entero (propietario, 2026-10-31, a partir del análisis de la tarea 194).
+- **Consecuencias:** sustituye la pregunta aparte de «¿paso o tarea?». La metodología (sección 2), la plantilla `claude-sf.md` y el `CLAUDE.md` de la SF se ajustan en una tarea de documentación aparte.
+- **Aplicada en:** lo vigente, en `sf:orquestacion` («Menú al anotar»), `sf:flujo_tareas` (`references/estados.md`) y la metodología, «Tareas y cola».

@@ -1,0 +1,8 @@
+# Sin probar hasta el OK del propietario; preguntar antes de cambiar de tarea
+
+Estado: deprecada el 2026-11-25 por «Una tarea en observación sale solo con el OK del propietario, que se pide tarea a tarea» ({V-050}); lo demás, por «Testing pasa a llamarse «En observación»» (212) y «Las comprobaciones y pruebas hechas se anotan como pasos de su tarea» (288).
+
+- **Origen:** SoftwareFactory, 2026-10-28. El propietario: «Norma: Toda tarea cerrada, que no te haya dado el ok a su funcionamiento queda Sin probar». A la pregunta de si las comprobaciones de Claude bastan: «sí, es así; […] Lo que tu pruebes le añades tu ok en la lista para que yo lo vea». Y: «Antes de cambiar a otra tarea preguntar si se puede dar por probada o si la voy a probar en el momento. Muchas tareas pequeñas las pruebo en el momento del cierre».
+- **Contexto:** Claude sacaba de la cola lo que él mismo comprobaba, como las normas de documentación, sin que el propietario viera ni aprobara su funcionamiento.
+- **Decisión:** toda petición cerrada queda `sin-probar` hasta el OK del propietario a su funcionamiento. Lo que Claude comprueba él mismo se anota en el campo `comprobado` de la petición, y el panel lo muestra en Sin probar con «✓» verde (y lo comprobado, al desplegarla), pero no la saca. Antes de pasar a otra petición, Claude pregunta si la cerrada se da por probada o si el propietario la prueba en ese momento. Sustituye en parte a «Lo probado sale de Sin probar»: ya no sale lo que solo ha comprobado Claude.
+- **Aplicada en:** lo vigente, en `sf:orquestacion` («Probar y cerrar») y la metodología, «Tareas y cola» («En observación»).
