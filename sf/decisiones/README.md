@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 377 | 2026-11-25 | [Cada documento compartido se actualiza en su propia tarea, «Actualizar <documento>»](377-2026-11-25-cada-documento-compartido-se-actualiza-en-su-propia-tarea-actualizar-documento.md) |
 | 376 | 2026-11-25 | [El principal orquesta y lanza cada subagente sin preguntar](376-2026-11-25-el-principal-orquesta-y-lanza-cada-subagente-sin-preguntar.md) |
 | 375 | 2026-11-25 | [Un subagente vivo por tarea en curso, en su rama auxiliar](375-2026-11-25-un-subagente-vivo-por-tarea-en-curso-en-su-rama-auxiliar.md) |
 | 374 | 2026-11-25 | [El panel avisa cuando el proyecto va por detrás de la SF](374-2026-11-25-el-panel-avisa-cuando-el-proyecto-va-por-detras-de-la-sf.md) |
