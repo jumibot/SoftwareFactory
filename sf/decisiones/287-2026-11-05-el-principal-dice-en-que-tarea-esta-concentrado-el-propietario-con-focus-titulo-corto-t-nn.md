@@ -1,5 +1,7 @@
 # El principal dice en qué tarea está concentrado el propietario, con «FOCUS: <título corto> (T NN)»
 
+Estado: deprecada el 2026-11-25 por «La línea del foco abre cada respuesta y lo de otras tareas va al final» (380); lo demás, por «Con un foco fijado y sin resolver no se cambia de tarea sin instrucción expresa del propietario» (337), «Reglas del foco y del off-topic: las once recomendaciones del informe de la 431» (357) y «Las respuestas del principal, legibles en el terminal» (370).
+
 Fecha: 2026-11-05. Decidida por el propietario de la Software Factory.
 
 - El principal le dice al propietario en qué tarea está concentrado, con una línea al principio de su respuesta: «FOCUS: <título corto de la tarea> (T <número>)», por ejemplo «FOCUS: Retoques en el readme (T 368)».
@@ -14,4 +16,4 @@ Fecha: 2026-11-05. Decidida por el propietario de la Software Factory.
 
 Porqué: el propietario estuvo escribiendo en la vista de un subagente sin darse cuenta; que el principal le dijera en qué tarea estaba concentrado le devolvió el foco, y pidió que fuera una regla, con este formato. Después precisó qué es el foco y que, con él, el principal no le interrumpa: antes le llegaban actualizaciones de otras tareas incluso mientras escribía. Más tarde (6/11/2026) eligió que lo de otras tareas no espere del todo, sino que vaya al final como «off-topic», breve.
 
-Aplicada en: pendiente, tarea «Que Claude le diga al propietario en qué tarea está concentrado» (372); la parte de no interrumpir, con «No interrumpir al propietario mientras prueba o está en otra tarea» (327).
+Aplicada en: lo vigente, en `sf:orquestacion` («Con cada mensaje» y «Cómo escribir») y `references/porque.md`.
