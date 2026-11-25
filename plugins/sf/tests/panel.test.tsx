@@ -8,7 +8,7 @@ import { colorDeSesion } from '../hooks/constantes'
 import { numeroTarea } from '../hooks/foco'
 import { PRUEBA_PYTHON } from '../hooks/python'
 import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE } from '../hooks/subagentes'
-import { firmaEstructura, firmaLista, vistaCuerpo } from '../hooks/panel'
+import { firmaEstructura, firmaLista, pedirArriba, vistaCuerpo } from '../hooks/panel'
 import { NOMBRE, NOMBRE_ANCHO, bienvenida, partir } from '../hooks/bienvenida'
 import { BARRA, COLOR_BARRA, COLOR_BARRA_CLARO, COLOR_LETRAS, COLOR_LETRAS_CLARO, LETRAS, logoSvg } from '../hooks/logo'
 
@@ -2954,6 +2954,44 @@ test('Desplazamiento: al cerrarse el panel (/sf lo cierra y lo abre), se vuelve 
   await ui.redraw()
   expect(buscar((await ui.drawn()) as Nodo, desplazado)?.props?.top).toBe(0)
   await ui.unmount()
+})
+
+// En la app de escritorio el scroll es de la app (tarea 429): la rueda mueve su ventana, el panel no sube el cuerpo ni
+// la devuelve arriba al redibujarse. Antes, el panel se quedaba la rueda (la app volvía su ventana arriba) y, al
+// redibujarse con la ventana movida, la pedía arriba. En el terminal, como antes.
+test('Desplazamiento: en la app, la rueda mueve la ventana de la app y el cuerpo no sube', async (...m) => {
+  const [$, on] = m
+  // Los movimientos que el panel deja pasar a la app.
+  const alMotor: number[] = []
+  on('ui.scroll', (_$, e) => {
+    alMotor.push(e.offset)
+    return {}
+  })
+  await preparar(m, { extra: GIT('ref: refs/heads/develop\n') })
+  const escritorio = { ...ANCHO, surface: 'desktop' } as const
+  const ui = await $.ui.mount(escritorio)
+  const scroll = (by: number, offset: number) =>
+    $.ui.scroll({ component: 'Pane', requestId: 'sf-estado', offset, by, bodyRows: 40, contentRows: 100, origin: { kind: 'person' } })
+  const cuerpo = async () => buscar((await ui.drawn()) as Nodo, desplazado)
+  await scroll(5, 5)
+  await ui.redraw({ ...escritorio.props, scroll: { offset: 5, bodyRows: 40 } })
+  await scroll(7, 12)
+  await ui.redraw({ ...escritorio.props, scroll: { offset: 12, bodyRows: 40 } })
+  expect(alMotor).toEqual([5, 12])
+  expect((await cuerpo())?.props?.top).toBe(0)
+  expect(JSON.stringify(await ui.drawn()).includes('▲')).toBe(false)
+  await ui.unmount()
+})
+
+test('Desplazamiento: el panel pide la ventana arriba solo en el terminal', () => {
+  // Terminal: sin medida, o con la ventana movida, se pide; con medida y la ventana arriba, no; sin ventana, no.
+  expect(pedirArriba(false, false, 0, 40)).toBe(true)
+  expect(pedirArriba(false, true, 12, 40)).toBe(true)
+  expect(pedirArriba(false, true, 0, 40)).toBe(false)
+  expect(pedirArriba(false, false, 12, null)).toBe(false)
+  // App: nunca, aunque la ventana esté movida (la rueda la ha bajado) o falte la medida.
+  expect(pedirArriba(true, true, 12, 40)).toBe(false)
+  expect(pedirArriba(true, false, 0, 40)).toBe(false)
 })
 
 // Etiqueta de la cabecera (decisión del propietario, 2026-10-30): «SF» y la versión del plugin que corre, en lugar

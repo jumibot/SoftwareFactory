@@ -49,6 +49,9 @@ const vistaPanel = atom({ plugin: 'sf', key: 'vistaPanel' } as const, VISTA_ARRI
 let listaDibujada = ''
 let estructuraDibujada = ''
 let medidaPedida = ''
+// Si el panel se dibujó por última vez en una superficie gráfica (la app de escritorio, VS Code, el móvil): allí el scroll
+// es de la app, que mueve su ventana sola, con la cabecera (tarea 429). El evento de scroll no dice la superficie.
+let scrollDeLaApp = false
 
 // La lista de tareas tal como el panel la enseña: cada una con su estado. Si cambia, el cuerpo vuelve arriba (tarea 406).
 export const firmaLista = (cola: readonly Peticion[]) => cola.map(p => `${String(p.id)}:${p.estado}${p.observando ? '*' : ''}`).join(',')
@@ -73,6 +76,11 @@ export function vistaCuerpo(v: VistaPanel, lista: string, estructura: string, ve
   const medida = contenido !== null && v.estructura === estructura
   return { filas, abajo: medida ? Math.max(0, contenido - ventana! - filas) : 0, medida }
 }
+// Si el panel pide al motor llevar su ventana arriba (tarea 406): sin medida de este cuerpo o con la ventana movida (que
+// lleva la cabecera consigo), y con la ventana conocida. En una superficie gráfica, nunca: la ventana es de la app, que la
+// mueve con la rueda, y llevarla arriba en cada dibujo devolvía el panel arriba al bajar por él (tarea 429).
+export const pedirArriba = (grafica: boolean, medida: boolean, movida: number, ventana: number | null) =>
+  !grafica && (!medida || movida > 0) && ventana !== null
 // La parte de la lista de la incorporación que se ve, movida a mano (tarea 333); null, la que sigue al paso actual.
 const vistaIncorporacion = atom({ plugin: 'sf', key: 'vistaIncorporacion' } as const, null as VistaIncorporacion | null)
 // En una superficie gráfica, los apartados del panel (cabecera, bienvenida, incorporación, tareas) y las secciones de
@@ -368,7 +376,10 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
   // no cambia al subir (decisión del propietario, 2026-10-29). Cada movimiento deja también la medida del árbol, con
   // la lista y la estructura del cuerpo de entonces; con otra lista, el cuerpo parte de arriba (tarea 406).
   // El del propio panel (al dibujarse, para medir) no sube el cuerpo: solo deja la medida y la ventana arriba.
+  // En una superficie gráfica, el scroll es de la app: pasa tal cual. Quedarse la rueda y subir el cuerpo dejaba el
+  // final fuera de alcance y la ventana de la app volvía arriba sola al bajar por el panel (tarea 429).
   on('ui.scroll', { component: 'Pane', requestId: PANEL }, async ($, e, next) => {
+    if (scrollDeLaApp) return next(e)
     const v = await read($, vistaPanel)
     const k = v.lista === listaDibujada ? v.filas : 0
     const medir = e.origin.kind === 'plugin'
@@ -479,6 +490,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // toman el ancho de su contenido, las filas de la cabecera se parten entre etiquetas y los títulos plegados se
     // cortan con puntos suspensivos. El terminal sigue como estaba.
     const grafica = e.surface !== 'terminal'
+    scrollDeLaApp = grafica
     // La separación entre dos botones de una fila (la cabecera y las órdenes de una tarea): en el terminal, una columna;
     // en una superficie gráfica, el paso más pequeño de la suya, no una celda entera (tarea 397).
     const separa: 1 | 'xs' = grafica ? 'xs' : 1
@@ -1718,6 +1730,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Las filas subidas valen con la misma lista de tareas: si cambia, o el panel se vuelve a abrir, o cabe entero, el
     // cuerpo vuelve arriba. Lo que queda fuera de la vista se marca sobre la primera fila y la última que se ven, sin
     // mover nada: arriba, «▲ N filas más», un botón que vuelve arriba; abajo, «▼ N filas más» (tarea 406).
+    // Todo esto, en el terminal: en una superficie gráfica, el cuerpo no sube y la app desplaza el panel entero con su
+    // propia barra, cabecera incluida (tarea 429).
     const vistaDelPanel = await read($, vistaPanel)
     const ventana = (e.props as { scroll?: { bodyRows?: number } }).scroll?.bodyRows ?? null
     const firmaDeLista = firmaLista(est.peticiones)
@@ -1740,12 +1754,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const estructura = firmaEstructura(hijos)
       listaDibujada = firmaDeLista
       estructuraDibujada = estructura
-      const { filas, abajo, medida } = vistaCuerpo(vistaDelPanel, firmaDeLista, estructura, ventana)
+      // En una superficie gráfica, el cuerpo no sube ni se marca: la ventana es de la app (tarea 429).
+      const { filas, abajo, medida } = grafica ? { filas: 0, abajo: 0, medida: true } : vistaCuerpo(vistaDelPanel, firmaDeLista, estructura, ventana)
       // Sin medida de este cuerpo, o con la ventana del motor movida (que lleva la cabecera consigo), se le pide llevarla
       // arriba: su scroll trae el alto del árbol, y con él, si hay algo abajo, y la devuelve a su sitio.
       const movida = (e.props as { scroll?: { offset?: number } }).scroll?.offset ?? 0
       const pedir = `${firmaDeLista}|${estructura}|${String(ventana)}|${String(movida)}`
-      if ((!medida || movida > 0) && ventana !== null && medidaPedida !== pedir) {
+      if (pedirArriba(grafica, medida, movida, ventana) && medidaPedida !== pedir) {
         medidaPedida = pedir
         void Promise.resolve()
           .then(() => $.ui.scroll({ in: PANEL, to: 'start' }))
