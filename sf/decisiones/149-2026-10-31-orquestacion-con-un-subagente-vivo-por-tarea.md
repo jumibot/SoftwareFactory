@@ -1,5 +1,7 @@
 # Orquestación con un subagente vivo por tarea
 
+Estado: deprecada el 2026-11-25 por «Un subagente vivo por tarea en curso, en su rama auxiliar» (375); lo demás, por «cola.py recoge el subagente al dejar la tarea sin él» (169) y «Lo que falta por concretar va como pasos de la tarea» (211).
+
 - **Origen:** SoftwareFactory, 2026-10-31, tarea «Skill de orquestación» (205), a partir del análisis del trabajo con la SF en el desarrollo del panel (194). El propietario: «tener subagentes esperando instrucciones y dejando libre el agente principal lo veo una gran ventaja».
 - **Contexto:** los ajustes que pedía el propietario durante la prueba se hacían en el principal, que quedaba ocupado: la «Mismo diseño de tarea en todas las secciones del panel» (210) llevó 9 ajustes en unos 25 minutos, y la 196, 12 ajustes en unas 2,5 horas y unos 360.000 tokens. Además, el panel no reflejaba el trabajo: tareas sin pasos, informes de subagentes sin recoger, la C sin salir y la cola desfasada respecto a lo que el propietario cambiaba desde el panel.
 - **Decisión:** el principal se comporta así con las tareas y sus subagentes:
@@ -12,4 +14,4 @@
   - **Sin tarea en curso no se trabaja**, salvo para reorganizar la cola (fusionar, separar, redescribir, añadir pasos, cambiar tipos).
   - **Al cerrar, parar el subagente y quitar su worktree.** El subagente trabaja siempre en su rama auxiliar (`sub-NN`), así que la rama de la tarea queda libre y la T y la C funcionan sin quitar el worktree; la C falló en la 194 porque su worktree tenía activa la propia rama de la tarea.
 - **Consecuencias:** el principal queda libre para hablar con el propietario mientras los subagentes esperan instrucciones. La metodología, la plantilla `claude-sf.md` y el CLAUDE.md de la SF se ajustan en su tarea de actualizar.
-- **Aplicada en:** plugins/sf/skills/orquestacion/SKILL.md y plugins/sf/skills/flujo_tareas/SKILL.md.
+- **Aplicada en:** lo vigente, en `sf:orquestacion` y `sf:flujo_tareas`.
