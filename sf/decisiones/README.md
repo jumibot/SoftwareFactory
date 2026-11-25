@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 368 | 2026-11-25 | [Una tarea que espera al propietario lleva el paso «Esperar al propietario: …»](368-2026-11-25-una-tarea-que-espera-al-propietario-lleva-el-paso-esperar-al-propietario.md) |
 | 367 | 2026-11-25 | [Sin menú para lo que el propietario ya tiene en el panel](367-2026-11-25-sin-menu-para-lo-que-el-propietario-ya-tiene-en-el-panel.md) |
 | 366 | 2026-11-25 | [Los commits de trabajo en la rama de la tarea no esperan el OK](366-2026-11-25-los-commits-de-trabajo-en-la-rama-de-la-tarea-no-esperan-el-ok.md) |
 | 365 | 2026-11-25 | [Al proponer descartar una tarea, decir qué pedía, dónde quedó hecha y qué supone](365-2026-11-25-al-proponer-descartar-una-tarea-decir-que-pedia-donde-quedo-hecha-y-que-supone.md) |
