@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 360 | 2026-11-25 | [Las decisiones superadas se deprecan enteras y lo vigente va a una decisión nueva](360-2026-11-25-las-decisiones-superadas-se-deprecan-enteras-y-lo-vigente-va-a-una-decision-nueva.md) |
 | 359 | 2026-11-25 | [Las decisiones, en dos catálogos: vigentes y deprecadas](359-2026-11-25-las-decisiones-en-dos-catalogos-vigentes-y-deprecadas.md) |
 | 358 | 2026-11-25 | [Al fusionar queda la tarea que tiene el trabajo, y la resultante se retitula y se ordena](358-2026-11-25-al-fusionar-queda-la-tarea-que-tiene-el-trabajo-y-la-resultante-se-retitula-y-se-ordena.md) |
 | 357 | 2026-11-25 | [Reglas del foco y del off-topic: las once recomendaciones del informe de la 431](357-2026-11-25-reglas-del-foco-y-del-off-topic-las-once-recomendaciones-del-informe-de-la-431.md) |
