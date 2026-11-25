@@ -1,8 +1,12 @@
+---
+destino: proyecto
+herramientas: recomendadas
+---
 # Cómo funciona el panel
 
 El panel de la SF, parte por parte: qué enseña, cómo se lee y qué se puede hacer desde él. El resumen está en [Cómo funciona la Software Factory](como-funciona-la-software-factory.html#el-panel-de-la-sf). Qué hace cada cambio de estado de una tarea, en [Cómo funcionan los estados](como-funcionan-los-estados.html). Las reglas que hay detrás están en la metodología y en las [decisiones](../sf/decisiones/README.md).
 
-**Estado:** 5 de noviembre de 2026, plugin `sf` 1.8.2 y lo que hay en `develop` sin publicar (ver «Historial»).
+**Estado:** 25 de noviembre de 2026, plugin `sf` 1.9.9 (ver «Historial»).
 
 ## Qué es
 
@@ -12,29 +16,29 @@ Su objetivo es el **control y el foco**: ver de un vistazo qué se está haciend
 
 Se ve de dos formas. En la pantalla completa de Claude Code, el panel se abre solo al empezar la sesión, a la derecha de la conversación. Si lo cierras a mano, no se vuelve a abrir solo: `/sf` lo reabre. Cuando el panel no está a la vista, el mod se enseña en una caja pequeña sobre el prompt (ver «La caja sobre el prompt»). Funciona igual en el terminal y en las superficies gráficas: la app de escritorio, VS Code y el móvil (ver «En la app de escritorio»).
 
-Es el mismo en todos los proyectos, la SF incluida, sin adaptaciones. En una carpeta sin SF, en lugar de las tareas, da la bienvenida y ofrece incorporarla (ver «Una carpeta sin SF»).
+Es el mismo en todos los proyectos, la SF incluida, sin adaptaciones: la SF tiene su `.sf/proyecto.json` y se lee como un proyecto más (decisión [La SF se lleva como los demás proyectos](../sf/decisiones/299-2026-11-05-la-sf-se-lleva-como-los-demas-proyectos-sf-proyecto-json-documentos-en-sf-y-sin-excepciones.md)). En una carpeta sin SF, en lugar de las tareas, da la bienvenida y ofrece incorporarla (ver «Una carpeta sin SF»).
 
-Se lee de arriba abajo: la cabecera dice dónde estás; lo amarillo, qué se está haciendo; el bloque de tareas, todo lo demás.
+Se lee de arriba abajo: la cabecera dice dónde estás; lo de color, bajo ella, qué se está haciendo; el bloque de tareas, todo lo demás.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 312" width="100%" role="img" aria-label="Esquema del panel: la cabecera con sus tres filas, dos tareas en curso en amarillo con el punto del subagente, y el bloque con Pendientes, En observación, Cerradas y Propuestas" style="font-family:var(--fuente-texto);display:block">
+<svg viewBox="0 0 560 312" width="100%" role="img" aria-label="Esquema del panel: la cabecera con sus tres filas, dos tareas en curso, una en dorado y otra en verde, cada una con la marca de su subagente, y el bloque con Pendientes, En observación, Cerradas y Propuestas" style="font-family:var(--fuente-texto);display:block">
 <rect x="8" y="4" width="334" height="304" rx="6" fill="none" stroke="#999" stroke-width="1.2"/>
 <rect x="16" y="12" width="60" height="18" rx="3" fill="none" stroke="#9333ea" stroke-width="1.2"/>
 <text x="46" y="25" text-anchor="middle" font-size="11" font-weight="700" fill="#7e22ce">RELEASE</text>
 <rect x="80" y="12" width="60" height="18" rx="3" fill="none" stroke="#0e7490" stroke-width="1.2"/>
 <text x="110" y="25" text-anchor="middle" font-size="11" font-weight="700" fill="#0e7490">TURBO</text>
-<rect x="266" y="12" width="68" height="18" rx="3" fill="#827dbd"/>
-<text x="300" y="25" text-anchor="middle" font-size="11" fill="#000">SF 1.8.2</text>
+<rect x="266" y="12" width="68" height="18" rx="3" fill="#ca8a04"/>
+<text x="300" y="25" text-anchor="middle" font-size="11" fill="#000">SF 1.9.9</text>
 <rect x="16" y="36" width="60" height="18" rx="3" fill="none" stroke="#999" stroke-width="1"/>
 <text x="46" y="49" text-anchor="middle" font-size="11" fill="#555">2h 05m</text>
 <rect x="80" y="36" width="60" height="18" rx="3" fill="none" stroke="#999" stroke-width="1"/>
 <text x="110" y="49" text-anchor="middle" font-size="11" fill="#555">12 prompts</text>
 <rect x="16" y="60" width="200" height="18" rx="3" fill="none" stroke="#999" stroke-width="1"/>
-<text x="22" y="73" font-size="11" fill="#a16207">feature/198-actualizar-como-funciona…</text>
-<text x="16" y="104" font-size="11.5" fill="#a16207"><tspan text-decoration="underline">198</tspan> Actualizar Cómo funciona el panel (documentar)</text>
+<text x="22" y="73" font-size="11" fill="#8b6914">feature/198-actualizar-como-funciona…</text>
+<text x="16" y="104" font-size="11.5" fill="#8b6914"><tspan text-decoration="underline">198</tspan> Actualizar Cómo funciona el panel (documentar)</text>
 <text x="330" y="104" text-anchor="end" font-size="12" fill="#15803d">●</text>
-<text x="16" y="124" font-size="11.5" fill="#a16207"><tspan text-decoration="underline">201</tspan> Que la caja diga la fase (corregir)</text>
-<text x="330" y="124" text-anchor="end" font-size="12" fill="#b91c1c">●</text>
+<text x="16" y="124" font-size="11.5" fill="#15803d"><tspan text-decoration="underline">201</tspan> Que la caja diga la fase (corregir)</text>
+<text x="330" y="124" text-anchor="end" font-size="12" fill="#15803d">○</text>
 <rect x="12" y="140" width="326" height="164" rx="4" fill="none" stroke="#bbb" stroke-width="1"/>
 <text x="20" y="162" font-size="11.5" font-weight="700" fill="#333">PENDIENTES ▾ <tspan font-weight="400" fill="#888">2</tspan></text>
 <text x="20" y="182" font-size="11.5" fill="#666"><tspan text-decoration="underline"> 12</tspan> Ordenar la cola por sprint (diseñar)</text>
@@ -51,7 +55,7 @@ Se lee de arriba abajo: la cabecera dice dónde estás; lo amarillo, qué se est
 <circle cx="360" cy="114" r="10" fill="#f97316"/>
 <text x="360" y="119" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">2</text>
 <text x="376" y="111" font-size="14" font-weight="700" fill="#004d47">Tareas en curso</text>
-<text x="376" y="128" font-size="12.5" fill="#555">en amarillo, con su subagente</text>
+<text x="376" y="128" font-size="12.5" fill="#555">su color dice en qué punto está</text>
 <line x1="342" y1="182" x2="350" y2="182" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="360" cy="182" r="10" fill="#f97316"/>
 <text x="360" y="187" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">3</text>
@@ -70,12 +74,14 @@ Se lee de arriba abajo: la cabecera dice dónde estás; lo amarillo, qué se est
 <text x="360" y="279" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">6</text>
 <text x="376" y="279" font-size="14" font-weight="700" fill="#004d47">Propuestas por decidir</text>
 </svg>
-<figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">El panel en la SF, con dos tareas en curso y Pendientes desplegada. Es un esquema, no una captura.</figcaption>
+<figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">El panel en la SF, con dos tareas en curso, la 201 lista para probar, y Pendientes desplegada. Es un esquema, no una captura.</figcaption>
 </figure>
 
 ## La cabecera
 
-La cabecera queda fija al hacer scroll: lo demás sube bajo ella con la rueda o las teclas, también las tareas en curso. Si cambia la lista de tareas, se cierra el panel o cabe entero, el cuerpo vuelve arriba. Lo que queda fuera de la vista se marca: arriba, «▲ N filas más · arriba», que vuelve arriba al pulsarlo; abajo, en el terminal, «▼ N filas más».
+La cabecera queda fija al hacer scroll en el terminal: lo demás sube bajo ella con la rueda o las teclas, también las tareas en curso. Si cambia la lista de tareas, se cierra el panel o cabe entero, el cuerpo vuelve arriba. Lo que queda fuera de la vista se marca: arriba, «▲ N filas más · arriba», que vuelve arriba al pulsarlo; abajo, «▼ N filas más».
+
+En la app de escritorio (y en VS Code y el móvil), el scroll es de la app: el panel entero, cabecera incluida, se desplaza con su barra, sin marcas, y se queda donde lo dejas.
 
 Tiene tres filas: los botones y la versión, la sesión y la rama.
 
@@ -89,14 +95,14 @@ Tiene tres filas: los botones y la versión, la sesión y la rama.
 <text x="238" y="43" text-anchor="middle" font-size="12" font-weight="700" fill="#0e7490">TURBO</text>
 <rect x="280" y="28" width="76" height="22" rx="3" fill="none" stroke="#c2410c" stroke-width="1.2"/>
 <text x="318" y="43" text-anchor="middle" font-size="12" fill="#c2410c">PRUEBA</text>
-<rect x="458" y="28" width="76" height="22" rx="3" fill="#827dbd"/>
-<text x="496" y="43" text-anchor="middle" font-size="12" fill="#000">SF 1.8.2</text>
+<rect x="458" y="28" width="76" height="22" rx="3" fill="#ca8a04"/>
+<text x="496" y="43" text-anchor="middle" font-size="12" fill="#000">SF 1.9.9</text>
 <rect x="40" y="56" width="76" height="22" rx="3" fill="none" stroke="#999" stroke-width="1.2"/>
 <text x="78" y="71" text-anchor="middle" font-size="12" fill="#555">2h 05m</text>
 <rect x="120" y="56" width="76" height="22" rx="3" fill="none" stroke="#999" stroke-width="1.2"/>
 <text x="158" y="71" text-anchor="middle" font-size="12" fill="#555">12 prompts</text>
 <rect x="40" y="84" width="200" height="22" rx="3" fill="none" stroke="#999" stroke-width="1.2"/>
-<text x="140" y="99" text-anchor="middle" font-size="12" fill="#a16207">feature/198-actualizar-…</text>
+<text x="140" y="99" text-anchor="middle" font-size="12" fill="#8b6914">feature/198-actualizar-…</text>
 <line x1="78" y1="22" x2="78" y2="28" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="78" cy="12" r="10" fill="#f97316"/>
 <text x="78" y="17" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">1</text>
@@ -152,7 +158,7 @@ Tiene tres filas: los botones y la versión, la sesión y la rama.
 <circle cx="14" cy="472" r="11" fill="#f97316"/>
 <text x="14" y="477" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">8</text>
 <text x="34" y="477" font-size="16" font-weight="700" fill="#004d47">Rama activa, sola en su fila</text>
-<text x="34" y="497" font-size="15" fill="#555">en amarillo si es la de una tarea; «develop ↑2» si hay que subir</text>
+<text x="34" y="497" font-size="15" fill="#555">en dorado si es la de una tarea; «develop ↑2» si hay que subir</text>
 </svg>
 <figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">La cabecera en la SF, con una versión nueva por instalar, en modo prueba y en la rama de una tarea. Es un esquema, no una captura.</figcaption>
 </figure>
@@ -164,7 +170,7 @@ La primera fila tiene los botones a la izquierda y la versión a la derecha. Los
 - **TURBO**, en cian, pide a Claude que ponga en curso con subagentes las tareas que no te necesitan (ver «TURBO»).
 - **La etiqueta de prueba** sale en la SF si el catálogo local está registrado. «PRUEBA», en naranja, dice que se usa la copia de trabajo; «prueba», subrayada y atenuada, que se usa el plugin publicado. Un clic cambia de uno a otro (ver «Modo prueba»).
 
-A la derecha va **«SF» y la versión del plugin que corre**, por ejemplo «SF 1.8.2», con el color de la sesión de fondo y letra negra, como la etiqueta que pone Claude Code. Sin versión legible, dice «SF» a secas. Sale en todos los proyectos, también sin SF, porque el panel es del plugin. El color es el de la sesión, uno de los ocho de `/color` (ver «Identidad de la sesión»); sin color, la etiqueta va atenuada. Un clic avisa de cuánto falta para la próxima comprobación de versión y de la hora de la última. El nombre del proyecto no sale en el panel: lo lleva la sesión, con `/rename`.
+A la derecha va **«SF» y la versión del plugin que corre**, por ejemplo «SF 1.9.9», con el color de la sesión de fondo y letra negra, como la etiqueta que pone Claude Code. Sin versión legible, dice «SF» a secas. Sale en todos los proyectos, también sin SF, porque el panel es del plugin. El color es el de la sesión, uno de los ocho de `/color` (ver «Identidad de la sesión»); sin color, la etiqueta va atenuada. Un clic avisa de cuánto falta para la próxima comprobación de versión y de la hora de la última. El nombre del proyecto no sale en el panel: lo lleva la sesión, con `/rename`.
 
 En el terminal, las etiquetas de las dos primeras filas tienen **el mismo ancho**, el de « ACTUALIZAR », con el texto centrado. En un panel estrecho el ancho común se reduce, comiéndose el relleno; si ni así caben, cada una vuelve a su ancho. Las que piden confirmar, como «¿Publicar v1.9.0? sí», crecen lo que necesitan.
 
@@ -172,7 +178,7 @@ En el terminal, las etiquetas de las dos primeras filas tienen **el mismo ancho*
 
 La segunda fila lleva la **duración** de la sesión, en horas y minutos («2h 05m», o «45m» si no llega a una hora), y los **prompts**: los mensajes que has enviado, sin los que añade Claude Code sin que se vean, con «1 prompt» en singular y la cifra atenuada con 0. Las dos cuentan desde que se abre la conversación, también tras un `/clear` o al reanudarla; `/reload-plugins` no las reinicia. La duración se redibuja cada minuto.
 
-La tercera fila, solo en proyectos con SF y si hay `.git`, lleva la **rama activa** de la carpeta del proyecto, sola y a la izquierda. La letra va atenuada; en el amarillo de la tarea si es la rama de una tarea en curso o en observación. Con la cabeza separada, sale el commit corto entre paréntesis. Si no cabe, se recorta por el final con «…».
+La tercera fila, solo en proyectos con SF y si hay `.git`, lleva la **rama activa** de la carpeta del proyecto, sola y a la izquierda. La letra va atenuada; en el dorado de la tarea si es la rama de una tarea en curso o en observación. Con la cabeza separada, sale el commit corto entre paréntesis. Si no cabe, se recorta por el final con «…».
 
 Con `develop` activa y commits sin subir a su remoto, la etiqueta dice **«develop ↑2»**, con la cifra en verde, y es un botón (ver «Subir develop»). El remoto es el de la configuración del proyecto, y la cuenta sale de la referencia remota que ya tiene git, sin ir a la red.
 
@@ -203,17 +209,23 @@ La versión de la SF del proyecto, su fase y su devslice no salen en el panel la
 
 ## Las tareas en curso
 
-Lo amarillo es lo que se está haciendo: arriba, bajo la cabecera, van todas las tareas **en curso** y la de observación que estás mirando, la del campo `observando`, que se trabaja como si estuviera en curso. La que ha cambiado la última, la de fecha más reciente en su historial, va arriba: es la **tarea principal**. Las que no tienen historial van detrás, de número más alto a más bajo.
+Lo de color es lo que se está haciendo: arriba, bajo la cabecera, van todas las tareas **en curso** y la de observación que estás mirando, la del campo `observando`, que se trabaja como si estuviera en curso. La que ha cambiado la última, la de fecha más reciente en su historial, va arriba: es la **tarea principal**. Las que no tienen historial van detrás, de número más alto a más bajo.
 
 Cada tarea sale **en una sola sección**: las de arriba no se repiten en Pendientes ni en En observación.
 
-Plegada, cada una es solo su línea: el número y el título, enteros y en amarillo, sin negrita, con el tipo detrás. A la derecha, el **●** de su subagente, si lo tiene (ver «El ● del subagente»). Desplegada, enseña su detalle, como en las secciones (ver «Cómo se lee una tarea»); arriba, además, la Prueba y la orden Paso +.
+Plegada, cada una es solo su línea: el número y el título, enteros y sin negrita, con el tipo detrás. A la derecha, la marca de su subagente, si lo tiene (ver «La marca del subagente»). Su color dice en qué punto está:
 
-Sin tareas en curso, la parte amarilla enseña la devslice del proyecto, «devslice 2», o, sin ella, una línea atenuada: «▷ ninguna tarea en curso».
+- **dorado**, en curso: un tono por tema de Claude Code, `#d4af37` con el oscuro y `#8b6914` con el claro, para que se lea en los dos (decisión [Las tareas en curso del panel vuelven a un color cálido: el dorado](../sf/decisiones/355-2026-11-25-las-tareas-en-curso-del-panel-vuelven-a-un-color-calido-el-dorado-no-el-azul.md)). El tema sale del ajuste `theme` de `/config`: claro si empieza por «light»; oscuro con cualquier otro, sin ajuste o «auto»;
+- **verde**, lista para probar: Claude la ha dejado lista (`cola.py listo`) y desde entonces no ha vuelto al trabajo, con un paso nuevo, una vuelta a la cola o una reapertura. Activar rama no la quita;
+- **rojo**, esperándote: tiene sin hacer un paso «Esperar al propietario: …», una decisión, una respuesta o un retoque tuyo. Claude lo añade al quedarse esperando y lo marca hecho con tu respuesta. Si además está lista para probar, manda el verde.
+
+Desplegada, enseña su detalle, como en las secciones (ver «Cómo se lee una tarea»); arriba, además, la Prueba y la orden Paso +.
+
+Sin tareas en curso, esa parte enseña la devslice del proyecto, «devslice 2», o, sin ella, una línea atenuada: «▷ ninguna tarea en curso».
 
 <figure class="vertical" style="margin:1.6rem 0 1.4rem;">
-<svg viewBox="0 0 560 670" width="100%" role="img" aria-label="Una tarea en curso desplegada, con sus partes numeradas: título, menú de órdenes de la tarea y de sus pasos, rama, Prueba, Descripción, pasos numerados y el punto del subagente" style="font-family:var(--fuente-texto);display:block">
-<text x="40" y="20" font-size="12.5" fill="#a16207"><tspan text-decoration="underline">198</tspan> Actualizar Cómo funciona el panel (documentar)</text>
+<svg viewBox="0 0 560 670" width="100%" role="img" aria-label="Una tarea en curso desplegada, con sus partes numeradas: título, menú de órdenes de la tarea y de sus pasos, rama, Prueba, Descripción, pasos numerados y la marca del subagente" style="font-family:var(--fuente-texto);display:block">
+<text x="40" y="20" font-size="12.5" fill="#8b6914"><tspan text-decoration="underline">198</tspan> Actualizar Cómo funciona el panel (documentar)</text>
 <text x="516" y="20" font-size="14" fill="#15803d">●</text>
 <rect x="40" y="30" width="80" height="20" rx="3" fill="none" stroke="#15803d" stroke-width="1.2"/>
 <text x="80" y="44" text-anchor="middle" font-size="11.5" fill="#15803d">Activar rama</text>
@@ -267,7 +279,7 @@ Sin tareas en curso, la parte amarilla enseña la devslice del proyecto, «devsl
 <circle cx="14" cy="294" r="11" fill="#f97316"/>
 <text x="14" y="299" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">1</text>
 <text x="34" y="299" font-size="16" font-weight="700" fill="#004d47">Número, título y tipo</text>
-<text x="34" y="319" font-size="15" fill="#555">en amarillo; el número subrayado la pliega</text>
+<text x="34" y="319" font-size="15" fill="#555">en dorado, verde o rojo; el número la pliega</text>
 <circle cx="14" cy="342" r="11" fill="#f97316"/>
 <text x="14" y="347" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">2</text>
 <text x="34" y="347" font-size="16" font-weight="700" fill="#004d47">Órdenes de la tarea</text>
@@ -294,8 +306,8 @@ Sin tareas en curso, la parte amarilla enseña la devslice del proyecto, «devsl
 <text x="34" y="607" font-size="15" fill="#555">el hecho, oscuro; el actual, en negrita; «?» y «×»</text>
 <circle cx="14" cy="630" r="11" fill="#f97316"/>
 <text x="14" y="635" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">8</text>
-<text x="34" y="635" font-size="16" font-weight="700" fill="#004d47">● del subagente</text>
-<text x="34" y="655" font-size="15" fill="#555">verde mientras trabaja, rojo mientras espera</text>
+<text x="34" y="635" font-size="16" font-weight="700" fill="#004d47">Marca del subagente</text>
+<text x="34" y="655" font-size="15" fill="#555">verde: ● si trabaja, ○ si está parado</text>
 </svg>
 <figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Una tarea en curso desplegada, con su menú, su rama, la prueba, la descripción y los pasos. Es un esquema, no una captura.</figcaption>
 </figure>
@@ -306,7 +318,7 @@ Todas las tareas tienen el mismo diseño en todas las secciones: arriba, en Pend
 
 ### Número, título y tipo
 
-El número va **sin letra detrás**, alineado a la derecha en tres columnas («  4», « 41», «236»), para que los títulos empiecen en la misma columna. Su color dice el estado: amarillo, en curso; verde, cerrada; gris, lo demás. Una tarea **reabierta** lleva el número con fondo rojo, en todas las secciones; es el único rojo de los números.
+El número va **sin letra detrás**, alineado a la derecha en tres columnas («  4», « 41», «236»), para que los títulos empiecen en la misma columna. Su color dice el estado: dorado, en curso; verde, cerrada; gris, lo demás. Una tarea **reabierta** lleva el número con fondo rojo, en todas las secciones; es el único rojo de los números.
 
 El título va entero, sin negrita y en un gris más apagado que el texto normal; si no cabe, sigue en la línea siguiente en su misma columna, con sangría colgante. Detrás va su **tipo**, entre paréntesis y en minúsculas: «(deliberar)». Sin tipo, nada.
 
@@ -346,13 +358,13 @@ Los pasos los escribe Claude en `.sf/peticiones.json`, en el campo `pasos` de la
 
 Lo que Claude ya ha comprobado no va en la Prueba, sino en los pasos (ver «Los pasos»). Ninguna comprobación de Claude saca la tarea de observación: solo tu OK la cierra.
 
-### El ● del subagente
+### La marca del subagente
 
-Mientras un subagente trabaja en una tarea, su línea lleva a la derecha un **●** verde; cuando ha entregado su informe y espera instrucciones, rojo, solo si la tarea sigue en curso. Parado, no lleva nada. Un clic avisa de cuál es: «⚙: un subagente trabaja en la 148 (Tarea 148: …)» o «el subagente de la 148 espera instrucciones». La marca es un ● y no una ⚙ porque algunos terminales pintan la ⚙ como emoji gris, sin el color.
+Mientras un subagente trabaja en una tarea, su línea lleva a la derecha un **●** verde; parado, un **○** verde: cuando ha entregado su informe y espera instrucciones, o cuando se ha detenido (falló, se mató o se paró con TaskStop), solo si la tarea sigue en curso. Sin subagente, no lleva nada. Un clic avisa de cuál es, con su marca delante: «●: un subagente trabaja en la 148 (Tarea 148: …)», «○: el subagente de la 148 espera instrucciones (…)» o «○: el subagente de la 148 está detenido (…)». Es un ● y no una ⚙ porque algunos terminales pintan la ⚙ como emoji gris, sin el color.
 
-El panel lo lee de los subagentes del motor, con `$.agent.list()`. Trabaja uno en `pending`, `running` o `waiting` cuya descripción empiece por «Tarea NN»; «Tarea 1480» no es la 148. Por eso el principal lanza cada subagente con la descripción «Tarea NN: …». Espera uno en `idle` o `completed`, o uno que se veía trabajando y ya no sale en la lista. Uno parado con `TaskStop` deja de contar al momento. Lo visto se apunta en la sesión y en `.sf/subagentes.json`, para no perderlo al cambiar de plugin. Los worktrees no cuentan.
+El panel lo lee de los subagentes del motor, con `$.agent.list()`. Trabaja uno en `pending`, `running` o `waiting` cuya descripción empiece por «Tarea NN»; «Tarea 1480» no es la 148. Por eso el principal lanza cada subagente con la descripción «Tarea NN: …». Espera uno en `idle` o `completed`, o uno que se veía trabajando y ya no sale en la lista. Se ha detenido uno en `failed` o `killed`, uno cuyo turno acaba sin respuesta y uno parado con `TaskStop`, que pasa a ○ al momento. Lo visto se apunta en la sesión y en `.sf/subagentes.json`, para no perderlo al cambiar de plugin. Los worktrees no cuentan.
 
-Los subagentes se releen al lanzar uno, tras cada herramienta y cada minuto. El ● de uno que acaba cambia al momento o, como mucho, en un minuto.
+Los subagentes se releen al lanzar uno, tras cada herramienta y cada minuto. La marca de uno que acaba cambia al momento o, como mucho, en un minuto.
 
 ## El bloque de tareas
 
@@ -473,7 +485,7 @@ Todos los comandos de la SF empiezan por `sf` (decisión [Los comandos de la SF 
 - **`/sf_split 89 2,3`** separa de la 89 sus pasos 2 y 3 en una tarea nueva, en cola y sin rama, con el número siguiente al último dado, que se llama como su primer paso. Solo de tareas en cola o en curso con dos pasos o más, y nunca todos. `/sf_split 89` pregunta los pasos y `/sf_split` a secas, antes, la tarea.
 - **`/sf_fusionar 104 105`** junta tareas en cola o en curso en la de número más alto, con los pasos de todas por orden de tarea y las descripciones en párrafos. Si alguna estaba en curso, la que queda pasa a en curso. Las demás salen sin cerrarse. Con varias ramas, fusiona si las que sobran ya no existen o están integradas en la de destino, y las borra. Sin números, pregunta cuáles.
 - **`/sf_redescribir 162`** pide a Claude que vuelva a redactar la descripción de la 162 para que se lea fácilmente, sin quitar ni añadir nada. Claude te enseña la propuesta y la guarda solo con tu OK.
-- **`/sf_config [qué]`** pide a Claude cambiar la configuración del proyecto con menús y tu OK, con la skill `sf:configurar_proyecto`. En la SF o sin incorporar, lo dice y no pide nada.
+- **`/sf_config [qué]`** pide a Claude cambiar la configuración del proyecto con menús y tu OK, con la skill `sf:configurar_proyecto`, también en la SF. Sin incorporar, lo dice y no pide nada.
 - **`/sf_prueba`**, solo en la SF con el catálogo local, cambia el modo prueba sin el panel.
 - **`/sf_forzar_activa`** trae la SF a esta sesión, y **`/sf_forzar_inactiva`** la apaga en ella (ver «Una sola sesión con la SF por proyecto»). Con la SF apagada en la sesión, son las únicas que se atienden.
 
@@ -507,7 +519,7 @@ Antes de publicar comprueba que existen la rama de publicación (la `rama_main` 
 
 Después **revisa lo que sale**, con `revision_publica.py`, sin Claude: secretos, datos personales y archivos internos en los commits nuevos (decisión [Revisión antes de publicar](../sf/decisiones/259-2026-11-04-revision-antes-de-publicar-bloquear-en-publico-preguntar-en-privado-y-revisar-tambien-al-subir-develop.md)). Lo ya publicado en el último tag no cuenta, ni lo que el proyecto da por publicable en `.sf/publicable.txt`, una entrada por línea. Con el remoto público, algo nuevo para la publicación; lo ya subido, o cualquier cosa con el remoto privado, se enseña y se pide permiso: volver a pulsar RELEASE y elegir la misma versión en 10 minutos.
 
-Confirmada, sube la versión de los manifiestos de la configuración (en la SF, `plugin.json`) en un commit en `develop`, «sf X.Y.Z» en la SF y «vX.Y.Z» en los demás, con la línea de coautoría si la hay. Un manifiesto sin versión o con otra se avisa sin bloquear. Pasa `develop` a `main` por fast-forward, crea el tag y hace push de `develop`, `main` y el tag al remoto de la configuración. Si el push falla, lo local queda hecho y lo dice. Al acabar, vuelve a mirar si hay que ACTUALIZAR.
+Confirmada, sube la versión de los manifiestos de la configuración (en la SF, `plugin.json`) en un commit «vX.Y.Z» en `develop`, también en la SF (decisión [El commit de versión de la SF se titula con el tag](../sf/decisiones/342-2026-11-24-el-commit-de-version-de-la-sf-se-titula-con-el-tag-como-en-los-demas-proyectos.md)), con la línea de coautoría si la hay. Un manifiesto sin versión o con otra se avisa sin bloquear. Pasa `develop` a `main` por fast-forward, crea el tag y hace push de `develop`, `main` y el tag al remoto de la configuración. Si el push falla, lo local queda hecho y lo dice. Al acabar, vuelve a mirar si hay que ACTUALIZAR.
 
 ### ACTUALIZAR y REFRESCAR
 
@@ -582,7 +594,6 @@ Su primera línea, en negrita, tiene una de estas formas:
 | Proyecto atrasado | `SF 1.7 → 1.8.2 · LecturaFàcil · …` |
 | Sin metodología | `SF 1.8 · LecturaFàcil` |
 | Fase sin declarar | `SF 1.8 · LecturaFàcil · fase sin declarar` |
-| Repositorio de la propia SF | `SF · repositorio de la SF` |
 | Carpeta sin SF | `Sin SF` |
 | Estado ilegible o fase desconocida | `SF 1.8 · LecturaFàcil · ⚠ revisar .sf/` |
 | Estado aún en `docs/sf.json` | `… · ⚠ mover a .sf/` |
@@ -591,7 +602,7 @@ La versión es el campo `sf` de `.sf/proyecto.json`, la de la SF con que se inco
 
 Debajo, cada tarea en curso con «▶», recortada a 56 caracteres. Después, en una línea atenuada y solo lo que no es cero, «en cola N», «observación N» y «propuestas N». Los avisos van como en el panel, en blanco con la letra oscura: el de la pantalla completa, «revisar .sf/» o «revisar .sf/peticiones.json». Al final, «/sf abre el panel».
 
-En una carpeta sin SF, la caja lleva a su izquierda el logo «/SF» pequeño y, en lugar de las cuentas, lo mismo que la bienvenida: qué es la SF, la orden para empezar como botón y que Claude no cambia nada sin tu OK.
+En una carpeta sin SF, la caja lleva a su izquierda el logo «/SF» pequeño, claro u oscuro según el tema, y, en lugar de las cuentas, lo mismo que la bienvenida: qué es la SF, la orden para empezar como botón y que Claude no cambia nada sin tu OK.
 
 ## Una carpeta sin SF
 
@@ -599,41 +610,42 @@ En una carpeta sin `.sf/proyecto.json`, el panel no enseña tareas ni secciones:
 
 <figure class="vertical" style="margin:1.6rem 0 1.4rem;">
 <svg viewBox="0 0 560 590" width="100%" role="img" aria-label="La bienvenida del panel en una carpeta sin SF y, debajo, la lista de la incorporación en curso, con sus partes numeradas" style="font-family:var(--fuente-texto);display:block">
-<text x="250" y="52" text-anchor="middle" font-size="44" font-weight="900"><tspan fill="#b3aee6">/</tspan><tspan fill="#827dbd">SF</tspan></text>
-<text x="250" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#827dbd" letter-spacing="3">SOFTWARE FACTORY</text>
-<text x="250" y="102" text-anchor="middle" font-size="12" fill="#333">Tu fábrica de software sobre Claude Code:</text>
-<text x="250" y="118" text-anchor="middle" font-size="12" fill="#333">de la idea al código, tarea a tarea.</text>
-<text x="250" y="144" text-anchor="middle" font-size="12" font-weight="700" fill="#333">Para empezar, pulsa o escríbelo en el chat:</text>
-<rect x="150" y="154" width="200" height="22" rx="3" fill="#827dbd"/>
-<text x="250" y="169" text-anchor="middle" font-size="12" font-weight="700" fill="#000">incorpora este proyecto a la SF</text>
-<text x="250" y="196" text-anchor="middle" font-size="11.5" fill="#888">Claude te hará unas pocas preguntas y no cambia nada sin tu OK.</text>
-<rect x="60" y="214" width="380" height="146" rx="6" fill="none" stroke="#bbb" stroke-width="1"/>
-<text x="72" y="236" font-size="12" font-weight="700" fill="#827dbd">INCORPORACIÓN</text>
-<rect x="176" y="224" width="64" height="17" rx="2" fill="#827dbd"/>
-<text x="208" y="236" text-anchor="middle" font-size="11" font-weight="700" fill="#000">En curso</text>
-<text x="248" y="236" font-size="11.5" fill="#888">paso 3 de 12</text>
-<text x="72" y="262" font-size="12" fill="#15803d">1.<tspan fill="#333"> Plugin</tspan> ✓</text>
-<text x="90" y="278" font-size="11.5" fill="#666">Al día, 1.8.2</text>
-<text x="72" y="298" font-size="12" fill="#15803d">2.<tspan fill="#333"> Caso</tspan> ✓</text>
-<text x="90" y="314" font-size="11.5" fill="#666">Existente</text>
-<text x="72" y="334" font-size="12" font-weight="700" fill="#827dbd">3. Diagnóstico ◂</text>
-<text x="72" y="352" font-size="11.5" fill="#888">▼ 9 pasos más</text>
+<rect x="40" y="4" width="404" height="366" rx="8" fill="#1e1e1e"/>
+<text x="242" y="52" text-anchor="middle" font-size="44" font-weight="900" fill="#f5c400"><tspan fill="#f2f2f0">/</tspan><tspan fill="#f5c400">SF</tspan></text>
+<text x="242" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="#f5c400" letter-spacing="3">SOFTWARE FACTORY</text>
+<text x="242" y="102" text-anchor="middle" font-size="12" fill="#e5e5e5">Tu fábrica de software sobre Claude Code:</text>
+<text x="242" y="118" text-anchor="middle" font-size="12" fill="#e5e5e5">de la idea al código, tarea a tarea.</text>
+<text x="242" y="144" text-anchor="middle" font-size="12" font-weight="700" fill="#e5e5e5">Para empezar, pulsa o escríbelo en el chat:</text>
+<rect x="142" y="154" width="200" height="22" rx="3" fill="#f5c400"/>
+<text x="242" y="169" text-anchor="middle" font-size="12" font-weight="700" fill="#000">incorpora este proyecto a la SF</text>
+<text x="242" y="196" text-anchor="middle" font-size="11.5" fill="#a3a3a3">Claude te hará unas pocas preguntas y no cambia nada sin tu OK.</text>
+<rect x="56" y="214" width="372" height="146" rx="6" fill="#3a3a3a"/>
+<text x="68" y="236" font-size="12" font-weight="700" fill="#f5c400">INCORPORACIÓN</text>
+<rect x="172" y="224" width="64" height="17" rx="2" fill="#f5c400"/>
+<text x="204" y="236" text-anchor="middle" font-size="11" font-weight="700" fill="#000">En curso</text>
+<text x="244" y="236" font-size="11.5" fill="#a3a3a3">paso 3 de 12</text>
+<text x="68" y="262" font-size="12" fill="#4ade80">1.<tspan fill="#e5e5e5"> Plugin</tspan> ✓</text>
+<text x="86" y="278" font-size="11.5" fill="#d4d4d4">Al día, 1.9.9</text>
+<text x="68" y="298" font-size="12" fill="#4ade80">2.<tspan fill="#e5e5e5"> Caso</tspan> ✓</text>
+<text x="86" y="314" font-size="11.5" fill="#d4d4d4">Existente</text>
+<text x="68" y="334" font-size="12" font-weight="700" fill="#f5c400">3. Diagnóstico ◂</text>
+<text x="68" y="352" font-size="11.5" fill="#a3a3a3">▼ 9 pasos más</text>
 <line x1="360" y1="40" x2="452" y2="40" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="462" cy="40" r="10" fill="#f97316"/>
 <text x="462" y="45" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">1</text>
-<line x1="350" y1="165" x2="452" y2="165" stroke="#f97316" stroke-width="1.5"/>
+<line x1="342" y1="165" x2="452" y2="165" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="462" cy="165" r="10" fill="#f97316"/>
 <text x="462" y="170" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">2</text>
-<line x1="440" y1="232" x2="452" y2="232" stroke="#f97316" stroke-width="1.5"/>
+<line x1="428" y1="232" x2="452" y2="232" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="462" cy="232" r="10" fill="#f97316"/>
 <text x="462" y="237" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">3</text>
-<line x1="440" y1="330" x2="452" y2="330" stroke="#f97316" stroke-width="1.5"/>
+<line x1="428" y1="330" x2="452" y2="330" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="462" cy="330" r="10" fill="#f97316"/>
 <text x="462" y="335" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">4</text>
 <circle cx="14" cy="394" r="11" fill="#f97316"/>
 <text x="14" y="399" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">1</text>
 <text x="34" y="399" font-size="16" font-weight="700" fill="#004d47">El logo «/SF»</text>
-<text x="34" y="419" font-size="15" fill="#555">la barra en morado claro recuerda la orden /sf</text>
+<text x="34" y="419" font-size="15" fill="#555">la barra recuerda /sf; claro u oscuro según el tema</text>
 <circle cx="14" cy="442" r="11" fill="#f97316"/>
 <text x="14" y="447" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">2</text>
 <text x="34" y="447" font-size="16" font-weight="700" fill="#004d47">La orden, un botón</text>
@@ -645,16 +657,16 @@ En una carpeta sin `.sf/proyecto.json`, el panel no enseña tareas ni secciones:
 <circle cx="14" cy="538" r="11" fill="#f97316"/>
 <text x="14" y="543" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">4</text>
 <text x="34" y="543" font-size="16" font-weight="700" fill="#004d47">El paso actual</text>
-<text x="34" y="563" font-size="15" fill="#555">en morado y negrita; los hechos, con «✓» y su respuesta</text>
+<text x="34" y="563" font-size="15" fill="#555">en amarillo y negrita; los hechos, con «✓» y su respuesta</text>
 </svg>
-<figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">La bienvenida con una incorporación ya empezada: sin ella, la lista no sale. Durante la incorporación, la invitación a empezar se quita; aquí se ve para enseñar las dos partes juntas. Es un esquema, no una captura.</figcaption>
+<figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">La bienvenida, con el tema oscuro, y una incorporación ya empezada: sin ella, la lista no sale. Durante la incorporación, la invitación a empezar se quita; aquí se ve para enseñar las dos partes juntas. Es un esquema, no una captura.</figcaption>
 </figure>
 
 ### La bienvenida
 
-La bienvenida dice lo único que hace falta para empezar, sin JSON, rutas ni contadores: la marca, qué es la SF en una frase y la orden. Arriba va el logo **«/SF»**: una barra pixelada en morado claro (`#b3aee6`) delante de «SF» en el morado de la SF (`#827dbd`), que recuerda la orden `/sf` (decisión [Logo /SF: barra estrecha y empinada en morado claro](../sf/decisiones/255-2026-11-04-logo-sf-barra-estrecha-y-empinada-en-morado-claro.md)). Si no caben sus 18 columnas, va sin la barra; con menos de 13, sin logo. Debajo, «SOFTWARE FACTORY», el lema, «Para empezar, pulsa o escríbelo en el chat:» y la orden **«incorpora este proyecto a la SF»**, en una pastilla morada que es un botón: se la pasa a Claude como si la escribieras tú. Cierra «Claude te hará unas pocas preguntas y no cambia nada sin tu OK.».
+La bienvenida dice lo único que hace falta para empezar, sin JSON, rutas ni contadores: la marca, qué es la SF en una frase y la orden. Arriba va el logo **«/SF»**: una barra pixelada delante de «SF», que recuerda la orden `/sf`, con los colores del estilo de la SF. Con el tema oscuro de Claude Code, las letras en su amarillo (`#f5c400`) y la barra en blanco roto (`#f2f2f0`); con uno claro, las letras en tinta (`#25283a`) y la barra en amarillo. En la app, el logo es un SVG que sigue solo el modo claro u oscuro de la app (decisión [Logo /SF: barra estrecha y empinada en morado claro](../sf/decisiones/255-2026-11-04-logo-sf-barra-estrecha-y-empinada-en-morado-claro.md)). Si no caben sus 18 columnas, va sin la barra; con menos de 13, sin logo. Debajo, «SOFTWARE FACTORY» en amarillo, el lema, «Para empezar, pulsa o escríbelo en el chat:» y la orden **«incorpora este proyecto a la SF»**, en una pastilla amarilla con letra negra que es un botón: se la pasa a Claude como si la escribieras tú. Cierra «Claude te hará unas pocas preguntas y no cambia nada sin tu OK.».
 
-La marca va siempre en el morado de la SF, sin depender del color de la sesión.
+La marca va siempre en el amarillo de la SF, sin depender del color de la sesión. En la app, la pastilla va en un ámbar oscuro (`#7a5000`), con el que se lee la letra clara del botón nativo.
 
 ### Ofrecer la incorporación
 
@@ -668,7 +680,7 @@ Mientras Claude incorpora un proyecto, el panel enseña sus **pasos**, en una ca
 
 La lee de `~/.claude/sf/incorporacion-<carpeta>.json`, que escribe Claude con `incorporacion.py`: uno por proyecto, no por sesión, así que sobrevive a `/reload-plugins`, a `/clear`, al modo prueba y a una sesión nueva.
 
-La cabecera de la caja dice «INCORPORACIÓN», en el morado de la marca, su estado como etiqueta y en qué paso va: «paso 3 de 12». Los estados son **En curso**, **En pausa**, **Recargando la SF** y **Terminada**. Cada paso lleva su número; el actual, en morado y negrita con «◂»; los hechos, con «✓» verde y su respuesta debajo; los que faltan, atenuados. Si no caben todos en el alto del panel, se pliegan los que sobran, con «▲ 2 pasos antes» y «▼ 5 pasos más» para moverse; la lista vuelve a seguir al paso actual en cuanto Claude avanza.
+La cabecera de la caja dice «INCORPORACIÓN», en el amarillo de la marca, su estado como etiqueta y en qué paso va: «paso 3 de 12». Los estados son **En curso**, **En pausa**, **Recargando la SF** y **Terminada**. Cada paso lleva su número; el actual, en amarillo y negrita con «◂»; los hechos, con «✓» verde y su respuesta debajo; los que faltan, atenuados. Si no caben todos en el alto del panel, se pliegan los que sobran, con «▲ 2 pasos antes» y «▼ 5 pasos más» para moverse; la lista vuelve a seguir al paso actual en cuanto Claude avanza.
 
 La incorporación queda **en pausa** cuando el turno de Claude acaba o se interrumpe con Esc, y al cargarse el mod; mientras corre un turno, también con un menú esperando tu respuesta, sigue en curso. En pausa, la lista se atenúa y salen dos botones: **«Continuar incorporación a la SF»**, que pasa a Claude «continúa la incorporación a la SF», y **«Abandonar incorporación a la SF»**, que lo borra todo, también lo guardado (decisión [Esc pone en pausa la incorporación, con Continuar y Abandonar en el panel](../sf/decisiones/258-2026-11-04-esc-pone-en-pausa-la-incorporacion-con-continuar-y-abandonar-en-el-panel.md)). Si respondes «Ahora no» o «No…» al menú de incorporar, el progreso se borra.
 
@@ -697,10 +709,13 @@ En una carpeta sin SF nada de esto aplica.
 
 En las superficies gráficas, la app de escritorio, VS Code y el móvil, el panel se ve y funciona como en el terminal, con lo que cambia su forma de dibujar. Allí el texto va en letra proporcional y cada botón es un botón nativo, que solo pinta su texto con la letra clara de la app:
 
-- Cada botón va **lleno de su color**, como la etiqueta de la versión: un tono más oscuro que el de su letra en el terminal, para que la letra clara se lea. Los discretos, como Separar pasos y Paso +, en un gris apagado.
+- Cada botón va **lleno de su color**, como la etiqueta de la versión: un tono más oscuro que el de su letra en el terminal, para que la letra clara se lea. Los discretos, como Separar pasos y Paso +, en un gris apagado. Las órdenes de la tarea y la marca del subagente van también en su caja de color: sin ella, el botón nativo las pinta en blanco.
+- Los botones son **pequeños**: sin contorno ni relleno a los lados, del alto del botón nativo con un filo de su color arriba y abajo, y separados por el hueco más pequeño de la app, para que la cabecera y las órdenes de una tarea quepan en una fila con el panel estrecho.
+- El «?» y la «×» de los pasos son enlaces pequeños dentro de la línea, no botones, para no agrandar la fila.
 - El número y el título de una tarea van fuera del botón, como texto con su color; despliega un «▸» o «▾» al final de la fila. Plegado, el título se corta con «…».
 - Las etiquetas de la cabecera toman el ancho de su texto y se parten en filas si no caben; la de la versión queda siempre a la derecha.
-- El logo va en SVG, porque los caracteres de bloque se descuadran en su letra; el nombre, en grande.
+- El logo va en SVG, porque los caracteres de bloque se descuadran en su letra, y toma el modo claro u oscuro de la app; el nombre, en grande.
+- El scroll es de la app: el panel entero, cabecera incluida, se desplaza con su barra (ver «La cabecera»).
 - Los apartados y las secciones van más separados, y los bloques con fondo llevan un contorno tenue.
 - El aviso de la cabecera va como texto, con una «×» que lo quita hasta su siguiente turno.
 
@@ -717,14 +732,31 @@ Con tu primer mensaje de la conversación, Claude recibe el encargo de ofrecerte
 El mod añade contexto a la conversación para que Claude no dependa de acordarse:
 
 - **Las reglas y la orquestación**, en los proyectos incorporados y también en la SF (decisión [En la SF, las reglas y sf:orquestacion las entrega el mod, como en los demás proyectos](../sf/decisiones/298-2026-11-05-en-la-sf-las-reglas-y-sf-orquestacion-las-entrega-el-mod-como-en-los-demas-proyectos.md)), al empezar la sesión, tras `/clear` y tras compactar: las reglas comunes, las del método si el proyecto lo sigue, sus convenciones y la skill `sf:orquestacion` entera (decisión [El panel entrega las reglas y la orquestación en los proyectos](../sf/decisiones/187-2026-11-01-el-panel-entrega-las-reglas-y-la-orquestacion-en-los-proyectos.md)). Si el `CLAUDE.md` aún importa la copia vieja, `.sf/claude-sf.md`, no repite las reglas y el panel avisa. Con `automatizaciones.orquestacion` apagado, no entrega la orquestación.
-- **Lo que es de la SF**, en cada petición, al final del prompt de sistema de los proyectos incorporados: lo que pinta el plugin y `~/.claude` no son del proyecto.
+- **Lo que es de la SF**, en cada petición, al final del prompt de sistema de los proyectos incorporados: lo que pinta el plugin y `~/.claude` no son del proyecto. En el repositorio fuente de la SF no va, porque allí lo del plugin sí es del proyecto.
 - **El intérprete de Python**, si no es `python`: la orden con que se lanza la cola en esta máquina.
 - **Lo cambiado desde el panel.** Con cada mensaje tuyo, «Desde el panel: …», con lo que has cambiado en la cola desde el panel desde el mensaje anterior: «cerrada la 12; la 15, paso añadido: «…»». Sale de los eventos del historial con `via` panel. Va también tras cada encargo del panel a Claude. Sobrevive a `/reload-plugins`, también si cambia de plugin, sin repetirse ni perder nada; tras `/clear` o al reanudar una conversación, cuenta desde ahí, y nunca llega más atrás de 12 horas. Tras cerrar o descartar una tarea con subagente, pide detenerlo.
 - **Los subagentes.** Con cada mensaje tuyo y al volver un subagente, «ANTES DE NADA…» pide lanzar el de cada tarea en curso que no tiene ninguno vivo, mientras falte; y avisa una vez de cada subagente que ha terminado sin recoger. Tras `/clear` o una compactación, lo pendiente se vuelve a avisar. Con `automatizaciones.avisos_subagentes` apagado, no avisa.
+- **El arranque.** Al abrir o reanudar la sesión, tras `/clear` y tras compactar, el mod no espera a tu primer mensaje: si hay tareas en curso sin subagente o subagentes terminados sin recoger, segundo y medio después le encarga a Claude un turno propio, como mensaje del plugin y no tuyo, para que los lance todos a la vez o los recoja y diga al acabar qué ha hecho. Solo con alguien delante (no con `-p` ni en el SDK), con la SF activa y con `automatizaciones.avisos_subagentes` encendido. Mientras dura, tus mensajes no vuelven a pedir lanzarlos: Claude te atiende y sigue después. Si Claude Code no admite el encargo, el mod lo deja escrito en el prompt, si está vacío, para enviarlo con Intro, y lo dice en un aviso emergente; si no puede, el aviso pide que escribas cualquier cosa.
 - **La incorporación**, en una carpeta sin SF, y **la pantalla completa**, como se dice arriba.
 - **La sesión con la SF**: que se ha apagado aquí, porque otra la tomó o con `/sf_forzar_inactiva`, y que deje las reglas de la SF; que se ha activado con `/sf_forzar_activa`; o que la que la tenía ya no da latido. Con la SF apagada, nada más (ver «Una sola sesión con la SF por proyecto»).
 
 Los encargos del panel a Claude («?», Paso +, TURBO, los cierres que fallan…) entran como si los escribieras tú. Tras interrumpir a Claude con Esc, Claude Code no los admite hasta que escribas algo: entonces el panel deja el encargo escrito en el prompt, si está vacío, para enviarlo con Intro, y lo dice.
+
+## El foco
+
+El foco, la tarea en la que estás, lo lleva solo Claude, en la línea con que empieza cada respuesta: no se guarda en ningún archivo y ni el panel ni la caja lo muestran (decisión [El foco solo lo sabe Claude](../sf/decisiones/328-2026-11-06-el-foco-solo-lo-sabe-claude-ni-el-panel-ni-la-caja-del-prompt-lo-muestran.md)). Lo que el mod pone para no interrumpirte son dos cosas, solo con la SF activa en la sesión.
+
+::: tarjetas 2
+### La sugerencia tras un rato sin escribir
+
+Cuando Claude acaba su turno y pasan 10 minutos sin que envíes nada, el mod deja en la caja del prompt, en gris y sin enviarla, una pregunta con lo pendiente: «¿Seguimos con «Actualizar Cómo funciona el panel» (T❹ ❶ ❾ )?». Se toma con Tab. La tarea es la de la rama activa, si está en curso; si no, la en curso que cambió la última; sin ninguna en curso, no sale. Solo con la caja vacía, para no pisar lo que escribes, y un turno nuevo o un mensaje tuyo la cancelan (decisión [Tras un rato sin escribir, la SF deja una sugerencia en la caja del prompt](../sf/decisiones/332-2026-11-23-tras-un-rato-sin-escribir-la-sf-deja-una-sugerencia-en-la-caja-del-prompt.md)).
+
+### El freno a los menús
+
+Con texto a medio escribir en la caja del prompt, el mod no deja que Claude abra un menú, que lo cortaría: le devuelve que deje la pregunta en una línea al final de su respuesta (decisión [El principal no abre menús con texto a medio escribir ni fuera del foco](../sf/decisiones/333-2026-11-23-el-principal-no-abre-menus-con-texto-a-medio-escribir-ni-fuera-del-foco.md)). Lo demás de esa decisión, como no abrir menús fuera del foco, lo cumple Claude con sus reglas.
+:::
+
+Los números de tarea van en círculo negro, pegados a la T y con un espacio tras cada dígito, porque el terminal los pinta más anchos y sin espacio se montan: la 392 es «T❸ ❾ ❷ ».
 
 ## Por dentro
 
@@ -743,7 +775,7 @@ El mod relee `.sf/`, las propuestas, la rama activa y los subagentes en estos mo
 
 Además, un latido cada minuto deja el de la sesión con la SF (ver «Una sola sesión con la SF por proyecto»), redibuja la duración, relee los subagentes, compara lo instalado con lo que corre y, cada 5 minutos, mira la versión publicada. Si el estado sigue sin leer, por ejemplo tras un `/clear`, lo lee: el panel no se queda en «Leyendo el estado…». Las tareas que han entrado en `develop` salen de `git log`, que solo se lanza cuando cambia `develop`.
 
-Reconoce el repositorio de la SF por `plugins/sf/.claude-plugin/plugin.json`.
+La SF se lee como un proyecto más, con su `.sf/proyecto.json`. Su repositorio fuente se reconoce por `plugins/sf/.claude-plugin/plugin.json` solo para dos cosas: el modo prueba y no añadir la regla de lo que es de la SF.
 
 ### Sesión, /clear y reanudar
 
@@ -753,11 +785,11 @@ Un `/clear` empieza una sesión nueva en el panel (decisión [Un /clear empieza 
 
 Al arrancar, el mod pone a la sesión el color del proyecto, con `/color`, y su nombre, con `/rename`. Lo hace una vez y lo apunta, así que `/reload-plugins` no repite los comandos; solo los vuelve a lanzar si cambian, al acabar el turno. Si Claude Code no le deja lanzarlos, avisa una vez.
 
-El color sale del **primario del estilo del proyecto**, `colores.primario` de `docs/identidad/estilo.json`: el de los ocho de `/color` de tono más cercano, también el morado de la SF, que no se reserva (decisiones [El color de sesión se deriva del color primario del estilo del proyecto](../sf/decisiones/310-2026-11-05-el-color-de-sesion-se-deriva-del-color-primario-del-estilo-del-proyecto.md) y [El color de sesión de la SF no se reserva](../sf/decisiones/311-2026-11-05-el-color-de-sesion-de-la-sf-no-se-reserva-un-proyecto-puede-salir-del-mismo-color.md)). Sin estilo, con un primario gris o con uno que no se lee, es el campo `color` de `.sf/proyecto.json`; en la SF, el morado. Ni la incorporación ni `/sf_config` lo preguntan: se cambia con el estilo.
+El color sale del **primario del estilo del proyecto**, `colores.primario` de `docs/identidad/estilo.json`: el de los ocho de `/color` de tono más cercano, también el amarillo de la SF, que no se reserva (decisiones [El color de sesión se deriva del color primario del estilo del proyecto](../sf/decisiones/310-2026-11-05-el-color-de-sesion-se-deriva-del-color-primario-del-estilo-del-proyecto.md) y [El color de sesión de la SF no se reserva](../sf/decisiones/311-2026-11-05-el-color-de-sesion-de-la-sf-no-se-reserva-un-proyecto-puede-salir-del-mismo-color.md)). Sin estilo, con un primario gris o con uno que no se lee, es el campo `color` de `.sf/proyecto.json`, también en la SF. Ni la incorporación ni `/sf_config` lo preguntan: se cambia con el estilo.
 
 ### Qué controla
 
-Un proyecto por sesión. Antes de que Claude escriba un archivo con Write, Edit o NotebookEdit, el mod comprueba a qué proyecto pertenece: la carpeta con `.sf/proyecto.json`, o la fuente de la SF. Si es otro, también la SF desde otro proyecto, bloquea la escritura y dice por qué. Lo que está fuera de cualquier proyecto, como los borradores o la memoria, pasa.
+Un proyecto por sesión. Antes de que Claude escriba un archivo con Write, Edit o NotebookEdit, el mod comprueba a qué proyecto pertenece: la carpeta con `.sf/proyecto.json`, también la SF. Si es otro, también la SF desde otro proyecto, bloquea la escritura y dice por qué. Lo que está fuera de cualquier proyecto, como los borradores o la memoria, pasa.
 
 Un worktree de git es el proyecto de su repositorio. Los de los subagentes, en `<proyecto>/.claude/worktrees/<nombre>/`, se reconocen por su ruta, sin leer nada; los demás, por su `.git`, un archivo que apunta a `<repo>/.git/worktrees/<n>`.
 
@@ -779,7 +811,7 @@ Llevar la cola y el estado es tarea de Claude. El panel escribe cuando se lo pid
 Y escribe solo, sin que se lo pidas:
 
 - al abrir una sesión nueva, no con `/reload-plugins`, saca de la cola con `cola.py limpiar` las descartadas que quedaron de otra;
-- en la SF, al empezar y al cerrar la sesión, apaga el modo prueba, apunta en `.sf/prueba.json` la sesión que ya lo apagó y anota en `.sf/prueba.log` cada arranque y cada cambio;
+- en el repositorio fuente de la SF, al empezar y al cerrar la sesión, apaga el modo prueba, apunta en `.sf/prueba.json` la sesión que ya lo apagó y anota en `.sf/prueba.log` cada arranque y cada cambio;
 - al cargarse, copia su `cola.py` en `~/.claude/sf/cola-<sesión>.py` y borra las copias de más de 7 días, y copia el lanzador de Claude a `~/.claude/sf/cola.py` si ha cambiado; con `CLAUDE_CONFIG_DIR`, en su carpeta, para no tocar el `~/.claude` real;
 - en `~/.claude/sf/latido-<carpeta>.json`, el latido de la sesión con la SF, cada minuto;
 - en `.sf/subagentes.json`, lo que sabe de los subagentes de cada sesión: los de la última semana, hasta diez;
@@ -794,9 +826,9 @@ En `plugins/sf/hooks/`, repartido por módulos:
 - `panel.tsx` dibuja el panel y la caja sobre el prompt.
 - `lectura.ts` lee el proyecto, la cola con sus pasos, el historial, las propuestas, la incorporación, la rama activa de `.git/HEAD` y los subagentes. Las tareas que han entrado en `develop` y lo que falta por subir salen de git.
 - `cola.ts` lanza `cola.py` y atiende las órdenes, RELEASE y ACTUALIZAR.
-- `avisos.ts`, el aviso de lo cambiado desde el panel y los encargos a Claude; `subagentes.ts` y `memoria.ts`, los avisos de subagentes y lo que se guarda de ellos.
+- `avisos.ts`, el aviso de lo cambiado desde el panel y los encargos a Claude; `subagentes.ts` y `memoria.ts`, los avisos de subagentes, el arranque y lo que se guarda de ellos; `foco.ts`, la sugerencia tras un rato sin escribir y el freno a los menús.
 - `contexto.ts`, las reglas y la orquestación, la regla de lo que es de la SF, la oferta de incorporar y la pausa de la incorporación.
-- `bienvenida.ts` y `logo.ts`, la bienvenida y el logo.
+- `bienvenida.ts` y `logo.ts`, la bienvenida y el logo; `tema.ts`, el tema claro u oscuro de Claude Code, para el logo y el dorado.
 - `pantalla.ts`, el aviso y la oferta de la pantalla completa; `emergentes.ts`, los avisos emergentes.
 - `latido.tsx`, una sola sesión con la SF por proyecto: el latido, la sesión apagada y `/sf_forzar_activa` e inactiva.
 - `control.ts`, un proyecto por sesión; `identidad.ts`, el color y el nombre de la sesión; `prueba.ts`, el modo prueba; `revision.ts`, la revisión de RELEASE; `python.ts`, el intérprete; `configuracion.ts`, la configuración del proyecto.
@@ -823,12 +855,21 @@ Están decididos: [El panel, en dos bloques; con JKanban, Planificado](../sf/dec
 
 ## Historial
 
-Lo más reciente, arriba. «próxima» es lo que ya está en `develop`, o en camino, y aún no se ha publicado. La 1.7.0 es la primera versión pública, sin la historia de antes: lo que entró entre la 1.0.0 y la 1.7.0 va con ella.
+Lo más reciente, arriba. La 1.7.0 es la primera versión pública, sin la historia de antes: lo que entró entre la 1.0.0 y la 1.7.0 va con ella.
 
 | Versión del plugin | Cambio |
 | --- | --- |
-| próxima | Al cambiar la lista, cerrar el panel o caber entero, el cuerpo vuelve arriba; lo que queda fuera de la vista se marca con «▲ N filas más · arriba» y, en el terminal, «▼ N filas más». |
-| próxima | El color de la sesión sale del primario del estilo del proyecto; sin estilo, el de `.sf/proyecto.json`. |
+| 1.9.9 | Las tareas en curso, en dorado, un tono por tema; las listas para probar, en verde, y las que esperan al propietario, en rojo. La marca del subagente, siempre verde: ● si trabaja, ○ si está parado. |
+| 1.9.9 | La SF se lleva como un proyecto más: lee su `.sf/proyecto.json`, su caja dice su fase y su commit de versión es «vX.Y.Z»; el modo prueba sigue solo en el repositorio fuente. |
+| 1.9.9 | En la app, el scroll es de la app: el panel entero se desplaza con su barra y se queda donde lo dejas. |
+| 1.9.8 | El logo «/SF» y la marca, en el amarillo del estilo de la SF; el logo, claro u oscuro según el tema. |
+| 1.9.8 | El «¿Seguimos con…?» lleva el número de la tarea en círculo negro: «T❸ ❾ ❷ ». |
+| 1.9.6 | En la app, botones más pequeños, sin contorno ni relleno a los lados; el «?» y la «×» de los pasos, enlaces en la línea; las órdenes y la marca del subagente, en su caja de color (afinado hasta la 1.9.9). |
+| 1.9.6 | El aviso de la marca del subagente empieza por «●:», no por «⚙:». |
+| 1.9.5 | El foco: tras 10 minutos sin escribir, la sugerencia «¿Seguimos con…?» en la caja del prompt; con texto a medio escribir, Claude no abre un menú. |
+| 1.9.4 | Arranque solo: al abrir la sesión, tras `/clear` y tras compactar, Claude lanza los subagentes que faltan y recoge los terminados sin esperar a tu primer mensaje. |
+| 1.9.4 | Al cambiar la lista, cerrar el panel o caber entero, el cuerpo vuelve arriba; lo que queda fuera de la vista se marca con «▲ N filas más · arriba» y «▼ N filas más». |
+| 1.9.4 | El color de la sesión sale del primario del estilo del proyecto; sin estilo, el de `.sf/proyecto.json`. |
 | 1.9.0 | Una sola sesión con la SF por proyecto: latido cada minuto, las demás arrancan con la SF apagada, sin panel ni caja, y `/sf_forzar_activa` y `/sf_forzar_inactiva`; en la SF, el mod entrega las reglas como en los demás proyectos. |
 | 1.8.3 | Sin «✓» ni «Comprobado por Claude» en la Prueba: lo comprobado, como pasos hechos «Comprobado: …». |
 | 1.8.3 | Reconoce como el mismo proyecto un clon con el mismo remoto origin, y el encargo de los subagentes pide no sortear un bloqueo. |
