@@ -18,4 +18,4 @@ Así la SF se prueba tal como la reciben los demás proyectos. Y una sesión apa
 
 ## Aplicada en
 
-Pendiente: tarea 281 (mod) y la tarea de actualizar la metodología, la plantilla y el CLAUDE.md.
+El mod (`hooks/contexto.ts`); `sf:orquestacion`; metodología, «Las reglas las entrega el mod»; `CLAUDE.md` de la SF, sin la orden de cargarla. Pendiente: «Arranque de Claude en la SF», que aún dice que en la SF la carga el principal.
