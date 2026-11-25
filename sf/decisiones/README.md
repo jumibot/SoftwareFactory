@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 359 | 2026-11-25 | [Las decisiones, en dos catálogos: vigentes y deprecadas](359-2026-11-25-las-decisiones-en-dos-catalogos-vigentes-y-deprecadas.md) |
 | 358 | 2026-11-25 | [Al fusionar queda la tarea que tiene el trabajo, y la resultante se retitula y se ordena](358-2026-11-25-al-fusionar-queda-la-tarea-que-tiene-el-trabajo-y-la-resultante-se-retitula-y-se-ordena.md) |
 | 357 | 2026-11-25 | [Reglas del foco y del off-topic: las once recomendaciones del informe de la 431](357-2026-11-25-reglas-del-foco-y-del-off-topic-las-once-recomendaciones-del-informe-de-la-431.md) |
 | 356 | 2026-11-25 | [Las decisiones de la SF se quedan en el repositorio; el porqué que necesita un usuario viaja en los porque.md](356-2026-11-25-las-decisiones-de-la-sf-se-quedan-en-el-repositorio-el-porque-que-citan-las-skills-viaja-en-su-porque-md.md) |
