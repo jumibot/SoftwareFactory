@@ -3,8 +3,9 @@ import type { Register, RenderChildren } from 'claude-code'
 import type { Actualizacion, Cerrada, Estado, FuenteVersion, Incorporacion, Paso, Peticion, Prueba, Sesion, VistaIncorporacion, VistaPanel } from '../types'
 import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, observable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, refrescar, eliminable, eliminarTarea, enCursoOObservando, enCursoTarea, ponibleEnCurso, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
 import { CLAVE_PLEGADO, COLORES, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO, RGB } from './constantes'
-import { COLOR_MARCA, COLOR_MARCA_CLARO, DESPUES, LEMA, LETRA_MARCA, NOMBRE, NOMBRE_ANCHO, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
-import { ANCHO_LOGO, COLOR_BARRA, COLOR_LETRAS, logoSvg, logoTexto } from './logo'
+import { COLOR_MARCA, COLOR_MARCA_CLARO, DESPUES, RELLENO_MARCA, LEMA, LETRA_MARCA, NOMBRE, NOMBRE_ANCHO, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
+import { ANCHO_LOGO, coloresLogo, logoSvg, logoTexto } from './logo'
+import { modoLogo } from './tema'
 import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, COLOR_TURBO, COLOR_TAREA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, colorLetra, colorLetraApagada, hueco, puntosDe } from './estilo'
 import { atrasada, commitsDe, creadaEn, cuentaPasos, texto, ultimoCierre } from './lectura'
 import { AVISO_PANTALLA, anotarPantalla, sinPantallaCompleta } from './pantalla'
@@ -172,8 +173,8 @@ const COLOR_SUBIR = '#4ade80'
 // En una superficie gráfica, el botón nativo pinta solo su `label`, con la letra clara de la app, y no el color de sus
 // hijos: el botón va lleno de su color, como la etiqueta de la versión (tarea 367). Cada color de letra del terminal
 // tiene aquí su relleno, del mismo tono y lo bastante oscuro para que la letra clara se lea (contraste de 4,5:1 o más
-// con el blanco, salvo el morado de la marca, el de la etiqueta de la versión). Los discretos (sin color, la letra
-// atenuada de Separar pasos y Paso +, el morado claro de Abandonar), con un fondo apagado; uno sin relleno propio, con
+// con el blanco). Los discretos (sin color, la letra
+// atenuada de Separar pasos y Paso +, el amarillo pálido de Abandonar), con un fondo apagado; uno sin relleno propio, con
 // su color tal cual.
 const GRIS_APAGADO = '#52525b'
 const RELLENO_BOTON: Record<string, string> = {
@@ -186,7 +187,7 @@ const RELLENO_BOTON: Record<string, string> = {
   [COLOR_RELEASE]: '#9333ea',
   [COLOR_PRUEBA]: '#c2410c',
   [TEXTO_TAREA]: GRIS_APAGADO,
-  [COLOR_MARCA_CLARO]: '#4c4677',
+  [COLOR_MARCA_CLARO]: '#5c4813',
 }
 const rellenoBoton = (color?: string) => (color === undefined ? GRIS_APAGADO : (RELLENO_BOTON[color] ?? color))
 // Los párrafos de una descripción, separados por una línea en blanco: cada uno se pinta aparte.
@@ -278,11 +279,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const avisos = [sinPantallaCompleta(e) && !sinSf ? AVISO_PANTALLA : null, est.error || est.aviso || est.avisosConfiguracion?.length ? 'revisar .sf/' : null, est.errorPeticiones ? 'revisar .sf/peticiones.json' : null]
       .filter((x): x is string => x !== null)
 
-    // Sin SF, un mini splash a la izquierda (tarea 323): el logo «/SF» de la bienvenida (tarea 339), la barra en el morado
-    // claro y las letras en el de la SF; en una superficie gráfica, en SVG pequeño (los bloques se descuadran en su
+    // Sin SF, un mini splash a la izquierda (tarea 323): el logo «/SF» de la bienvenida (tarea 339), la barra en blanco
+    // roto y las letras en el amarillo de la SF; en una superficie gráfica, en SVG pequeño (los bloques se descuadran en su
     // fuente); en el terminal, en texto, a su lado el contenido, sin hacer la caja más alta.
     const tabla = $.ui.resolve(e)
     const Svg = e.surface !== 'terminal' && 'Svg' in tabla ? tabla.Svg : null
+    // Con un tema claro, los colores del logo claro (tarea 395).
+    const colorLogo = coloresLogo(await modoLogo($))
     const miniLogo = !sinSf ? null : Svg ? (
       <Box flexShrink={0} marginRight={2}>
         <Svg source={logoSvg(5)} alt="/SF" />
@@ -291,8 +294,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       <Box flexDirection="column" flexShrink={0} marginRight={2}>
         {logoTexto(ANCHO_LOGO).map((fila, i) => (
           <Box key={`mini-logo:${String(i)}`} flexDirection="row">
-            <Text color={COLOR_BARRA}>{fila.barra}</Text>
-            <Text color={COLOR_LETRAS}>{fila.letras}</Text>
+            <Text color={colorLogo.barra}>{fila.barra}</Text>
+            <Text color={colorLogo.letras}>{fila.letras}</Text>
           </Box>
         ))}
       </Box>
@@ -320,8 +323,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
             <Text>{LEMA}</Text>
             <Text>{PARA_EMPEZAR}</Text>
             {/* Un botón, como en el panel: la pasa a Claude (decisión 248). */}
-            {/* En una superficie gráfica, la pastilla morada es la caja: el botón nativo no pinta el fondo de su texto (tarea 337). */}
-            <Box flexDirection="row" alignSelf={e.surface !== 'terminal' ? 'flex-start' : undefined} backgroundColor={e.surface !== 'terminal' ? COLOR_MARCA : undefined} paddingX={e.surface !== 'terminal' ? 1 : undefined}>
+            {/* En una superficie gráfica, la pastilla es la caja, en el ámbar oscuro de la marca: el botón nativo no pinta el fondo de su texto (tarea 337). */}
+            <Box flexDirection="row" alignSelf={e.surface !== 'terminal' ? 'flex-start' : undefined} backgroundColor={e.surface !== 'terminal' ? RELLENO_MARCA : undefined} paddingX={e.surface !== 'terminal' ? 1 : undefined}>
               <Button key="incorporar-caja" label={ORDEN_EMPEZAR} plain onPress={() => pedirIncorporar($, ORDEN_EMPEZAR)}>
                 <Text backgroundColor={COLOR_MARCA} color={LETRA_MARCA} weight="bold">
                   {` ${ORDEN_EMPEZAR} `}
@@ -519,7 +522,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // terminal el gris de su texto, que en la app asomaba como un cuadrado de esquinas rectas tras el botón (tarea 367).
     const fondoFuera = (c?: string) => (grafica ? undefined : c)
 
-    // El paso en curso, sin amarillo, también arriba: el amarillo es solo para la tarea (decisión del propietario,
+    // El paso en curso, sin azul, también arriba: el azul es solo para la tarea (decisión del propietario,
     // 2026-10-28).
     // El primer clic de un botón con confirmación: lo deja esperando el segundo; a los 5 s vuelve a ser el símbolo.
     const aConfirmar = await read($, porConfirmar)
@@ -733,7 +736,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
 
     // Activar rama (antes Probar, y antes la letra T): activa la rama de la tarea con git para ponerla en prueba, sin darla por buena; con un clic (decisiones
     // del propietario, 2026-10-29). Solo si la rama existe y no es la activa; si lo es, la cabecera ya la muestra en
-    // amarillo. Si la rama está en otro worktree, sale igual: al pulsarla, probarTarea lo comprueba y no cambia de rama.
+    // azul. Si la rama está en otro worktree, sale igual: al pulsarla, probarTarea lo comprueba y no cambia de rama.
     const conProbar = (p: Peticion) => probable(p, est.ramas, est.rama)
     // Cerrar y A observación, en las tareas en curso que solo esperan probarse y cerrarse, con rama o sin ella (decisiones
     // del propietario, 2026-10-29, y 188). Con dos clics.
@@ -1047,7 +1050,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const k = `pet:${donde}:${p.id}`
       const hayMas = hayDetalle(p, conPrueba, ordenes)
       // Sin ▸/▾: el código de una tarea que se despliega va subrayado (norma del propietario, 2026-10-28).
-      // El código, con el color de su letra; el de una tarea en curso, en amarillo. Su texto, sin amarillo: la línea en amarillo solo va arriba (decisión del propietario,
+      // El código, con el color de su letra; el de una tarea en curso, en azul. Su texto, sin azul: la línea en azul solo va arriba (decisión del propietario,
       // 2026-10-28, precisada el 2026-10-29: se refería al texto). Subrayado si se despliega.
       const enCursoP = enCursoOObservando(p)
       const codigo = (
@@ -1090,7 +1093,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const cuenta = String(lista.length)
       return seccion(clave, titulo, cuenta, lista.map(p => peticion(p, conPrueba, clave)))
     }
-    // Las en curso van arriba, en amarillo; aquí, la cola. En observación va después, en el mismo bloque.
+    // Las en curso van arriba, en azul; aquí, la cola. En observación va después, en el mismo bloque.
     // El error de la cola va con los demás avisos, bajo la cabecera.
     const secPeticiones = grupo(grupos[1])
     const secObservacion = grupo(grupos[2])
@@ -1547,10 +1550,10 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Arriba del todo, tras el proyecto, la tarea en la que se trabaja; con varias en curso, cuántas más hay.
     const enCurso = enCursoRecientes(est)
     const tarea = tareaPrincipal(est)
-    // En amarillo en todos los proyectos: se lee bien en el panel (decisión del propietario, 2026-10-27).
-    // El amarillo de la paleta (#ca8a04) se ve mostaza en el panel oscuro: uno claro, propio de la tarea.
+    // En azul en todos los proyectos (decisión 334): el amarillo es de la SF. Antes, amarillo (decisión del
+    // propietario, 2026-10-27).
     const colorTarea = COLOR_TAREA
-    // Cada tarea en curso de arriba, en amarillo y entera, en varias líneas si hace falta (decisión del propietario,
+    // Cada tarea en curso de arriba, en azul y entera, en varias líneas si hace falta (decisión del propietario,
     // 2026-10-29; antes, solo la primera). Plegada, solo su título; con algo que desplegar, su número va subrayado y
     // un clic la despliega: debajo, su detalle, como en las secciones (decisión del propietario, 2026-10-31).
     const tareaArriba = (p: Peticion) => {
@@ -1592,7 +1595,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const lineaTarea = tarea ? (
       <Box flexDirection="row" marginTop={1}>
         <Box flexDirection="column" flexShrink={1}>
-          {/* Todo en amarillo, número incluido, y sin negrita; las demás en curso, debajo, una línea cada una. */}
+          {/* Todo en azul, número incluido, y sin negrita; las demás en curso, debajo, una línea cada una. */}
           {enCurso.length > 0 ? (
             enCurso.map(p => tareaArriba(p))
           ) : (
@@ -1621,7 +1624,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     )
     // La rama activa de la carpeta del proyecto, sola en la tercera fila de la cabecera, a la izquierda (tarea 260; antes,
     // a la derecha de la segunda): fondo neutro; en el
-    // amarillo de la tarea si es la rama de una tarea en curso o en observación; en una cabeza separada, el commit corto
+    // azul de la tarea si es la rama de una tarea en curso o en observación; en una cabeza separada, el commit corto
     // (decisión del propietario, 2026-10-29).
     // develop con commits sin subir a su remoto (tarea 355): «develop ↑N», con la cifra en verde. El primer clic avisa
     // de que lo subido se ve al momento si el repositorio es público y pide confirmarlo en la propia etiqueta; el
@@ -1683,7 +1686,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       return (
         <Box flexDirection="row" flexShrink={1}>
           {/* Etiqueta con el estilo de la de los prompts (decisión del propietario, 2026-10-29): fondo neutro; la letra,
-              en el amarillo de la tarea si es la rama de una tarea, y si no, atenuada. */}
+              en el azul de la tarea si es la rama de una tarea, y si no, atenuada. */}
           <Text color={deTarea ? COLOR_TAREA : undefined} dimColor={!deTarea} backgroundColor={FONDO_ETIQUETA} wrap="truncate-end">
             {` ${nombre} `}
           </Text>
@@ -1871,7 +1874,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       </Box>
     )
     // La incorporación en marcha (tarea 333): sus pasos, numerados, con la respuesta de cada uno; el actual, resaltado en
-    // el morado de la marca y negrita, como la cabecera de la lista; los que faltan, atenuados. Se ven todos si caben en el
+    // el amarillo de la marca y negrita, como la cabecera de la lista; los que faltan, atenuados. Se ven todos si caben en el
     // alto del panel; si no, se pliegan los mínimos (pasosQueCaben), y ▲ y ▼ mueven la ventana, que vuelve a seguir al
     // actual en cuanto Claude pasa de paso. Sale bajo la bienvenida sin SF y, con SF (al actualizar, o
     // tras aplicar), arriba del cuerpo.
@@ -1884,8 +1887,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         .then(() => refrescar($))
         .catch(err => emergenteError($, `No se pudo abandonar la incorporación: ${String(err)}`))
     }
-    // Un botón de la incorporación sin fila propia, en su caja (enCaja, que en una superficie gráfica le da el contorno):
-    // el principal, lleno del morado de la marca; el secundario, discreto, lleno de un morado apagado (tareas 356 y 367).
+    // Un botón de la incorporación sin fila propia, en su caja (enCaja, que en una superficie gráfica le da el fondo):
+    // el principal, lleno del ámbar oscuro de la marca; el secundario, discreto, lleno de un ámbar apagado (tareas 356 y 367).
     const botonIncorporacion = (key: string, etiqueta: string, principal: boolean, pulsar: () => void) =>
       enCaja(
         <Button key={key} label={etiqueta.trim()} plain onPress={pulsar}>
@@ -1900,7 +1903,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           )}
         </Button>,
         principal ? COLOR_MARCA : COLOR_MARCA_CLARO,
-        principal ? COLOR_MARCA : undefined,
+        principal ? RELLENO_MARCA : undefined,
       )
     // Un botón de la incorporación, centrado en su fila: en el terminal, con espacios (su ancho, el del panel menos el
     // relleno); en una superficie gráfica, con la caja (tarea 333). En una superficie gráfica, la pastilla es la caja: el
@@ -1934,8 +1937,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const hechos = inc.pasos.filter(p => p.respuesta).length
       return (
         <Box key="incorporacion" flexDirection="column" backgroundColor={FONDO_BLOQUE} paddingX={1} paddingY={1} {...(grafica ? CONTORNO_BLOQUE : {})}>
-          {/* La cabecera, en la línea de la marca (tarea 333, a petición del propietario): «INCORPORACIÓN» en el morado del
-              logo y negrita; el estado como etiqueta, letra negra en negrita sobre morado (En curso) o morado claro (En
+          {/* La cabecera, en la línea de la marca (tarea 333, a petición del propietario): «INCORPORACIÓN» en el amarillo de
+              la marca y negrita; el estado como etiqueta, letra negra en negrita sobre amarillo (En curso) o amarillo pálido (En
               pausa); y la cuenta, discreta. Sin paso actual (Claude aún no ha empezado o ya ha terminado), sin etiqueta. */}
           <Box key="incorporacion:cabecera" flexDirection="row" flexWrap={grafica ? 'wrap' : undefined} marginBottom={1}>
             <Text color={COLOR_MARCA} weight="bold">
@@ -2001,11 +2004,11 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           )}
           {/* En pausa (decisión 258): seguir, pasándoselo a Claude, o abandonar, sin Claude. Centrados como la orden de la
               bienvenida y separados por una línea (tarea 333, a petición del propietario): Continuar, el principal, como
-              aquella, fondo morado de la marca y letra negra en negrita; Abandonar, secundario, en el morado claro del
-              logo, sin fondo. En el terminal se centran con espacios; en una superficie gráfica, con la caja. */}
+              aquella, fondo amarillo de la marca y letra negra en negrita; Abandonar, secundario, en el amarillo pálido,
+              sin fondo. En el terminal se centran con espacios; en una superficie gráfica, con la caja. */}
           {inc.pausa && grafica && (
-            // En una superficie gráfica, lado a lado y con el mismo estilo, una caja redondeada con contorno: Continuar,
-            // llena del morado de la marca; Abandonar, más discreta, solo con el contorno en el morado claro. Si no caben
+            // En una superficie gráfica, lado a lado y con el mismo estilo, una caja llena: Continuar, del ámbar oscuro de la
+            // marca; Abandonar, más discreta, de un ámbar apagado. Si no caben
             // en una fila, se parten en dos, centradas (tarea 356).
             <Box key="incorporacion:botones" flexDirection="row" flexWrap="wrap" justifyContent="center" columnGap="sm" rowGap="xs" marginTop={1} minWidth={0}>
               {botonIncorporacion('incorporacion:continuar', ' Continuar incorporación a la SF ', true, continuarIncorporacion)}
@@ -2039,13 +2042,14 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     if (est.tipo === 'sin-sf') {
       // Con una incorporación en marcha, sin la invitación a empezar: no compite con su lista ni con sus botones.
       const lineas = bienvenida(ancho, !inc)
-      // La marca, siempre en el color de la SF, el morado (COLOR_MARCA), sin depender de la sesión (decisión 249, corregida).
+      // La marca, siempre en el color de la SF, el amarillo (COLOR_MARCA), sin depender de la sesión (decisión 249, corregida).
       const marca = COLOR_MARCA
       // En una superficie gráfica, el logo va en SVG, centrado (los bloques ▄█▀ se descuadran en su fuente), y la orden, en
       // un solo botón centrado; en el terminal, como texto centrado con espacios (tarea 323).
       const tabla = $.ui.resolve(e)
       const Svg = grafica && 'Svg' in tabla ? tabla.Svg : null
       const primerLogo = lineas.findIndex(x => x.estilo === 'logo')
+      const colorLogo = coloresLogo(await modoLogo($))
       const primeraOrden = lineas.findIndex(x => x.estilo === 'orden')
       // La pastilla de la orden es un botón: la pasa a Claude como si la escribiera el propietario (decisión 248).
       const incorporar = () => pedirIncorporar($, ORDEN_EMPEZAR)
@@ -2065,7 +2069,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                 ) : x.estilo === 'orden' && grafica ? (
                   i === primeraOrden ? (
                     <Box key="bienvenida:orden" flexDirection="row" justifyContent="center">
-                      {/* La pastilla morada es la caja: el botón nativo no pinta el fondo de su texto (tarea 337). */}
+                      {/* La pastilla es la caja, en el ámbar oscuro de la marca: el botón nativo no pinta el fondo de su texto y su letra clara no se lee sobre el amarillo (tarea 337). */}
                       {enCaja(
                         <Button key="incorporar" label={ORDEN_EMPEZAR} plain onPress={incorporar}>
                           <Text backgroundColor={marca} color={LETRA_MARCA} weight="bold">
@@ -2073,16 +2077,16 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
                           </Text>
                         </Button>,
                         undefined,
-                        marca,
+                        RELLENO_MARCA,
                       )}
                     </Box>
                   ) : null
                 ) : x.logo ? (
-                  // En el terminal, el logo «/SF» con la barra en el morado claro y las letras en el de la SF (tarea 339).
+                  // En el terminal, el logo «/SF» con la barra en blanco roto y las letras en el amarillo de la SF (tarea 339, decisión 335).
                   <Box key={`bienvenida:${String(i)}`} flexDirection="row">
                     <Text>{' '.repeat(x.logo.sangria)}</Text>
-                    {x.logo.barra ? <Text color={COLOR_BARRA}>{x.logo.barra}</Text> : null}
-                    <Text color={COLOR_LETRAS}>{x.logo.letras}</Text>
+                    {x.logo.barra ? <Text color={colorLogo.barra}>{x.logo.barra}</Text> : null}
+                    <Text color={colorLogo.letras}>{x.logo.letras}</Text>
                   </Box>
                 ) : x.estilo === 'orden' ? (
                   <Box key={`bienvenida:${String(i)}`} flexDirection="row">

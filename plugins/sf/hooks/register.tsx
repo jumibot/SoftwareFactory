@@ -14,6 +14,7 @@ import { emergente, emergenteError } from './emergentes'
 import { ofrecerPantalla, reiniciarOferta } from './pantalla'
 import { CATALOGO_PRUEBA, apagarAlCerrar, apagarAlEntrar, cambiarPrueba, desdeCopia, leerAjustes, marcarTurno } from './prueba'
 import { registrarPanel, turnarAvisos } from './panel'
+import { leerTema, registrarTema } from './tema'
 import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE, FUENTES_ARRANQUE, arranqueEnMarcha, arranqueTurnoAcabado, encargarArranque, leerAvisoSubagentes, rearmarAvisosSubagentes, recuperarSubagentes, SIN_AVISO } from './subagentes'
 import { armarSugerencia, cancelarSugerencia, frenarMenu } from './foco'
 import { asegurarSesion, decidirSesion, forzarActiva, forzarInactiva, latirSesion, sesionSfActual, sfApagada, soltarAlCerrar, tomarAvisoSesion } from './latido'
@@ -216,6 +217,8 @@ export const register: Register = on => {
     // Al cargar el mod, una incorporación a medias queda en pausa, con Continuar y Abandonar: no se pierde (tarea 333).
     // Si se recarga porque la incorporación lo pidió (incorporacion.py recargar), sigue sola (tarea 366).
     await alCargarIncorporacion($).catch(() => undefined)
+    // El tema de /config, para los colores del logo «/SF» en el terminal (tarea 395).
+    await leerTema($).catch(() => undefined)
     const ahora = await cargar($)
     // /sf_prueba, solo en la SF con el catálogo local: cambia el modo prueba sin el panel (tarea 185).
     if ((await desdeCopia($)) || (await leerAjustes($))?.extraKnownMarketplaces?.[CATALOGO_PRUEBA]) {
@@ -610,4 +613,5 @@ export const register: Register = on => {
   on('command.describe', { command: 'sf:panel' }, async ($, e, next) => ({ ...(await next(e)), isHidden: true }))
 
   registrarPanel(on)
+  registrarTema(on)
 }

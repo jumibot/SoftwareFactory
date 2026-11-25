@@ -1,5 +1,5 @@
 import { expect, test } from 'claude-code/testing'
-import { ANCHO_LETRAS, ANCHO_LOGO, BARRA, COLOR_BARRA, COLOR_LETRAS, LETRAS, logoSvg, logoTexto } from '../hooks/logo'
+import { ANCHO_LETRAS, ANCHO_LOGO, BARRA, COLOR_BARRA, COLOR_BARRA_CLARO, COLOR_LETRAS, COLOR_LETRAS_CLARO, LETRAS, coloresLogo, logoSvg, logoTexto, modoDeTema } from '../hooks/logo'
 
 // ── El logo «/SF» (tarea 339, decisión 255) ──
 
@@ -29,7 +29,7 @@ test('Logo: con la barra si caben 18 columnas; si no, solo las letras desde 13; 
 })
 
 test('Logo: el SVG pinta la barra en el morado claro y las letras en el de la SF; sin barra, solo las letras', () => {
-  expect(COLOR_LETRAS).toBe('#827dbd')
+  expect(COLOR_LETRAS).toBe('#f5c400')
   const svg = logoSvg(5)
   expect(svg.startsWith('<svg')).toBe(true)
   expect(svg).toContain(`viewBox="0 0 ${ANCHO_LOGO} 10"`)
@@ -39,4 +39,21 @@ test('Logo: el SVG pinta la barra en el morado claro y las letras en el de la SF
   expect(sola).toContain(`viewBox="0 0 ${ANCHO_LETRAS} 10"`)
   expect(sola).not.toContain(COLOR_BARRA)
   expect(sola).toContain(`fill="${COLOR_LETRAS}"`)
+})
+
+// Con un tema claro, el logo claro (tarea 395): letras en tinta y barra en el amarillo.
+test('Logo: claro con los temas light de Claude Code; oscuro con los demás, sin ajuste o «auto»', () => {
+  for (const t of ['light', 'light-daltonized', 'light-ansi']) expect(modoDeTema(t)).toBe('claro')
+  for (const t of ['dark', 'dark-daltonized', 'dark-ansi', 'auto', '', undefined, null, true]) expect(modoDeTema(t)).toBe('oscuro')
+  expect(coloresLogo('claro')).toEqual({ barra: '#f5c400', letras: '#25283a' })
+  expect(coloresLogo('oscuro')).toEqual({ barra: COLOR_BARRA, letras: COLOR_LETRAS })
+})
+
+test('Logo: el SVG cambia a los colores del logo claro con la app en modo claro', () => {
+  const svg = logoSvg(5)
+  expect(svg).toContain('@media (prefers-color-scheme: light)')
+  expect(svg).toContain(`.barra { fill: ${COLOR_BARRA_CLARO} }`)
+  expect(svg).toContain(`.letras { fill: ${COLOR_LETRAS_CLARO} }`)
+  expect(svg).toContain(`<g class="barra" fill="${COLOR_BARRA}">`)
+  expect(svg).toContain(`<g class="letras" fill="${COLOR_LETRAS}">`)
 })

@@ -6,11 +6,14 @@ idioma están en TEXTOS; el dibujo es el mismo.
 
 Uso: python -I -X utf8 scripts/capturas_web.py
 """
+import json
 from pathlib import Path
 from xml.sax.saxutils import escape
 
 RAIZ = Path(__file__).resolve().parent.parent
 SALIDA = RAIZ / "site" / "img"
+# El estilo de la SF (docs/identidad/estilo.json): su amarillo y su paleta oscura, la del logo oscuro (decisión 335).
+ESTILO = json.loads((RAIZ / "docs" / "identidad" / "estilo.json").read_text(encoding="utf-8"))["colores"]
 
 # Colores del panel (los del mod: hooks/constantes.ts, logo.ts) y del terminal.
 FONDO = "#191512"
@@ -19,14 +22,17 @@ BLOQUE = "#383532"
 TEXTO = "#ece8e2"
 TENUE = "#a6a19c"
 OSCURO = "#77726d"
-AMARILLO = "#f4bf36"
-AMARILLO_APAGADO = "#b8963a"
+AMARILLO = ESTILO["primario"]
 VERDE = "#6ed889"
 ROJO = "#f87171"
-MORADO = "#827dbd"
-MORADO_CLARO = "#b3aee6"
-# Paleta de taller (tarea 368): grafito cálido, ámbar para «lo de ahora» y verde para lo hecho. El morado de la SF
-# queda en el logo y en las etiquetas propias del panel (RELEASE, la versión, la orden de la bienvenida).
+AZUL = "#93c5fd"
+VIOLETA = "#c084fc"
+AMARILLO_CLARO = "#f8dc8c"
+# Paleta de taller (tarea 368): grafito cálido, el amarillo de la SF (decisión 304) en su marca, la versión y el foco, y
+# verde para lo hecho. Como en el panel, la tarea en curso va en azul claro (decisión 334) y RELEASE en violeta. El
+# logo, como el oscuro del estilo: la barra en su texto claro y las letras en el amarillo.
+LOGO_BARRA = ESTILO["colores-oscuro"]["texto"]
+LOGO_LETRAS = ESTILO["colores-oscuro"]["primario"]
 ROTULO = "#c8c3bc"
 BORDE = "#4a4540"
 CAJA = "#1f1c19"
@@ -65,13 +71,13 @@ class Svg:
                     for t in trozos for c in [t[1]])
         self.add(f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" xml:space="preserve">{s}</text>')
 
-    def etiqueta_boton(self, x, y, t, fondo, letra="#000", size=13, derecha=False):
+    def etiqueta_boton(self, x, y, t, fondo, letra="#000", size=13, derecha=False, weight="700"):
         """Una etiqueta con fondo, como los botones de la cabecera. Devuelve su ancho."""
         w = len(t) * size * 0.6 + 12
         if derecha:
             x -= w
         self.rect(x, y - size - 1, w, size + 8, fondo, rx=3)
-        self.text(x + w / 2, y + 1, t, fill=letra, size=size, weight="700", anchor="middle")
+        self.text(x + w / 2, y + 1, t, fill=letra, size=size, weight=weight, anchor="middle")
         return w
 
     def guardar(self, ruta):
@@ -96,46 +102,74 @@ def cabecera(s, x, y, w, T, rama="develop", subir=2, release=None):
     """Las dos filas de la cabecera del panel."""
     cx = x
     if release is None:
-        cx += s.etiqueta_boton(cx, y, "RELEASE", MORADO) + 6
+        cx += s.etiqueta_boton(cx, y, "RELEASE", VIOLETA) + 6
     else:
         for t, f in release:
             cx += s.etiqueta_boton(cx, y, t, f) + 6
     if release is None:
         s.etiqueta_boton(cx, y, "TURBO", "#334155", letra=CIAN)
-    s.etiqueta_boton(x + w, y, "SF 1.8.1", MORADO, derecha=True)
+    s.etiqueta_boton(x + w, y, "SF 1.8.2", AMARILLO, derecha=True)
     y2 = y + 28
     s.rect(x, y2 - 15, 72, 22, BLOQUE, rx=3)
-    s.text(x + 36, y2 + 1, "2h 05m", fill=TENUE, size=13, anchor="middle")
+    s.text(x + 36, y2 + 1, "4h 12m", fill=TENUE, size=13, anchor="middle")
     s.rect(x + 78, y2 - 15, 104, 22, BLOQUE, rx=3)
-    s.spans(x + 86, y2 + 1, [("31", TEXTO, True), (" " + T["prompts"], TENUE)], size=13)
+    s.spans(x + 86, y2 + 1, [("86", TEXTO, True), (" " + T["prompts"], TENUE)], size=13)
     rt = rama + (f" ↑{subir}" if subir else "")
     rw = len(rt) * 7.8 + 14
     s.rect(x + w - rw, y2 - 15, rw, 22, BLOQUE, rx=3)
     if subir:
         s.spans(x + w - rw + 7, y2 + 1, [(rama + " ", TENUE), (f"↑{subir}", VERDE, True)], size=13)
     else:
-        s.text(x + w - rw + 7, y2 + 1, rama, fill=AMARILLO if rama != "develop" else TENUE, size=13)
+        s.text(x + w - rw + 7, y2 + 1, rama, fill=AZUL if rama != "develop" else TENUE, size=13)
     return y2 + 30
 
 
-def tarea(s, x, y, w, num, letra, titulo, pasos, actual, botones=("⚙",), desplegada=None):
-    """Una tarea en curso, en amarillo, con su cuenta de pasos y el paso actual."""
-    s.spans(x, y, [(str(num), AMARILLO), (letra, AMARILLO_APAGADO), (" " + titulo, AMARILLO)])
-    bx = x + w
-    for b, c in reversed([(b, {"⚙": TENUE, "T": CIAN, "C": VERDE, "D": AMARILLO, "E": ROJO}.get(b, TENUE)) for b in botones]):
-        s.text(bx, y, b, fill=c, weight="700", anchor="end")
-        bx -= len(b) * CH + 10
-    y += 21
-    if desplegada:
-        s.text(x + 16, y, pasos, fill=TENUE, deco="underline")
+def menu(s, x, y, ordenes):
+    """Una fila del menú de etiquetas de una tarea desplegada (como en el panel desde la 1.8): cada orden, con su nombre
+    sobre fondo negro y sin negrita; en verde las de la tarea, en rojo las que destruyen y atenuadas las de los pasos."""
+    for nombre, color in ordenes:
+        x += s.etiqueta_boton(x, y, nombre, "#000000", letra=color, size=12, weight=None) + 6
+    return y + 23
+
+
+def numero(s, x, y, num, color, subrayado, titulo, color_titulo):
+    """«número título», sin letra tras el número; el número, subrayado si la tarea se despliega."""
+    s.text(x, y, str(num), fill=color, deco="underline" if subrayado else None)
+    s.text(x + (len(str(num)) + 1) * CH, y, titulo, fill=color_titulo)
+
+
+def tarea(s, x, y, w, num, titulo, T, marca=None, ordenes=(), rama=None, pasos=None, desplegada=None):
+    """Una tarea en curso, arriba, en azul: «número título» y, a la derecha, el ● de su subagente. Desplegada, como
+    en el panel: el menú de etiquetas (una fila por lista de órdenes), la rama y «Pasos N/M», con los pasos debajo si
+    van desplegados."""
+    abierta = bool(ordenes or rama or pasos)
+    numero(s, x, y, num, AZUL, abierta, titulo, AZUL)
+    if marca:
+        s.text(x + w, y, marca[0], fill=marca[1], weight="700", anchor="end")
+    y += 23
+    if not abierta:
+        return y
+    for fila in ordenes:
+        y = menu(s, x + 16, y + 1, fila)
+    if rama:
+        s.text(x + 16, y, f'{T["rama"]}: {rama}', fill=TENUE, size=13)
         y += 21
-        for marca, texto in desplegada:
-            color = OSCURO if marca == "✓" else TEXTO if marca == "▸" else TENUE
-            s.spans(x + 16, y, [(marca + " ", VERDE if marca == "✓" else color), (texto, color)])
-            y += 20
-        return y + 6
-    s.spans(x + 16, y, [(pasos, TENUE), (" " + actual, TENUE)])
-    return y + 28
+    if pasos:
+        s.spans(x + 16, y, [(T["pasos"], TENUE), (" " + pasos, TENUE)], size=13)
+        s.add(f'<line x1="{x + 16:.1f}" y1="{y + 3:.1f}" x2="{x + 16 + len(T["pasos"]) * 7.8:.1f}" y2="{y + 3:.1f}" '
+              f'stroke="{TENUE}" stroke-width="1"/>')
+        y += 21
+    for marca_paso, texto in desplegada or ():
+        color = OSCURO if marca_paso == "✓" else TEXTO if marca_paso == "▸" else TENUE
+        s.spans(x + 16, y, [(marca_paso + " ", VERDE if marca_paso == "✓" else color), (texto, color)])
+        y += 20
+    return y + 6
+
+
+def ordenes_arriba(T, activar=True, cerrar=False):
+    """Las órdenes de una tarea en curso, arriba: las de la tarea y, en otra fila, Paso +."""
+    deTarea = ([(T["o_activar"], VERDE)] if activar else []) +         ([(T["o_cerrar"], VERDE), (T["o_observacion"], VERDE)] if cerrar else []) +         [(T["o_redescribir"], VERDE), ("?", VERDE)] + ([(T["o_descartar"], ROJO)] if cerrar else [])
+    return [deTarea, [(T["o_paso"], TENUE)]]
 
 
 def bloque(s, x, y, w, nombre, cuenta, derecha="", color_cuenta=TENUE):
@@ -147,28 +181,52 @@ def bloque(s, x, y, w, nombre, cuenta, derecha="", color_cuenta=TENUE):
 
 
 def foco(s, x, y, w, h):
-    """El punto de color que guía la vista: un marco ámbar, el amarillo de las tareas, alrededor de lo importante."""
+    """El punto de color que guía la vista: un marco en el amarillo de la SF alrededor de lo importante."""
     s.add(f'<rect x="{x:.1f}" y="{y:.1f}" width="{w:.1f}" height="{h:.1f}" rx="8" fill="{AMARILLO}" fill-opacity=".07" '
           f'stroke="{AMARILLO}" stroke-width="1.6"/>')
 
 
 # ── Los pantallazos ──
 
+def plegada(s, x, y, w, num, titulo, marca, color):
+    """Una tarea en curso plegada: su línea y, a la derecha, el ● de su subagente (verde trabaja, rojo espera) o ▶."""
+    numero(s, x, y, num, AZUL, False, titulo, AZUL)
+    s.text(x + w, y, marca, fill=color, weight="700", anchor="end")
+    return y + 23
+
+
 def panel(T):
-    s = Svg(560, 470, T["panel_alt"])
+    s = Svg(560, 640, T["panel_alt"])
     ventana(s, T["ventana"])
     x, w = 22, 516
-    y = cabecera(s, x, 66, w, T)
-    foco(s, x - 8, y - 10, w + 16, 50)
-    y = tarea(s, x, y + 8, w, 47, "A", T["t47"], "3/5", T["t47_paso"], ("⚙", "T", "C"))
-    y = tarea(s, x, y, w, 48, "A", T["t48"], "1/4", T["t48_paso"], ("⚙",))
-    y = tarea(s, x, y, w, 51, "H", T["t51"], "0/3", T["t51_paso"], ())
+    y = cabecera(s, x, 66, w, T, subir=3)
+    i, y0 = len(s.partes), y + 8
+    y = tarea(s, x, y0, w, 47, T["t47"], T, marca=("●", VERDE), ordenes=ordenes_arriba(T), rama="feature/47-csv",
+              pasos="3/5")
+    foco(s, x - 8, y0 - 18, w + 16, y - y0 + 12)
+    s.partes.insert(i, s.partes.pop())  # el marco, detrás de la tarea
+    y += 12
+    for num, clave, marca, color in ((48, "t48", "●", VERDE), (51, "t51", "▶", VERDE), (55, "t55", "●", VERDE),
+                                     (58, "t58", "●", ROJO), (60, "t60", "●", VERDE), (63, "t63", "●", VERDE)):
+        y = plegada(s, x, y, w, num, T[clave], marca, color)
     y += 6
     s.text(x + w, y - 4, T["tareas"], fill=TENUE, size=12, anchor="end")
-    y = bloque(s, x, y + 4, w, T["pendientes"], "6 (5A + 1H)")
-    y = bloque(s, x, y, w, T["observacion"], "2")
-    y = bloque(s, x, y, w, T["cerradas"], "4 (4C)", color_cuenta=VERDE)
-    y = bloque(s, x, y, w, T["propuestas"], "3")
+    s.rect(x, y + 4, w, 30, BLOQUE, rx=0)
+    s.spans(x + 10, y + 24, [("▾ ", TENUE), (T["pendientes"], TEXTO, True), ("  38", TENUE)])
+    y += 34
+    s.rect(x, y, w, 133, PANEL, rx=0)
+    y += 22
+    for i, (num, clave) in enumerate(((52, "t52"), (53, "t53"), (64, "t64"), (66, "t66"))):
+        s.spans(x + 24, y, [(str(num), TEXTO if i == 0 else TENUE), (f" {T[clave]}", TEXTO if i == 0 else TENUE)], size=13)
+        if i == 0:
+            s.add(f'<line x1="{x + 24:.1f}" y1="{y + 3:.1f}" x2="{x + 24 + 2 * 7.8:.1f}" y2="{y + 3:.1f}" stroke="{TEXTO}"/>')
+            y = menu(s, x + 40, y + 23, [(T["poner"], VERDE), ("?", VERDE), (T["o_eliminar"], ROJO)]) - 23
+        y += 20
+    s.text(x + 24, y, T["mas"], fill=OSCURO, size=12)
+    y += 18
+    y = bloque(s, x, y, w, T["observacion"], "3")
+    y = bloque(s, x, y, w, T["cerradas"], "124", color_cuenta=VERDE)
+    y = bloque(s, x, y, w, T["propuestas"], "12")
     s.alto = y + 14
     s.guardar(SALIDA / f"panel-{T['id']}.svg")
 
@@ -208,9 +266,10 @@ def peticion(T):
     s.text(x, y + 24, T["paso3"], fill=ROTULO, size=12, weight="700")
     y += 40
     i, y0 = len(s.partes), y
-    y = tarea(s, x + 6, y + 26, 504, 47, "A", T["t47"], "3/5", "", ("⚙", "T", "C"),
+    y = tarea(s, x + 6, y + 26, 504, 47, T["t47"], T, marca=("●", VERDE), ordenes=ordenes_arriba(T),
+              rama="feature/47-csv", pasos="2/5",
               desplegada=[("✓", T["s1"]), ("✓", T["s2"]), ("▸", T["s3"]), ("·", T["s4"]), ("·", T["s5"])])
-    y = tarea(s, x + 6, y + 6, 504, 48, "A", T["t48"], "1/4", T["t48_paso"], ("⚙",))
+    y = tarea(s, x + 6, y + 2, 504, 48, T["t48"], T, marca=("●", VERDE))
     s.partes.insert(i, f'<rect x="{x - 6}" y="{y0}" width="528" height="{y - y0 - 4}" rx="6" fill="{PANEL}"/>')
     s.alto = y + 14
     s.guardar(SALIDA / f"request-{T['id']}.svg")
@@ -219,7 +278,7 @@ def peticion(T):
 def logo(s, cx, y, celda=6):
     w = (len(BARRA[0]) + len(LETRAS[0])) * celda
     x0 = cx - w / 2
-    for filas, color, dx in ((BARRA, MORADO_CLARO, 0), (LETRAS, MORADO, len(BARRA[0]))):
+    for filas, color, dx in ((BARRA, LOGO_BARRA, 0), (LETRAS, LOGO_LETRAS, len(BARRA[0]))):
         for fy, fila in enumerate(filas):
             for fx, c in enumerate(fila):
                 dy, alto = {"█": (0, 2), "▄": (1, 1), "▀": (0, 1)}.get(c, (0, 0))
@@ -234,11 +293,11 @@ def incorporacion(T):
     ventana(s, T["ventana"])
     s.rect(16, 52, 528, 262, PANEL, rx=6)
     y = logo(s, 280, 74)
-    s.text(280, y + 30, "S O F T W A R E   F A C T O R Y", fill=MORADO_CLARO, weight="700", anchor="middle")
+    s.text(280, y + 30, "S O F T W A R E   F A C T O R Y", fill=AMARILLO_CLARO, weight="700", anchor="middle")
     s.text(280, y + 58, T["lema1"], fill=TENUE, size=13, anchor="middle")
     s.text(280, y + 76, T["lema2"], fill=TENUE, size=13, anchor="middle")
     pw = len(T["orden"]) * CH + 24
-    s.rect(280 - pw / 2, y + 96, pw, 28, MORADO, rx=4)
+    s.rect(280 - pw / 2, y + 96, pw, 28, AMARILLO, rx=4)
     s.text(280, y + 115, T["orden"], fill="#000", weight="700", anchor="middle")
     y = 346
     s.text(22, y, T["inc_paso"], fill=ROTULO, size=12, weight="700")
@@ -268,7 +327,7 @@ def caja(T):
     y = chat_linea(s, 22, 66, "●", T["caja_chat"], TEXTO, ancho=58)
     s.text(40, y + 4, T["caja_chat2"], fill=TENUE, size=13)
     # La caja, alineada a la derecha, con borde redondeado.
-    lineas = [(T["caja_l1"], TEXTO, True), ("▶ 47 " + T["t47"], AMARILLO, False), ("▶ 48 " + T["t48"], AMARILLO, False),
+    lineas = [(T["caja_l1"], TEXTO, True), ("▶ 47 " + T["t47"], AZUL, False), ("▶ 48 " + T["t48"], AZUL, False),
               (T["caja_cuentas"], TENUE, False), ("/sf " + T["caja_abre"], TENUE, False)]
     ancho = max(len(l[0]) for l in lineas) * 7.8 + 28
     bx, by = 538 - ancho, y + 32
@@ -287,7 +346,8 @@ def probar(T):
     ventana(s, T["ventana"])
     x, w = 22, 516
     y = cabecera(s, x, 66, w, T, rama="feature/47-csv", subir=0)
-    y = tarea(s, x, y + 8, w, 47, "T", T["t47"], "5/6", "", ("C", "D"),
+    y = tarea(s, x, y + 8, w, 47, T["t47"], T, ordenes=ordenes_arriba(T, activar=False, cerrar=True),
+              rama="feature/47-csv", pasos="5/6",
               desplegada=[("✓", T["s1"]), ("✓", T["s2"]), ("✓", T["s3"]), ("✓", T["s4"]), ("✓", T["s5"]),
                           ("▸", T["s6"])])
     s.text(x + w, y - 2, T["tareas"], fill=TENUE, size=12, anchor="end")
@@ -306,7 +366,7 @@ def publicar(T):
     s = Svg(560, 480, T["publicar_alt"])
     ventana(s, T["ventana"])
     x, w = 22, 516
-    y = cabecera(s, x, 66, w, T, release=[(T["publicar_v"], MORADO)], subir=0)
+    y = cabecera(s, x, 66, w, T, release=[(T["publicar_v"], VIOLETA)], subir=0)
     s.text(x, y + 10, T["rev_titulo"], fill=ROTULO, size=12, weight="700")
     y += 22
     s.rect(x, y, w, 196, CAJA, rx=8, stroke=CAJA_BORDE)
@@ -344,17 +404,17 @@ def app(T):
     x0, w = 332, 212
     s.rect(x0, 50, w, 356, PANEL, rx=10)
     x = x0 + 12
-    s.etiqueta_boton(x, 76, "RELEASE", MORADO, size=11)
-    s.etiqueta_boton(x0 + w - 12, 76, "SF 1.8.1", MORADO, size=11, derecha=True)
+    s.etiqueta_boton(x, 76, "RELEASE", VIOLETA, size=11)
+    s.etiqueta_boton(x0 + w - 12, 76, "SF 1.8.2", AMARILLO, size=11, derecha=True)
     s.text(x, 100, "develop", fill=TENUE, size=12, **sans)
     s.text(x0 + w - 12, 100, "↑2", fill=VERDE, size=12, weight="700", anchor="end", **sans)
     foco(s, x - 6, 112, w - 12, 44)
-    s.spans(x, 130, [("47", AMARILLO, True), (" " + T["app_t47"], AMARILLO)], size=12)
+    s.spans(x, 130, [("47", AZUL, True), (" " + T["app_t47"], AZUL)], size=12)
     s.text(x + 12, 148, T["app_p47"], fill=TENUE, size=11, **sans)
-    s.spans(x, 178, [("48", AMARILLO, True), (" " + T["app_t48"], AMARILLO)], size=12)
+    s.spans(x, 178, [("48", AZUL, True), (" " + T["app_t48"], AZUL)], size=12)
     s.text(x + 12, 196, T["app_p48"], fill=TENUE, size=11, **sans)
     y = 222
-    for nombre, n, c in ((T["pendientes"], "6", TENUE), (T["observacion"], "2", TENUE), (T["cerradas"], "4", VERDE)):
+    for nombre, n, c in ((T["pendientes"], "38", TENUE), (T["observacion"], "3", TENUE), (T["cerradas"], "124", VERDE)):
         s.rect(x0 + 8, y, w - 16, 28, BLOQUE, rx=6)
         s.text(x0 + 18, y + 19, nombre, weight="700", size=12, **sans)
         s.text(x0 + w - 18, y + 19, n, fill=c, size=12, anchor="end", **sans)
@@ -392,12 +452,16 @@ COMUNES = dict(ventana="pantry — claude")
 
 TEXTOS = [
     dict(COMUNES, id="en",
-         panel_alt="The SF panel in Claude Code: header with RELEASE, TURBO and the version, two tasks in progress with their steps and a subagent, and the task blocks",
+         rama="Branch", pasos="Steps", o_activar="Switch branch", o_cerrar="Close", o_observacion="To review", o_redescribir="Redescribe", o_paso="Step +", o_eliminar="Delete", o_descartar="Discard",
+         panel_alt="The SF panel in Claude Code: seven tasks in progress, each with its subagent, one ready to test, 38 queued with a Start button, 3 in review and 124 closed",
          prompts="prompts", tareas="TASKS", pendientes="Queued", observacion="In review", cerradas="Closed",
          propuestas="Proposals",
-         t47="Fix accents in the CSV export", t47_paso="Export as UTF-8 with BOM",
-         t48="Dark mode in Settings", t48_paso="Pick the colour tokens",
-         t51="Login fails after an hour", t51_paso="Reproduce the expired token",
+         t47="Fix accents in the CSV export",
+         t48="Dark mode in Settings",
+         t51="Search by tag",
+         t52="Export invoices to PDF", t53="Welcome e-mail for new users", t55="Weekly sales report",
+         t58="Import contacts from Google", t60="Cache the product images", t63="Date formats per country",
+         t64="Two-factor sign-in", t66="Print delivery notes", poner="Start", mas="…and 34 more",
          peticion_alt="From a request to a task: you write in the chat, Claude queues it as a task with steps and a branch, and a subagent works through the steps",
          paso1="1 · YOU ASK, IN YOUR OWN WORDS", pide="The CSV export breaks names with accents. And Settings needs a dark mode.",
          paso2="2 · CLAUDE TURNS IT INTO TASKS",
@@ -437,16 +501,20 @@ TEXTOS = [
                ("Technical definition", False)],
          caja_alt="Outside full screen, a small box above the prompt shows the project, the tasks in progress and the counts",
          caja_chat="Task 47 is ready for you to test on its branch.", caja_chat2="Steps 1 to 5 done.",
-         caja_l1="SF 1.8 · Pantry · 6/7 Build and verify · devslice 2", caja_cuentas="3 queued · 1 in review", caja_abre="opens the panel",
+         caja_l1="SF 1.8 · Pantry · 6/7 Build and verify · devslice 2", caja_cuentas="38 queued · 3 in review", caja_abre="opens the panel",
          caja_prompt="Try it now…",
          publicado1="v1.3.0 published", publicado2="develop → main, tag pushed. Projects can update."),
     dict(COMUNES, id="es",
-         panel_alt="El panel de la SF en Claude Code: cabecera con RELEASE, TURBO y la versión, dos tareas en curso con sus pasos y un subagente, y los bloques de tareas",
+         rama="Rama", pasos="Pasos", o_activar="Activar rama", o_cerrar="Cerrar", o_observacion="A observación", o_redescribir="Redescribir", o_paso="Paso +", o_eliminar="Eliminar", o_descartar="Descartar",
+         panel_alt="El panel de la SF en Claude Code: siete tareas en curso, cada una con su subagente, una lista para probar, 38 pendientes con el botón Poner en curso, 3 en observación y 124 cerradas",
          prompts="prompts", tareas="TAREAS", pendientes="Pendientes", observacion="En observación", cerradas="Cerradas",
          propuestas="Propuestas",
-         t47="Arreglar los acentos del CSV", t47_paso="Exportar en UTF-8 con BOM",
-         t48="Modo oscuro en Ajustes", t48_paso="Elegir los colores",
-         t51="El login falla a la hora", t51_paso="Reproducir el token caducado",
+         t47="Arreglar los acentos del CSV",
+         t48="Modo oscuro en Ajustes",
+         t51="Buscar por etiqueta",
+         t52="Exportar las facturas a PDF", t53="Correo de bienvenida", t55="Informe semanal de ventas",
+         t58="Importar contactos de Google", t60="Caché de las fotos de producto", t63="Fechas según el país",
+         t64="Acceso en dos pasos", t66="Imprimir albaranes", poner="Poner en curso", mas="…y 34 más",
          peticion_alt="De una petición a una tarea: escribes en el chat, Claude la pone en la cola como tarea con pasos y rama, y un subagente hace los pasos",
          paso1="1 · LO PIDES CON TUS PALABRAS", pide="El CSV exportado rompe los nombres con acentos. Y Ajustes necesita modo oscuro.",
          paso2="2 · CLAUDE LO CONVIERTE EN TAREAS",
@@ -486,26 +554,14 @@ TEXTOS = [
                ("Definición técnica", False)],
          caja_alt="Sin pantalla completa, una caja pequeña sobre el prompt enseña el proyecto, las tareas en curso y las cuentas",
          caja_chat="La 47 está lista para que la pruebes en su rama.", caja_chat2="Pasos 1 a 5 hechos.",
-         caja_l1="SF 1.8 · Pantry · 6/7 Desarrollo y verificación · devslice 2", caja_cuentas="3 en cola · 1 en observación", caja_abre="abre el panel",
+         caja_l1="SF 1.8 · Pantry · 6/7 Desarrollo y verificación · devslice 2", caja_cuentas="38 en cola · 3 en observación", caja_abre="abre el panel",
          caja_prompt="Pruébala ahora…",
          publicado1="v1.3.0 publicada", publicado2="develop → main y el tag, subidos. Ya se puede actualizar."),
 ]
 
 
-def logo_suelto():
-    """El logo «/SF» solo, sin fondo, para la página y el favicon."""
-    s = Svg(108, 60, "/SF")
-    s.partes = []
-    logo(s, 54, 0, celda=6)
-    (SALIDA / "logo.svg").write_text(
-        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 108 60" width="108" height="60" role="img" '
-        'aria-label="SoftwareFactory" shape-rendering="crispEdges">\n' + "\n".join(s.partes) + "\n</svg>\n",
-        encoding="utf-8")
-
-
 def main():
     SALIDA.mkdir(parents=True, exist_ok=True)
-    logo_suelto()
     for T in TEXTOS:
         for f in (panel, app, metodo, caja, peticion, incorporacion, probar, publicar):
             f(T)

@@ -10,10 +10,10 @@
 <text x="40.0" y="90.0" font-size="13" fill="#a6a19c" xml:space="preserve">Steps 1 to 5 done.</text>
 <rect x="112.2" y="118.0" width="425.8" height="123.0" rx="10" fill="#191512" stroke="#4a4540" stroke-width="1.2"/>
 <text x="126.2" y="144.0" font-size="13" fill="#ece8e2" font-weight="700" xml:space="preserve">SF 1.8 · Pantry · 6/7 Build and verify · devslice 2</text>
-<text x="126.2" y="165.0" font-size="13" fill="#f4bf36" xml:space="preserve">▶ 47 Fix accents in the CSV export</text>
-<text x="126.2" y="186.0" font-size="13" fill="#f4bf36" xml:space="preserve">▶ 48 Dark mode in Settings</text>
-<text x="126.2" y="207.0" font-size="13" fill="#a6a19c" xml:space="preserve">3 queued · 1 in review</text>
+<text x="126.2" y="165.0" font-size="13" fill="#93c5fd" xml:space="preserve">▶ 47 Fix accents in the CSV export</text>
+<text x="126.2" y="186.0" font-size="13" fill="#93c5fd" xml:space="preserve">▶ 48 Dark mode in Settings</text>
+<text x="126.2" y="207.0" font-size="13" fill="#a6a19c" xml:space="preserve">38 queued · 3 in review</text>
 <text x="126.2" y="228.0" font-size="13" fill="#a6a19c" xml:space="preserve">/sf opens the panel</text>
 <rect x="16.0" y="257.0" width="528.0" height="40.0" rx="8" fill="#1f1c19" stroke="#3d3934" stroke-width="1.2"/>
-<text x="30.0" y="282.0" font-size="14" xml:space="preserve"><tspan fill="#f4bf36" font-weight="700">&gt; </tspan><tspan fill="#a6a19c">Try it now…</tspan></text>
+<text x="30.0" y="282.0" font-size="14" xml:space="preserve"><tspan fill="#f5c400" font-weight="700">&gt; </tspan><tspan fill="#a6a19c">Try it now…</tspan></text>
 </svg>

@@ -66,9 +66,9 @@ export const ANTIGUO = 'docs/sf.json'
 // El repositorio de la SF se reconoce por la fuente del plugin.
 export const MARCA_SF = 'plugins/sf/.claude-plugin/plugin.json'
 export const PANEL = 'sf-estado'
-// Colores que acepta /color. COLOR_SF es el de la SF mientras no tenga estilo y el de su marca en la bienvenida.
+// Colores que acepta /color. COLOR_SF es el de la sesión de la SF si le faltara su estilo: el amarillo (decisión 304).
 export const COLORES = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink', 'cyan'] as const
-export const COLOR_SF = 'purple'
+export const COLOR_SF = 'yellow'
 // Cada color de /color en RGB, para pintar el nombre del proyecto como la etiqueta de la sesión.
 // El morado está medido en la etiqueta de Claude Code (tema oscuro); los demás, aproximados.
 export const RGB: Record<(typeof COLORES)[number], string> = {

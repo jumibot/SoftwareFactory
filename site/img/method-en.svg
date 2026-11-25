@@ -9,8 +9,8 @@
 <text x="22.0" y="66.0" font-size="13" fill="#a6a19c" xml:space="preserve">SF 1.8 · Pantry · 3/7 Technical definition</text>
 <text x="28.0" y="98.0" font-size="14" xml:space="preserve"><tspan fill="#c8c3bc" font-weight="700">1  </tspan><tspan fill="#6ed889">✓ </tspan><tspan fill="#77726d">Vision</tspan></text>
 <text x="28.0" y="124.0" font-size="14" xml:space="preserve"><tspan fill="#c8c3bc" font-weight="700">2  </tspan><tspan fill="#6ed889">✓ </tspan><tspan fill="#77726d">Spec and interface</tspan></text>
-<rect x="16.0" y="132.0" width="528.0" height="28.0" rx="8" fill="#f4bf36" fill-opacity=".07" stroke="#f4bf36" stroke-width="1.6"/>
-<text x="28.0" y="150.0" font-size="14" xml:space="preserve"><tspan fill="#c8c3bc" font-weight="700">3  </tspan><tspan fill="#ece8e2">▸ </tspan><tspan fill="#f4bf36" font-weight="700">Technical definition</tspan></text>
+<rect x="16.0" y="132.0" width="528.0" height="28.0" rx="8" fill="#f5c400" fill-opacity=".07" stroke="#f5c400" stroke-width="1.6"/>
+<text x="28.0" y="150.0" font-size="14" xml:space="preserve"><tspan fill="#c8c3bc" font-weight="700">3  </tspan><tspan fill="#ece8e2">▸ </tspan><tspan fill="#f5c400" font-weight="700">Technical definition</tspan></text>
 <text x="28.0" y="176.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c" font-weight="700">4  </tspan><tspan fill="#a6a19c">· </tspan><tspan fill="#a6a19c">Devslice planning</tspan></text>
 <text x="28.0" y="202.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c" font-weight="700">5  </tspan><tspan fill="#a6a19c">· </tspan><tspan fill="#a6a19c">Devslice preparation</tspan></text>
 <text x="28.0" y="228.0" font-size="14" xml:space="preserve"><tspan fill="#a6a19c" font-weight="700">6  </tspan><tspan fill="#a6a19c">· </tspan><tspan fill="#a6a19c">Build and verify</tspan></text>
@@ -21,5 +21,5 @@
 <text x="34.0" y="342.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#ece8e2">Vision of Pantry</tspan></text>
 <text x="34.0" y="366.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#ece8e2">Functional spec</tspan></text>
 <text x="34.0" y="390.0" font-size="14" xml:space="preserve"><tspan fill="#6ed889">✓ </tspan><tspan fill="#ece8e2">Interface design</tspan></text>
-<text x="34.0" y="414.0" font-size="14" xml:space="preserve"><tspan fill="#f4bf36">▸ </tspan><tspan fill="#f4bf36">Technical definition</tspan></text>
+<text x="34.0" y="414.0" font-size="14" xml:space="preserve"><tspan fill="#f5c400">▸ </tspan><tspan fill="#f5c400">Technical definition</tspan></text>
 </svg>

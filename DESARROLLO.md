@@ -168,6 +168,11 @@ Las carpetas `_respaldo/` guardan versiones anteriores de documentos y skills an
   ```bash
   python -I -X utf8 scripts/capturas_web.py
   ```
+- **Poner en la web el estilo de la SF** (colores, letra y logos de `docs/identidad/estilo.json`) cada vez que cambie, y después regenerar los pantallazos, que toman de él su amarillo y el logo; una prueba avisa si la web se queda atrás:
+
+  ```bash
+  python -I -X utf8 scripts/estilo_web.py
+  ```
 - **Cambios en la SF:** cada tarea, en su rama `feature/NN-nombre` desde `develop`; probada, entra en `develop` por squash y push. Publicar es pasar `develop` a `main` con el tag `vX.Y.Z` ([metodología, 2](plugins/sf/skills/metodologia/references/desarrollo-de-proyectos.md)).
 - **Mejoras:** se registran en [propuestas](docs/propuestas.md) con su origen, aunque surjan en otro proyecto, y se aplican solo con aprobación del propietario. Al decidirse, pasan a [decisiones](docs/decisiones/README.md).
 - **Información que falta:** se pide; no se inventan requisitos ni decisiones.

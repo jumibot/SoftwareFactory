@@ -9,7 +9,7 @@ import { PRUEBA_PYTHON } from '../hooks/python'
 import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE } from '../hooks/subagentes'
 import { firmaEstructura, firmaLista, vistaCuerpo } from '../hooks/panel'
 import { NOMBRE, NOMBRE_ANCHO, bienvenida, partir } from '../hooks/bienvenida'
-import { BARRA, COLOR_BARRA, COLOR_LETRAS, LETRAS, logoSvg } from '../hooks/logo'
+import { BARRA, COLOR_BARRA, COLOR_BARRA_CLARO, COLOR_LETRAS, COLOR_LETRAS_CLARO, LETRAS, logoSvg } from '../hooks/logo'
 
 // Un repositorio de la SF de mentira: la marca del plugin, documentos y una cola de peticiones.
 // Cada caso parte de su propia copia, para que un fallo señale un solo comportamiento.
@@ -701,7 +701,7 @@ const hay = async (ui: { find: (q: object) => Promise<unknown> }, q: object) => 
 
 // El número de una tarea, sin letra detrás (decisión del propietario, 2026-10-31): el Text que lo lleva solo, con su
 // subrayado de desplegable, que no tienen las cuentas. El estado se lee en su color: rojo si ya estaba (o en Cerradas,
-// si se reabrió), verde si se probó, gris en el resto; amarillo, la en curso; el fondo rojo, la reabierta.
+// si se reabrió), verde si se probó, gris en el resto; azul, la en curso; el fondo rojo, la reabierta.
 const GRIS = '#717171'
 type Nodo = { props: Record<string, unknown> }
 const numeros = async (ui: { findAll: (q: object) => Promise<unknown[]> }, id: number) =>
@@ -1608,28 +1608,28 @@ test('Cabecera: con rama, cuatro filas de alto, la cabecera normal y con los avi
   await ui.unmount()
 })
 
-// El amarillo: la línea, solo arriba; en las secciones, solo el código de la tarea en curso; los pasos, sin él
+// El azul: la línea, solo arriba; en las secciones, solo el código de la tarea en curso; los pasos, sin él
 // (decisión del propietario, 2026-10-28, precisada el 2026-10-29).
-const AMARILLO = '#facc15'
-const conAmarillo = (nodo: unknown) => JSON.stringify(nodo).includes(AMARILLO)
+const COLOR_EN_CURSO = '#93c5fd'
+const conColorEnCurso = (nodo: unknown) => JSON.stringify(nodo).includes(COLOR_EN_CURSO)
 
 test('Amarillo: la línea, solo arriba; en Pendientes, nada; los pasos, no', async (...m) => {
   await preparar(m, { cola: [...REABIERTA, { id: 6, texto: 'En cola', estado: 'en-cola' }] })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
-  // Arriba, la línea de la tarea en amarillo, y solo ahí: en curso, no sale en Pendientes.
+  // Arriba, la línea de la tarea en azul, y solo ahí: en curso, no sale en Pendientes.
   const lineas = await ui.findAll({ type: 'Text', text: /Fondos por bloque/ })
-  expect(lineas.filter(conAmarillo)).toHaveLength(1)
-  expect(String(lineas.find(conAmarillo)?.text ?? '')).toBe('Fondos por bloque')
+  expect(lineas.filter(conColorEnCurso)).toHaveLength(1)
+  expect(String(lineas.find(conColorEnCurso)?.text ?? '')).toBe('Fondos por bloque')
   expect(await hay(ui, { type: 'Box', text: /^4 Fondos por bloque/ })).toBe(true)
   expect(await ui.find({ type: 'Button', key: 'pet:cola:4' })).toBe(undefined)
-  // Una tarea en cola, sin amarillo.
+  // Una tarea en cola, sin azul.
   const fila6 = await ui.find({ type: 'Box', text: /^6 En cola$/ })
-  expect(fila6 !== undefined && !conAmarillo(fila6)).toBe(true)
-  // El paso en curso, sin amarillo.
+  expect(fila6 !== undefined && !conColorEnCurso(fila6)).toBe(true)
+  // El paso en curso, sin azul.
   await ui.press({ key: 'arriba:4' })
   await ui.press({ key: 'pasos:arriba:4' })
   expect(await hay(ui, { type: 'Text', text: /Aplicarlo a los bloques/ })).toBe(true)
-  expect((await ui.findAll({ type: 'Text', text: /Aplicarlo a los bloques/ })).some(conAmarillo)).toBe(false)
+  expect((await ui.findAll({ type: 'Text', text: /Aplicarlo a los bloques/ })).some(conColorEnCurso)).toBe(false)
   await ui.unmount()
 })
 
@@ -2639,14 +2639,14 @@ test('Rama: la activa, atenuada en la cabecera', async (...m) => {
   const ui = await m[0].ui.mount({ ...ANCHO, surface: 'terminal' })
   const t = await ui.find({ type: 'Text', text: /^ ?develop ?$/ })
   expect(t !== undefined).toBe(true)
-  expect(conAmarillo(t)).toBe(false)
+  expect(conColorEnCurso(t)).toBe(false)
   await ui.unmount()
 })
 
-test('Rama: la de una tarea en curso, en amarillo; una cabeza separada, su commit corto', async (...m) => {
+test('Rama: la de una tarea en curso, en azul; una cabeza separada, su commit corto', async (...m) => {
   const { archivos, cambiarCola } = await preparar(m, { cola: CON_RAMAS, extra: GIT('ref: refs/heads/feature/1-panel\n') })
   const ui = await m[0].ui.mount({ ...ANCHO, surface: 'terminal' })
-  expect(conAmarillo(await ui.find({ type: 'Text', text: /^ ?feature\/1-panel ?$/ }))).toBe(true)
+  expect(conColorEnCurso(await ui.find({ type: 'Text', text: /^ ?feature\/1-panel ?$/ }))).toBe(true)
   archivos['/sf/.git/HEAD'] = '0123456789abcdef0123456789abcdef01234567\n'
   await cambiarCola(CON_RAMAS)
   expect(await hay(ui, { type: 'Text', text: /^ ?\(0123456\) ?$/ })).toBe(true)
@@ -2678,8 +2678,8 @@ test('Rama: en un worktree, .git es un archivo que apunta a su HEAD', async (...
     },
   })
   const ui = await m[0].ui.mount({ ...ANCHO, surface: 'terminal' })
-  // La 2 está en observación: su rama, en amarillo.
-  expect(conAmarillo(await ui.find({ type: 'Text', text: /^ ?feature\/2-borrada ?$/ }))).toBe(true)
+  // La 2 está en observación: su rama, en azul.
+  expect(conColorEnCurso(await ui.find({ type: 'Text', text: /^ ?feature\/2-borrada ?$/ }))).toBe(true)
   // Las ramas, en la carpeta común: la 1 existe y la 2 no.
   await ui.press({ key: 'arriba:1' })
   expect(await hay(ui, { type: 'Text', text: /^Rama: feature\/1-panel$/ })).toBe(true)
@@ -2714,7 +2714,7 @@ test('Rama: en un panel estrecho se recorta por el final', async (...m) => {
   // Sola en la tercera fila (tarea 260): se recorta al ancho del panel.
   const t = await ui.find({ type: 'Text', text: /^ ?feature\/1-.*… ?$/ })
   expect(t !== undefined).toBe(true)
-  expect(conAmarillo(t)).toBe(false)
+  expect(conColorEnCurso(t)).toBe(false)
   expect(await hay(ui, { type: 'Text', text: /^ *SF 0\.32\.3 *$/ })).toBe(true)
   await ui.unmount()
 })
@@ -6579,7 +6579,7 @@ test('Bienvenida: sin SF, la marca y qué escribir, sin JSON ni secciones', asyn
 })
 
 // La pastilla de la orden es un botón que la pasa a Claude (decisión 248); en el escritorio, el logo va en SVG y la orden,
-// en un solo botón centrado; en el terminal, como texto (tarea 323). En el morado de la SF.
+// en un solo botón centrado; en el terminal, como texto (tarea 323). En el amarillo de la SF.
 for (const surface of ['terminal', 'desktop'] as const) {
   test(`${surface}: Bienvenida: la orden es un botón que la pasa a Claude; el logo, en SVG solo en el escritorio`, async (...m) => {
     const { prompts, reloj } = await preparar(m, { sinMarca: true, reloj: true, extra: GIT('ref: refs/heads/develop\n') })
@@ -6588,7 +6588,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
     expect(await hay(ui, { type: 'Text', text: /▄█████/ })).toBe(surface === 'terminal')
     const clave = surface === 'desktop' ? 'incorporar' : (((await ui.findAll({ type: 'Button' })) as { key?: string }[]).find(b => b.key?.startsWith('incorporar:'))?.key ?? '')
     expect(clave.startsWith('incorporar')).toBe(true)
-    expect(JSON.stringify(await ui.drawn()).includes('#827dbd')).toBe(true)
+    expect(JSON.stringify(await ui.drawn()).includes('#f5c400')).toBe(true)
     await ui.press({ key: clave })
     await reloj!.advance(100)
     expect(prompts).toEqual(['incorpora este proyecto a la SF'])
@@ -6596,25 +6596,25 @@ for (const surface of ['terminal', 'desktop'] as const) {
   })
 }
 
-// La marca de la bienvenida, siempre en el morado de la SF, aunque la sesión tenga color (decisión 249, corregida).
-test('Bienvenida: la marca va en el morado de la SF aunque la sesión tenga otro color', async (...m) => {
+// La marca de la bienvenida, siempre en el amarillo de la SF, aunque la sesión tenga color (decisión 249, corregida).
+test('Bienvenida: la marca va en el amarillo de la SF aunque la sesión tenga otro color', async (...m) => {
   await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
   await m[0].command.run({ command: 'color', args: 'green' })
   const ui = await m[0].ui.mount({ ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface: 'desktop' })
   const pintado = JSON.stringify(await ui.drawn())
-  expect(pintado.includes('#827dbd')).toBe(true)
+  expect(pintado.includes('#f5c400')).toBe(true)
   expect(pintado.includes('#16a34a')).toBe(false)
   await ui.unmount()
 })
 
-// El rótulo bajo el logo, «S O F T W A R E   F A C T O R Y», en el morado de la SF, como el logo (tarea 334).
+// El rótulo bajo el logo, «S O F T W A R E   F A C T O R Y», en el amarillo de la SF, como la marca (tarea 334).
 for (const surface of ['terminal', 'desktop'] as const) {
-  test(`${surface}: Bienvenida: el nombre bajo el logo va en el morado de la SF`, async (...m) => {
+  test(`${surface}: Bienvenida: el nombre bajo el logo va en el amarillo de la SF`, async (...m) => {
     await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
     const ui = await m[0].ui.mount({ ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface })
     // En el escritorio, sin espaciar las letras: con los espacios, la app la pinta como arte ASCII (tarea 337).
     const nombre = surface === 'desktop' ? /^SOFTWARE FACTORY$/ : /S O F T W A R E {3}F A C T O R Y/
-    expect(((await ui.find({ type: 'Text', text: nombre })) as ConProps).props.color).toBe('#827dbd')
+    expect(((await ui.find({ type: 'Text', text: nombre })) as ConProps).props.color).toBe('#f5c400')
     await ui.unmount()
   })
 }
@@ -6670,6 +6670,37 @@ for (const [nombre, montar] of [
     expect(((await ui.find({ type: 'Text', text: /^\s*▄█▀\s*$/ })) as ConProps).props.color).toBe(COLOR_BARRA)
     expect(((await ui.find({ type: 'Text', text: /^▄█████ ██████$/ })) as ConProps).props.color).toBe(COLOR_LETRAS)
     await ui.unmount()
+  })
+}
+
+// Con un tema claro de Claude Code (/config), el logo claro en el terminal; al cambiar el tema, cambia con él (tarea 395).
+const FILA_TEMA = (value: string) => ({ key: 'theme', label: 'Theme', kind: 'choice', value, options: ['dark', 'light', 'light-daltonized', 'dark-daltonized'], provider: { plugin: 'engine', tier: 'core' }, isLocked: false })
+for (const [nombre, montar] of [
+  ['bienvenida', { ...PANEL, props: { ...PANEL.props, bodyColumns: 60 }, surface: 'terminal' }],
+  ['caja', CAJA],
+] as const) {
+  test(`terminal: Logo /SF en la ${nombre}: con el tema claro, el logo claro; al volver al oscuro, el oscuro`, async (...m) => {
+    let tema = 'light'
+    m[1]('config.list', () => ({ value: [FILA_TEMA(tema)] }) as never)
+    m[1]('config.set', (_, e) => {
+      tema = String(e.value)
+      return { value: e.value }
+    })
+    await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+    const colores = async () => {
+      const ui = await m[0].ui.mount(montar)
+      const r = [
+        ((await ui.find({ type: 'Text', text: /^\s*▄█▀\s*$/ })) as ConProps).props.color,
+        ((await ui.find({ type: 'Text', text: /^▄█████ ██████$/ })) as ConProps).props.color,
+      ]
+      await ui.unmount()
+      return r
+    }
+    expect(await colores()).toEqual([COLOR_BARRA_CLARO, COLOR_LETRAS_CLARO])
+    await m[0].config.set({ key: 'theme', value: 'dark' })
+    expect(await colores()).toEqual([COLOR_BARRA, COLOR_LETRAS])
+    await m[0].config.set({ key: 'theme', value: 'light-daltonized' })
+    expect(await colores()).toEqual([COLOR_BARRA_CLARO, COLOR_LETRAS_CLARO])
   })
 }
 
@@ -6940,7 +6971,7 @@ test('desktop: Bienvenida sin espacios de relleno, centrada por su caja, y la or
     expect(await conProps(ui, { type: 'Box', text: t }, { flexDirection: 'row', justifyContent: 'center' })).toBe(true)
   for (const key of ['bienvenida:logo', 'bienvenida:orden'])
     expect(await conProps(ui, { type: 'Box', key }, { flexDirection: 'row', justifyContent: 'center' })).toBe(true)
-  expect(((await ui.findAll({ type: 'Box' })) as Nodo337[]).some(x => x.props.backgroundColor === '#827dbd')).toBe(true)
+  expect(((await ui.findAll({ type: 'Box' })) as Nodo337[]).some(x => x.props.backgroundColor === '#7a5000')).toBe(true)
   expect(((await ui.find({ type: 'Button', key: 'incorporar' })) as Nodo337 | undefined)?.props.label).toBe('incorpora este proyecto a la SF')
   await ui.unmount()
 })
@@ -7074,7 +7105,7 @@ const progreso = (actual: number, respuestas: (string | null)[], carpeta = RAIZ)
     pasos: ['Caso', 'Diagnóstico', 'Identidad', 'Repositorio', 'Convenciones', 'Cambios y OK', 'Aplicar', 'CLAUDE.md', 'Pasar a sf/', 'Comprobación'].map((nombre, i) => ({ nombre, respuesta: respuestas[i] ?? null })),
   })
 
-test('Incorporación: sin SF, bajo la bienvenida sin su invitación, todos los pasos si caben y el actual en morado', async (...m) => {
+test('Incorporación: sin SF, bajo la bienvenida sin su invitación, todos los pasos si caben y el actual en amarillo', async (...m) => {
   const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
   archivos[PROGRESO] = progreso(3, ['Existente', 'falta .sf/ y develop'])
   await cambiarCola(INICIAL)
@@ -7084,10 +7115,10 @@ test('Incorporación: sin SF, bajo la bienvenida sin su invitación, todos los p
   expect(await hay(ui, { type: 'Text', text: /Para empezar/ })).toBe(false)
   expect(await hay(ui, { type: 'Text', text: /unas pocas preguntas/ })).toBe(false)
   expect(await hay(ui, { type: 'Text', text: 'paso 3 de 10' })).toBe(true)
-  expect(await conProps(ui, { type: 'Text', text: ' En curso ' }, { backgroundColor: '#827dbd', color: '#000000' })).toBe(true)
+  expect(await conProps(ui, { type: 'Text', text: ' En curso ' }, { backgroundColor: '#f5c400', color: '#000000' })).toBe(true)
   expect(await hay(ui, { type: 'Text', text: 'falta .sf/ y develop' })).toBe(true)
-  // El actual, en el morado de la marca y negrita, no en amarillo.
-  expect(await conProps(ui, { type: 'Text', text: 'Identidad ◂' }, { color: '#827dbd', weight: 'bold' })).toBe(true)
+  // El actual, en el amarillo de la marca y negrita, no en azul.
+  expect(await conProps(ui, { type: 'Text', text: 'Identidad ◂' }, { color: '#f5c400', weight: 'bold' })).toBe(true)
   // Caben los diez: ni plegados ni flechas.
   for (const t of ['Caso', 'Aplicar', 'CLAUDE.md', 'Comprobación']) expect(await hay(ui, { type: 'Text', text: t })).toBe(true)
   expect(await hay(ui, { type: 'Button', key: 'incorporacion:arriba' })).toBe(false)
@@ -7221,16 +7252,16 @@ test('Incorporación en pausa: lista atenuada con Continuar, que lo pasa a Claud
   await acabaTurno(m, 't1', true)
   await cambiarCola(INICIAL)
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
-  // La cabecera (tarea 333): el nombre en el morado de la marca, el estado como etiqueta en morado claro y la cuenta, atenuada.
-  expect(await conProps(ui, { type: 'Text', text: 'INCORPORACIÓN' }, { color: '#827dbd', weight: 'bold' })).toBe(true)
-  expect(await conProps(ui, { type: 'Text', text: ' En pausa ' }, { backgroundColor: '#b3aee6', color: '#000000' })).toBe(true)
+  // La cabecera (tarea 333): el nombre en el amarillo de la marca, el estado como etiqueta en amarillo pálido y la cuenta, atenuada.
+  expect(await conProps(ui, { type: 'Text', text: 'INCORPORACIÓN' }, { color: '#f5c400', weight: 'bold' })).toBe(true)
+  expect(await conProps(ui, { type: 'Text', text: ' En pausa ' }, { backgroundColor: '#f8dc8c', color: '#000000' })).toBe(true)
   expect(await conProps(ui, { type: 'Text', text: 'paso 3 de 10' }, { dimColor: true })).toBe(true)
   expect(await hay(ui, { type: 'Text', text: 'Identidad ◂' })).toBe(false)
-  // Continuar, como la orden de la bienvenida (morado de la marca, letra negra en negrita); Abandonar, en el morado
-  // claro sin fondo; ninguno en amarillo ni en rojo, centrados con espacios en el terminal (tarea 333).
-  expect(await etiqueta(ui, 'incorporacion:continuar')).toMatchObject({ backgroundColor: '#827dbd', color: '#000000', weight: 'bold' })
+  // Continuar, como la orden de la bienvenida (amarillo de la marca, letra negra en negrita); Abandonar, en el amarillo
+  // pálido sin fondo; ninguno en el azul de la tarea ni en rojo, centrados con espacios en el terminal (tarea 333).
+  expect(await etiqueta(ui, 'incorporacion:continuar')).toMatchObject({ backgroundColor: '#f5c400', color: '#000000', weight: 'bold' })
   const abandonar = (await etiqueta(ui, 'incorporacion:abandonar')) as Record<string, unknown>
-  expect(abandonar).toMatchObject({ color: '#b3aee6' })
+  expect(abandonar).toMatchObject({ color: '#f8dc8c' })
   expect(abandonar.backgroundColor).toBe(undefined)
   const fila = (await ui.find({ type: 'Box', key: 'incorporacion:continuar:fila' })) as { children: { type: string; children: unknown[] }[] }
   expect(fila.children[0]).toMatchObject({ type: 'Text', children: [expect.stringMatching(/^ +$/)] })
@@ -7270,10 +7301,10 @@ test('Incorporación en pausa: en una superficie gráfica, los dos botones lado 
   const botones = (await ui.find({ type: 'Box', key: 'incorporacion:botones' })) as { props: Record<string, unknown>; children: { props: Record<string, unknown> }[] }
   expect(botones.props).toMatchObject({ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center' })
   expect(botones.children).toHaveLength(2)
-  // Las dos, cajas redondeadas y llenas: Continuar, del morado de la marca; Abandonar, discreto, de un morado apagado (367).
+  // Las dos, cajas llenas: Continuar, del ámbar oscuro de la marca; Abandonar, discreto, de un ámbar apagado (367 y 397).
   const [continuar, abandonar] = botones.children
-  expect(continuar!.props).toMatchObject({ backgroundColor: '#827dbd' })
-  expect(abandonar!.props).toMatchObject({ backgroundColor: '#4c4677' })
+  expect(continuar!.props).toMatchObject({ backgroundColor: '#7a5000' })
+  expect(abandonar!.props).toMatchObject({ backgroundColor: '#5c4813' })
   expect(JSON.stringify(continuar)).toContain('Continuar incorporación a la SF')
   expect(JSON.stringify(abandonar)).toContain('Abandonar incorporación a la SF')
   for (const k of ['continuar', 'abandonar']) expect(await hay(ui, { type: 'Box', key: `incorporacion:${k}:fila` })).toBe(false)

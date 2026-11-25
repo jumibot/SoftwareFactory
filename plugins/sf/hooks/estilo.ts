@@ -1,7 +1,8 @@
 
 
-// Amarillo claro de la tarea en curso: el de la paleta (#ca8a04) se ve mostaza en el panel oscuro.
-export const COLOR_TAREA = '#facc15'
+// Azul claro de la tarea en curso: el amarillo queda para la SF (decisión 334). Sobre el gris de las etiquetas
+// (#3f3f46), contraste 5,8:1; sobre el fondo oscuro del panel, más de 9:1.
+export const COLOR_TAREA = '#93c5fd'
 // Fondo de las etiquetas neutras de la cabecera: el marcador y la rama que no es de una tarea.
 export const FONDO_ETIQUETA = '#3f3f46'
 // Fondo de las etiquetas del menú de órdenes de una tarea. A prueba, negro (petición del propietario, 2026-11-01); el
@@ -15,7 +16,7 @@ export const ANCHO_NUMERO = 3
 export const hueco = (id: number | string) => Math.max(0, ANCHO_NUMERO - String(id).length)
 
 // Un color por letra, igual en las cuentas y en los códigos: verde solo para las C; las demás, sin color. La tarea
-// en curso, en amarillo (decisión del propietario, 2026-10-28). El rojo, solo para las reabiertas, como fondo del
+// en curso, en azul (decisión 334; antes, amarillo). El rojo, solo para las reabiertas, como fondo del
 // número; las H de sesiones anteriores, sin rojo (petición del propietario, 2026-10-31).
 export const colorLetra = (l: string) => (l === 'C' ? 'success' : undefined)
 export const colorLetraApagada = (l: string) => (l === 'C' ? LETRA.cerrada : LETRA.neutra)
@@ -30,7 +31,7 @@ export const MARCA_SUBAGENTE = '●'
 export const COLOR_ORDEN_DESTRUCTIVA = '#f87171'
 // El de TURBO, en la cabecera: cian, lejos del naranja de PRUEBA y en letra, no en fondo como el nombre.
 export const COLOR_TURBO = '#22d3ee'
-// El de RELEASE, a su lado: violeta, distinto del cian de TURBO, del naranja de PRUEBA y del amarillo de la tarea.
+// El de RELEASE, a su lado: violeta, distinto del cian de TURBO, del naranja de PRUEBA y del azul de la tarea.
 export const COLOR_RELEASE = '#c084fc'
 // El de ACTUALIZAR, junto a RELEASE: rojo, para no confundirlos (decisión del propietario, 2026-10-29).
 export const COLOR_ACTUALIZAR = '#f87171'

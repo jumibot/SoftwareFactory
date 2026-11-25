@@ -1,6 +1,5 @@
-import { COLOR_SF, RGB } from './constantes'
 import { centrar } from './estilo'
-import { ANCHO_LETRAS, COLOR_BARRA, logoTexto } from './logo'
+import { ANCHO_LETRAS, logoTexto } from './logo'
 
 // ── La bienvenida, en un proyecto sin SF (tarea 289) ──
 // La primera vez que alguien abre el panel en una carpeta sin .sf/proyecto.json, lo único que necesita saber es qué
@@ -8,13 +7,17 @@ import { ANCHO_LETRAS, COLOR_BARRA, logoTexto } from './logo'
 // va centrado a mano, con espacios, porque el panel no centra solo; las líneas son de texto puro, para que se lea
 // igual en un terminal sin color.
 
-// El color de la marca en la bienvenida: el de la SF, el morado de su sesión (COLOR_SF, #827dbd), fijo (decisión 249).
-// La letra negra encima: contraste 5,6:1 (con blanca, 3,8:1).
-export const COLOR_MARCA = RGB[COLOR_SF]
+// El color de la marca: el amarillo de la SF, el primario de su estilo y del botón principal de la web (decisiones 304
+// y 354), fijo y sin depender de la sesión (decisión 249). La letra negra encima: contraste 12,8:1; sobre el gris del
+// bloque (#3a3a3a), 6,9:1.
+export const COLOR_MARCA = '#f5c400'
 export const LETRA_MARCA = '#000000'
-// El morado claro de la barra del logo, para lo secundario junto a la marca (el Abandonar de la incorporación en pausa,
-// tarea 333): sobre el gris del bloque (#3a3a3a), contraste 5,5:1.
-export const COLOR_MARCA_CLARO = COLOR_BARRA
+// En una superficie gráfica, el botón nativo pinta su texto con la letra clara de la app: allí la marca llena la caja de
+// un ámbar oscuro, el mismo tono, con el que esa letra se lee (blanco, 7,1:1; sobre el amarillo, 1,8:1).
+export const RELLENO_MARCA = '#7a5000'
+// Un amarillo pálido para lo secundario junto a la marca (el Abandonar de la incorporación en pausa, tarea 333): sobre
+// el gris del bloque (#3a3a3a), contraste 8,5:1.
+export const COLOR_MARCA_CLARO = '#f8dc8c'
 
 export const NOMBRE_ANCHO = 'S O F T W A R E   F A C T O R Y'
 export const NOMBRE = 'SOFTWARE FACTORY'
