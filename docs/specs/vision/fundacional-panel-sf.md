@@ -578,13 +578,13 @@ Fuentes revisadas el 27 y el 28 de octubre de 2026. E = estudios y evidencias; A
 **T1 · ccusage** Tokens y coste por día, sesión y bloque, a partir de los registros locales.<br>[Abrir fuente ↗](https://github.com/ryoppippi/ccusage)
 {: #src-T1}
 
-**M1 · Decisiones de la SF** Cola de peticiones, un proyecto por sesión, realimentación, pasos de una tarea, probar antes de cerrar, aviso de versión, registro de uso, panel estándar, sin línea de estado, textos compactos y el mod como centro de control, en `docs/decisiones/`.<br>[Abrir documento](../../decisiones/README.md)
+**M1 · Decisiones de la SF** Cola de peticiones, un proyecto por sesión, realimentación, pasos de una tarea, probar antes de cerrar, aviso de versión, registro de uso, panel estándar, sin línea de estado, textos compactos y el mod como centro de control, en `docs/decisiones/`.<br>[Abrir documento](../../../sf/decisiones/README.md)
 {: #src-M1}
 
 **M2 · Especificación de la SF** Apartado «Plugin y mods de la SF», con el contenido actual del mod.<br>[Abrir documento](../funcional/software-factory.md)
 {: #src-M2}
 
-**M3 · Propuesta «Claude Code Commander: lo que falta concretar»** Canal entre el mod y el Commander, en `docs/propuestas.md`.<br>[Abrir documento](../../propuestas.md)
+**M3 · Propuesta «Claude Code Commander: lo que falta concretar»** Canal entre el mod y el Commander, en `docs/propuestas.md`.<br>[Abrir documento](../../../sf/propuestas.md)
 {: #src-M3}
 
 **M4 · Cola e historial del 27 y 28 de octubre de 2026** `.sf/peticiones.json` de la SF (43 peticiones y 33 sin probar el 27; 41 más y 3 en Testing el 28) y los commits de `plugins/sf/hooks` y `plugins/sf/tests` (de la versión 0.2.0 a la 0.25.2 el 27, y 60 más hasta la 0.34.3 el 28).

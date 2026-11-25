@@ -1,12 +1,12 @@
-import { MARCA_SF, PROYECTO } from './constantes'
+import { PROYECTO } from './constantes'
 import type { $, Git } from './lectura'
 
 // ── La configuración del proyecto (.sf/proyecto.json; informe «Configuración inicial», tarea 263) ──
 // Una sola lectura, con los valores por defecto donde falta un campo: lo de antes de la configuración, así los
 // proyectos ya incorporados no cambian hasta ponerlos al día. Un valor que no se entiende vale como si faltara y se
-// nombra en `desconocidos`, para que el panel avise sin bloquear (decisión 171). La propia SF no tiene
-// .sf/proyecto.json: su configuración sale de su marca, con el manifiesto del plugin y lo demás por defecto. Es la
-// misma que leer_configuracion de cola.py.
+// nombra en `desconocidos`, para que el panel avise sin bloquear (decisión 171). También la de la propia SF, que tiene
+// su .sf/proyecto.json como los demás proyectos («La SF se lleva como los demás proyectos», 299). Es la misma que
+// leer_configuracion de cola.py.
 export type Kanban = { proveedor: 'jkanban'; proyecto: string }
 export type FormatoCommit = 'libre' | 'conventional' | 'propio'
 export type Configuracion = {
@@ -24,9 +24,6 @@ export type Configuracion = {
 }
 export const FORMATOS_COMMIT: readonly FormatoCommit[] = ['libre', 'conventional', 'propio']
 export const TRAILER_TAREA = 'SF-Tarea'
-// La línea de coautoría de la propia SF, que no tiene .sf/proyecto.json: su `coautor` por defecto (COAUTOR de
-// cola.py). Un proyecto la configura en su `coautor`; sin él, sus commits van sin línea (238).
-export const COAUTOR_SF = 'Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>'
 
 // La línea de un valor de `coautor`: con «Co-Authored-By: » delante si no lo lleva; null si está vacío; undefined si
 // no vale (no es texto o tiene más de una línea). Como linea_coautor de cola.py.
@@ -45,7 +42,7 @@ export function formatoManifiesto(ruta: string): 'json' | 'pyproject' | null {
   return nombre.endsWith('.json') ? 'json' : nombre === 'pyproject.toml' ? 'pyproject' : null
 }
 
-export function leerConfiguracion(datos: Record<string, unknown> | null, esSf = false): Configuracion {
+export function leerConfiguracion(datos: Record<string, unknown> | null): Configuracion {
   const d = datos ?? {}
   const raros: string[] = []
   const c: Configuracion = {
@@ -56,8 +53,8 @@ export function leerConfiguracion(datos: Record<string, unknown> | null, esSf = 
     commits: 'libre',
     remoto: 'origin',
     ramaMain: 'main',
-    manifiesto: esSf ? [MARCA_SF] : [],
-    coautor: esSf ? COAUTOR_SF : null,
+    manifiesto: [],
+    coautor: null,
     desconocidos: raros,
   }
   if ('idioma' in d) {
@@ -105,7 +102,7 @@ export function leerConfiguracion(datos: Record<string, unknown> | null, esSf = 
   return c
 }
 
-// La de la carpeta: su .sf/proyecto.json o, en la SF, su marca. Un archivo que no se lee, como si faltara.
+// La de la carpeta: su .sf/proyecto.json. Un archivo que no se lee, como si faltara.
 export async function configuracion($: $, raiz: string): Promise<Configuracion> {
   let datos: Record<string, unknown> | null = null
   try {
@@ -116,7 +113,7 @@ export async function configuracion($: $, raiz: string): Promise<Configuracion> 
   } catch {
     datos = null
   }
-  return leerConfiguracion(datos, await $.fs.exists(`${raiz}/${MARCA_SF}`))
+  return leerConfiguracion(datos)
 }
 
 // La línea de convenciones que el mod entrega con las reglas (y cola.py encargo, en el encargo del subagente).

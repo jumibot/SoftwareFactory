@@ -97,10 +97,6 @@ TIPOS = ('deliberar', 'documentar', 'diseñar', 'implementar', 'especificar', 'c
 # se prueban ni pasan por observación (218): su único paso de cierre es «Cerrar la tarea».
 DELIBERATIVAS = ('investigar', 'deliberar', 'diseñar')
 MAX_COPIAS = 50
-# La línea de coautoría de los commits de la propia SF, que no tiene .sf/proyecto.json: su valor de `coautor` por
-# defecto. Un proyecto la configura en `coautor` de su .sf/proyecto.json o con --coautor; sin ninguna, sus commits
-# van sin línea («La firma del commit de cierre es configurable; sin configurar, sin línea», 238).
-COAUTOR = 'Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>'
 # Los nombres de antes de «En observación» (decisión 215) no son alias: la cola, una copia al recuperarla y el
 # historial se convierten una vez al cargarlos. Las líneas con «migración 215» son las únicas que los nombran.
 ESTADOS_VIEJOS = {'sin-probar': 'en-observacion'}  # migración 215
@@ -141,9 +137,6 @@ def sustituir(temporal: Path, destino: Path) -> None:
 
 # ---------- Configuración del proyecto (.sf/proyecto.json; informe «Configuración inicial», tarea 263) ----------
 
-# El repositorio de la propia SF se reconoce por la fuente del plugin; no tiene .sf/proyecto.json: su configuración
-# sale de esta marca, con el manifiesto del plugin y lo demás por defecto.
-MARCA_SF = 'plugins/sf/.claude-plugin/plugin.json'
 FORMATOS_COMMIT = ('libre', 'conventional', 'propio')
 # Lo que vale cada campo que falta (o que no se entiende): lo de antes de la configuración, así los proyectos ya
 # incorporados no cambian hasta ponerlos al día. manifiesto: ninguno, solo el tag.
@@ -173,11 +166,11 @@ def linea_coautor(v) -> str | None:
     return v if v.lower().startswith('co-authored-by:') else f'Co-Authored-By: {v}'
 
 
-def leer_configuracion(datos, es_sf: bool = False) -> dict:
+def leer_configuracion(datos) -> dict:
     """La configuración del proyecto, con los valores por defecto donde falta un campo o no se entiende (y entonces
-    lo nombra en «desconocidos», sin bloquear: decisión 171). En la SF (es_sf, por su marca), su manifiesto y su línea
-    de coautoría si no dice otra cosa, y lo demás por defecto. kanban, en bloque: la cadena antigua es el proyecto de
-    JKanban. coautor: la línea de coautoría de los commits de la SF, o None: sin línea (238)."""
+    lo nombra en «desconocidos», sin bloquear: decisión 171). También la de la propia SF, que tiene su .sf/proyecto.json
+    como los demás proyectos («La SF se lleva como los demás proyectos», 299). kanban, en bloque: la cadena antigua es
+    el proyecto de JKanban. coautor: la línea de coautoría de los commits de la SF, o None: sin línea (238)."""
     d = datos if isinstance(datos, dict) else {}
     c = {k: (list(v) if isinstance(v, list) else v) for k, v in POR_DEFECTO.items()}
     c['proyecto'] = d['proyecto'].strip() if isinstance(d.get('proyecto'), str) and d['proyecto'].strip() else None
@@ -205,8 +198,6 @@ def leer_configuracion(datos, es_sf: bool = False) -> dict:
             raros.append('manifiesto')
             lista = [x for x in (lista or []) if isinstance(x, str) and formato_manifiesto(x)]
         c['manifiesto'] = [x.strip().replace('\\', '/') for x in lista]
-    elif es_sf:
-        c['manifiesto'] = [MARCA_SF]
     if 'metodologia' in d:
         if isinstance(d['metodologia'], bool):
             c['metodologia'] = d['metodologia']
@@ -226,8 +217,6 @@ def leer_configuracion(datos, es_sf: bool = False) -> dict:
             c['coautor'] = linea_coautor(d['coautor'])
         except ValueError:
             raros.append('coautor')
-    elif es_sf:
-        c['coautor'] = COAUTOR
     auto = d.get('automatizaciones')
     c['automatizaciones'] = auto if isinstance(auto, dict) else {}
     c['desconocidos'] = raros
@@ -235,12 +224,12 @@ def leer_configuracion(datos, es_sf: bool = False) -> dict:
 
 
 def configuracion(repo: Path) -> dict:
-    """La de .sf/proyecto.json del proyecto (o la de la SF, por su marca); un archivo que no se lee, como si faltara."""
+    """La de .sf/proyecto.json del proyecto; un archivo que no se lee, como si faltara."""
     try:
         datos = json.loads((repo / '.sf' / 'proyecto.json').read_text(encoding='utf-8'))
     except (OSError, ValueError):
         datos = None
-    return leer_configuracion(datos, es_sf=(repo / MARCA_SF).is_file())
+    return leer_configuracion(datos)
 
 
 # El prefijo conventional del título del squash, por tipo de tarea («El título del commit en formato conventional
@@ -2498,7 +2487,7 @@ def orden_python() -> str:
 def o_encargo(cola: Cola, a) -> str:
     """La parte fija del encargo de un subagente: el principal añade solo lo propio de la tarea. Se apaga en
     .sf/proyecto.json con "automatizaciones": {"encargo_subagente": false}; la línea de coautoría, con --coautor o el
-    campo "coautor" de ese archivo (en la SF, la suya); sin ninguna, los commits van sin línea de coautoría (238)."""
+    campo "coautor" de ese archivo; sin ninguna, los commits van sin línea de coautoría (238)."""
     proyecto = proyecto_json(cola)
     auto = proyecto.get('automatizaciones')
     if isinstance(auto, dict) and auto.get('encargo_subagente') is False:
@@ -2509,7 +2498,7 @@ def o_encargo(cola: Cola, a) -> str:
     if not subs and not deliberativa:
         raise Rechazo(f'La {a.n} no tiene subagente anotado: antes, cola.py subagente {a.n} --worktree RUTA --rama sub-{a.n}.')
     wt, aux = subs[-1] if subs else (None, None)
-    conf = leer_configuracion(proyecto, es_sf=(cola.repo / MARCA_SF).is_file())
+    conf = leer_configuracion(proyecto)
     coautor = coautor_de(a) or conf['coautor']
     nombre = conf['proyecto'] or cola.repo.name
     marca = f'«({a.n})» al final del título' if conf['commits'] == 'libre' else f'el trailer «{TRAILER_TAREA}: {a.n}» al pie'

@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { Actualizacion, Estado, FuenteVersion, Paso, Peticion, Realimentacion, Sesion } from '../types'
 import { normal, raicesConocidas } from './control'
 import { lanzar, ponerIdentidad } from './identidad'
-import { CARPETA_COPIAS, CLI_COLA, CLI_LANZADOR, MARCA_SF, PETICIONES, PROYECTO } from './constantes'
+import { CARPETA_COPIAS, CLI_COLA, CLI_LANZADOR, PETICIONES, PROYECTO } from './constantes'
 import { CANDIDATOS_PYTHON, detectarPython, ordenColaClaude, recordarPython } from './python'
 import { configuracion, formatoManifiesto } from './configuracion'
 import { carpetaClaude, carpetaGit, commitsDe, leerEstado, leerJson, leerMergeadas, leerPasos, raizSesion, subagentesDeTareas, texto } from './lectura'
@@ -404,15 +404,14 @@ export async function reobservarTarea($: $, id: number): Promise<Resultado> {
 
 /// RELEASE (decisión del propietario, 2026-10-29): la versión actual, la del último tag vX.Y.Z del repositorio, también
 // en la SF («La versión forma parte del manejo del repositorio», 226); sin ninguno, null: se pregunta la primera. Con
-// ella, los manifiestos de la configuración a los que se sube (en la SF, el de su plugin).
+// ella, los manifiestos de la configuración a los que se sube (en la SF, el de su plugin, por su .sf/proyecto.json).
 const SEMVER = /^\d+\.\d+\.\d+$/
 export async function versionActual($: $): Promise<FuenteVersion> {
   const raiz = await raizSesion($)
   const conf = await configuracion($, raiz)
-  const sf = await $.fs.exists(`${raiz}/${MARCA_SF}`)
   const tags = await gitEn($, raiz)(['tag', '--list', 'v*', '--sort=-v:refname'])
   const ultimo = tags.exitCode === 0 ? tags.stdout.split(/\r?\n/).map(t => t.trim().slice(1)).find(t => SEMVER.test(t)) : undefined
-  return { actual: ultimo ?? null, manifiestos: conf.manifiesto, sf }
+  return { actual: ultimo ?? null, manifiestos: conf.manifiesto }
 }
 
 // Las versiones que se ofrecen: las tres que siguen a la actual (patch, minor y major) o, sin ninguna, la primera.
@@ -453,8 +452,8 @@ export function subirManifiesto(original: string, ruta: string, nueva: string): 
 // RELEASE confirmado: publica `nueva` con git y sin Claude. Antes comprueba que existen la rama que hace de main
 // (rama_main de la configuración, 213) y develop, que se está en develop, sin cambios sin commit, que main es
 // antecesor de develop (fast-forward posible), que el tag no existe y que la versión no ha cambiado; si algo falla, no
-// hace nada y dice cómo arreglarlo. Sube la versión de cada manifiesto de la configuración en un commit «vX.Y.Z» (en
-// la SF, «sf X.Y.Z») en develop; un manifiesto sin versión o con otra que la del tag se avisa sin bloquear, y se
+// hace nada y dice cómo arreglarlo. Sube la versión de cada manifiesto de la configuración en un commit «vX.Y.Z»
+// (también en la SF, decisión 342) en develop; un manifiesto sin versión o con otra que la del tag se avisa sin bloquear, y se
 // escribe (226). Después pasa develop a main sin cambiar de rama (git fetch . develop:<main>), crea el tag anotado y
 // hace push de develop, main y el tag al remoto de la configuración. Si el push falla, lo local queda hecho y lo dice.
 // Antes de tocar nada, si el remoto es público, revisa lo que sale (revision.ts, decisión 252).
@@ -509,7 +508,7 @@ export async function publicarVersion($: $, fuente: FuenteVersion, nueva: string
     await $.fs.write(ruta, sube.texto)
     escritos.push({ ruta: rel, original })
   }
-  const titulo = fuente.sf ? `sf ${nueva}` : tag
+  const titulo = tag
   if (escritos.length) {
     const anadido = await git(['add', ...escritos.map(x => x.ruta)])
     const commit = anadido.exitCode === 0 ? await git(['commit', '-q', '-F', '-'], `${titulo}\n${conf.coautor ? `\n${conf.coautor}\n` : ''}`) : anadido
@@ -1023,11 +1022,9 @@ export function pedirRedescripcion($: $, peticiones: Peticion[], args: string): 
 // /sf_config (tarea 299; «La configuración se cambia pidiéndoselo a Claude, con menús», 228, corregida el mismo día):
 // pasa a Claude cambiar la configuración del proyecto con la skill sf:configurar_proyecto, sin tarea y fuera del panel.
 // Lo que siga a la orden («/sf_config idioma») es lo que el propietario quiere cambiar. Fuera de un proyecto
-// incorporado, o en la propia SF, lo dice y no pide nada.
+// incorporado, lo dice y no pide nada. La propia SF tiene su .sf/proyecto.json como los demás (299).
 export async function pedirConfiguracion($: $, args: string): Promise<string> {
   const raiz = await raizSesion($)
-  if (await $.fs.exists(`${raiz}/${MARCA_SF}`))
-    return '/sf_config: la SF no tiene .sf/proyecto.json; su configuración sale de su marca.'
   if (!(await $.fs.exists(`${raiz}/${PROYECTO}`)))
     return '/sf_config: este proyecto no está incorporado a la SF. Pide a Claude «incorpora el proyecto a la SF».'
   const pedido = args.trim()

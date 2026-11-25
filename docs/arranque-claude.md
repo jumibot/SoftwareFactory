@@ -65,7 +65,7 @@ El catálogo es `.claude-plugin/marketplace.json`, en la raíz.
 | [Metodología](../plugins/sf/skills/metodologia/references/desarrollo-de-proyectos.md) | cambias el método o necesitas un acuerdo. |
 | [Especificación de la SF](specs/funcional/software-factory.md) | decides qué construir en la SF. |
 | [Mejora continua](mejora-continua-a-la-software-factory.md) | registras o aplicas una mejora o una decisión. |
-| [Propuestas](propuestas.md) | el propietario pregunta por una idea sin decidir. |
-| [Índice de decisiones](decisiones/README.md) | buscas el porqué de algo. |
+| [Propuestas](../sf/propuestas.md) | el propietario pregunta por una idea sin decidir. |
+| [Índice de decisiones](../sf/decisiones/README.md) | buscas el porqué de algo. |
 | [Uso del panel](uso-del-panel.md) | revisas fricciones del panel. |
 | [DESARROLLO.md](../DESARROLLO.md) | quieres el índice completo de la SF. |

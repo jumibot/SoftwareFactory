@@ -1221,16 +1221,29 @@ class ConGit(Base):
         with self.assertRaises(cola.Rechazo):
             cola.coautor_de(mock.Mock(coautor='a\nb'))
 
-    def test_cerrar_en_la_sf_firma_con_su_linea(self):
+    def test_cerrar_en_la_sf_firma_con_la_linea_de_su_proyecto_json(self):
+        # La SF se lleva como los demás proyectos (299): su línea sale de su .sf/proyecto.json, no de su marca.
         (self.raiz / 'plugins/sf/.claude-plugin').mkdir(parents=True)
-        (self.raiz / cola.MARCA_SF).write_text('{"version": "1.6.0"}', encoding='utf-8')
+        (self.raiz / 'plugins/sf/.claude-plugin/plugin.json').write_text('{"version": "1.6.0"}', encoding='utf-8')
+        git(self.raiz, 'add', 'plugins')
+        git(self.raiz, 'commit', '-q', '-m', 'marca')
+        self.proyecto(coautor='Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>')
+        id_ = self.en_curso_con_rama()
+        self.commit_en('feature/11-tarea', 'b.txt', 'b\n')
+        self.orden('listo', str(id_), '--prueba', 'mirar')
+        self.orden('cerrar', str(id_))
+        self.assertTrue(git(self.raiz, 'log', '-1', '--format=%B').endswith('Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>'))
+
+    def test_cerrar_en_la_sf_sin_proyecto_json_va_sin_linea(self):
+        (self.raiz / 'plugins/sf/.claude-plugin').mkdir(parents=True)
+        (self.raiz / 'plugins/sf/.claude-plugin/plugin.json').write_text('{"version": "1.6.0"}', encoding='utf-8')
         git(self.raiz, 'add', 'plugins')
         git(self.raiz, 'commit', '-q', '-m', 'marca')
         id_ = self.en_curso_con_rama()
         self.commit_en('feature/11-tarea', 'b.txt', 'b\n')
         self.orden('listo', str(id_), '--prueba', 'mirar')
         self.orden('cerrar', str(id_))
-        self.assertTrue(git(self.raiz, 'log', '-1', '--format=%B').endswith(cola.COAUTOR))
+        self.assertNotIn('Co-Authored-By', git(self.raiz, 'log', '-1', '--format=%B'))
 
     def test_cerrar_con_trailer_en_conventional(self):
         self.proyecto(commits='conventional')
@@ -2178,34 +2191,40 @@ class Configuracion(unittest.TestCase):
         self.assertEqual(sorted(c['desconocidos']),
                          ['commits', 'idioma', 'kanban', 'manifiesto', 'metodologia', 'rama_main', 'remoto'])
 
-    def test_la_sf_por_su_marca(self):
+    def test_la_sf_sin_excepciones(self):
+        # La marca de la SF ya no da configuración (299): sin .sf/proyecto.json, lo de por defecto; con él, lo suyo.
         with tempfile.TemporaryDirectory() as d:
             repo = Path(d)
             (repo / 'plugins/sf/.claude-plugin').mkdir(parents=True)
-            (repo / cola.MARCA_SF).write_text('{"version": "1.4.2"}', encoding='utf-8')
+            (repo / 'plugins/sf/.claude-plugin/plugin.json').write_text('{"version": "1.4.2"}', encoding='utf-8')
             c = cola.configuracion(repo)
-            self.assertEqual((c['manifiesto'], c['remoto'], c['rama_main'], c['proyecto']),
-                             ([cola.MARCA_SF], 'origin', 'main', None))
+            self.assertEqual((c['manifiesto'], c['coautor'], c['remoto'], c['rama_main'], c['proyecto']),
+                             ([], None, 'origin', 'main', None))
             self.assertEqual(cola.nombre_proyecto(repo), repo.name)
+            (repo / '.sf').mkdir()
+            (repo / '.sf/proyecto.json').write_text(json.dumps({
+                'proyecto': 'SoftwareFactory', 'manifiesto': ['plugins/sf/.claude-plugin/plugin.json'], 'coautor': 'Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>'}), encoding='utf-8')
+            c = cola.configuracion(repo)
+            self.assertEqual((c['manifiesto'], c['coautor'], c['proyecto']),
+                             (['plugins/sf/.claude-plugin/plugin.json'], 'Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>', 'SoftwareFactory'))
 
     def test_mensaje_de_tarea(self):
-        self.assertEqual(cola.mensaje_de_tarea('Lista', '- Hecho\n', 7, 'libre', coautor=cola.COAUTOR),
-                         f'Lista (7)\n\n- Hecho\n\n{cola.COAUTOR}\n')
-        self.assertEqual(cola.mensaje_de_tarea('feat: lista', '', 7, 'conventional', coautor=cola.COAUTOR),
-                         f'feat: lista\n\nSF-Tarea: 7\n{cola.COAUTOR}\n')
+        self.assertEqual(cola.mensaje_de_tarea('Lista', '- Hecho\n', 7, 'libre', coautor='Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>'),
+                         f'Lista (7)\n\n- Hecho\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n')
+        self.assertEqual(cola.mensaje_de_tarea('feat: lista', '', 7, 'conventional', coautor='Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>'),
+                         f'feat: lista\n\nSF-Tarea: 7\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n')
         # Sin línea de coautoría (238): nada al pie con libres; solo el trailer con conventional.
         self.assertEqual(cola.mensaje_de_tarea('Lista', '- Hecho\n', 7, 'libre'), 'Lista (7)\n\n- Hecho\n')
         self.assertEqual(cola.mensaje_de_tarea('Lista', '', 7, 'libre'), 'Lista (7)\n')
         self.assertEqual(cola.mensaje_de_tarea('feat: lista', '', 7, 'conventional'), 'feat: lista\n\nSF-Tarea: 7\n')
 
     def test_coautor_en_la_configuracion(self):
-        leer = lambda d, sf=False: cola.leer_configuracion(d, es_sf=sf)
+        leer = cola.leer_configuracion
         self.assertIsNone(leer({})['coautor'])
-        self.assertEqual(leer({}, True)['coautor'], cola.COAUTOR)
         self.assertEqual(leer({'coautor': 'Ana <a@x.com>'})['coautor'], 'Co-Authored-By: Ana <a@x.com>')
         self.assertEqual(leer({'coautor': ' co-authored-by: Ana <a@x.com> '})['coautor'], 'co-authored-by: Ana <a@x.com>')
-        # En la SF, null o vacío la quita; un valor que no se entiende vale como si faltara y se nombra.
-        self.assertIsNone(leer({'coautor': None}, True)['coautor'])
+        # null o vacío la quita; un valor que no se entiende vale como si faltara y se nombra.
+        self.assertIsNone(leer({'coautor': None})['coautor'])
         self.assertIsNone(leer({'coautor': ''})['coautor'])
         for raro in ('a\nb', 7, ['x']):
             c = leer({'coautor': raro})

@@ -1,6 +1,6 @@
 import { atom, read, update, type EngineInterface } from 'claude-code'
 import type { SubagenteVisto, Estado, Incorporacion, Evento, Paso, Peticion, Realimentacion, Salida } from '../types'
-import { ANTIGUO, CAMPO_VIEJO, CARPETA_COPIAS, PREFIJO_INCORPORACION, COLORES, COLOR_SF, ESTADO, ESTILO, colorDeSesion, ESTADOS_PETICION, ESTADOS_VIEJOS, EVENTO_CERRADA_VIEJO, EVENTOS_VIEJOS, FASES, HISTORIAL, MARCA_SF, PETICIONES, PROYECTO } from './constantes'
+import { ANTIGUO, CAMPO_VIEJO, CARPETA_COPIAS, PREFIJO_INCORPORACION, COLORES, ESTADO, ESTILO, colorDeSesion, ESTADOS_PETICION, ESTADOS_VIEJOS, EVENTO_CERRADA_VIEJO, EVENTOS_VIEJOS, FASES, HISTORIAL, PETICIONES, PROYECTO } from './constantes'
 import { avisosConfiguracion, leerConfiguracion, remotos, TRAILER_TAREA } from './configuracion'
 import { igual, normal } from './control'
 import { guardarSesion } from './memoria'
@@ -386,7 +386,6 @@ export async function leerEstado($: $, desde = 0): Promise<Estado> {
 
   const conCarpeta = await $.fs.exists(`${raiz}/${PROYECTO}`)
   const antiguo = !conCarpeta && (await $.fs.exists(`${raiz}/${ANTIGUO}`))
-  const esSf = !conCarpeta && !antiguo && (await $.fs.exists(`${raiz}/${MARCA_SF}`))
   // La identidad y la configuración (informe «Configuración inicial»): un archivo que no se lee es un error del
   // panel, y la configuración vale entonces la de por defecto.
   let ident: Record<string, unknown> = {}
@@ -396,11 +395,12 @@ export async function leerEstado($: $, desde = 0): Promise<Estado> {
   } catch (err) {
     errorIdent = `no se puede leer ${conCarpeta ? PROYECTO : ANTIGUO}: ${String(err)}`
   }
-  const conf = leerConfiguracion(conCarpeta || antiguo ? ident : null, esSf)
+  const conf = leerConfiguracion(conCarpeta || antiguo ? ident : null)
   base.metodologia = conf.metodologia
   base.kanban = conf.kanban
-  // La rama, solo en proyectos con SF (también en la propia SF); se relee con la cola, en los mismos momentos.
-  const git = conCarpeta || antiguo || esSf ? await carpetaGit($, raiz) : null
+  // La rama, solo en proyectos con SF (también en la propia SF, con su .sf/proyecto.json: 299); se relee con la cola,
+  // en los mismos momentos.
+  const git = conCarpeta || antiguo ? await carpetaGit($, raiz) : null
   if (git) {
     base.rama = await ramaActiva($, git)
     for (const p of base.peticiones) if (p.rama && !(p.rama in base.ramas)) base.ramas[p.rama] = await existeRama($, git, p.rama)
@@ -454,9 +454,6 @@ export async function leerEstado($: $, desde = 0): Promise<Estado> {
     }
   }
 
-  if (await $.fs.exists(`${raiz}/${MARCA_SF}`)) {
-    return { ...base, tipo: 'sf', proyecto: 'SoftwareFactory', color: await colorDelEstilo($, raiz, COLOR_SF) }
-  }
   return base
 }
 // ── Ramas (decisión del propietario, 2026-10-29) ──

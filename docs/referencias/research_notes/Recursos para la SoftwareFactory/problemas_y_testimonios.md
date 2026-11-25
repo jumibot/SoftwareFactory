@@ -1,6 +1,6 @@
 # Problemas manifiestos y testimonios (2025-2026) relevantes para la SF
 
-Notas de investigación, 2026-10-26. Complementan, sin repetirlo, [Fricciones humanas del desarrollo con IA](../../reports/Fricciones%20humanas%20del%20desarrollo%20con%20IA.md) (atención, agentes en paralelo, delegación, fatiga). Las citas entre comillas son literales tal como las devolvió la página consultada; «[paráfrasis]» marca lo que no es literal. **[solo/indie]** marca autores individuales. Se distingue **dato** (medido) de **opinión** (testimonio). Cobertura limitada (unas 20 consultas): falta revisar Reddit (r/indiehackers, r/SideProject, r/Teachers, r/learnprogramming), que no se consultó directamente.
+Notas de investigación, 2026-10-26. Complementan, sin repetirlo, [Fricciones humanas del desarrollo con IA](../../../../sf/informes/Fricciones%20humanas%20del%20desarrollo%20con%20IA.md) (atención, agentes en paralelo, delegación, fatiga). Las citas entre comillas son literales tal como las devolvió la página consultada; «[paráfrasis]» marca lo que no es literal. **[solo/indie]** marca autores individuales. Se distingue **dato** (medido) de **opinión** (testimonio). Cobertura limitada (unas 20 consultas): falta revisar Reddit (r/indiehackers, r/SideProject, r/Teachers, r/learnprogramming), que no se consultó directamente.
 
 ## 1. Terminar proyectos: muchos se empiezan, pocos se acaban
 

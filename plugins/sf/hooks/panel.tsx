@@ -10,7 +10,7 @@ import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, 
 import { atrasada, commitsDe, creadaEn, cuentaPasos, texto, ultimoCierre } from './lectura'
 import { AVISO_PANTALLA, anotarPantalla, sinPantallaCompleta } from './pantalla'
 import { ORDEN_CONTINUAR, borrarIncorporacion, terminada } from './contexto'
-import { COLOR_PRUEBA, cambiarPrueba, desdeCopia } from './prueba'
+import { COLOR_PRUEBA, cambiarPrueba, desdeCopia, enLaFuente } from './prueba'
 import type { $ } from './lectura'
 import { emergente, emergenteError, emergenteRespuesta } from './emergentes'
 import { subirDevelop } from './cola'
@@ -232,7 +232,6 @@ export function lineasAviso(aviso: string, w: number): string[] {
 
 export function lineaEstado(e: Estado): string {
   if (e.tipo === 'sin-sf') return 'Sin SF'
-  if (e.tipo === 'sf') return 'SF · repositorio de la SF'
   const partes = [`SF${e.versionSf ? ' ' + e.versionSf : ''}${atrasada(e) ? ` → ${e.versionPlugin}` : ''}`, e.proyecto]
   // Sin metodología no hay fase: solo tareas, repositorio y decisiones (informe «Configuración inicial»).
   if (e.error) partes.push('⚠ revisar .sf/')
@@ -1340,7 +1339,9 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // El ancho común de las etiquetas de la cabecera, salvo la rama (tarea 260; ANCHO_ETIQUETA, en estilo.ts): cuántas
     // salen en cada fila y sus textos. ACTUALIZAR o REFRESCAR se cuenta como ACTUALIZAR, la más larga de las dos.
     const hayActualizar = est.tipo !== 'sin-sf' && (await read($, actualizacion)) !== null
-    const hayPrueba = est.tipo === 'sf' && ((await read($, prueba)).disponible || (await desdeCopia($)))
+    // El modo prueba, solo en el repositorio fuente de la SF (enLaFuente, por su marca: hace falta allí y solo allí).
+    const enFuente = await enLaFuente($)
+    const hayPrueba = enFuente && ((await read($, prueba)).disponible || (await desdeCopia($)))
     const textoSf = est.versionPlugin ? `SF ${est.versionPlugin}` : 'SF'
     // Lo que necesita cada una como mínimo: su texto; el relleno se sacrifica antes que el ancho común.
     const fila1 = [hayActualizar && 'ACTUALIZAR'.length, est.tipo !== 'sin-sf' && 'RELEASE'.length, est.tipo !== 'sin-sf' && 'TURBO'.length, hayPrueba && 'PRUEBA'.length, textoSf.length]
@@ -1530,7 +1531,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const mp = await read($, prueba)
     const activo = await desdeCopia($)
     const etiquetaPrueba =
-      est.tipo === 'sf' && (mp.disponible || activo) ? (
+      enFuente && (mp.disponible || activo) ? (
         <Box marginRight={separa} flexShrink={0} width={caja(anchoDe('PRUEBA'))} backgroundColor={fondoFuera(activo ? COLOR_PRUEBA : undefined)}>
           {enCaja(
           <Button
@@ -1558,7 +1559,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         </Box>
       ) : null
     const avisoPrueba =
-      est.tipo === 'sf' && activo !== mp.pedido && (mp.disponible || activo) ? (
+      enFuente && activo !== mp.pedido && (mp.disponible || activo) ? (
         <Text color={COLOR_PRUEBA}>
           /reload-plugins para {mp.pedido ? 'entrar en el' : 'salir del'} modo prueba
         </Text>

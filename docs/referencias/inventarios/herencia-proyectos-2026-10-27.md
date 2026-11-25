@@ -1,6 +1,6 @@
 # Lo aprendido en proyectos anteriores que no llegó a la SF
 
-Inventario del 2026-10-27, hecho por un agente de Claude en solo lectura. Base de la propuesta «Incorporar lo aprendido en proyectos anteriores» ([propuestas](../../propuestas.md)). No es una lista de decisiones: cada entrada se revisa con el propietario.
+Inventario del 2026-10-27, hecho por un agente de Claude en solo lectura. Base de la propuesta «Incorporar lo aprendido en proyectos anteriores» ([propuestas](../../../sf/propuestas.md)). No es una lista de decisiones: cada entrada se revisa con el propietario.
 
 **Proyectos revisados:**
 - OncoCore: `CLAUDE.md`, `.claude/`, `skills/`, `_docs/`, `tools/` y la memoria de Claude del proyecto, en `~/.claude/projects/D--Projectes-OncoCore/memory/` (en adelante, «Mem. OncoCore»).

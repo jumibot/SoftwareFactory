@@ -295,7 +295,7 @@ def o_ver(repo: Path) -> tuple[int, dict]:
     datos, motivo = leer_archivo(repo)
     if datos is None:
         return 2, {'error': motivo}
-    efectiva = cola.leer_configuracion(datos, es_sf=(repo / cola.MARCA_SF).is_file())
+    efectiva = cola.leer_configuracion(datos)
     color, origen = color_de_sesion(repo, datos.get('color'))
     vale = {
         'sf': datos.get('sf'), 'proyecto': datos.get('proyecto'), 'descripcion': datos.get('descripcion'),

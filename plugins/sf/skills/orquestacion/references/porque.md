@@ -1,6 +1,6 @@
 # Por qué de cada regla
 
-El porqué, los datos y la decisión de cada regla de la skill, en el orden de sus secciones. Las decisiones están en `docs/decisiones/` de la SF, con el número entre paréntesis.
+El porqué, los datos y la decisión de cada regla de la skill, en el orden de sus secciones. Las decisiones están en `sf/decisiones/` de la SF, con el número entre paréntesis.
 
 ## Carga
 

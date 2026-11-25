@@ -1,6 +1,6 @@
 # Propuestas para la Software Factory
 
-Ideas de mejora de la SF **sin decidir**: no son reglas. Al aprobarse, la decisión pasa a [decisiones](decisiones/README.md), se aplica a la [metodología](../plugins/sf/skills/metodologia/references/desarrollo-de-proyectos.md) o a la [especificación](specs/funcional/software-factory.md), y su entrada sale de aquí. Si se descarta, queda en «Descartadas» con el motivo.
+Ideas de mejora de la SF **sin decidir**: no son reglas. Al aprobarse, la decisión pasa a [decisiones](decisiones/README.md), se aplica a la [metodología](../plugins/sf/skills/metodologia/references/desarrollo-de-proyectos.md) o a la [especificación](../docs/specs/funcional/software-factory.md), y su entrada sale de aquí. Si se descarta, queda en «Descartadas» con el motivo.
 
 Es el registro de la tarea permanente **Mejorar la Software Factory**, activa, pendiente de vincular al kanban cuando se disponga de acceso.
 
@@ -38,7 +38,7 @@ Solicitar aprobación explícita del propietario antes de aplicar cada cambio de
 
 - **Origen:** SoftwareFactory, 2026-10-27. Tras ver que la norma de diagramas en SVG de OncoCore no había llegado a la SF: «Parece que nos hemos dejado algo de trabajo realizado por el camino recorrido hacia la sf...».
 - **Tipo:** deliberar.
-- **Observación y evidencia:** un inventario de OncoCore (sobre todo su `CLAUDE.md` y la memoria de Claude del proyecto), PoseTracker, SmartColdBox, JKanban, SocratIX, LecturaFàcil y MedRol encontró unas 40 reglas, convenciones y herramientas generales que la SF no recoge o recoge solo en parte. Detalle, con rutas y estado de cada una: [inventario del 2026-10-27](referencias/inventarios/herencia-proyectos-2026-10-27.md).
+- **Observación y evidencia:** un inventario de OncoCore (sobre todo su `CLAUDE.md` y la memoria de Claude del proyecto), PoseTracker, SmartColdBox, JKanban, SocratIX, LecturaFàcil y MedRol encontró unas 40 reglas, convenciones y herramientas generales que la SF no recoge o recoge solo en parte. Detalle, con rutas y estado de cada una: [inventario del 2026-10-27](../docs/referencias/inventarios/herencia-proyectos-2026-10-27.md).
 - **Bloques:**
   - A. Forma de trabajar con el propietario y con Claude: una corrección es ejemplo de una regla y se barre todo; exponer el riesgo antes de cambiar; orden de ataque; crítica honesta; afirmaciones verificadas contra el código; tablas para comparar; perfil y ritmo del propietario; postura de arquitecto; generalizar antes que parchear.
   - B. Documentación y memoria: qué va a memoria, a `CLAUDE.md` o a una skill; plantilla de `CLAUDE.md` de proyecto; documentos de diseño solo con el estado vigente; entregables siempre en `docs/`; documento «dónde estamos» por subproyecto; índice de `docs/` generado; catálogo antes de un cambio masivo; detalles de accesibilidad y color que faltan en la guía de diagramas.
@@ -167,7 +167,7 @@ Solicitar aprobación explícita del propietario antes de aplicar cada cambio de
 - **Tipo:** especificar.
 - **Observación y evidencia:**
   - Cuando se escribió, la especificación de la SF copiaba las skills externas enteras, «incluso sin adaptaciones». Desde el 2026-11-01 (decisiones 175 y 176), una externa que se usa tal cual es una dependencia del plugin, y solo viajan en el plugin las versiones nuestras. La visión del método aún dice que «las externas se guardan enteras».
-  - El riesgo es real. Según una auditoría de Snyk (febrero de 2026, fuente secundaria), el 13,4 % de 3.984 skills de registros abiertos tenía problemas críticos, como malware, inyección de instrucciones o secretos expuestos ([notas de la investigación](referencias/research_notes/Recursos%20para%20la%20SoftwareFactory/skills_y_plugins.md)).
+  - El riesgo es real. Según una auditoría de Snyk (febrero de 2026, fuente secundaria), el 13,4 % de 3.984 skills de registros abiertos tenía problemas críticos, como malware, inyección de instrucciones o secretos expuestos ([notas de la investigación](../docs/referencias/research_notes/Recursos%20para%20la%20SoftwareFactory/skills_y_plugins.md)).
   - Una skill son instrucciones: leerla dentro de una sesión ya es exponerse a ellas.
   - El método ya funciona así en la práctica: `diseno_interfaz` y `definicion_tecnica` se escribieron estudiando BMAD, Spec Kit y MADR, sin copiar su infraestructura.
 - **Cambio propuesto:**

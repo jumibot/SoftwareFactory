@@ -10,7 +10,7 @@ La configuración de un proyecto con la SF está en `.sf/proyecto.json`, en camp
 
 **Una operación, sin tarea.** Cambiar la configuración no se anota en la cola, no crea tarea ni rama y no pasa por el panel, como incorporar y poner al día («Incorporar un proyecto es una operación sin tarea, guiada por menús», 209). Claude lo lleva desde la línea de prompts, con menús (la herramienta de preguntas con opciones) y mensajes cortos: enseña lo que hay, pregunta qué cambiar, dice qué va a cambiar, pide el OK y lo aplica en `develop`, con su commit. Lo que salga mal se deshace con git.
 
-**Un proyecto por sesión.** Siempre el de la carpeta de la sesión. Si no tiene `.sf/proyecto.json`, no está incorporado: se dice en una línea y se ofrece incorporarlo (`sf:incorporar_proyecto_a_sf`). En el repositorio de la propia SF no hay nada que configurar: su configuración sale de su marca (el manifiesto del plugin y lo demás por defecto). Si el proyecto que se quiere configurar es otro, se propone abrir una sesión en él.
+**Un proyecto por sesión.** Siempre el de la carpeta de la sesión. Si no tiene `.sf/proyecto.json`, no está incorporado: se dice en una línea y se ofrece incorporarlo (`sf:incorporar_proyecto_a_sf`). La propia SF se configura igual, con su `.sf/proyecto.json` (decisión 299). Si el proyecto que se quiere configurar es otro, se propone abrir una sesión en él.
 
 **Lo fijo no se configura.** La cola, el modelo de ramas con `develop` (205), un remoto en GitHub (230), los commits de Claude (225) y la versión con su tag (226) no tienen campo. Si se pide quitarlos, se explica en una línea por qué la SF no funciona sin ellos, como al incorporar. `sf` tampoco se cambia aquí: lo escribe la puesta al día con la versión instalada.
 

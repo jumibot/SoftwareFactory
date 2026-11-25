@@ -267,7 +267,7 @@ Van por delante en lo que ya funciona. La app de Codex distingue los chats que e
 
 Y la SF, hoy, es una idea con piezas sueltas. El tablero existe, pero aún no tiene tus proyectos. La daily, la bandeja y el tope están por construir. Factory usa incluso el nombre «software factory», aunque para la ejecución autónoma en empresas ([Factory](https://factory.ai/news/software-factory)).
 
-Lo que la distingue es el punto de vista. Casi todo está pensado para equipos y para uno o dos proyectos ([informe de la investigación](../../referencias/reports/Fricciones%20humanas%20del%20desarrollo%20con%20IA.md)). Nadie ofrece la cartera vista desde la persona, ni la comprobación contra una visión, ni un tope pensado para quien revisa. Tampoco hay estudios sobre tu perfil. Por eso la SF registrará sus propios datos desde el principio: frentes abiertos, decisiones pendientes y cierres.
+Lo que la distingue es el punto de vista. Casi todo está pensado para equipos y para uno o dos proyectos ([informe de la investigación](../../../sf/informes/Fricciones%20humanas%20del%20desarrollo%20con%20IA.md)). Nadie ofrece la cartera vista desde la persona, ni la comprobación contra una visión, ni un tope pensado para quien revisa. Tampoco hay estudios sobre tu perfil. Por eso la SF registrará sus propios datos desde el principio: frentes abiertos, decisiones pendientes y cierres.
 
 ---
 
@@ -293,7 +293,7 @@ Las escenas son imaginadas: el resumen de retorno, la bandeja y sus respuestas. 
 
 ### Fuentes
 
-Consultadas el 26 de octubre de 2026. Cada cita se ha cotejado con su fuente original ([verificación](../../referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/verificacion_citas.md)). El detalle está en el [informe de la investigación](../../referencias/reports/Fricciones%20humanas%20del%20desarrollo%20con%20IA.md).
+Consultadas el 26 de octubre de 2026. Cada cita se ha cotejado con su fuente original ([verificación](../../referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/verificacion_citas.md)). El detalle está en el [informe de la investigación](../../../sf/informes/Fricciones%20humanas%20del%20desarrollo%20con%20IA.md).
 
 - Demirer, Musolff y Yang, [NBER w35275](https://www.nber.org/papers/w35275), 2026. Según la propia página, dos de los autores son consultores pagados por Microsoft.
 - Faros AI, [AI Acceleration Whiplash](https://www.faros.ai/research/ai-acceleration-whiplash), 2026. Informe de un proveedor.

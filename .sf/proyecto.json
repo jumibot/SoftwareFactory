@@ -1,0 +1,13 @@
+{
+  "sf": "1.9.5",
+  "proyecto": "SoftwareFactory",
+  "descripcion": "Plugin de Claude Code con el método, las skills, el panel y las herramientas para desarrollar proyectos con IA",
+  "color": "yellow",
+  "metodologia": true,
+  "idioma": "es",
+  "commits": "libre",
+  "remoto": "origin",
+  "rama_main": "main",
+  "manifiesto": ["plugins/sf/.claude-plugin/plugin.json"],
+  "coautor": "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
+}

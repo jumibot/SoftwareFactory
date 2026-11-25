@@ -1,4 +1,4 @@
-import { MARCA_SF, PETICIONES, PROYECTO } from './constantes'
+import { PETICIONES, PROYECTO } from './constantes'
 import { nombreCarpeta, raizSesion } from './lectura'
 import type { $ } from './lectura'
 
@@ -14,7 +14,7 @@ export const raicesConocidas = new Map<string, string | null>()
 export const normal = (ruta: string) => ruta.replace(/\\/g, '/').replace(/\/+$/, '')
 export const igual = (a: string, b: string) => a.toLowerCase() === b.toLowerCase()
 
-// Carpeta del proyecto (con .sf/proyecto.json o la fuente de la SF) que contiene la ruta, o null.
+// Carpeta del proyecto (con .sf/proyecto.json, también la SF: 299) que contiene la ruta, o null.
 export async function proyectoDe($: $, ruta: string): Promise<string | null> {
   const partes = normal(ruta).split('/')
   const vistas: string[] = []
@@ -24,7 +24,7 @@ export async function proyectoDe($: $, ruta: string): Promise<string | null> {
     const cache = raicesConocidas.get(dir.toLowerCase())
     if (cache !== undefined) { hallada = cache; break }
     vistas.push(dir)
-    if ((await $.fs.exists(`${dir}/${PROYECTO}`)) || (await $.fs.exists(`${dir}/${MARCA_SF}`))) {
+    if (await $.fs.exists(`${dir}/${PROYECTO}`)) {
       hallada = raizDeWorktree(dir) ?? (await repoDeWorktree($, dir)) ?? dir
       break
     }

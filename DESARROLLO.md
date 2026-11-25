@@ -66,15 +66,15 @@ La metodología es la referencia del proceso, y la especificación la usa. Si un
 
 ### Decisiones y propuestas
 
-- [Decisiones](docs/decisiones/README.md): lo que el propietario ha decidido sobre la SF, con su porqué y dónde se aplicó; una por archivo, con su índice generado.
-- [Propuestas](docs/propuestas.md): las ideas de mejora aún sin decidir, con su origen y su evidencia. Es el registro de la tarea permanente «Mejorar la Software Factory». Ninguna propuesta se aplica sin aprobación explícita del propietario.
+- [Decisiones](sf/decisiones/README.md): lo que el propietario ha decidido sobre la SF, con su porqué y dónde se aplicó; una por archivo, con su índice generado.
+- [Propuestas](sf/propuestas.md): las ideas de mejora aún sin decidir, con su origen y su evidencia. Es el registro de la tarea permanente «Mejorar la Software Factory». Ninguna propuesta se aplica sin aprobación explícita del propietario.
 
 ### Investigación
 
 En `docs/referencias/`. Cada informe resume sus notas; las notas guardan el detalle y las fuentes.
 
 **Fricciones humanas del desarrollo con IA** (26 de octubre de 2026): qué cuesta a una persona trabajar con agentes, qué dicen los estudios y los testimonios, y qué resuelven las herramientas actuales.
-- [Informe](docs/referencias/reports/Fricciones%20humanas%20del%20desarrollo%20con%20IA.md) ([html, en local](docs/referencias/reports/Fricciones%20humanas%20del%20desarrollo%20con%20IA.html)). Lleva una fe de erratas: manda la verificación de citas.
+- [Informe](sf/informes/Fricciones%20humanas%20del%20desarrollo%20con%20IA.md) ([html, en local](sf/informes/Fricciones%20humanas%20del%20desarrollo%20con%20IA.html)). Lleva una fe de erratas: manda la verificación de citas.
 - Notas:
   - [atención y estrés](docs/referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/atencion_y_estres.md)
   - [productividad y confianza](docs/referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/productividad_y_confianza.md)
@@ -84,7 +84,7 @@ En `docs/referencias/`. Cada informe resume sus notas; las notas guardan el deta
   - [verificación de citas](docs/referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/verificacion_citas.md)
 
 **Recursos para la SoftwareFactory** (26 de octubre de 2026): qué se puede integrar, entero o en parte, ordenado por necesidad de la SF.
-- [Informe](docs/referencias/reports/Recursos%20para%20la%20SoftwareFactory.md) ([html, en local](docs/referencias/reports/Recursos%20para%20la%20SoftwareFactory.html))
+- [Informe](sf/informes/Recursos%20para%20la%20SoftwareFactory.md) ([html, en local](sf/informes/Recursos%20para%20la%20SoftwareFactory.html))
 - Notas:
   - [skills y plugins](docs/referencias/research_notes/Recursos%20para%20la%20SoftwareFactory/skills_y_plugins.md)
   - [métodos y flujos](docs/referencias/research_notes/Recursos%20para%20la%20SoftwareFactory/metodos_y_flujos.md)
@@ -154,7 +154,7 @@ Las carpetas `_respaldo/` guardan versiones anteriores de documentos y skills an
 
   ```bash
   python -I -X utf8 plugins/sf/skills/documento_vision/scripts/doc_to_html.py docs/specs/vision/hombre-orquesta.md
-  python -I -X utf8 plugins/sf/skills/documento_vision/scripts/doc_to_html.py "docs/referencias/reports/<informe>.md" --tipo "Informe de investigación"
+  python -I -X utf8 plugins/sf/skills/documento_vision/scripts/doc_to_html.py "sf/informes/<informe>.md" --tipo "Informe de investigación"
   ```
 
   El script encuentra solo la identidad de `docs/identidad/`. El `.html` no se edita a mano.
@@ -174,7 +174,7 @@ Las carpetas `_respaldo/` guardan versiones anteriores de documentos y skills an
   python -I -X utf8 scripts/estilo_web.py
   ```
 - **Cambios en la SF:** cada tarea, en su rama `feature/NN-nombre` desde `develop`; probada, entra en `develop` por squash y push. Publicar es pasar `develop` a `main` con el tag `vX.Y.Z` ([metodología, 2](plugins/sf/skills/metodologia/references/desarrollo-de-proyectos.md)).
-- **Mejoras:** se registran en [propuestas](docs/propuestas.md) con su origen, aunque surjan en otro proyecto, y se aplican solo con aprobación del propietario. Al decidirse, pasan a [decisiones](docs/decisiones/README.md).
+- **Mejoras:** se registran en [propuestas](sf/propuestas.md) con su origen, aunque surjan en otro proyecto, y se aplican solo con aprobación del propietario. Al decidirse, pasan a [decisiones](sf/decisiones/README.md).
 - **Información que falta:** se pide; no se inventan requisitos ni decisiones.
 
 ## Pendiente
@@ -185,4 +185,4 @@ Lo más inmediato:
 - Migrar lo que dependa de claude.ai/design antes de que cierre, el 14 de diciembre de 2026.
 - Probar `diseno_interfaz` y `definicion_tecnica` en un proyecto real.
 
-El estado completo está en [propuestas](docs/propuestas.md), [decisiones](docs/decisiones/README.md) y la sección de próximos pasos de la [especificación](docs/specs/funcional/software-factory.md).
+El estado completo está en [propuestas](sf/propuestas.md), [decisiones](sf/decisiones/README.md) y la sección de próximos pasos de la [especificación](docs/specs/funcional/software-factory.md).

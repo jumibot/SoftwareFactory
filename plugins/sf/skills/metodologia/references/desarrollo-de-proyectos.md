@@ -4,12 +4,12 @@ Estado del documento: **borrador de trabajo**, pendiente de revisión y aprobaci
 
 ## Cómo interpretar este documento
 
-- **Acuerdos:** principios y dinámica decididos por el propietario. Su porqué está en las [decisiones de la SF](https://github.com/jumibot/SoftwareFactory/tree/main/docs/decisiones).
+- **Acuerdos:** principios y dinámica decididos por el propietario. Su porqué está en las [decisiones de la SF](https://github.com/jumibot/SoftwareFactory/tree/main/sf/decisiones).
 - **Preferencias:** opciones favoritas que deben confirmarse para cada proyecto.
 - **Pendientes:** decisiones que faltan, reunidas al final.
 - **Ejemplos:** empiezan por «Ejemplo:» e ilustran una regla; no mandan nada.
 
-Lo que aún no está decidido no está aquí: vive en las [propuestas](https://github.com/jumibot/SoftwareFactory/blob/main/docs/propuestas.md). Las estructuras de carpetas de los perfiles son plantillas adaptables del plugin `sf` («Estructuras de código»): crear únicamente lo necesario.
+Lo que aún no está decidido no está aquí: vive en las [propuestas](https://github.com/jumibot/SoftwareFactory/blob/main/sf/propuestas.md). Las estructuras de carpetas de los perfiles son plantillas adaptables del plugin `sf` («Estructuras de código»): crear únicamente lo necesario.
 
 Este documento define cómo se quieren construir las aplicaciones con Claude Code: desde la visión hasta la entrega, mediante devslices preparadas, pruebas y seguimiento permanente.
 
@@ -310,7 +310,7 @@ Responsabilidades:
 
 Actualizar el tablero forma parte del procedimiento. Una operación solo se considera registrada cuando la herramienta confirma el resultado. Tras una interrupción debe poder recuperarse el contexto consultando documentación y tablero.
 
-Los estados de la SF y sus transiciones están por decidir (propuesta «Estados del kanban», en [propuestas](https://github.com/jumibot/SoftwareFactory/blob/main/docs/propuestas.md)). JKanban ya permite definirlos como flujos.
+Los estados de la SF y sus transiciones están por decidir (propuesta «Estados del kanban», en [propuestas](https://github.com/jumibot/SoftwareFactory/blob/main/sf/propuestas.md)). JKanban ya permite definirlos como flujos.
 
 Los bloqueos deben mostrar su motivo y la decisión o acción necesaria. Si el sistema requiere identificadores internos, pueden existir, pero los nombres humanos serán descriptivos: «Crear registro».
 
@@ -493,7 +493,7 @@ Son capacidades independientes: un proyecto puede usar una, ambas o ninguna. Obs
 | Desarrollo | Construir y modificar el proyecto: visión, especificaciones, decisiones y conocimiento. | Propietario y agentes de desarrollo. |
 | Operativo o KB | Guardar y recuperar información durante el funcionamiento del producto. | Agente del backend y usuarios autorizados. |
 
-Cómo organizar el brain de desarrollo y la KB es una propuesta («Brain de desarrollo en `docs/` y estructura de la KB operativa», en [propuestas](https://github.com/jumibot/SoftwareFactory/blob/main/docs/propuestas.md)).
+Cómo organizar el brain de desarrollo y la KB es una propuesta («Brain de desarrollo en `docs/` y estructura de la KB operativa», en [propuestas](https://github.com/jumibot/SoftwareFactory/blob/main/sf/propuestas.md)).
 
 Plantilla: [`brain-y-kb.md`](../../../templates/estructuras/brain-y-kb.md), en el plugin `sf`.
 

@@ -1,6 +1,6 @@
 # Cómo funciona el panel
 
-El panel de la SF, parte por parte: qué enseña, cómo se lee y qué se puede hacer desde él. El resumen está en [Cómo funciona la Software Factory](como-funciona-la-software-factory.html#el-panel-de-la-sf). Qué hace cada cambio de estado de una tarea, en [Cómo funcionan los estados](como-funcionan-los-estados.html). Las reglas que hay detrás están en la metodología y en las [decisiones](decisiones/README.md).
+El panel de la SF, parte por parte: qué enseña, cómo se lee y qué se puede hacer desde él. El resumen está en [Cómo funciona la Software Factory](como-funciona-la-software-factory.html#el-panel-de-la-sf). Qué hace cada cambio de estado de una tarea, en [Cómo funcionan los estados](como-funcionan-los-estados.html). Las reglas que hay detrás están en la metodología y en las [decisiones](../sf/decisiones/README.md).
 
 **Estado:** 5 de noviembre de 2026, plugin `sf` 1.8.2 y lo que hay en `develop` sin publicar (ver «Historial»).
 
@@ -199,7 +199,7 @@ Bajo la cabecera, y ya subiendo con el scroll, van el aviso de la pantalla compl
 
 La **línea del modo prueba** sale en la SF cuando lo pedido y lo cargado no coinciden. Es naranja y dice «/reload-plugins para entrar en el modo prueba» o «para salir del modo prueba».
 
-La versión de la SF del proyecto, su fase y su devslice no salen en el panel lateral: solo en la primera línea de la caja sobre el prompt (decisión [La línea gris del proyecto sale del panel](decisiones/166-2026-11-01-la-linea-gris-del-proyecto-sale-del-panel.md)).
+La versión de la SF del proyecto, su fase y su devslice no salen en el panel lateral: solo en la primera línea de la caja sobre el prompt (decisión [La línea gris del proyecto sale del panel](../sf/decisiones/166-2026-11-01-la-linea-gris-del-proyecto-sale-del-panel.md)).
 
 ## Las tareas en curso
 
@@ -332,9 +332,9 @@ Lo que la tarea no tiene, no sale. Prueba, Descripción y Pasos se pliegan cada 
 
 Cada paso lleva tras su última palabra un **«?»** verde, que pide a Claude que lo explique: qué es, qué se ha hecho y qué falta, sin hacerlo ni cambiar nada. El mensaje entra en el chat como si lo hubieras escrito tú. El «?» de los pasos de cierre explica además el flujo de una tarea a quien no conoce la SF: la rama, `develop`, En observación y qué conviene hacer ahora.
 
-Los pendientes llevan además una **«×»** roja, que quita el paso de la tarea con dos clics: el primero la cambia por «¿Quitar? sí». Solo lo quita si en ese sitio sigue el mismo paso y sin empezar, porque Claude puede haber cambiado la cola entretanto. Los pasos de cierre, «Activar rama para poder probar» y «Cerrar la tarea», no la llevan: la tarea los tiene desde que entra en curso (decisión [Los pasos de cierre, desde que la tarea entra en curso](decisiones/174-2026-11-01-los-pasos-de-cierre-desde-que-la-tarea-entra-en-curso.md)).
+Los pendientes llevan además una **«×»** roja, que quita el paso de la tarea con dos clics: el primero la cambia por «¿Quitar? sí». Solo lo quita si en ese sitio sigue el mismo paso y sin empezar, porque Claude puede haber cambiado la cola entretanto. Los pasos de cierre, «Activar rama para poder probar» y «Cerrar la tarea», no la llevan: la tarea los tiene desde que entra en curso (decisión [Los pasos de cierre, desde que la tarea entra en curso](../sf/decisiones/174-2026-11-01-los-pasos-de-cierre-desde-que-la-tarea-entra-en-curso.md)).
 
-Lo que Claude ha comprobado va como **paso hecho**, «Comprobado: 300 pruebas de Python, sin fallos», antes de los pasos de cierre; lo no comprobado, como tal: «No comprobado: …». No hay «✓» ni apartado aparte para ello (decisión [Las comprobaciones y pruebas hechas se anotan como pasos de su tarea](decisiones/288-2026-11-05-las-comprobaciones-y-pruebas-hechas-se-anotan-como-pasos-de-su-tarea.md)). Una cola antigua con el campo `comprobado` se lee igual: su texto sale como un paso hecho más.
+Lo que Claude ha comprobado va como **paso hecho**, «Comprobado: 300 pruebas de Python, sin fallos», antes de los pasos de cierre; lo no comprobado, como tal: «No comprobado: …». No hay «✓» ni apartado aparte para ello (decisión [Las comprobaciones y pruebas hechas se anotan como pasos de su tarea](../sf/decisiones/288-2026-11-05-las-comprobaciones-y-pruebas-hechas-se-anotan-como-pasos-de-su-tarea.md)). Una cola antigua con el campo `comprobado` se lee igual: su texto sale como un paso hecho más.
 
 Las **ayudas de prueba** van tras «Activar rama para poder probar», con «(opcional)» detrás: no se exigen para cerrar ni cuentan en la cuenta.
 
@@ -356,7 +356,7 @@ Los subagentes se releen al lanzar uno, tras cada herramienta y cada minuto. El 
 
 ## El bloque de tareas
 
-Bajo las tareas en curso va **un solo bloque**, con un fondo gris algo más claro que el del panel y sin rótulo, con sus secciones en el orden del ciclo de una tarea: **Pendientes**, **En observación**, **Cerradas** y **Propuestas** (decisión [Las propuestas, en el bloque TAREAS; sin bloque PROYECTO](decisiones/197-2026-11-01-las-propuestas-en-el-bloque-tareas-sin-bloque-proyecto.md)).
+Bajo las tareas en curso va **un solo bloque**, con un fondo gris algo más claro que el del panel y sin rótulo, con sus secciones en el orden del ciclo de una tarea: **Pendientes**, **En observación**, **Cerradas** y **Propuestas** (decisión [Las propuestas, en el bloque TAREAS; sin bloque PROYECTO](../sf/decisiones/197-2026-11-01-las-propuestas-en-el-bloque-tareas-sin-bloque-proyecto.md)).
 
 Cada sección tiene una cabecera, sin sangría, con su nombre en mayúsculas y en negrita, «▾» si está abierta o «▸» si está plegada, y su cuenta, atenuada: «PENDIENTES ▾ 3». Un clic la pliega o la despliega; con el panel enfocado, también Tab y Enter. De inicio, En observación y Propuestas están plegadas. Pendientes, En observación y Cerradas se ven siempre, también con 0; Propuestas, solo si el proyecto tiene propuestas.
 
@@ -378,13 +378,13 @@ Desplegada la sección, encima de la lista va **«Limpiar (N)»** (ver «En Cerr
 
 ### Propuestas
 
-Las propuestas del proyecto que esperan tu sí o no, de su `sf/propuestas.md` (o de `docs/propuestas.md` mientras el proyecto no se ha puesto al día): las del apartado «Propuestas pendientes» cuyo «Estado» dice «pendiente de aprobación» o «pendiente de decisión». Con otra rama activa, se leen de `develop`, donde se escriben. Cada proyecto ve las suyas; las de la SF, solo en la SF (decisión [Sin registro ni mejoras de la SF desde otros proyectos](decisiones/194-2026-11-01-sin-registro-ni-mejoras-de-la-sf-desde-otros-proyectos.md)).
+Las propuestas del proyecto que esperan tu sí o no, de su `sf/propuestas.md` (o de `docs/propuestas.md` mientras el proyecto no se ha puesto al día): las del apartado «Propuestas pendientes» cuyo «Estado» dice «pendiente de aprobación» o «pendiente de decisión». Con otra rama activa, se leen de `develop`, donde se escriben. Cada proyecto ve las suyas; las de la SF, solo en la SF (decisión [Sin registro ni mejoras de la SF desde otros proyectos](../sf/decisiones/194-2026-11-01-sin-registro-ni-mejoras-de-la-sf-desde-otros-proyectos.md)).
 
 Cada propuesta se lee como una tarea: su número fijo, P01, P02…, alineado a la derecha en una columna común y subrayado, y el título entero con sangría colgante. Desplegada, su resumen en la columna del título y la orden **A Pendientes** (ver «En Propuestas»). El resumen es la primera frase de su «Cambio propuesto» o, si no tiene, de su «Propuesta original» o del primer apartado con texto, cortada con «…» a los 220 caracteres.
 
 ## Actuar desde el panel
 
-Desde el panel se cambian las tareas sin escribir en el chat: con su menú de órdenes, con el «?» y la «×» de los pasos, con los comandos y con los botones de la cabecera. Lo que se puede hacer con un comando lo hace el panel, sin Claude, según la decisión [Comandos antes que inferencia](decisiones/092-2026-10-29-comandos-antes-que-inferencia.md). Pasan por Claude el «?», Redescribir, Paso +, TURBO, `/sf_redescribir` y `/sf_config`, porque piden criterio, y los cierres que fallan, para que los resuelva.
+Desde el panel se cambian las tareas sin escribir en el chat: con su menú de órdenes, con el «?» y la «×» de los pasos, con los comandos y con los botones de la cabecera. Lo que se puede hacer con un comando lo hace el panel, sin Claude, según la decisión [Comandos antes que inferencia](../sf/decisiones/092-2026-10-29-comandos-antes-que-inferencia.md). Pasan por Claude el «?», Redescribir, Paso +, TURBO, `/sf_redescribir` y `/sf_config`, porque piden criterio, y los cierres que fallan, para que los resuelva.
 
 Las órdenes escriben la cola con `cola.py --json --quien propietario --via panel`. No usan el `cola.py` del disco, sino una copia que el panel hace al cargarse, también con `/reload-plugins`, en `~/.claude/sf/cola-<sesión>.py` (o en la carpeta de `CLAUDE_CONFIG_DIR`, si está puesta). La copia lleva en su primera línea la raíz del plugin, donde busca sus módulos. Así el panel y el CLI son de la misma versión aunque una orden cambie la rama activa y, con ella, el `cola.py` del disco. Si la copia falla, usa el del disco y avisa una vez. Antes de pedir el cambio, el panel relee la cola y comprueba que la tarea sigue como la viste; si no, avisa y no toca nada.
 
@@ -392,7 +392,7 @@ Las órdenes que cierran, mueven o destruyen piden **dos clics**: el primero cam
 
 ### Las órdenes de una tarea
 
-Van en el menú de la tarea desplegada, como etiquetas con su nombre, con mayúscula inicial y sin negrita, sobre fondo negro (decisión [Las órdenes de cada tarea, en un menú de etiquetas](decisiones/168-2026-11-01-las-ordenes-de-cada-tarea-en-un-menu-de-etiquetas.md)). Las de la tarea, en verde, y la que destruye, en rojo y al final; las de los pasos, en su fila, con la letra atenuada. Si no caben en una fila, siguen en la siguiente. La línea plegada no lleva ninguna.
+Van en el menú de la tarea desplegada, como etiquetas con su nombre, con mayúscula inicial y sin negrita, sobre fondo negro (decisión [Las órdenes de cada tarea, en un menú de etiquetas](../sf/decisiones/168-2026-11-01-las-ordenes-de-cada-tarea-en-un-menu-de-etiquetas.md)). Las de la tarea, en verde, y la que destruye, en rojo y al final; las de los pasos, en su fila, con la letra atenuada. Si no caben en una fila, siguen en la siguiente. La línea plegada no lleva ninguna.
 
 | Orden | Dónde sale | Clics | Qué hace |
 | --- | --- | --- | --- |
@@ -413,13 +413,13 @@ Eliminar y Descartar nunca van juntas, porque una tarea con rama no se elimina. 
 
 #### Activar rama
 
-Pone la tarea en prueba activando su rama, sin darla por buena. Con un clic, `cola.py probar` integra antes `develop` en la rama (decisión [Activar rama integra develop y avisa a Claude si choca](decisiones/191-2026-11-01-activar-rama-integra-develop-y-avisa-a-claude-si-choca.md)) y la activa; si la tarea estaba en cola, la pasa a en curso. Después abre en el navegador los `.html` que la rama cambia respecto a `develop` y lo dice en el aviso. No recarga el plugin: si la rama lo necesita, `/reload-plugins` lo lanzas tú.
+Pone la tarea en prueba activando su rama, sin darla por buena. Con un clic, `cola.py probar` integra antes `develop` en la rama (decisión [Activar rama integra develop y avisa a Claude si choca](../sf/decisiones/191-2026-11-01-activar-rama-integra-develop-y-avisa-a-claude-si-choca.md)) y la activa; si la tarea estaba en cola, la pasa a en curso. Después abre en el navegador los `.html` que la rama cambia respecto a `develop` y lo dice en el aviso. No recarga el plugin: si la rama lo necesita, `/reload-plugins` lo lanzas tú.
 
 No cambia de rama si hay cambios sin commit o si la rama está en otro worktree; lo dice. Si la integración choca, o la rama auxiliar del subagente tiene commits sin traer, no la activa y le pasa a Claude el encargo de resolverlo, con la orden para repetirlo.
 
 #### Cerrar y A observación
 
-Salen en las tareas en curso que tienen «Cerrar la tarea» y ningún otro paso por hacer, salvo el de prueba y las ayudas. Con rama, la rama debe existir; sin rama también se cierran, sin squash ni commit (decisión [Cerrar desde el panel también sin rama](decisiones/188-2026-11-01-cerrar-desde-el-panel-tambien-sin-rama.md)). Pulsarlas es tu OK.
+Salen en las tareas en curso que tienen «Cerrar la tarea» y ningún otro paso por hacer, salvo el de prueba y las ayudas. Con rama, la rama debe existir; sin rama también se cierran, sin squash ni commit (decisión [Cerrar desde el panel también sin rama](../sf/decisiones/188-2026-11-01-cerrar-desde-el-panel-tambien-sin-rama.md)). Pulsarlas es tu OK.
 
 **Cerrar**, con `cola.py cerrar`, pasa a `develop` y hace el squash de la rama con su commit, «`<tarea> (N)`», con los pasos hechos en el cuerpo. Hace push de `develop`, borra la rama, recoge al subagente (su worktree y su rama auxiliar) y saca la tarea de la cola: entra en Cerradas. **A observación**, con `cola.py a-observacion`, hace lo mismo pero deja la tarea en observación. Las tareas deliberativas (investigar, deliberar y diseñar) no llevan A observación: no se prueban.
 
@@ -466,7 +466,7 @@ Una cerrada desplegada lleva dos órdenes, con dos clics:
 
 ### Los comandos
 
-Todos los comandos de la SF empiezan por `sf` (decisión [Los comandos de la SF empiezan por sf_](decisiones/198-2026-11-01-los-comandos-de-la-sf-empiezan-por-sf.md)). Los que no pasan por Claude funcionan también a mitad de turno.
+Todos los comandos de la SF empiezan por `sf` (decisión [Los comandos de la SF empiezan por sf_](../sf/decisiones/198-2026-11-01-los-comandos-de-la-sf-empiezan-por-sf.md)). Los que no pasan por Claude funcionan también a mitad de turno.
 
 - **`/sf`** abre el panel. Si ya está abierto, lo cierra y lo vuelve a abrir: así repara uno que se ha quedado en blanco. Además relee el estado y vuelve a comprobar si hay versión nueva. **`/sf:panel`** es la orden fija del plugin: la app la lista antes del primer mensaje, cuando el mod aún no corre; con el mod en marcha hace lo mismo que `/sf` y no sale en la lista. Si su texto le llega a Claude, el mod no está cargado: Claude lo dice y ofrece comprobar la instalación.
 - **`/sf_paso texto`** añade un paso pendiente a la tarea en curso, antes de los pasos de cierre, y se lo pide a Claude, que lo hace sin esperar un «continúa». Con varias en curso, pregunta a cuál; `/sf_paso 64 texto` elige la 64. Sin ninguna, dice que se lo digas a Claude en el chat.
@@ -501,23 +501,23 @@ Pasa por Claude porque decidir qué tareas no te necesitan es criterio, no un co
 
 RELEASE publica el proyecto: pasa `develop` a `main` y lo marca con el tag `vX.Y.Z`, con comandos y sin Claude. Sale en la SF y en todos los proyectos con SF.
 
-El primer clic lee la versión actual, la del último tag `vX.Y.Z`, también en la SF (decisión [La versión forma parte del manejo del repositorio](decisiones/226-2026-11-02-la-version-forma-parte-del-manejo-del-repositorio.md)). En su lugar salen las tres siguientes: patch, minor y major. Sin ningún tag, pregunta «¿Primera versión?», con `v0.1.0` y `v1.0.0`. Al elegir una, pide confirmarla: «¿Publicar vX.Y.Z? sí». Si hay tareas en observación, lo avisa sin bloquear.
+El primer clic lee la versión actual, la del último tag `vX.Y.Z`, también en la SF (decisión [La versión forma parte del manejo del repositorio](../sf/decisiones/226-2026-11-02-la-version-forma-parte-del-manejo-del-repositorio.md)). En su lugar salen las tres siguientes: patch, minor y major. Sin ningún tag, pregunta «¿Primera versión?», con `v0.1.0` y `v1.0.0`. Al elegir una, pide confirmarla: «¿Publicar vX.Y.Z? sí». Si hay tareas en observación, lo avisa sin bloquear.
 
 Antes de publicar comprueba que existen la rama de publicación (la `rama_main` de la configuración) y `develop`, que estás en `develop` sin cambios sin commit, que `main` es antecesor de `develop`, que el tag no existe y que la versión no ha cambiado. Si algo falla, no hace nada y dice cómo arreglarlo.
 
-Después **revisa lo que sale**, con `revision_publica.py`, sin Claude: secretos, datos personales y archivos internos en los commits nuevos (decisión [Revisión antes de publicar](decisiones/259-2026-11-04-revision-antes-de-publicar-bloquear-en-publico-preguntar-en-privado-y-revisar-tambien-al-subir-develop.md)). Lo ya publicado en el último tag no cuenta, ni lo que el proyecto da por publicable en `.sf/publicable.txt`, una entrada por línea. Con el remoto público, algo nuevo para la publicación; lo ya subido, o cualquier cosa con el remoto privado, se enseña y se pide permiso: volver a pulsar RELEASE y elegir la misma versión en 10 minutos.
+Después **revisa lo que sale**, con `revision_publica.py`, sin Claude: secretos, datos personales y archivos internos en los commits nuevos (decisión [Revisión antes de publicar](../sf/decisiones/259-2026-11-04-revision-antes-de-publicar-bloquear-en-publico-preguntar-en-privado-y-revisar-tambien-al-subir-develop.md)). Lo ya publicado en el último tag no cuenta, ni lo que el proyecto da por publicable en `.sf/publicable.txt`, una entrada por línea. Con el remoto público, algo nuevo para la publicación; lo ya subido, o cualquier cosa con el remoto privado, se enseña y se pide permiso: volver a pulsar RELEASE y elegir la misma versión en 10 minutos.
 
 Confirmada, sube la versión de los manifiestos de la configuración (en la SF, `plugin.json`) en un commit en `develop`, «sf X.Y.Z» en la SF y «vX.Y.Z» en los demás, con la línea de coautoría si la hay. Un manifiesto sin versión o con otra se avisa sin bloquear. Pasa `develop` a `main` por fast-forward, crea el tag y hace push de `develop`, `main` y el tag al remoto de la configuración. Si el push falla, lo local queda hecho y lo dice. Al acabar, vuelve a mirar si hay que ACTUALIZAR.
 
 ### ACTUALIZAR y REFRESCAR
 
-Son dos botones para dos casos, en el mismo sitio (decisión [ACTUALIZAR y REFRESCAR: dos botones para dos casos](decisiones/177-2026-11-01-actualizar-y-refrescar-dos-botones-para-dos-casos.md)).
+Son dos botones para dos casos, en el mismo sitio (decisión [ACTUALIZAR y REFRESCAR: dos botones para dos casos](../sf/decisiones/177-2026-11-01-actualizar-y-refrescar-dos-botones-para-dos-casos.md)).
 
 **ACTUALIZAR** sale cuando hay una versión publicada más nueva que la instalada. La publicada es el tag `vX.Y.Z` más alto del repositorio del catálogo, en GitHub, leído con `git ls-remote`. La instalada es la de `sf@softwarefactory` en `installed_plugins.json`, en el scope de usuario o en el local o de proyecto de esta carpeta, si el plugin está activo en el proyecto. La publicada se mira al empezar la sesión, cada 5 minutos, con `/sf` y tras publicar con RELEASE; lo instalado frente a lo que corre, cada minuto, sin red.
 
 Confirmado, «¿Actualizar a vX.Y.Z? sí», refresca el catálogo con `claude plugin marketplace update softwarefactory` y lanza `claude plugin update sf@softwarefactory` en cada scope desactualizado. Si el refresco falla, no actualiza. Después **instala las dependencias** que pide la versión nueva y faltan, con una orden `claude plugin install` por dependencia; sin ellas, `sf` no carga. Con `automatizaciones.dependencias_al_actualizar` apagado en `.sf/proyecto.json`, no las instala y avisa de cuáles faltan, con una orden por línea para instalarlas a mano.
 
-Al acabar: con alguna dependencia nueva, «reinicia Claude Code»; sin ninguna, el botón pasa a REFRESCAR, que carga la versión sin reiniciar (decisión [La SF recarga sola los plugins en la incorporación; ACTUALIZAR recarga si basta](decisiones/286-2026-11-04-la-sf-recarga-sola-los-plugins-en-la-incorporacion-actualizar-recarga-si-basta-y-abandonar-lo-borra-todo.md)). Si Claude Code ya tenía esa versión, el panel la anota en `installed_plugins.json`.
+Al acabar: con alguna dependencia nueva, «reinicia Claude Code»; sin ninguna, el botón pasa a REFRESCAR, que carga la versión sin reiniciar (decisión [La SF recarga sola los plugins en la incorporación; ACTUALIZAR recarga si basta](../sf/decisiones/286-2026-11-04-la-sf-recarga-sola-los-plugins-en-la-incorporacion-actualizar-recarga-si-basta-y-abandonar-lo-borra-todo.md)). Si Claude Code ya tenía esa versión, el panel la anota en `installed_plugins.json`.
 
 **REFRESCAR** sale cuando lo instalado está al día pero la sesión corre una versión más vieja, por ejemplo porque otra sesión actualizó el plugin. Confirmado, instala las dependencias que falten y lanza `/reload-plugins`.
 
@@ -652,13 +652,13 @@ En una carpeta sin `.sf/proyecto.json`, el panel no enseña tareas ni secciones:
 
 ### La bienvenida
 
-La bienvenida dice lo único que hace falta para empezar, sin JSON, rutas ni contadores: la marca, qué es la SF en una frase y la orden. Arriba va el logo **«/SF»**: una barra pixelada en morado claro (`#b3aee6`) delante de «SF» en el morado de la SF (`#827dbd`), que recuerda la orden `/sf` (decisión [Logo /SF: barra estrecha y empinada en morado claro](decisiones/255-2026-11-04-logo-sf-barra-estrecha-y-empinada-en-morado-claro.md)). Si no caben sus 18 columnas, va sin la barra; con menos de 13, sin logo. Debajo, «SOFTWARE FACTORY», el lema, «Para empezar, pulsa o escríbelo en el chat:» y la orden **«incorpora este proyecto a la SF»**, en una pastilla morada que es un botón: se la pasa a Claude como si la escribieras tú. Cierra «Claude te hará unas pocas preguntas y no cambia nada sin tu OK.».
+La bienvenida dice lo único que hace falta para empezar, sin JSON, rutas ni contadores: la marca, qué es la SF en una frase y la orden. Arriba va el logo **«/SF»**: una barra pixelada en morado claro (`#b3aee6`) delante de «SF» en el morado de la SF (`#827dbd`), que recuerda la orden `/sf` (decisión [Logo /SF: barra estrecha y empinada en morado claro](../sf/decisiones/255-2026-11-04-logo-sf-barra-estrecha-y-empinada-en-morado-claro.md)). Si no caben sus 18 columnas, va sin la barra; con menos de 13, sin logo. Debajo, «SOFTWARE FACTORY», el lema, «Para empezar, pulsa o escríbelo en el chat:» y la orden **«incorpora este proyecto a la SF»**, en una pastilla morada que es un botón: se la pasa a Claude como si la escribieras tú. Cierra «Claude te hará unas pocas preguntas y no cambia nada sin tu OK.».
 
 La marca va siempre en el morado de la SF, sin depender del color de la sesión.
 
 ### Ofrecer la incorporación
 
-Sin SF, la línea del prompt sugiere la orden, en gris, para tomarla con Tab: al empezar la sesión, tras `/clear` y tras las órdenes locales del mod. Con tu primer mensaje de la conversación, Claude pregunta con un menú si quieres incorporar el proyecto, con tres opciones: «Sí, incorporarlo», «Ahora no» y «No, y no vuelvas a preguntar en esta carpeta». El mod guarda la tercera por carpeta y deja de sugerirlo y de preguntarlo allí (decisión [Si se dice que no a incorporar, se puede no volver a preguntar](decisiones/246-2026-11-02-si-se-dice-que-no-a-incorporar-se-puede-no-volver-a-preguntar.md)).
+Sin SF, la línea del prompt sugiere la orden, en gris, para tomarla con Tab: al empezar la sesión, tras `/clear` y tras las órdenes locales del mod. Con tu primer mensaje de la conversación, Claude pregunta con un menú si quieres incorporar el proyecto, con tres opciones: «Sí, incorporarlo», «Ahora no» y «No, y no vuelvas a preguntar en esta carpeta». El mod guarda la tercera por carpeta y deja de sugerirlo y de preguntarlo allí (decisión [Si se dice que no a incorporar, se puede no volver a preguntar](../sf/decisiones/246-2026-11-02-si-se-dice-que-no-a-incorporar-se-puede-no-volver-a-preguntar.md)).
 
 Tras incorporar la carpeta en la conversación, tu siguiente mensaje lleva a Claude las reglas de la SF y la orquestación, sin reiniciar, y, si falta, la oferta de activar la pantalla completa.
 
@@ -670,7 +670,7 @@ La lee de `~/.claude/sf/incorporacion-<carpeta>.json`, que escribe Claude con `i
 
 La cabecera de la caja dice «INCORPORACIÓN», en el morado de la marca, su estado como etiqueta y en qué paso va: «paso 3 de 12». Los estados son **En curso**, **En pausa**, **Recargando la SF** y **Terminada**. Cada paso lleva su número; el actual, en morado y negrita con «◂»; los hechos, con «✓» verde y su respuesta debajo; los que faltan, atenuados. Si no caben todos en el alto del panel, se pliegan los que sobran, con «▲ 2 pasos antes» y «▼ 5 pasos más» para moverse; la lista vuelve a seguir al paso actual en cuanto Claude avanza.
 
-La incorporación queda **en pausa** cuando el turno de Claude acaba o se interrumpe con Esc, y al cargarse el mod; mientras corre un turno, también con un menú esperando tu respuesta, sigue en curso. En pausa, la lista se atenúa y salen dos botones: **«Continuar incorporación a la SF»**, que pasa a Claude «continúa la incorporación a la SF», y **«Abandonar incorporación a la SF»**, que lo borra todo, también lo guardado (decisión [Esc pone en pausa la incorporación, con Continuar y Abandonar en el panel](decisiones/258-2026-11-04-esc-pone-en-pausa-la-incorporacion-con-continuar-y-abandonar-en-el-panel.md)). Si respondes «Ahora no» o «No…» al menú de incorporar, el progreso se borra.
+La incorporación queda **en pausa** cuando el turno de Claude acaba o se interrumpe con Esc, y al cargarse el mod; mientras corre un turno, también con un menú esperando tu respuesta, sigue en curso. En pausa, la lista se atenúa y salen dos botones: **«Continuar incorporación a la SF»**, que pasa a Claude «continúa la incorporación a la SF», y **«Abandonar incorporación a la SF»**, que lo borra todo, también lo guardado (decisión [Esc pone en pausa la incorporación, con Continuar y Abandonar en el panel](../sf/decisiones/258-2026-11-04-esc-pone-en-pausa-la-incorporacion-con-continuar-y-abandonar-en-el-panel.md)). Si respondes «Ahora no» o «No…» al menú de incorporar, el progreso se borra.
 
 Cuando la incorporación necesita la versión instalada de la SF, más nueva que la que corre, Claude lo pide y, al acabar su turno, el mod recarga los plugins solo: la etiqueta dice **Recargando la SF** y, tras recargar, el mod le pasa a Claude «continúa la incorporación a la SF», sin que escribas nada.
 
@@ -678,13 +678,13 @@ Terminada, la lista se queda junto al panel nuevo hasta el siguiente turno, para
 
 ## Una sola sesión con la SF por proyecto
 
-Solo una sesión de cada proyecto lleva la SF: el panel, la caja sobre el prompt, la cola, los subagentes y sus avisos, y las órdenes `/sf_*` (decisión [Una sola sesión con la SF por proyecto](decisiones/193-2026-11-01-una-sola-sesion-con-la-sf-por-proyecto.md)). Las demás sesiones del mismo proyecto arrancan con la SF **apagada**.
+Solo una sesión de cada proyecto lleva la SF: el panel, la caja sobre el prompt, la cola, los subagentes y sus avisos, y las órdenes `/sf_*` (decisión [Una sola sesión con la SF por proyecto](../sf/decisiones/193-2026-11-01-una-sola-sesion-con-la-sf-por-proyecto.md)). Las demás sesiones del mismo proyecto arrancan con la SF **apagada**.
 
 **El latido.** La sesión que tiene la SF deja un latido cada minuto en `~/.claude/sf/latido-<carpeta>.json`, con su id y la hora; está fuera del proyecto, así que no hay que ignorarlo en git. Al arrancar, y tras un `/clear`, una sesión toma la SF si no hay latido, si es suyo o si tiene 3 minutos o más: una sesión colgada o cerrada sin soltarlo no la retiene. Al cerrarse, la que la tiene suelta el latido, y la siguiente la toma al arrancar sin esperar.
 
-**La sesión apagada** es Claude Code sin más: sin panel ni caja, sin control de un proyecto por sesión, sin la regla en el prompt de sistema, sin las reglas ni el contexto de la SF, y sin `/color` ni `/rename` (decisiones [Sin la SF activa no hay panel](decisiones/296-2026-11-05-sin-la-sf-activa-no-hay-panel-se-avisa-al-apagarla-porque-ya-hay-latido-en-el-proyecto.md) y [Una sesión con la SF apagada y /sf_forzar_inactiva dejan Claude Code sin más](decisiones/297-2026-11-05-una-sesion-con-la-sf-apagada-y-sf-forzar-inactiva-dejan-claude-code-sin-mas.md)). Al apagarse lo avisa una vez, en un aviso emergente y en una línea del historial que queda: «SF apagada en esta sesión: otra sesión de este proyecto la tiene activa, y aquí se trabaja sin la SF. Para traerla aquí, /sf_forzar_activa.» Las órdenes de la SF, también `/sf`, contestan en una línea que la SF está apagada aquí y cómo traerla. Ni ACTUALIZAR ni REFRESCAR se comprueban en ella, y no toca el modo prueba.
+**La sesión apagada** es Claude Code sin más: sin panel ni caja, sin control de un proyecto por sesión, sin la regla en el prompt de sistema, sin las reglas ni el contexto de la SF, y sin `/color` ni `/rename` (decisiones [Sin la SF activa no hay panel](../sf/decisiones/296-2026-11-05-sin-la-sf-activa-no-hay-panel-se-avisa-al-apagarla-porque-ya-hay-latido-en-el-proyecto.md) y [Una sesión con la SF apagada y /sf_forzar_inactiva dejan Claude Code sin más](../sf/decisiones/297-2026-11-05-una-sesion-con-la-sf-apagada-y-sf-forzar-inactiva-dejan-claude-code-sin-mas.md)). Al apagarse lo avisa una vez, en un aviso emergente y en una línea del historial que queda: «SF apagada en esta sesión: otra sesión de este proyecto la tiene activa, y aquí se trabaja sin la SF. Para traerla aquí, /sf_forzar_activa.» Las órdenes de la SF, también `/sf`, contestan en una línea que la SF está apagada aquí y cómo traerla. Ni ACTUALIZAR ni REFRESCAR se comprueban en ella, y no toca el modo prueba.
 
-La apagada **no toma la SF sola**, ni aunque la otra deje de latir, ni tras un `/clear` o un `/reload-plugins`: si la otra deja de latir, lo avisa una vez, también a Claude, y propone `/sf_forzar_activa` (decisión [La sesión apagada avisa y propone /sf_forzar_activa](decisiones/295-2026-11-05-la-sesion-apagada-avisa-y-propone-sf-forzar-activa-cuando-la-activa-deja-de-latir-y-avisa-de-que-se-trabaja-sin-la-sf.md)).
+La apagada **no toma la SF sola**, ni aunque la otra deje de latir, ni tras un `/clear` o un `/reload-plugins`: si la otra deja de latir, lo avisa una vez, también a Claude, y propone `/sf_forzar_activa` (decisión [La sesión apagada avisa y propone /sf_forzar_activa](../sf/decisiones/295-2026-11-05-la-sesion-apagada-avisa-y-propone-sf-forzar-activa-cuando-la-activa-deja-de-latir-y-avisa-de-que-se-trabaja-sin-la-sf.md)).
 
 **Las dos órdenes**, que no pasan por Claude:
 
@@ -704,7 +704,7 @@ En las superficies gráficas, la app de escritorio, VS Code y el móvil, el pane
 - Los apartados y las secciones van más separados, y los bloques con fondo llevan un contorno tenue.
 - El aviso de la cabecera va como texto, con una «×» que lo quita hasta su siguiente turno.
 
-En la app, `/sf:panel` sale en la lista de órdenes desde antes del primer mensaje (decisión [En la app, /sf disponible antes del primer mensaje](decisiones/254-2026-11-04-en-la-app-sf-disponible-antes-del-primer-mensaje-y-solo-ordenes-al-escribir-sf.md)).
+En la app, `/sf:panel` sale en la lista de órdenes desde antes del primer mensaje (decisión [En la app, /sf disponible antes del primer mensaje](../sf/decisiones/254-2026-11-04-en-la-app-sf-disponible-antes-del-primer-mensaje-y-solo-ordenes-al-escribir-sf.md)).
 
 ## Sin pantalla completa
 
@@ -716,7 +716,7 @@ Con tu primer mensaje de la conversación, Claude recibe el encargo de ofrecerte
 
 El mod añade contexto a la conversación para que Claude no dependa de acordarse:
 
-- **Las reglas y la orquestación**, en los proyectos incorporados y también en la SF (decisión [En la SF, las reglas y sf:orquestacion las entrega el mod, como en los demás proyectos](decisiones/298-2026-11-05-en-la-sf-las-reglas-y-sf-orquestacion-las-entrega-el-mod-como-en-los-demas-proyectos.md)), al empezar la sesión, tras `/clear` y tras compactar: las reglas comunes, las del método si el proyecto lo sigue, sus convenciones y la skill `sf:orquestacion` entera (decisión [El panel entrega las reglas y la orquestación en los proyectos](decisiones/187-2026-11-01-el-panel-entrega-las-reglas-y-la-orquestacion-en-los-proyectos.md)). Si el `CLAUDE.md` aún importa la copia vieja, `.sf/claude-sf.md`, no repite las reglas y el panel avisa. Con `automatizaciones.orquestacion` apagado, no entrega la orquestación.
+- **Las reglas y la orquestación**, en los proyectos incorporados y también en la SF (decisión [En la SF, las reglas y sf:orquestacion las entrega el mod, como en los demás proyectos](../sf/decisiones/298-2026-11-05-en-la-sf-las-reglas-y-sf-orquestacion-las-entrega-el-mod-como-en-los-demas-proyectos.md)), al empezar la sesión, tras `/clear` y tras compactar: las reglas comunes, las del método si el proyecto lo sigue, sus convenciones y la skill `sf:orquestacion` entera (decisión [El panel entrega las reglas y la orquestación en los proyectos](../sf/decisiones/187-2026-11-01-el-panel-entrega-las-reglas-y-la-orquestacion-en-los-proyectos.md)). Si el `CLAUDE.md` aún importa la copia vieja, `.sf/claude-sf.md`, no repite las reglas y el panel avisa. Con `automatizaciones.orquestacion` apagado, no entrega la orquestación.
 - **Lo que es de la SF**, en cada petición, al final del prompt de sistema de los proyectos incorporados: lo que pinta el plugin y `~/.claude` no son del proyecto.
 - **El intérprete de Python**, si no es `python`: la orden con que se lanza la cola en esta máquina.
 - **Lo cambiado desde el panel.** Con cada mensaje tuyo, «Desde el panel: …», con lo que has cambiado en la cola desde el panel desde el mensaje anterior: «cerrada la 12; la 15, paso añadido: «…»». Sale de los eventos del historial con `via` panel. Va también tras cada encargo del panel a Claude. Sobrevive a `/reload-plugins`, también si cambia de plugin, sin repetirse ni perder nada; tras `/clear` o al reanudar una conversación, cuenta desde ahí, y nunca llega más atrás de 12 horas. Tras cerrar o descartar una tarea con subagente, pide detenerlo.
@@ -747,13 +747,13 @@ Reconoce el repositorio de la SF por `plugins/sf/.claude-plugin/plugin.json`.
 
 ### Sesión, /clear y reanudar
 
-Un `/clear` empieza una sesión nueva en el panel (decisión [Un /clear empieza una sesión nueva en el panel](decisiones/165-2026-11-01-un-clear-empieza-una-sesion-nueva-en-el-panel.md)): la duración, los prompts, Cerradas y los avisos cuentan desde ahí, salen las descartadas de antes y el mod vuelve a cargar el estado. Al reanudar una conversación, con `--continue`, `--resume` o `/resume`, la duración, los prompts, Cerradas y los avisos del panel cuentan desde que se reanuda. `/reload-plugins` no reinicia nada de esto.
+Un `/clear` empieza una sesión nueva en el panel (decisión [Un /clear empieza una sesión nueva en el panel](../sf/decisiones/165-2026-11-01-un-clear-empieza-una-sesion-nueva-en-el-panel.md)): la duración, los prompts, Cerradas y los avisos cuentan desde ahí, salen las descartadas de antes y el mod vuelve a cargar el estado. Al reanudar una conversación, con `--continue`, `--resume` o `/resume`, la duración, los prompts, Cerradas y los avisos del panel cuentan desde que se reanuda. `/reload-plugins` no reinicia nada de esto.
 
 ### Identidad de la sesión
 
 Al arrancar, el mod pone a la sesión el color del proyecto, con `/color`, y su nombre, con `/rename`. Lo hace una vez y lo apunta, así que `/reload-plugins` no repite los comandos; solo los vuelve a lanzar si cambian, al acabar el turno. Si Claude Code no le deja lanzarlos, avisa una vez.
 
-El color sale del **primario del estilo del proyecto**, `colores.primario` de `docs/identidad/estilo.json`: el de los ocho de `/color` de tono más cercano, también el morado de la SF, que no se reserva (decisiones [El color de sesión se deriva del color primario del estilo del proyecto](decisiones/310-2026-11-05-el-color-de-sesion-se-deriva-del-color-primario-del-estilo-del-proyecto.md) y [El color de sesión de la SF no se reserva](decisiones/311-2026-11-05-el-color-de-sesion-de-la-sf-no-se-reserva-un-proyecto-puede-salir-del-mismo-color.md)). Sin estilo, con un primario gris o con uno que no se lee, es el campo `color` de `.sf/proyecto.json`; en la SF, el morado. Ni la incorporación ni `/sf_config` lo preguntan: se cambia con el estilo.
+El color sale del **primario del estilo del proyecto**, `colores.primario` de `docs/identidad/estilo.json`: el de los ocho de `/color` de tono más cercano, también el morado de la SF, que no se reserva (decisiones [El color de sesión se deriva del color primario del estilo del proyecto](../sf/decisiones/310-2026-11-05-el-color-de-sesion-se-deriva-del-color-primario-del-estilo-del-proyecto.md) y [El color de sesión de la SF no se reserva](../sf/decisiones/311-2026-11-05-el-color-de-sesion-de-la-sf-no-se-reserva-un-proyecto-puede-salir-del-mismo-color.md)). Sin estilo, con un primario gris o con uno que no se lee, es el campo `color` de `.sf/proyecto.json`; en la SF, el morado. Ni la incorporación ni `/sf_config` lo preguntan: se cambia con el estilo.
 
 ### Qué controla
 
@@ -810,13 +810,13 @@ Antes de publicar se comprueba con `claude plugin validate plugins/sf`, con la c
 
 ## Con JKanban
 
-JKanban será el kanban de la SF, con un MCP a medida, y aún no está incorporado: lo dice la decisión [JKanban, con un MCP a medida e instalado dentro de la SF](decisiones/010-2026-10-26-jkanban-con-un-mcp-a-medida-e-instalado-dentro-de-la-sf.md). El kanban se elige al incorporar y, por defecto, no hay ninguno. Cuando esté, el tablero será la fuente del trabajo planificado y el panel, la ventana de la sesión. Esto cambia en el panel:
+JKanban será el kanban de la SF, con un MCP a medida, y aún no está incorporado: lo dice la decisión [JKanban, con un MCP a medida e instalado dentro de la SF](../sf/decisiones/010-2026-10-26-jkanban-con-un-mcp-a-medida-e-instalado-dentro-de-la-sf.md). El kanban se elige al incorporar y, por defecto, no hay ninguno. Cuando esté, el tablero será la fuente del trabajo planificado y el panel, la ventana de la sesión. Esto cambia en el panel:
 
 - **El estado viene del kanban.** El mod leerá la fase, la devslice y las tareas a través del MCP de JKanban. `.sf/estado.json` quedará como copia, para trabajar sin conexión.
 - **La cola, al backlog.** Una petición pasa al backlog del proyecto solo si queda pendiente; las menores que se resuelven en el momento, no. `.sf/peticiones.json` quedará como copia de la cola.
 - **Sección Planificado,** con las tareas del plan.
 
-Están decididos: [El panel, en dos bloques; con JKanban, Planificado](decisiones/041-2026-10-27-el-panel-en-dos-bloques-con-jkanban-planificado.md). Lo que sigue son propuestas pendientes de decisión:
+Están decididos: [El panel, en dos bloques; con JKanban, Planificado](../sf/decisiones/041-2026-10-27-el-panel-en-dos-bloques-con-jkanban-planificado.md). Lo que sigue son propuestas pendientes de decisión:
 
 - **De planificada a la cola** (propuesta P23). Una planificada sin empezar lleva «P», sin número. Al empezar, entra en la cola en curso con su número; el número de su tarjeta queda en el campo `kanban` de la petición. Si se aparca, vuelve a «P». Al cerrarse pasa a observación y, con el OK del propietario, su tarjeta pasa a hecha y deja Planificado. Claude mueve la tarjeta con el MCP; mientras no esté conectado, no da ningún movimiento por hecho.
 - **Estados del kanban** (propuesta P15): Planificada, En preparación, Preparada, En desarrollo, En verificación y Terminada. JKanban ya tiene flujos configurables; falta decidir los estados de la SF y sus transiciones.

@@ -414,7 +414,7 @@ Estas decisiones cambian piezas de este mapa, pero el código de la 1.5.0 aún n
 
 ## Cuestiones pendientes de decisión
 
-Está en [propuestas](propuestas.md). Lo que más afecta a este mapa:
+Está en [propuestas](../sf/propuestas.md). Lo que más afecta a este mapa:
 
 - **Procedimiento de instalación del plugin**, más allá de las órdenes de `plugins/sf/README.md`.
 - **Cómo se instala JKanban dentro de la SF.**

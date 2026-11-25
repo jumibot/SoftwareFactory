@@ -63,7 +63,8 @@ export function migrarPlegado(v: Record<string, boolean>): Record<string, boolea
 }
 // Ubicación anterior a sf 0.7.0: se sigue leyendo, con aviso para moverla.
 export const ANTIGUO = 'docs/sf.json'
-// El repositorio de la SF se reconoce por la fuente del plugin.
+// El repositorio fuente de la SF, por la fuente del plugin: solo para lo que hace falta en él (el modo prueba y la regla
+// del prompt de sistema, decisión 345); su configuración sale de su .sf/proyecto.json (299).
 export const MARCA_SF = 'plugins/sf/.claude-plugin/plugin.json'
 export const PANEL = 'sf-estado'
 // Colores que acepta /color. COLOR_SF es el de la sesión de la SF si le faltara su estilo: el amarillo (decisión 304).

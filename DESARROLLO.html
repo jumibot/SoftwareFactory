@@ -941,10 +941,10 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </details><details id="decisiones-y-propuestas" class="subseccion" open><summary class="subseccion-summary">Decisiones y propuestas</summary>
 <ul>
 <li>
-<p><a href="docs/decisiones/README.md">Decisiones</a>: lo que el propietario ha decidido sobre la SF, con su porqué y dónde se aplicó; una por archivo, con su índice generado.</p>
+<p><a href="sf/decisiones/README.md">Decisiones</a>: lo que el propietario ha decidido sobre la SF, con su porqué y dónde se aplicó; una por archivo, con su índice generado.</p>
 </li>
 <li>
-<p><a href="docs/propuestas.md">Propuestas</a>: las ideas de mejora aún sin decidir, con su origen y su evidencia. Es el registro de la tarea permanente «Mejorar la Software Factory». Ninguna propuesta se aplica sin aprobación explícita del propietario.</p>
+<p><a href="sf/propuestas.md">Propuestas</a>: las ideas de mejora aún sin decidir, con su origen y su evidencia. Es el registro de la tarea permanente «Mejorar la Software Factory». Ninguna propuesta se aplica sin aprobación explícita del propietario.</p>
 </li>
 </ul>
 </details><details id="investigacion" class="subseccion" open><summary class="subseccion-summary">Investigación</summary>
@@ -952,7 +952,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <p><strong>Fricciones humanas del desarrollo con IA</strong> (26 de octubre de 2026): qué cuesta a una persona trabajar con agentes, qué dicen los estudios y los testimonios, y qué resuelven las herramientas actuales.</p>
 <ul>
 <li>
-<p><a href="docs/referencias/reports/Fricciones%20humanas%20del%20desarrollo%20con%20IA.html">Informe</a>. Lleva una fe de erratas: manda la verificación de citas.</p>
+<p><a href="sf/informes/Fricciones%20humanas%20del%20desarrollo%20con%20IA.html">Informe</a>. Lleva una fe de erratas: manda la verificación de citas.</p>
 </li>
 <li>
 <p>Notas: <a href="docs/referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/atencion_y_estres.md">atención y estrés</a> · <a href="docs/referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/productividad_y_confianza.md">productividad y confianza</a> · <a href="docs/referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/testimonios.md">testimonios</a> · <a href="docs/referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/herramientas_orquestacion.md">herramientas de orquestación</a> · <a href="docs/referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/claude_code_y_metodos.md">Claude Code y métodos</a> · <a href="docs/referencias/research_notes/Fricciones%20humanas%20del%20desarrollo%20con%20IA/verificacion_citas.md">verificación de citas</a></p>
@@ -961,7 +961,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <p><strong>Recursos para la SoftwareFactory</strong> (26 de octubre de 2026): qué se puede integrar, entero o en parte, ordenado por necesidad de la SF.</p>
 <ul>
 <li>
-<p><a href="docs/referencias/reports/Recursos%20para%20la%20SoftwareFactory.html">Informe</a></p>
+<p><a href="sf/informes/Recursos%20para%20la%20SoftwareFactory.html">Informe</a></p>
 </li>
 <li>
 <p>Notas: <a href="docs/referencias/research_notes/Recursos%20para%20la%20SoftwareFactory/skills_y_plugins.md">skills y plugins</a> · <a href="docs/referencias/research_notes/Recursos%20para%20la%20SoftwareFactory/metodos_y_flujos.md">métodos y flujos</a> · <a href="docs/referencias/research_notes/Recursos%20para%20la%20SoftwareFactory/repositorios_e_integraciones.md">repositorios e integraciones</a> · <a href="docs/referencias/research_notes/Recursos%20para%20la%20SoftwareFactory/problemas_y_testimonios.md">problemas y testimonios</a> · <a href="docs/referencias/research_notes/Recursos%20para%20la%20SoftwareFactory/vibe_design.md">vibe design</a> · <a href="docs/referencias/research_notes/Recursos%20para%20la%20SoftwareFactory/agentes_y_gemelos.md">agentes y gemelos</a></p>
@@ -1056,7 +1056,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <li><strong>Generar el HTML de una visión o de un informe:</strong></li>
 </ul>
 <pre><code class="language-bash"><span class="sx-f">python</span> <span class="sx-a">-I</span> <span class="sx-a">-X</span> utf8 plugins/sf/skills/documento_vision/scripts/doc_to_html.py docs/specs/vision/hombre-orquesta.md
-<span class="sx-f">python</span> <span class="sx-a">-I</span> <span class="sx-a">-X</span> utf8 plugins/sf/skills/documento_vision/scripts/doc_to_html.py <span class="sx-s">"docs/referencias/reports/&lt;informe&gt;.md"</span> <span class="sx-a">--tipo</span> <span class="sx-s">"Informe de investigación"</span>
+<span class="sx-f">python</span> <span class="sx-a">-I</span> <span class="sx-a">-X</span> utf8 plugins/sf/skills/documento_vision/scripts/doc_to_html.py <span class="sx-s">"sf/informes/&lt;informe&gt;.md"</span> <span class="sx-a">--tipo</span> <span class="sx-s">"Informe de investigación"</span>
 </code></pre>
 <p>El script encuentra solo la identidad de <code>docs/identidad/</code>. El <code>.html</code> no se edita a mano.</p>
 <ul>
@@ -1079,7 +1079,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <p><strong>Cambios en la SF:</strong> cada tarea, en su rama <code>feature/NN-nombre</code> desde <code>develop</code>; probada, entra en <code>develop</code> por squash y push. Publicar es pasar <code>develop</code> a <code>main</code> con el tag <code>vX.Y.Z</code> (<a href="plugins/sf/skills/metodologia/references/desarrollo-de-proyectos.md">metodología, 2</a>).</p>
 </li>
 <li>
-<p><strong>Mejoras:</strong> se registran en <a href="docs/propuestas.md">propuestas</a> con su origen, aunque surjan en otro proyecto, y se aplican solo con aprobación del propietario. Al decidirse, pasan a <a href="docs/decisiones/README.md">decisiones</a>.</p>
+<p><strong>Mejoras:</strong> se registran en <a href="sf/propuestas.md">propuestas</a> con su origen, aunque surjan en otro proyecto, y se aplican solo con aprobación del propietario. Al decidirse, pasan a <a href="sf/decisiones/README.md">decisiones</a>.</p>
 </li>
 <li>
 <p><strong>Información que falta:</strong> se pide; no se inventan requisitos ni decisiones.</p>
@@ -1099,8 +1099,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <p>Probar <code>diseno_interfaz</code> y <code>definicion_tecnica</code> en un proyecto real.</p>
 </li>
 </ul>
-<p>El estado completo está en <a href="docs/propuestas.md">propuestas</a>, <a href="docs/decisiones/README.md">decisiones</a> y la sección de próximos pasos de la <a href="docs/specs/funcional/software-factory.md">especificación</a>.</p></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Índice</p><p class="procedencia">Generado el 24/11/2026 19:21 · fuente Índice de la SoftwareFactory.md · huella 74ee6c69e4b3 · sin commit · estilo v3</p></footer>
+<p>El estado completo está en <a href="sf/propuestas.md">propuestas</a>, <a href="sf/decisiones/README.md">decisiones</a> y la sección de próximos pasos de la <a href="docs/specs/funcional/software-factory.md">especificación</a>.</p></div></details></main>
+  <footer class="pie"><p>SoftwareFactory · Índice</p><p class="procedencia">Generado el 25/11/2026 11:55 · fuente Índice de la SoftwareFactory.md · huella 479edc2ac799 · sin commit · estilo v3</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).

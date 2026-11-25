@@ -617,10 +617,10 @@ Fuentes revisadas el 27 de octubre de 2026. E = estudios y evidencias; A = docum
 **M1 · Visión del Claude Code Commander** El mismo proyecto contado con una historia.<br>[Abrir documento](claude-code-commander.html)
 {: #src-M1}
 
-**M2 · Decisión «Claude Code Commander»** Alcance, dispositivos y lugar en el plugin, en `docs/decisiones/`.<br>[Abrir documento](../../decisiones/036-2026-10-27-claude-code-commander.md)
+**M2 · Decisión «Claude Code Commander»** Alcance, dispositivos y lugar en el plugin, en `docs/decisiones/`.<br>[Abrir documento](../../../sf/decisiones/036-2026-10-27-claude-code-commander.md)
 {: #src-M2}
 
-**M3 · Propuesta «Claude Code Commander: lo que falta concretar»** Canal, arranque, métricas y orden, en `docs/propuestas.md`.<br>[Abrir documento](../../propuestas.md)
+**M3 · Propuesta «Claude Code Commander: lo que falta concretar»** Canal, arranque, métricas y orden, en `docs/propuestas.md`.<br>[Abrir documento](../../../sf/propuestas.md)
 {: #src-M3}
 
 **M4 · Mod de estado de la SF, versión 0.13** Fase, cola de peticiones, marcador y un proyecto por sesión, en `plugins/sf/hooks/register.tsx`. Sin probar aún en sesiones reales.<br>[Cómo funciona la SF](../../como-funciona-la-software-factory.html)

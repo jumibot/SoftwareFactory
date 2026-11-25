@@ -21,7 +21,7 @@ Lo que exige la licencia de lo que es de terceros (atribución y texto de la lic
 | `informe_deliberativa` | [skills/informe_deliberativa.md](skills/informe_deliberativa.md) |
 | `metodologia` | [skills/metodologia.md](skills/metodologia.md) |
 
-Las skills sin archivo aquí (`flujo_tareas`, `orquestacion`) son propias de la SF y se escribieron en ella; su porqué está en las [decisiones](../../decisiones/README.md).
+Las skills sin archivo aquí (`flujo_tareas`, `orquestacion`) son propias de la SF y se escribieron en ella; su porqué está en las [decisiones](../../../sf/decisiones/README.md).
 
 ## Herramientas
 

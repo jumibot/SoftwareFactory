@@ -26,6 +26,9 @@ const COPIA_COLA = '/home/.claude/sf/cola-sesion-1.py'
 const LANZADOR_PLUGIN = '/plugin/tools/cola_sesion.py'
 const LANZADOR = '/home/.claude/sf/cola.py'
 const AJUSTES = '/sf/.claude/settings.local.json'
+// El .sf/proyecto.json de la propia SF (299): su manifiesto y su línea de coautoría salen de él.
+const PROYECTO_SF = '/sf/.sf/proyecto.json'
+const CONF_SF = JSON.stringify({ proyecto: 'SoftwareFactory', color: 'purple', manifiesto: ['plugins/sf/.claude-plugin/plugin.json'], coautor: 'Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>' })
 
 type Pet = Record<string, unknown>
 // La respuesta de cola.py --json.
@@ -140,7 +143,8 @@ type Opciones = { sinDecisiones?: boolean; sinGenerador?: boolean; cola?: Pet[];
 // Motor simulado: archivos, almacén, comandos y reloj. Devuelve lo que el caso quiere mirar.
 async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = false, cola = INICIAL, extra = {}, sinMarca = false, reloj = false, git = {}, paneles = () => [], agentes, raiz = RAIZ, salidas = [], respuestas = {}, sinCola = false, copia = false, sinArranque = false, desplegadas = false, entorno = {}, ajustes = {}, contextoMotor, plegado, pythons = { python: '3 13' }, rechazar }: Opciones = {}) {
   const archivos: Record<string, string> = {
-    ...(sinMarca ? {} : { '/sf/plugins/sf/.claude-plugin/plugin.json': '{}' }),
+    // La SF, con su marca y su .sf/proyecto.json, como los demás proyectos (299).
+    ...(sinMarca ? {} : { '/sf/plugins/sf/.claude-plugin/plugin.json': '{}', [PROYECTO_SF]: CONF_SF }),
     '/plugin/plugin.json': JSON.stringify({ name: 'sf', version: '0.32.3' }),
     // El cola.py del plugin: el panel lo copia al cargar y lanza la copia (decisión 136).
     ...(sinCola ? {} : { [CLI_PLUGIN]: '# cola.py v1', [LANZADOR_PLUGIN]: '# lanzador v1' }),
@@ -1104,11 +1108,16 @@ test('/sf_config pasa a Claude cambiar la configuración con sf:configurar_proye
   // Sin .sf/proyecto.json, no está incorporado: lo dice y no pide nada.
   delete archivos['/sf/.sf/proyecto.json']
   expect((await m[0].command.run({ command: 'sf_config', args: '' })).text).toContain('no está incorporado')
-  // En la SF, tampoco: su configuración sale de su marca.
+  // La marca de la SF no basta: sin .sf/proyecto.json, tampoco.
   archivos['/sf/plugins/sf/.claude-plugin/plugin.json'] = '{}'
-  expect((await m[0].command.run({ command: 'sf_config', args: '' })).text).toContain('la SF no tiene .sf/proyecto.json')
+  expect((await m[0].command.run({ command: 'sf_config', args: '' })).text).toContain('no está incorporado')
   await new Promise(fin => setTimeout(fin, 200))
   expect(prompts.filter(t => t.startsWith('Cambia la configuración'))).toHaveLength(1)
+  // Con su .sf/proyecto.json, la SF se configura como los demás proyectos (299).
+  archivos['/sf/.sf/proyecto.json'] = CONF_SF
+  expect((await m[0].command.run({ command: 'sf_config', args: '' })).text).toBe('/sf_config: se lo paso a Claude.')
+  await new Promise(fin => setTimeout(fin, 200))
+  expect(prompts.filter(t => t.startsWith('Cambia la configuración'))).toHaveLength(2)
 })
 
 test('/sf_paso sin tarea en curso lo dice', async (...m) => {
@@ -1223,6 +1232,21 @@ test('Modo prueba: al entrar se apaga y la etiqueta lanza /reload-plugins', asyn
   expect(await hay(ui, { type: 'Text', text: /reload-plugins para (entrar en el|salir del) modo prueba/ })).toBe(true)
   expect(await hay(ui, { type: 'Text', text: /de el modo/ })).toBe(false)
   await ui.unmount()
+})
+
+// La excepción del modo prueba (345): sale en el repositorio fuente de la SF, que ya es un proyecto más con su
+// .sf/proyecto.json (299), por su marca y no por el tipo de proyecto; en un proyecto con el catálogo local, no.
+test('Modo prueba (345): en la fuente de la SF con su .sf/proyecto.json, la etiqueta sale; en un proyecto, no', async (...m) => {
+  const ajustes = { extraKnownMarketplaces: { 'softwarefactory-dev': {} } }
+  const { archivos } = await preparar(m, { extra: { [AJUSTES]: JSON.stringify(ajustes) } })
+  expect(PROYECTO_SF in archivos).toBe(true)
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Button', key: 'modo-prueba' })).toBe(true)
+  await ui.unmount()
+  delete archivos['/sf/plugins/sf/.claude-plugin/plugin.json']
+  const otra = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(otra, { type: 'Button', key: 'modo-prueba' })).toBe(false)
+  await otra.unmount()
 })
 
 // Tarea 338: una carpeta de prueba, sin la SF, con el catálogo local y la copia de trabajo pedida en sus ajustes: al
@@ -4175,7 +4199,7 @@ test('Un proyecto por sesión: otro proyecto se bloquea', async (...m) => {
 test('Un proyecto por sesión: desde otro proyecto, la SF se bloquea, también propuestas.md y registro.json', async (...m) => {
   await preparar(m, {
     sinMarca: true,
-    extra: { '/sf/.sf/proyecto.json': JSON.stringify({ sf: '1.1.0', proyecto: 'Demo' }), '/sf/fuente/plugins/sf/.claude-plugin/plugin.json': '{}' },
+    extra: { '/sf/.sf/proyecto.json': JSON.stringify({ sf: '1.1.0', proyecto: 'Demo' }), '/sf/fuente/plugins/sf/.claude-plugin/plugin.json': '{}', '/sf/fuente/.sf/proyecto.json': '{}' },
   })
   for (const ruta of ['/sf/fuente/docs/propuestas.md', '/sf/fuente/.sf/registro.json', '/sf/fuente/plugins/sf/hooks/panel.tsx'])
     expect((await escribirEn(m, ruta)).deny ?? '').toMatch(/es de fuente y esta sesión es de sf\. Hazlo en una sesión abierta en \/sf\/fuente\./)
@@ -4334,7 +4358,7 @@ const ORDEN_SF = [
   'git add plugins/sf/.claude-plugin/plugin.json',
   'git commit -q -F -',
   'git fetch . develop:main',
-  'git tag -a v0.35.0 -m sf 0.35.0 main',
+  'git tag -a v0.35.0 -m v0.35.0 main',
   'git push origin develop main v0.35.0',
 ]
 type OpcRelease = { git?: Git; extra?: Record<string, string>; sinMarca?: boolean; sinMain?: boolean; cola?: Pet[] }
@@ -4404,7 +4428,7 @@ test('RELEASE: confirmado, sube la versión con su commit, fast-forward, tag y p
   const posiciones = ORDEN_SF.map(o => ordenes.indexOf(o))
   expect(posiciones.every((x, i) => x >= 0 && (i === 0 || x > posiciones[i - 1]!))).toBe(true)
   expect(archivos[MANIFIESTO]).toBe(MANIFIESTO_034.replace('0.34.3', '0.35.0'))
-  expect(entradas).toEqual(['sf 0.35.0\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n'])
+  expect(entradas).toEqual(['v0.35.0\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>\n'])
   expect(ordenes.some(o => o.startsWith('git switch') || o.startsWith('git merge '))).toBe(false)
   expect(toasts).toContain('Publicada v0.35.0')
   expect(prompts).toHaveLength(0)
@@ -4414,7 +4438,7 @@ test('RELEASE: confirmado, sube la versión con su commit, fast-forward, tag y p
 test('RELEASE: si falla el push, lo local queda hecho y lo dice', async (...m) => {
   const { archivos, ordenes, toasts, ui } = await release(m, { git: { pushFalla: true } })
   await elegir(ui, '0.34.4')
-  expect(ordenes).toContain('git tag -a v0.34.4 -m sf 0.34.4 main')
+  expect(ordenes).toContain('git tag -a v0.34.4 -m v0.34.4 main')
   expect(archivos[MANIFIESTO]).toContain('"version": "0.34.4"')
   expect(toasts.some(t => t.startsWith('Publicada v0.34.4 en local; falta el push') && t.includes('sin red'))).toBe(true)
   await ui.unmount()
@@ -6342,8 +6366,8 @@ test('Reglas: al reanudar o bifurcar la conversación, nada: ya las tiene', asyn
   expect(await inicio(m, 'fork')).toEqual([])
 })
 
-test('Reglas (298): en la propia SF, sin .sf/proyecto.json, las reglas con la metodología, sus convenciones y sf:orquestacion', async (...m) => {
-  await preparar(m, { extra: REGLAS_PLUGIN })
+test('Reglas (298, 299): en la propia SF, con su .sf/proyecto.json, las reglas con la metodología, sus convenciones y sf:orquestacion', async (...m) => {
+  const { archivos } = await preparar(m, { extra: REGLAS_PLUGIN })
   for (const source of ['startup', 'clear', 'compact'] as const) {
     const c = await inicio(m, source)
     expect(c.length).toBe(1)
@@ -6355,6 +6379,15 @@ test('Reglas (298): en la propia SF, sin .sf/proyecto.json, las reglas con la me
   expect(await inicio(m, 'resume')).toEqual([])
   // La regla del prompt de sistema, no: en la SF lo del plugin sí es del proyecto (decisión 167).
   expect((await regla(m)).map(x => x.id)).toEqual(['intro'])
+  // La marca sola ya no la hace proyecto (299): sin su .sf/proyecto.json, nada.
+  delete archivos[PROYECTO_SF]
+  expect(await inicio(m, 'startup')).toEqual([])
+})
+
+test('Estado (299): la SF, con su .sf/proyecto.json, es un proyecto más: su nombre y su fase, sin línea propia', async (...m) => {
+  const textos = await lineaCaja(m, { '/sf/plugins/sf/.claude-plugin/plugin.json': '{}', [PROYECTO_SF]: CONF_SF })
+  expect(textos.some(t => t.includes('SoftwareFactory · fase sin declarar'))).toBe(true)
+  expect(textos.some(t => t.includes('repositorio de la SF'))).toBe(false)
 })
 
 test('Reglas (298): en la propia SF con la SF apagada en la sesión, nada; con /sf_forzar_activa, una vez', async (...m) => {

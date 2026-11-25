@@ -34,17 +34,17 @@ export async function llevaRegla($: $): Promise<boolean> {
   return si
 }
 
-// Si el mod entrega las reglas y sf:orquestacion: en un proyecto incorporado y en la propia SF (decisión 298), que no
-// tiene .sf/proyecto.json y se reconoce por su marca; su configuración sale de ella (configuracion.ts). La regla del
-// prompt de sistema, en cambio, solo en los proyectos (llevaRegla).
+// Si el mod entrega las reglas y sf:orquestacion: en un proyecto incorporado, también en la propia SF (decisión 298),
+// que tiene su .sf/proyecto.json como los demás (299). La regla del prompt de sistema, en cambio, solo en los
+// proyectos que no son la SF (llevaRegla).
 export async function entregaReglas($: $): Promise<boolean> {
   return !(await sinSf($))
 }
 
-// Una carpeta sin SF: ni proyecto incorporado ni la propia SF. Sin guardar: puede incorporarse en la conversación.
+// Una carpeta sin SF: sin .sf/proyecto.json. Sin guardar: puede incorporarse en la conversación.
 export async function sinSf($: $): Promise<boolean> {
   const raiz = await raizSesion($)
-  return !(await $.fs.exists(`${raiz}/${PROYECTO}`)) && !(await $.fs.exists(`${raiz}/${MARCA_SF}`))
+  return !(await $.fs.exists(`${raiz}/${PROYECTO}`))
 }
 
 // Añade la regla al final de las secciones en un proyecto incorporado (decisión 167): no en la SF, donde lo del plugin

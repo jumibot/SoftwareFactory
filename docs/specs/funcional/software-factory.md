@@ -6,12 +6,12 @@ Los acuerdos recogidos conservan su validez; el estado de borrador no los convie
 
 ## Cómo interpretar este documento
 
-- **Acuerdo:** requisito decidido por el propietario; debe respetarse. Su porqué está en las [decisiones de la SF](../../decisiones/README.md).
+- **Acuerdo:** requisito decidido por el propietario; debe respetarse. Su porqué está en las [decisiones de la SF](../../../sf/decisiones/README.md).
 - **Preferencia:** opción favorita, cuya adecuación se confirma en cada contexto.
 - **Pendiente:** información o decisión todavía necesaria, reunida al final.
 - **Ejemplo:** empieza por «Ejemplo:» o «por ejemplo» e ilustra; no manda nada.
 
-Lo que aún no está decidido (organización del repositorio, skills candidatas, orden de construcción, estados del kanban…) vive en las [propuestas](../../propuestas.md). Las plantillas están en el plugin `sf` (`plugins/sf/templates/`).
+Lo que aún no está decidido (organización del repositorio, skills candidatas, orden de construcción, estados del kanban…) vive en las [propuestas](../../../sf/propuestas.md). Las plantillas están en el plugin `sf` (`plugins/sf/templates/`).
 
 ## Propósito y alcance
 
@@ -57,7 +57,7 @@ Contendrá:
 - Casos de evaluación de las skills y del proceso.
 - Mecanismo de distribución, instalación y actualización.
 - Historial de versiones y cambios.
-- Registro de [decisiones](../../decisiones/README.md) y de [propuestas](../../propuestas.md), separados (acuerdo del propietario, 2026-10-27). Cada decisión, en su archivo de `docs/decisiones/`, con un índice generado por comando (acuerdo del propietario, 2026-10-29).
+- Registro de [decisiones](../../../sf/decisiones/README.md) y de [propuestas](../../../sf/propuestas.md), separados (acuerdo del propietario, 2026-10-27). Cada decisión, en su archivo de `docs/decisiones/`, con un índice generado por comando (acuerdo del propietario, 2026-10-29).
 
 La organización del repositorio que no está fijada en la sección 2 sigue abierta (propuesta «Organización del repositorio de la SF»).
 
@@ -311,7 +311,7 @@ Para cada mejora:
 
 Investigar y redactar propuestas no modifica el método vigente. No aplicar ni distribuir cambios de automejora sin aprobación. Los cambios expresamente solicitados por el propietario cuentan como autorizados dentro de su alcance.
 
-Persistencia: mantener la tarea y sus propuestas concretas en el proyecto **SoftwareFactory** del kanban cuando esté accesible. Si el proyecto no existe, solicitar su creación o la información necesaria antes de registrar las tareas; no utilizar otro proyecto por defecto. Hasta disponer de acceso, usar [propuestas](../../propuestas.md) como soporte provisional. Al aprobarse, la decisión pasa a [decisiones](../../decisiones/README.md). Al iniciar o retomar trabajo en la SF, consultarlo y tener presente la tarea. No afirmar que se ha creado o actualizado una tarjeta si no se ha confirmado la operación.
+Persistencia: mantener la tarea y sus propuestas concretas en el proyecto **SoftwareFactory** del kanban cuando esté accesible. Si el proyecto no existe, solicitar su creación o la información necesaria antes de registrar las tareas; no utilizar otro proyecto por defecto. Hasta disponer de acceso, usar [propuestas](../../../sf/propuestas.md) como soporte provisional. Al aprobarse, la decisión pasa a [decisiones](../../../sf/decisiones/README.md). Al iniciar o retomar trabajo en la SF, consultarlo y tener presente la tarea. No afirmar que se ha creado o actualizado una tarjeta si no se ha confirmado la operación.
 
 La tarea es permanente durante el trabajo con la SF; no implica ejecución en segundo plano ni una automatización programada.
 
@@ -328,7 +328,7 @@ El orden de construcción de la SF es una propuesta («Orden de construcción de
 - Tareas previas en el repositorio de JKanban, antes de instalarlo:
   1. Terminar el paso de la conexión antigua (`backend/infrastructure/database.py`, con la ruta de `tasks.db` fija en la raíz) a la nueva (`backend/infrastructure/persistence/sqlite/connection.py`, que lee `SQLITE_PATH`). Todos los repositorios deben usar la nueva, para que los datos puedan vivir fuera del código.
   2. Etiquetar una versión estable. Hoy solo existe `v0.0.0`.
-- MCP de JKanban, construido a medida (decisión del propietario, 2026-10-26). De otros proyectos solo se toman ideas (Backlog.md, beads), según el [informe de recursos](../../referencias/reports/Recursos%20para%20la%20SoftwareFactory.md).
+- MCP de JKanban, construido a medida (decisión del propietario, 2026-10-26). De otros proyectos solo se toman ideas (Backlog.md, beads), según el [informe de recursos](../../../sf/informes/Recursos%20para%20la%20SoftwareFactory.md).
 - Ubicación y contenido de la skill de visión existente.
 - Control de versiones por proyecto, que Claude Code no documenta (sección 2, «Límites conocidos»).
 - Reglas de aprobación, ejecución autónoma, integración y publicación.

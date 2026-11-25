@@ -44,7 +44,7 @@ export type Cerrada = { id: number; texto: string; commit: string | null; fecha:
 export type Prueba = { disponible: boolean; pedido: boolean }
 // RELEASE: la versión de la que se parte, la del último tag vX.Y.Z (null: ninguno, se pregunta la primera), los
 // manifiestos a los que se sube y si es la propia SF (decisión 226).
-export type FuenteVersion = { actual: string | null; manifiestos: string[]; sf: boolean }
+export type FuenteVersion = { actual: string | null; manifiestos: string[] }
 // ACTUALIZAR: la versión publicada más alta del plugin sf y los scopes que el proyecto usa con una instalada más vieja.
 // REFRESCAR (decisión 177): sin scopes, la versión instalada y, en corre, la más vieja que corre la sesión.
 export type Actualizacion = { version: string; scopes: string[]; corre?: string }
@@ -68,8 +68,8 @@ export type VistaIncorporacion = { desde: number; actual: number }
 export type VistaPanel = { filas: number; contenido: number | null; lista: string; estructura: string }
 
 export type Estado = {
-  // 'sf': repositorio de la propia SF; 'proyecto': tiene .sf/proyecto.json (o el antiguo docs/sf.json); 'sin-sf': ninguno
-  tipo: 'sf' | 'proyecto' | 'sin-sf'
+  // 'proyecto': tiene .sf/proyecto.json (o el antiguo docs/sf.json), también la propia SF (299); 'sin-sf': ninguno
+  tipo: 'proyecto' | 'sin-sf'
   proyecto: string
   versionSf: string | null
   versionPlugin: string | null // versión del plugin sf que se está ejecutando

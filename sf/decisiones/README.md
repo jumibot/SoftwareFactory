@@ -1,6 +1,6 @@
 # Decisiones de la Software Factory
 
-Decisiones tomadas por el propietario sobre la SF, con su porqué. Las reglas vigentes que salen de ellas están en la [metodología](../../plugins/sf/skills/metodologia/references/desarrollo-de-proyectos.md) y en la [especificación](../specs/funcional/software-factory.md). Las ideas aún sin decidir están en [propuestas](../propuestas.md). Cómo se registra una decisión, dónde se aplica y cómo llega a los proyectos se explica en [Mejora continua a la Software Factory](../mejora-continua-a-la-software-factory.md).
+Decisiones tomadas por el propietario sobre la SF, con su porqué. Las reglas vigentes que salen de ellas están en la [metodología](../../plugins/sf/skills/metodologia/references/desarrollo-de-proyectos.md) y en la [especificación](../../docs/specs/funcional/software-factory.md). Las ideas aún sin decidir están en [propuestas](../propuestas.md). Cómo se registra una decisión, dónde se aplica y cómo llega a los proyectos se explica en [Mejora continua a la Software Factory](../../docs/mejora-continua-a-la-software-factory.md).
 
 **Cómo se registra una decisión.** Un archivo por decisión en esta carpeta, `NNN-AAAA-MM-DD-titulo.md`: el número de orden total (el siguiente al más alto), la fecha del origen y el título sin tildes ni signos. Empieza por `# Título` y lleva:
 

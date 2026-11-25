@@ -15,11 +15,11 @@ Esta skill dice qué lleva el informe, cómo se escriben sus preguntas y cómo e
 ## Dónde va
 
 - En un proyecto incorporado a la SF, en `sf/informes/` («Los documentos de la SF van en la carpeta sf/», 203).
-- En la propia SF, en `docs/referencias/reports/`, hasta que se decida su paso a `sf/` (pregunta 13 del informe «Tipos de tarea», en la tarea 303).
+- En la propia SF, igual, en `sf/informes/` («Todos los informes de las tareas de la SF se mudan a sf/informes/», 346).
 
 El nombre del archivo es el tema, no el número de la tarea: `Tipos de tarea.md` y su `.html`. Las versiones sustituidas van a `_respaldo/`, en la misma carpeta.
 
-**Modelo:** el informe `docs/referencias/reports/Tipos de tarea.md` de la SF (tarea 274). Si está en el equipo, se lee como ejemplo; su contenido no se copia. La plantilla vacía está en `assets/plantilla-informe.md`.
+**Modelo:** el informe `sf/informes/Tipos de tarea.md` de la SF (tarea 274). Si está en el equipo, se lee como ejemplo; su contenido no se copia. La plantilla vacía está en `assets/plantilla-informe.md`.
 
 ## Estructura
 

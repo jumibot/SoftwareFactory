@@ -4,8 +4,6 @@ __pycache__/
 
 # Informes y salidas temporales
 reports/
-# Los informes de investigación son referencias y se versionan
-!docs/referencias/reports/
 
 # Sistema
 .DS_Store
@@ -15,7 +13,8 @@ desktop.ini
 # Worktrees de los subagentes: cada uno es otro repositorio, no se añade al principal
 .claude/worktrees/
 
-# Cola de peticiones de la sesión (metodología, 2)
+# Estado de la fase y cola de peticiones de la sesión (metodología, 2; como en los demás proyectos)
+.sf/estado.json
 .sf/peticiones.json
 .sf/prueba.json
 .sf/prueba.log
@@ -29,7 +28,7 @@ desktop.ini
 .sf/peticiones.json.tmp
 
 # El índice de las decisiones en html: lo genera el panel al abrirlo (decisión 163)
-docs/decisiones/README.html
+sf/decisiones/README.html
 
 # Lo que Claude Code genera en el plugin al pasar sus pruebas (claude plugin test): no es del plugin ni se publica (tarea 346)
 plugins/sf/tsconfig.json

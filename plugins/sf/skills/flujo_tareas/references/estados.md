@@ -1,6 +1,6 @@
 # Ciclo de vida de una tarea: estados y cambios
 
-Cada cambio de estado de una tarea, con su regla y su orden del CLI `tools/cola.py`. Los números entre paréntesis son decisiones de la SF (`docs/decisiones/` de su repositorio).
+Cada cambio de estado de una tarea, con su regla y su orden del CLI `tools/cola.py`. Los números entre paréntesis son decisiones de la SF (`sf/decisiones/` de su repositorio).
 
 Cuándo usar cada cambio en la conversación con el propietario (menú al anotar, subagentes, probar y cerrar, fusionar y redescribir) está en la skill `sf:orquestacion`.
 
@@ -456,7 +456,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Cuándo:** el propietario lo pide.
 - **Quién:** principal.
 - **Autorización:** el OK del propietario.
-- **Repositorio:** `develop` pasa a la rama que hace de `main` (`rama_main`), con el tag `vX.Y.Z`, que es la fuente de la versión; la `version` de cada `manifiesto` de la configuración (en la SF, su `plugin.json`) se sube solo entonces, en un commit `vX.Y.Z` (en la SF, `sf X.Y.Z`); push al `remoto` (decisión 226).
+- **Repositorio:** `develop` pasa a la rama que hace de `main` (`rama_main`), con el tag `vX.Y.Z`, que es la fuente de la versión; la `version` de cada `manifiesto` de la configuración (en la SF, su `plugin.json`) se sube solo entonces, en un commit `vX.Y.Z`, también en la SF; push al `remoto` (decisión 226).
 - **Panel:** nada.
 - **CLI:** fuera de la cola; candidato a otro comando.
 - **Sale de:** 082.
