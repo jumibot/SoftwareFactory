@@ -1,5 +1,5 @@
-# Las decisiones de la SF se quedan en el repositorio; el porqué que citan las skills viaja en su porque.md
+# Las decisiones de la SF se quedan en el repositorio; el porqué que necesita un usuario viaja en los porque.md
 
-Las decisiones de la SF no viajan con el plugin: se quedan en sf/decisiones/ del repositorio, como en cualquier proyecto. Cuando una skill cita una decisión, su porqué va en el porque.md de esa skill (references/porque.md), que sí viaja.
+Las decisiones de la SF no viajan con el plugin: se quedan en sf/decisiones/ del repositorio, como en cualquier proyecto. Todas las explicaciones que necesite un usuario de la SF van en el porque.md de la skill que aplica la regla (references/porque.md), que sí viaja: también el porqué de cada decisión que la skill cita.
 
-Porqué: los usuarios de la SF necesitan las reglas y por qué se aplican, no el historial del desarrollo; así las citas de las skills se pueden leer sin el repositorio. (Tarea 379)
+Porqué: los usuarios de la SF necesitan las reglas y por qué se aplican, no el historial del desarrollo; así todo lo que leen se entiende sin el repositorio. (Tarea 379)

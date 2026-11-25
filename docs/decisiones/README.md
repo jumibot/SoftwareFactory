@@ -19,7 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
-| 356 | 2026-11-25 | [Las decisiones de la SF se quedan en el repositorio; el porqué que citan las skills viaja en su porque.md](356-2026-11-25-las-decisiones-de-la-sf-se-quedan-en-el-repositorio-el-porque-que-citan-las-skills-viaja-en-su-porque-md.md) |
+| 356 | 2026-11-25 | [Las decisiones de la SF se quedan en el repositorio; el porqué que necesita un usuario viaja en los porque.md](356-2026-11-25-las-decisiones-de-la-sf-se-quedan-en-el-repositorio-el-porque-que-citan-las-skills-viaja-en-su-porque-md.md) |
 | 355 | 2026-11-25 | [Las tareas en curso del panel vuelven a un color cálido: el dorado, no el azul](355-2026-11-25-las-tareas-en-curso-del-panel-vuelven-a-un-color-calido-el-dorado-no-el-azul.md) |
 | 354 | 2026-11-24 | [El estilo de la SF toma lo afinado en la prueba del estilo donde choca con la 335](354-2026-11-24-el-estilo-de-la-sf-toma-lo-afinado-en-la-prueba-del-estilo-donde-choca-con-la-335.md) |
 | 353 | 2026-11-24 | [El estilo de la SF es el de un proyecto más, sin tema propio en el plugin](353-2026-11-24-el-estilo-de-la-sf-es-el-de-un-proyecto-mas-sin-tema-propio-en-el-plugin.md) |
