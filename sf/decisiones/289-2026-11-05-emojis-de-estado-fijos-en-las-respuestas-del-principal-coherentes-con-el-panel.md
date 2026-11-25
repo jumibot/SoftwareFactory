@@ -1,5 +1,7 @@
 # Emojis de estado fijos en las respuestas del principal, coherentes con el panel
 
+Estado: deprecada el 2026-11-25 por «Un juego fijo de emojis de estado en las respuestas del principal, coherente con el panel» (381); lo demás, por «La línea del foco es una excepción al juego fijo de emojis» (336), «Reglas del foco y del off-topic: las once recomendaciones del informe de la 431» (357) y «Las respuestas del principal, legibles en el terminal» (370).
+
 Fecha: 2026-11-05. Decidida por el propietario de la Software Factory.
 
 El principal marca los estados con este juego fijo de emojis, el mismo en todos los proyectos:
@@ -30,4 +32,4 @@ Para el antes y el después de un texto, y para los pasos y tareas que se añade
 
 Porqué: en el chat no hay colores, y el propietario quiere ver de un vistazo el estado de lo que se le cuenta, con los mismos significados que el panel.
 
-Aplicada en: pendiente, tarea «Que las respuestas del principal usen emojis de estado fijos, coherentes con el panel» (374).
+Aplicada en: lo vigente, en `sf:orquestacion` («Cómo escribir») y `references/porque.md`.
