@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 372 | 2026-11-25 | [Una tarea en observación sale solo con el OK del propietario, que se pide tarea a tarea](372-2026-11-25-una-tarea-en-observacion-sale-solo-con-el-ok-del-propietario-que-se-pide-tarea-a-tarea.md) |
 | 371 | 2026-11-25 | [Al terminar una tarea, Claude propone probarla o cerrarla, y cerrar espera el OK del propietario](371-2026-11-25-al-terminar-una-tarea-claude-propone-probarla-o-cerrarla-y-cerrar-espera-el-ok-del-propietario.md) |
 | 370 | 2026-11-25 | [Las respuestas del principal, legibles en el terminal](370-2026-11-25-las-respuestas-del-principal-legibles-en-el-terminal.md) |
 | 369 | 2026-11-25 | [Una tarea de código tampoco crea documentos](369-2026-11-25-una-tarea-de-codigo-tampoco-crea-documentos.md) |
