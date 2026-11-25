@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 367 | 2026-11-25 | [Sin menú para lo que el propietario ya tiene en el panel](367-2026-11-25-sin-menu-para-lo-que-el-propietario-ya-tiene-en-el-panel.md) |
 | 366 | 2026-11-25 | [Los commits de trabajo en la rama de la tarea no esperan el OK](366-2026-11-25-los-commits-de-trabajo-en-la-rama-de-la-tarea-no-esperan-el-ok.md) |
 | 365 | 2026-11-25 | [Al proponer descartar una tarea, decir qué pedía, dónde quedó hecha y qué supone](365-2026-11-25-al-proponer-descartar-una-tarea-decir-que-pedia-donde-quedo-hecha-y-que-supone.md) |
 | 364 | 2026-11-25 | [Un fallo propio de Claude es un bug y va a la cola](364-2026-11-25-un-fallo-propio-de-claude-es-un-bug-y-va-a-la-cola.md) |
