@@ -6,7 +6,7 @@ import { diferirIdentidad, lanzarPendientes } from './identidad'
 import { CLAVE_PLEGADO, PANEL, migrarPlegado } from './constantes'
 import { escribir } from './control'
 import { cargarAvisosPanel, encargarAClaude, tomarAvisoPanel } from './avisos'
-import { alCargarIncorporacion, anadirRegla, anotarRespuestaIncorporar, cerrarIncorporacionTerminada, contextoInicial, contextoPython, menuEnIncorporacion, pausarIncorporacion, ofrecerIncorporar, recargarSiPedido, reanudarIncorporacion, reglasAlIncorporar, reiniciarIncorporar, sugerirIncorporar } from './contexto'
+import { alCargarIncorporacion, anadirRegla, anotarRespuestaIncorporar, cerrarIncorporacionTerminada, contextoInicial, contextoPython, menuEnIncorporacion, pausarIncorporacion, ofrecerIncorporar, recargarSiPedido, reanudarIncorporacion, reglasAlActualizar, reglasAlIncorporar, reiniciarIncorporar, sugerirIncorporar } from './contexto'
 import { detectarPython } from './python'
 import { marcarSubagente } from './lectura'
 import type { $ } from './lectura'
@@ -436,8 +436,9 @@ export const register: Register = on => {
     const avisoSesion = delPropietario ? await tomarAvisoSesion($).catch(() => null) : null
     if (await sfApagada($).catch(() => false)) return next(avisoSesion ? { ...e, context: [...(e.context ?? []), avisoSesion] } : e)
     // La carpeta se acaba de incorporar en esta conversación: las reglas y la orquestación, una vez (decisión 242). Sin
-    // SF, el encargo de ofrecer la incorporación, una vez por conversación (decisión 243).
-    const reglas = delPropietario ? await reglasAlIncorporar($).catch(() => null) : null
+    // SF, el encargo de ofrecer la incorporación, una vez por conversación (decisión 243). Si no, y lo que se entregó ha
+    // cambiado (el plugin se actualizó y recargó, o cambió la configuración), otra vez, con la versión (tarea 378).
+    const reglas = delPropietario ? ((await reglasAlIncorporar($).catch(() => null)) ?? (await reglasAlActualizar($).catch(() => null))) : null
     const incorporar = delPropietario ? await ofrecerIncorporar($).catch(() => null) : null
     const tomado = delPropietario ? await tomarAvisoPanel($).catch(() => null) : null
     const panel = tomado?.aviso ?? null

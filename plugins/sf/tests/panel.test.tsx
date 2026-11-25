@@ -6938,6 +6938,46 @@ test('Reglas: una carpeta que se incorpora en la conversación recibe las reglas
   expect(contextos.at(-1)?.some(c => /entregado por su mod/.test(c)) ?? false).toBe(false)
 })
 
+// ── Tras actualizar el plugin, las reglas otra vez con el siguiente mensaje (tarea 378, decisión 357) ──
+// El plugin.json del plugin que corre ($.plugin.root/.claude-plugin/plugin.json, que `ruta` lleva a /plugin/plugin.json).
+const PLUGIN_JSON = '/plugin/plugin.json'
+const ENTREGADO = /entregado por su mod/
+test('Reglas: si cambian al recargar el plugin, el siguiente mensaje las lleva otra vez, con la versión; sin cambios, nada', async (...m) => {
+  const { archivos, contextos } = await preparar(m, {
+    sinMarca: true,
+    extra: { ...REGLAS_PLUGIN, [PLUGIN_JSON]: JSON.stringify({ name: 'sf', version: '1.0.0' }), '/sf/.sf/proyecto.json': PROYECTO_DEMO() },
+  })
+  expect((await inicio(m, 'startup')).length).toBe(1)
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)?.some(c => ENTREGADO.test(c)) ?? false).toBe(false)
+  // Otra versión con el mismo texto: nada.
+  archivos[PLUGIN_JSON] = JSON.stringify({ name: 'sf', version: '1.0.1' })
+  await escribe(m, 'misma orquestación')
+  expect(contextos.at(-1)?.some(c => ENTREGADO.test(c)) ?? false).toBe(false)
+  // La orquestación cambia con la versión nueva: el siguiente mensaje la lleva, una vez.
+  archivos[PLUGIN_JSON] = JSON.stringify({ name: 'sf', version: '1.1.0' })
+  archivos['/plugin/skills/orquestacion/SKILL.md'] = ORQUESTACION + '\n## Regla nueva\n'
+  await escribe(m, 'tras actualizar')
+  const dado = contextos.at(-1)!.find(c => ENTREGADO.test(c))!
+  expect(dado).toMatch(/^La SF se ha actualizado a la versión 1\.1\.0: lo que sigue sustituye/)
+  expect(dado).toMatch(/## Regla nueva/)
+  expect(dado).toMatch(/sf:orquestacion, ya cargada/)
+  await escribe(m, 'sigo')
+  expect(contextos.at(-1)?.some(c => ENTREGADO.test(c)) ?? false).toBe(false)
+})
+
+test('Reglas: si cambian las convenciones con la misma versión, otra vez, sin decir que se ha actualizado', async (...m) => {
+  const { archivos, contextos } = await preparar(m, {
+    sinMarca: true,
+    extra: { ...REGLAS_PLUGIN, [PLUGIN_JSON]: JSON.stringify({ name: 'sf', version: '1.0.0' }), '/sf/.sf/proyecto.json': PROYECTO_DEMO() },
+  })
+  await inicio(m, 'startup')
+  archivos['/sf/.sf/proyecto.json'] = PROYECTO_DEMO({ idioma: 'en' })
+  await escribe(m, 'otra configuración')
+  const dado = contextos.at(-1)!.find(c => ENTREGADO.test(c))!
+  expect(dado).toMatch(/^Han cambiado las reglas de la SF o la configuración del proyecto/)
+})
+
 test('Reglas: en un proyecto ya incorporado, el primer mensaje no las repite', async (...m) => {
   const { contextos } = await preparar(m, { sinMarca: true, extra: { ...REGLAS_PLUGIN, '/sf/.sf/proyecto.json': PROYECTO_DEMO() } })
   expect((await inicio(m, 'startup')).length).toBe(1)

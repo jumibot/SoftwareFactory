@@ -5,6 +5,7 @@ import { MARCA_SF, PROYECTO } from './constantes'
 import { normal } from './control'
 import { importaCopia, leerIncorporacion, leerJson, raizSesion, rutaIncorporacion } from './lectura'
 import type { $ } from './lectura'
+import type { ReglasEntregadas } from '../types'
 import { detectarPython, lineaPython } from './python'
 import { ORDEN_EMPEZAR } from './bienvenida'
 import { lanzar } from './identidad'
@@ -99,7 +100,10 @@ export async function contextoInicial($: $, e: { source: string; agent_id?: stri
   // Lo que se entrega ahora queda dado en esta conversación: sin SF, no, y se entrega al incorporarse (decisión 242).
   const lleva = await entregaReglas($)
   await update($, reglasDadas, () => lleva)
-  if (!lleva) return null
+  if (!lleva) {
+    await update($, reglasEntregadas, () => null)
+    return null
+  }
   return textoReglas($, e.source === 'compact' ? 'compactar' : e.source === 'clear' ? 'hacer /clear' : 'empezar la sesión')
 }
 
@@ -114,6 +118,52 @@ export async function reglasAlIncorporar($: $): Promise<string | null> {
   if (!(await llevaRegla($))) return null
   await update($, reglasDadas, () => true)
   return textoReglas($, 'incorporarse el proyecto en esta conversación')
+}
+
+// ── Tras actualizar o recargar el plugin, las reglas con el siguiente mensaje (tarea 378, decisión 357) ──
+// Lo que el mod entrega (reglas, convenciones y sf:orquestacion) se anota en $.state por su huella, con la versión del
+// plugin: /reload-plugins no lo reinicia, y el mod recargado (otra versión, en otra carpeta: $.plugin.root nuevo) lo
+// compara con lo que entregaría ahora. Si ha cambiado, el siguiente mensaje del propietario lo lleva otra vez, con una
+// línea que dice a qué versión se ha actualizado la SF (o, con la misma versión, que han cambiado las reglas o la
+// configuración del proyecto); sin cambios, nada. Sin nada entregado en la conversación (sin SF, o con la SF apagada
+// en la sesión), tampoco. La huella no lleva la carpeta del plugin, que cambia con cada versión.
+const reglasEntregadas = atom({ plugin: 'sf', key: 'reglasEntregadas' } as const, null as ReglasEntregadas | null)
+// FNV-1a de 32 bits con dos semillas, y la longitud: para notar un cambio, no para seguridad.
+export function huella(t: string): string {
+  let a = 0x811c9dc5
+  let b = 0x050c5d1f
+  for (let i = 0; i < t.length; i++) {
+    const c = t.charCodeAt(i)
+    a = Math.imul(a ^ c, 0x01000193) >>> 0
+    b = Math.imul(b ^ c, 0x01000193) >>> 0
+  }
+  return `${t.length.toString(36)}-${a.toString(36)}-${b.toString(36)}`
+}
+async function versionCarpeta($: $, raizPlugin: string): Promise<string | null> {
+  try {
+    const v = (await leerJson($, `${raizPlugin}/.claude-plugin/plugin.json`)).version
+    return typeof v === 'string' && v.trim() ? v.trim() : null
+  } catch {
+    return null
+  }
+}
+export async function reglasAlActualizar($: $): Promise<string | null> {
+  const antes = await read($, reglasEntregadas)
+  if (!antes) return null
+  if (!(await entregaReglas($))) return null
+  const ahora = await cuerpoReglas($)
+  if (!ahora) return null
+  const version = await versionCarpeta($, ahora.raizPlugin)
+  if (huella(ahora.anotado) === antes.huella) {
+    // Otra versión con el mismo texto: nada que entregar; se anota la versión.
+    if (version !== antes.version) await update($, reglasEntregadas, () => ({ huella: antes.huella, version }))
+    return null
+  }
+  const texto = await textoReglas($, 'cambiar respecto a lo entregado antes en esta conversación')
+  if (!texto) return null
+  const linea =
+    version && version !== antes.version ? `La SF se ha actualizado a la versión ${version}` : 'Han cambiado las reglas de la SF o la configuración del proyecto'
+  return `${linea}: lo que sigue sustituye a las reglas y la orquestación que el mod entregó antes en esta conversación.\n\n${texto}`
 }
 
 // ── En una carpeta sin SF, ofrecer incorporarla (decisión 243) ──
@@ -296,8 +346,18 @@ export async function menuEnIncorporacion($: $, respuestas: unknown): Promise<vo
   if (no) await borrarIncorporacion($)
 }
 
-// Las reglas y la orquestación del proyecto de la sesión, con el momento en que se entregan.
+// Las reglas y la orquestación del proyecto de la sesión, con el momento en que se entregan. Lo que devuelve queda
+// anotado como lo último entregado en la conversación (tarea 378).
 export async function textoReglas($: $, momento: string): Promise<string | null> {
+  const c = await cuerpoReglas($)
+  if (!c) return null
+  const version = await versionCarpeta($, c.raizPlugin)
+  await update($, reglasEntregadas, () => ({ huella: huella(c.anotado), version }))
+  return `Software Factory (plugin sf, entregado por su mod al ${momento}):\n\n${c.cuerpo}`
+}
+
+// El cuerpo de lo que se entrega, y el mismo sin la carpeta del plugin (`anotado`, para la huella); null sin nada.
+async function cuerpoReglas($: $): Promise<{ cuerpo: string; anotado: string; raizPlugin: string } | null> {
   const raiz = await raizSesion($)
   const raizPlugin = normal($.plugin.root).replace(/\/$/, '')
   const partes: string[] = []
@@ -315,5 +375,6 @@ export async function textoReglas($: $, momento: string): Promise<string | null>
       )
   }
   if (partes.length === 0) return null
-  return `Software Factory (plugin sf, entregado por su mod al ${momento}):\n\n${partes.join('\n\n---\n\n')}`
+  const cuerpo = partes.join('\n\n---\n\n')
+  return { cuerpo, anotado: cuerpo.split(raizPlugin).join('<plugin>'), raizPlugin }
 }

@@ -130,9 +130,12 @@ export type SubagenteVisto = { tarea: number; descripcion: string; nombre?: stri
 // Los avisos de subagentes ya dados (tarea 249): sus claves, si la sesión es nueva y aún no se ha dado ninguno, y el id
 // de la sesión de la que se sabe (tarea 277; sin él, el estado acaba de empezar: se busca en .sf/subagentes.json).
 export type AvisosSubagentes = { claves: string[]; nueva: boolean; sesion?: string }
+// Lo último que el mod entregó a Claude de las reglas y la orquestación en esta conversación (tarea 378): su huella
+// (sin la carpeta del plugin) y la versión del plugin que lo entregó.
+export type ReglasEntregadas = { huella: string; version: string | null }
 
 declare module 'claude-code' {
   interface PluginState {
-    'sf': { estado: Shaped<Estado | null>; nuevasEnSf: number; prompts: number; avisadoPanel: number; inicioSesion: number; minuto: number; sesion: Sesion; panelCerrado: boolean; plegado: Record<string, boolean>; vistaPanel: VistaPanel; turnoAvisos: number; identidadPuesta: { color: string | null; nombre: string | null }; prueba: Prueba; porConfirmar: string | null; fuenteRelease: FuenteVersion | null; actualizacion: Actualizacion | null; publicadaConocida: string | null; comprobadaEn: number | null; subagentesVistos: Record<string, SubagenteVisto>; pantallaOfrecida: boolean; reglasDadas: boolean; incorporarOfrecido: boolean; avisosSubagentes: AvisosSubagentes; vistaIncorporacion: VistaIncorporacion | null; sesionSf: 'activa' | 'apagada' | 'inactiva' | null; latidoIds: string[]; avisoSesionSf: string | null; latidoCaducadoDicho: boolean; temaClaro: boolean }
+    'sf': { estado: Shaped<Estado | null>; nuevasEnSf: number; prompts: number; avisadoPanel: number; inicioSesion: number; minuto: number; sesion: Sesion; panelCerrado: boolean; plegado: Record<string, boolean>; vistaPanel: VistaPanel; turnoAvisos: number; identidadPuesta: { color: string | null; nombre: string | null }; prueba: Prueba; porConfirmar: string | null; fuenteRelease: FuenteVersion | null; actualizacion: Actualizacion | null; publicadaConocida: string | null; comprobadaEn: number | null; subagentesVistos: Record<string, SubagenteVisto>; pantallaOfrecida: boolean; reglasDadas: boolean; reglasEntregadas: ReglasEntregadas | null; incorporarOfrecido: boolean; avisosSubagentes: AvisosSubagentes; vistaIncorporacion: VistaIncorporacion | null; sesionSf: 'activa' | 'apagada' | 'inactiva' | null; latidoIds: string[]; avisoSesionSf: string | null; latidoCaducadoDicho: boolean; temaClaro: boolean }
   }
 }
