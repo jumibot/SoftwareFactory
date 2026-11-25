@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "origen": "tinta",
   "historial": [
     {
@@ -19,6 +19,12 @@
       "fecha": "2026-11-24",
       "cambio": "nombre: \"Áureo\"",
       "motivo": "El estilo de la SF se llama Áureo"
+    },
+    {
+      "version": 4,
+      "fecha": "2026-11-25",
+      "cambio": "portada.fondo: \"oscuro\"",
+      "motivo": "la portada dorada deslumbra: fondo oscuro del tema, con texto claro, logo para fondo oscuro y la marca en tenue (437)"
     }
   ],
   "identidad": {
@@ -99,7 +105,7 @@
   },
   "portada": {
     "forma": "oscura",
-    "fondo": "primario",
+    "fondo": "oscuro",
     "linea": "no"
   },
   "secciones": {

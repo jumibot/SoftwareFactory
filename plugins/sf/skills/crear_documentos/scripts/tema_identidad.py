@@ -304,8 +304,10 @@ def tonos_serie(c: str, texto: str) -> dict:
 
 def tonos_serie_oscuro(c: str, oscuro: dict) -> dict:
     """Los tonos oscuros de un color de la serie. Redefine todos los roles que da tonos_serie: los neutros (tinta,
-    superficies de tabla, líneas) vuelven a los del oscuro, para que no se queden con los claros del bloque."""
-    po = legible(c, [oscuro["pagina"], oscuro["superficie"]], BLANCO)
+    superficies de tabla, líneas) vuelven a los del oscuro, para que no se queden con los claros del bloque. El color se
+    lee a 4,5:1 también sobre su fondo tintado (la recomendación de una pregunta) y sobre la superficie oscura (los
+    rótulos de los recuadros de decisión), como el primario en derivar_oscuro."""
+    po = legible_sobre_su_fondo(c, [oscuro["pagina"], oscuro["superficie"], oscuro["oscuro"]], oscuro["pagina"])
     neutros = {k: oscuro[k] for k in ("oscuro", "tinta-oscura", "fondo-suave", "fondo-medio", "linea")}
     return {**neutros, **familia_primario_oscuro(po, oscuro["pagina"]), "borde": mezclar(oscuro["pagina"], po, .55)}
 
@@ -330,6 +332,25 @@ def variables_css(tema: dict) -> str:
     return css + "\n    @media screen {\n    " + "\n    ".join(reglas) + "\n    }"
 
 _ATRIBUTOS_COLOR = ("fill", "stroke", "stop-color", "flood-color", "lighting-color")
+# El rol según el uso: un color de texto (color, o fill de un <text>) toma el rol legible del tema y un trazo, el de las
+# líneas. Así un .md escrito con el primario oscuro de teal o morado se lee con un primario claro (un amarillo) y en
+# oscuro, donde «oscuro» es una superficie y no una tinta (349); el tenue es para líneas, no para letra (3:1).
+_ROL_TEXTO = {"primario": "primario-texto", "primario-vivo": "primario-texto", "oscuro": "tinta-oscura",
+              "texto-tenue": "texto-suave"}
+_ROL_TRAZO = {"primario": "primario-linea", "primario-vivo": "primario-linea"}
+_ETIQUETAS_TEXTO = ("text", "tspan", "textpath")
+
+
+def _rol_por_uso(css: str, es_texto: bool) -> str:
+    """Cambia var(--rol) por el rol de su uso en cada declaración «propiedad: valor» de un style."""
+    def declaracion(d: str) -> str:
+        prop = d.split(":", 1)[0].strip().lower() if ":" in d else ""
+        roles = (_ROL_TEXTO if prop == "color" or (prop == "fill" and es_texto)
+                 else _ROL_TRAZO if prop == "stroke" else None)
+        if not roles:
+            return d
+        return re.sub(r"var\(--([\w-]+)\)", lambda m: f"var(--{roles.get(m.group(1), m.group(1))})", d)
+    return ";".join(declaracion(d) for d in css.split(";"))
 
 def colores_a_variables(html: str) -> str:
     """Pasa los colores con rol del .md a variables CSS, para que cada gráfico siga los colores de su bloque.
@@ -353,6 +374,7 @@ def colores_a_variables(html: str) -> str:
 
     def etiqueta(m):
         tag = m.group(0)
+        es_texto = re.match(r"<([\w:-]+)", tag).group(1).lower() in _ETIQUETAS_TEXTO
         movidos = []
         def atributo(am):
             valor = am.group(2)
@@ -361,9 +383,9 @@ def colores_a_variables(html: str) -> str:
                 return ""
             return am.group(0)
         tag = re.sub(r'\s(' + "|".join(_ATRIBUTOS_COLOR) + r')="([^"]*)"', atributo, tag)
-        tag = re.sub(r'\sstyle="([^"]*)"', lambda sm: f' style="{en_css(sm.group(1))}"', tag)
+        tag = re.sub(r'\sstyle="([^"]*)"', lambda sm: f' style="{_rol_por_uso(en_css(sm.group(1)), es_texto)}"', tag)
         if movidos:
-            previo = "; ".join(movidos)
+            previo = _rol_por_uso("; ".join(movidos), es_texto)
             if re.search(r'\sstyle="', tag):
                 tag = re.sub(r'\sstyle="', lambda _: f' style="{previo}; ', tag, count=1)
             else:

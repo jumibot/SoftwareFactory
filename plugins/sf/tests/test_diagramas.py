@@ -340,11 +340,11 @@ class EnNavegador(unittest.TestCase):
 
     def test_el_documento_de_ejemplo_pasa_y_su_herramienta_cambia_todas(self):
         ruta = SKILL / 'assets' / 'ejemplo-documento.html'
-        for m in cd.comprobar(ruta, [375, 1440], 6.5, ('claro',)):
-            self.assertEqual(m['interaccion'], [], m['ancho'])
+        for m in cd.comprobar(ruta, [375, 1440], 6.5, ('claro', 'oscuro')):   # también el oscuro de «Lectura»
+            self.assertEqual(m['interaccion'], [], (m['ancho'], m['modo']))
             self.assertEqual(m['js'], [])
             self.assertEqual(len([f for f in m['figuras'] if f['nombre'] != 'Notas']), 6)
-            self.assertEqual([e for f in m['figuras'] for e in f['errores']], [], m['ancho'])
+            self.assertEqual([e for f in m['figuras'] for e in f['errores']], [], (m['ancho'], m['modo']))
         from playwright.sync_api import sync_playwright
         with sync_playwright() as pw:
             b = cd.navegador(pw)

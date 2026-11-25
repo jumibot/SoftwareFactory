@@ -348,6 +348,10 @@ def _contraste_modo(colores: dict, tema: dict, estilo: dict | None, oscuro: bool
         c[f"sobre-serie-{i}"] = tonos["sobre-primario"]
         pares.append((f"serie-{i}", "pagina", f"rótulos de las secciones en el color {i} de la serie", False))
         pares.append((f"sobre-serie-{i}", f"serie-{i}", f"texto sobre el color {i} de la serie", False))
+        if oscuro:  # en oscuro, el color del bloque rotula también su fondo tintado y los recuadros de decisión
+            c[f"fondo-serie-{i}"] = tonos["fondo"]
+            pares.append((f"serie-{i}", f"fondo-serie-{i}", f"rótulos sobre el fondo del color {i} de la serie", False))
+            pares.append((f"serie-{i}", "oscuro", f"rótulos de las decisiones en el color {i} de la serie", False))
     for nombre, valor in significado(estilo).items():
         c[f"significado-{nombre}"] = valor
         pares.append(("blanco", f"significado-{nombre}", f"cabecera de las tarjetas «{nombre}»", False))
@@ -402,10 +406,10 @@ def css_parametros(estilo: dict | None) -> str:
     if portada.get("fondo") == "primario":
         # El color de cabecera del estilo, un tono del primario menos brillante, y su texto (decisión 351)
         css.append(".portada.oscura { background: var(--cabecera); color: var(--sobre-cabecera); }"
-                   " .portada.oscura .marca, .portada.oscura .subtitulo, .portada.oscura .idea p, .portada.oscura a,"
+                   " .portada.oscura .marca, .portada.oscura .tipo-doc, .portada.oscura .subtitulo, .portada.oscura .idea p, .portada.oscura a,"
                    " .portada.oscura .datos-version, .portada.oscura .datos-version span, .portada.oscura .cifras strong,"
                    " .portada.oscura .cifras span { color: var(--sobre-cabecera); }")
-        css.append("@media print { .portada.oscura, .portada.oscura :is(.marca, .subtitulo, .idea p, a, .datos-version,"
+        css.append("@media print { .portada.oscura, .portada.oscura :is(.marca, .tipo-doc, .subtitulo, .idea p, a, .datos-version,"
                    " .datos-version span, .cifras strong, .cifras span) { color: var(--texto); } }")
     secc = estilo.get("secciones", {})
     etiqueta = secc.get("etiqueta", "tinte")

@@ -308,6 +308,11 @@ p.editando { outline: 2px solid var(--primario); outline-offset: 4px; border-rad
 
 /* Pie con la procedencia del documento (la ponen los generadores). */
 .procedencia { font-size: .75rem; color: var(--texto-suave); margin-top: .35rem; font-variant-numeric: tabular-nums; }
+/* La maqueta anterior al generador único (309) tiene el pie oscuro (.site-footer) y el código sin cortar: con el kit
+ * puesto al día (actualizar_copia.py), el pie y su procedencia se leen a 4,5:1 y una ruta larga no desborda el móvil.
+ * Regenerar el documento lo pasa a la maqueta actual, que ya lo hace. */
+.site-footer, .site-footer .procedencia { color: rgba(255,255,255,.78); }
+:where(code) { overflow-wrap: anywhere; }
 
 /* Tamaño de las notas en la columna: el panel ocupa lo que dejan las demás herramientas y cada
  * nota abierta se reparte ese alto con las otras, entre 12em y el 60 % de la pantalla; su texto llena la tarjeta. */

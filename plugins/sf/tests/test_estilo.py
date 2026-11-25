@@ -760,5 +760,51 @@ class Conversor(Base):
         self.assertIn('ya está al día', r.stdout)
 
 
+class FallosDeLaComprobacion(Base):
+    """Lo que encontró comprobar_documento.py (437): el rol de cada color según su uso, el tipo de documento en la
+    portada oscura y los colores de la serie en oscuro."""
+
+    def setUp(self):
+        super().setUp()
+        sys.path.insert(0, str(SCRIPTS))
+        import tema_identidad
+        self.ti = tema_identidad
+
+    def test_un_color_de_texto_toma_el_rol_legible_y_un_trazo_el_de_las_lineas(self):
+        h = self.ti.colores_a_variables(
+            '<p style="color:#00726b">a</p><p style="color:var(--primario)">b</p><svg><text fill="#004d47">c</text>'
+            '<text fill="#888">d</text><path stroke="#00726b"/><rect fill="#00726b" stroke="#004d47"/></svg>'
+            '<div style="border-top:4px solid #00726b;--oscuro:#134c4c">e</div>')
+        self.assertIn('<p style="color:var(--primario-texto)">a', h)
+        self.assertIn('<p style="color:var(--primario-texto)">b', h)
+        self.assertIn('<text style="fill: var(--tinta-oscura)">c', h)
+        self.assertIn('<text style="fill: var(--texto-suave)">d', h)
+        self.assertIn('<path style="stroke: var(--primario-linea)"/>', h)
+        self.assertIn('<rect style="fill: var(--primario); stroke: var(--oscuro)"/>', h)  # rellenos: su rol
+        self.assertIn('border-top:4px solid var(--primario);--oscuro:#134c4c', h)
+
+    def test_el_tipo_de_documento_no_va_en_el_primario_sobre_la_portada_oscura(self):
+        css = (SKILLS / 'crear_documentos' / 'assets' / 'estilo_documento.css').read_text(encoding='utf-8')
+        self.assertIn('@media screen { .oscura .tipo-doc { color: var(--tenue); } }', css)
+        self.assertIn(':is(.oscura .marca, .oscura .tipo-doc,', css)
+        self.escribir_estilo(estilo_morado(portada={'forma': 'oscura', 'fondo': 'primario'}))
+        self.assertIn('.portada.oscura .tipo-doc,', self.generar())
+
+    def test_en_la_portada_oscura_va_el_logo_para_fondo_oscuro(self):
+        css = (SKILLS / 'crear_documentos' / 'assets' / 'estilo_documento.css').read_text(encoding='utf-8')
+        self.assertIn('.portada.oscura .marca img.logo-claro:has(+ img.logo-oscuro) { display: none; }', css)
+        self.assertIn('.portada.oscura .marca img.logo-oscuro { display: inline; }', css)
+
+    def test_en_oscuro_cada_color_de_la_serie_se_lee_sobre_su_fondo_y_en_las_decisiones(self):
+        for nombre in sorted(p.stem for p in TEMAS.glob('*.json')):
+            tema = self.ti.cargar_tema(nombre)
+            o = tema['colores-oscuro']
+            for s in tema.get('serie', []):
+                t = self.ti.tonos_serie_oscuro(s, o)
+                for fondo in (t['fondo'], o['oscuro'], o['pagina'], o['superficie']):
+                    with self.subTest(nombre, serie=s, fondo=fondo):
+                        self.assertGreaterEqual(self.ti.contraste(t['primario'], fondo), 4.5)
+
+
 if __name__ == '__main__':
     unittest.main()

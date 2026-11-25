@@ -38,7 +38,11 @@ strong { font-weight: 650; }
 .marca img { height: 40px; width: auto; }
 /* Portada clara con logo para fondo oscuro (o en placa): cada uno en su modo de «Lectura». */
 .marca img.logo-oscuro { display: none; }
+/* En la portada oscura, el logo para fondo oscuro si lo hay (en papel, la portada vuelve a clara). */
+@media screen { .portada.oscura .marca img.logo-claro:has(+ img.logo-oscuro) { display: none; }
+                .portada.oscura .marca img.logo-oscuro { display: inline; } }
 .oscura .marca { color: var(--tenue); }
+@media screen { .oscura .tipo-doc { color: var(--tenue); } }  /* como la marca: el primario no se lee sobre el oscuro */
 .portada.oscura a { color: #fff; text-decoration-color: var(--tenue); }  /* el primario no se lee sobre el oscuro */
 .enlace-proyecto { margin: -.8rem 0 1.2rem; font-size: .9375rem; overflow-wrap: anywhere; }
 .marca img.placa { background: #fff; border-radius: 6px; padding: 4px; box-sizing: content-box; }
@@ -310,7 +314,7 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
  * cambia de rol: sobre las superficies oscuras, el primario aclarado en lugar del tenue; en las tarjetas con color,
  * los campos y los chips con el color aclarado (350); y el logo de la portada clara. */
 @media screen {
-  :where(:root[data-theme="dark"]) :is(.oscura .marca, .oscura .cifras strong, .recuadro.decision .recuadro-etiqueta,
+  :where(:root[data-theme="dark"]) :is(.oscura .marca, .oscura .tipo-doc, .oscura .cifras strong, .recuadro.decision .recuadro-etiqueta,
                                        .recuadro.decision h3) { color: var(--primario); }
   :root[data-theme="dark"] .portada.oscura a { text-decoration-color: var(--primario); }
   :root[data-theme="dark"] .tarjeta.con-color dt { color: var(--c-oscuro-o, var(--c-oscuro)); border-top-color: var(--c-borde-o, var(--c-borde)); }
