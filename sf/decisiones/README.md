@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 379 | 2026-11-25 | [El mod entrega las reglas y sf:orquestacion al empezar la sesión, tras /clear y tras compactar](379-2026-11-25-el-mod-entrega-las-reglas-y-sf-orquestacion-al-empezar-la-sesion-tras-clear-y-tras-compactar.md) |
 | 378 | 2026-11-25 | [Al anotar sin foco, un menú breve: paso de una tarea, en curso o en cola](378-2026-11-25-al-anotar-sin-foco-un-menu-breve-paso-de-una-tarea-en-curso-o-en-cola.md) |
 | 377 | 2026-11-25 | [Cada documento compartido se actualiza en su propia tarea, «Actualizar <documento>»](377-2026-11-25-cada-documento-compartido-se-actualiza-en-su-propia-tarea-actualizar-documento.md) |
 | 376 | 2026-11-25 | [El principal orquesta y lanza cada subagente sin preguntar](376-2026-11-25-el-principal-orquesta-y-lanza-cada-subagente-sin-preguntar.md) |
