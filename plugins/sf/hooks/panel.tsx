@@ -15,6 +15,7 @@ import type { $ } from './lectura'
 import { emergente, emergenteError, emergenteRespuesta } from './emergentes'
 import { subirDevelop } from './cola'
 import { sfApagada } from './latido'
+import type { PropsPulsable, TextoDatos } from './pulsable'
 
 // Valores de estado del mod: el motor exige declararlos en el archivo que los usa; con el mismo
 // plugin y clave, son el mismo valor en todos los archivos.
@@ -52,6 +53,35 @@ let medidaPedida = ''
 // Si el panel se dibujó por última vez en una superficie gráfica (la app de escritorio, VS Code, el móvil): allí el scroll
 // es de la app, que mueve su ventana sola, con la cabecera (tarea 429). El evento de scroll no dice la superficie.
 let scrollDeLaApp = false
+// Lo pulsable de la app de escritorio dibujado como Client (pulsable.tsx, tarea 432): por la clave de cada uno, lo que
+// hace su clic, del último dibujo. El módulo de superficie solo avisa (ui.message); el panel responde con esto.
+const pulsables = new Map<string, () => void>()
+
+// Un Text del panel como datos, para dárselo a un Client, cuyas props tienen que serlo: el mismo árbol, con los estilos
+// que tienen valor y sus hijos; lo que no es texto (null, false) no queda.
+export const textoDatos = (n: unknown): TextoDatos[] => {
+  if (n === null || n === undefined || n === false || n === true || n === '') return []
+  if (typeof n === 'string' || typeof n === 'number') return [String(n)]
+  if (Array.isArray(n)) return n.flatMap(textoDatos)
+  const nodo = n as { props?: Record<string, unknown> | null; children?: unknown }
+  const estilo: Record<string, string | number | boolean> = {}
+  for (const [k, v] of Object.entries(nodo.props ?? {}))
+    if (k !== 'children' && (typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean')) estilo[k] = v
+  return [{ estilo, hijos: textoDatos(nodo.children ?? nodo.props?.children) }]
+}
+const unTexto = (n: unknown): TextoDatos => {
+  const t = textoDatos(n)
+  return t.length === 1 ? t[0] : { estilo: {}, hijos: t }
+}
+
+// Un clic en cualquier otro botón del panel deja Eliminar o Descartar pendiente como estaba, sin eliminar ni descartar
+// (decisión del propietario, 2026-10-29). Lo usan los botones (ui.press) y lo pulsable de la app (ui.message).
+const SIN_ANULAR = ['eliminar-tarea:', 'descartar-tarea:', 'revertir-tarea:', 'quitar-paso:', 'release', 'actualizar', 'refrescar']
+const anularConfirmacion = async ($: $, elemento: string) => {
+  if (SIN_ANULAR.some(x => elemento.startsWith(x))) return
+  turnoConfirmar++
+  await update($, porConfirmar, v => (v === null ? v : null)).catch(() => undefined)
+}
 
 // La lista de tareas tal como el panel la enseña: cada una con su estado. Si cambia, el cuerpo vuelve arriba (tarea 406).
 export const firmaLista = (cola: readonly Peticion[]) => cola.map(p => `${String(p.id)}:${p.estado}${p.observando ? '*' : ''}`).join(',')
@@ -352,14 +382,19 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     )
   })
 
-  // Un clic en cualquier otro botón del panel deja Eliminar o Descartar pendiente como estaba, sin eliminar ni descartar
-  // (decisión del propietario, 2026-10-29).
+  // Un clic en cualquier otro botón del panel deja Eliminar o Descartar pendiente como estaba (anularConfirmacion).
   on('ui.press', async ($, e, next) => {
-    if (e.plugin === 'sf' && !['eliminar-tarea:', 'descartar-tarea:', 'revertir-tarea:', 'quitar-paso:', 'release', 'actualizar', 'refrescar'].some(x => e.element.startsWith(x))) {
-      turnoConfirmar++
-      await update($, porConfirmar, v => (v === null ? v : null)).catch(() => undefined)
-    }
+    if (e.plugin === 'sf') await anularConfirmacion($, e.element)
     return next(e)
+  })
+  // El clic en algo pulsable de la app dibujado como Client (pulsable.tsx, tarea 432): lo mismo que el botón del
+  // terminal con su misma clave. Lo que el módulo manda es solo el aviso; qué hacer sale de la clave.
+  on('ui.message', async ($, e, next) => {
+    const pulsar = pulsables.get(e.element)
+    if (pulsar === undefined) return next(e)
+    await anularConfirmacion($, e.element)
+    pulsar()
+    return {}
   })
 
   // Cerrado a mano: se recuerda para no volver a abrirlo solo y para enseñar la caja en su lugar.
@@ -525,6 +560,17 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // El texto de un botón: en el terminal, centrado en su ancho de columnas; en una superficie gráfica, tal cual, sin
     // los espacios que lo rellenan, que allí solo ensanchan el botón nativo (tarea 397).
     const rotulo = (t: string, w: number) => (grafica ? t : centrar(t, w))
+    // En la app de escritorio, lo que el botón nativo no sabe pintar (la línea entera de una tarea, las órdenes de la
+    // tarea y la marca del subagente) va como Client (pulsable.tsx): la app lo dibuja con su color y su fondo, y su clic
+    // llega por ui.message con la clave del Client, la misma que la del botón del terminal (tarea 432). VS Code y el
+    // móvil no tienen Client: allí, los botones nativos de siempre.
+    const tabla = $.ui.resolve(e)
+    const Client = e.surface === 'desktop' && 'Client' in tabla ? tabla.Client : null
+    const pulsable = (key: string, props: PropsPulsable, pulsar: () => void, crece = false) => {
+      if (Client === null) return null
+      pulsables.set(key, pulsar)
+      return <Client key={key} module="./pulsable.tsx" props={props} width={crece ? '100%' : undefined} flexGrow={crece ? 1 : undefined} />
+    }
     // Un marcador pulsable en línea, para una superficie gráfica: un enlace de una Markdown cuyo clic responde el panel
     // (onLinkPress), sin el botón nativo, que agrandaba la fila (tarea 397). La dirección no se abre: solo identifica el
     // enlace, y .invalid no existe.
@@ -662,8 +708,17 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           ? `${glifo}: el subagente de la ${String(p.id)} espera instrucciones (${subagente.descripcion})`
           : `${glifo}: el subagente de la ${String(p.id)} está detenido (${subagente.descripcion})`
       const avisar = () => emergente($, aviso, false)
-      // En la app, el botón nativo pinta su label con la letra clara (tarea 397): el ● o el ○, con su forma, sobre la
-      // caja verde, que no lo tapa.
+      // En la app de escritorio, como en el terminal: el ● o el ○ en verde, como texto, sin botón nativo ni caja llena,
+      // en un Client (pulsable.tsx) que avisa con un clic (tarea 432).
+      const enApp = pulsable(`subagente-tarea:${donde}:${p.id}`, { forma: 'texto', texto: unTexto(<Text color="success">{glifo}</Text>) }, avisar)
+      if (enApp !== null)
+        return (
+          <Box flexShrink={0} marginLeft={1}>
+            {enApp}
+          </Box>
+        )
+      // En VS Code y el móvil, el botón nativo pinta su label con la letra clara (tarea 397): el ● o el ○, con su forma,
+      // sobre la caja verde, que no lo tapa.
       const boton = (
         <Button key={`subagente-tarea:${donde}:${p.id}`} label={glifo} plain onPress={avisar}>
           <Text color="success">{grafica ? glifo : ` ${glifo} `}</Text>
@@ -682,20 +737,24 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Cerrar, A observación (o Cerrar en observación, 241), Redescribir, «?» (254), A propuesta (243) y la que destruye (Eliminar, Descartar o Revertir); después, las de sus pasos: Separar pasos
     // y Paso +, al final y con la letra atenuada, para distinguirlas de las de la tarea (decisión 168, precisada por el
     // propietario el 2026-11-01).
-    // En una superficie gráfica, en su caja llena de su color (enCaja), del tamaño reducido de la 397, como las de la
-    // cabecera: el botón nativo pinta solo su `label`, con la letra clara de la app, y sin la caja todas salían en
+    // En la app de escritorio, como en el terminal: el texto de su color sobre una etiqueta negra (FONDO_ORDEN),
+    // redondeada y de altura mínima, en un Client (pulsable.tsx) que se pulsa con un clic, sin botón nativo (tarea 432;
+    // decisión del propietario sobre el aspecto).
+    // En VS Code y el móvil, sin Client, en su caja llena de su color (enCaja), del tamaño reducido de la 397, como las
+    // de la cabecera: el botón nativo pinta solo su `label`, con la letra clara de la app, y sin la caja todas salían en
     // blanco (tarea 397, que las había dejado sin caja).
     type Tarea = { id: number; texto: string; rama?: string | null }
     const etiquetaOrden = (key: string, color: string | undefined, nombre: string, pulsar: () => void) => (
       <Box marginRight={separa} flexShrink={0}>
-        {enCaja(
-          <Button key={key} label={nombre} plain onPress={pulsar}>
-            <Text color={color} weight="regular" backgroundColor={grafica ? undefined : FONDO_ORDEN}>
-              {grafica ? nombre : ` ${nombre} `}
-            </Text>
-          </Button>,
-          color,
-        )}
+        {pulsable(key, { forma: 'etiqueta', texto: unTexto(<Text color={color} weight="regular">{nombre}</Text>), fondo: FONDO_ORDEN }, pulsar) ??
+          enCaja(
+            <Button key={key} label={nombre} plain onPress={pulsar}>
+              <Text color={color} weight="regular" backgroundColor={grafica ? undefined : FONDO_ORDEN}>
+                {grafica ? nombre : ` ${nombre} `}
+              </Text>
+            </Button>,
+            color,
+          )}
       </Box>
     )
     // Eliminar, en las eliminables: en cola o en curso y sin rama. Descartar, en las descartables: con rama, en cola o
@@ -1014,8 +1073,20 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Allí, además, el botón nativo no pinta el color del número ni del título, ni corta el título con «…» (tarea 337):
     // número y título van fuera del botón, como texto, y el botón que despliega es un «▸» (plegada) o «▾» (desplegada)
     // al final de la fila; el número sigue subrayado si se despliega.
+    // En la app de escritorio, la línea que se despliega es un Client (pulsable.tsx) con lo mismo: número, título y
+    // «▸» o «▾» como texto, sin botón nativo ni su contorno, y se pulsa entera, como en el terminal (tarea 432).
     const filaTitulo = (cabeza: RenderChildren, ancho: number, cuerpo: RenderChildren, clave: string | null, delante = 0) => {
       const titulo = grafica ? <Text wrap={clave && abierta(clave) ? 'wrap' : 'truncate-end'}>{cuerpo}</Text> : cuerpo
+      const linea =
+        clave === null
+          ? null
+          : pulsable(
+              clave,
+              { forma: 'linea', cabeza: cabeza === null ? null : unTexto(cabeza), ancho, cuerpo: unTexto(cuerpo), abierta: abierta(clave), flecha: abierta(clave) ? '▾' : '▸' },
+              alternar(clave),
+              true,
+            )
+      if (linea !== null) return linea
       if (grafica)
         return (
           <Box flexDirection="row" minWidth={0}>

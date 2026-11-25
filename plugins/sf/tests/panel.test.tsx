@@ -711,6 +711,42 @@ const remotos = (...v: string[]) => v.map(x => `abc\trefs/tags/v${x}\ndef\trefs/
 
 const hay = async (ui: { find: (q: object) => Promise<unknown> }, q: object) => (await ui.find(q)) !== undefined
 
+// En la app de escritorio, lo pulsable de una tarea (la línea entera, sus órdenes y la marca del subagente) es un Client
+// (pulsable.tsx, tarea 432), con su propio árbol. conClients busca también dentro de cada Client, en el orden del
+// dibujo, y pulsa uno como lo hace la app: un clic izquierdo en su región. Lo demás, como el ui del motor.
+type Hallado = { type: string; key?: string; props: Record<string, unknown>; text?: string }
+const firmaHallado = (x: Hallado) => `${x.type}|${x.key ?? ''}|${x.text ?? ''}|${JSON.stringify(x.props)}`
+const conClients = <U extends { find: (q: never) => Promise<unknown>; findAll: (q: never) => Promise<unknown[]>; press: (t: never) => Promise<unknown> }>(ui: U): U => {
+  const motor = ui as unknown as {
+    findAll: (q: object) => Promise<Hallado[]>
+    press: (t: { key: string }) => Promise<unknown>
+    pointer?: (ev: object) => Promise<void>
+  }
+  const findAll = async (q: object) => {
+    const todos = await motor.findAll({})
+    const fuera = await motor.findAll(q)
+    const firmas = fuera.map(firmaHallado)
+    const r: Hallado[] = []
+    let j = 0
+    for (const x of todos) {
+      if (j < firmas.length && firmaHallado(x) === firmas[j]) r.push(fuera[j++])
+      if (x.type === 'Client' && x.key !== undefined) r.push(...(await motor.findAll({ ...q, in: x.key })))
+    }
+    return r
+  }
+  const propias: Record<string, unknown> = {
+    findAll,
+    find: async (q: object) => (await findAll(q))[0],
+    press: async (t: { key: string }) => {
+      const cliente = (await motor.findAll({ type: 'Client', key: t.key })).length > 0
+      if (cliente && motor.pointer) return motor.pointer({ type: 'up', x: 0, y: 0, button: 'left', in: t.key })
+      return motor.press(t)
+    },
+  }
+  // El ui del motor está congelado: una copia con sus mismos métodos y estos tres en su lugar.
+  return { ...ui, ...propias } as U
+}
+
 // El número de una tarea, sin letra detrás (decisión del propietario, 2026-10-31): el Text que lo lleva solo, con su
 // subrayado de desplegable, que no tienen las cuentas. El estado se lee en su color: rojo si ya estaba (o en Cerradas,
 // si se reabrió), verde si se probó, gris en el resto; azul, la en curso; el fondo rojo, la reabierta.
@@ -731,7 +767,7 @@ const titular = (surface: 'terminal' | 'desktop') => (surface === 'desktop' ? 'T
 for (const surface of ['terminal', 'desktop'] as const) {
   test(`${surface}: cabecera, marcador y bloques`, async (...m) => {
     await preparar(m)
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
     // El marcador, bajo el título y fuera de toda sección.
     expect(await ui.find({ type: 'Button', text: /Marcador/ })).toBe(undefined)
     expect(await hay(ui, { type: 'Text', text: /^prompts$/ })).toBe(true)
@@ -745,7 +781,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
 
   test(`${surface}: Cerradas se ve siempre, también con 0`, async (...m) => {
     await preparar(m)
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
     // En el escritorio, la cuenta, con su color, fuera del botón (tarea 337).
     if (surface === 'desktop') {
       expect(await hay(ui, { type: 'Button', text: /^CERRADAS [▸▾]$/ })).toBe(true)
@@ -757,7 +793,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
 
   test(`${surface}: tareas en curso arriba, la más reciente primero`, async (...m) => {
     await preparar(m)
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
     // Sin marca delante: la tarea de arriba no se despliega.
     expect(await ui.find({ type: 'Text', text: /^▶ $/ })).toBe(undefined)
     expect((await ui.findAll({ type: 'Text', text: /Panel lateral/ })).length > 0).toBe(true)
@@ -773,7 +809,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
 
   test(`${surface}: Pendientes, solo con las en cola: cuenta sin reparto y números sin letras`, async (...m) => {
     await preparar(m, { cola: [...INICIAL, { id: 6, texto: 'En cola', estado: 'en-cola' }] })
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
     // Las dos en curso (1 y 4), solo arriba; en Pendientes, la 6, en gris aunque ya estaba: el rojo, solo para las reabiertas.
     expect(await hay(ui, { type: 'Button', text: /PENDIENTES [▸▾]\s+1$/ })).toBe(true)
     expect(await colores(ui, 6)).toEqual([GRIS])
@@ -787,7 +823,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
 
   test(`${surface}: En observación despliega cada petición por separado`, async (...m) => {
     const { guardado } = await preparar(m)
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
     await ui.press({ key: 'sec:observacion' })
     expect(await hay(ui, { type: 'Button', text: /EN OBSERVACIÓN/ })).toBe(true)
     // En el escritorio, el título va fuera del botón, que es «▸» (tarea 337).
@@ -809,7 +845,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
 
   test(`${surface}: una petición larga sale entera, plegada y desplegada`, async (...m) => {
     await preparar(m)
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
     await ui.press({ key: 'sec:observacion' })
     const t = titular(surface)
     expect(await hay(ui, { type: t, text: /Un proyecto por sesión.*…/ })).toBe(false)
@@ -2631,9 +2667,15 @@ test('Poner en curso: solo en las en cola de Pendientes, y la primera de su fila
   await ui.unmount()
 })
 
-test('desktop: Poner en curso, en una caja llena de verde con su texto como label', async (...m) => {
+// En la app de escritorio, en verde sobre su etiqueta negra, como las demás órdenes de la tarea (432); en VS Code, sin
+// Client, en una caja llena de verde con su texto como label.
+test('desktop: Poner en curso, en verde sobre su etiqueta negra; en VS Code, en una caja llena de verde con su texto como label', async (...m) => {
   await preparar(m, { desplegadas: true, cola: ELIMINABLES, reloj: true })
-  const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  const esc = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  expect(await hay(esc, { type: 'Text', text: /^Poner en curso$/, in: 'en-curso-tarea:cola:7' })).toBe(true)
+  expect(((await esc.find({ type: 'Box', in: 'en-curso-tarea:cola:7' })) as { props: Record<string, unknown> } | undefined)?.props.backgroundColor).toBe(FONDO_ORDEN)
+  await esc.unmount()
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'vscode' })
   expect((await cajaDe(ui, 'en-curso-tarea:cola:7'))?.props.backgroundColor).toBe('#15803d')
   expect(((await ui.find({ type: 'Button', key: 'en-curso-tarea:cola:7' })) as { props: { label?: string } } | undefined)?.props.label).toBe('Poner en curso')
   await ui.unmount()
@@ -3694,20 +3736,25 @@ test('Subagente: el que espera no da ⚙ si la tarea no está en curso', async (
   await ui.unmount()
 })
 
-// En la app, el botón nativo pinta su label (tarea 397): el ● o el ○ van en él, verdes, en la caja verde que no los tapa.
-test('Subagente: en la app, el label es ● trabajando y ○ parado, en verde', async (...m) => {
-  const agentes = EN_12()
-  const { cambiarCola } = await preparar(m, { cola: CERRABLES, agentes, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
-  const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
-  const boton = async () => (await ui.find({ type: 'Button', key: 'subagente-tarea:arriba:12' })) as ConProps & { children: Nodo[] }
-  expect((await boton()).props.label).toBe('●')
-  expect((await boton()).children[0]?.props).toMatchObject({ color: 'success' })
-  agentes[0]!.status = 'completed'
-  await cambiarCola(CERRABLES)
-  expect((await boton()).props.label).toBe('○')
-  expect((await boton()).children[0]?.props).toMatchObject({ color: 'success' })
-  await ui.unmount()
-})
+// En la app de escritorio, el ● o el ○, texto verde en su Client (tarea 432). En VS Code, el botón nativo pinta su label
+// (tarea 397): el ● o el ○ van en él, verdes, en la caja verde que no los tapa.
+for (const surface of ['desktop', 'vscode'] as const)
+  test(`Subagente (${surface}): ● trabajando y ○ parado, en verde`, async (...m) => {
+    const agentes = EN_12()
+    const { cambiarCola } = await preparar(m, { cola: CERRABLES, agentes, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
+    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const key = 'subagente-tarea:arriba:12'
+    const glifo = async (g: string) => {
+      if (surface === 'desktop') return ((await ui.findAll({ type: 'Text', text: g, in: key })) as ConProps[]).some(x => x.props.color === 'success')
+      const boton = (await ui.find({ type: 'Button', key })) as ConProps & { children: Nodo[] }
+      return boton.props.label === g && boton.children[0]?.props.color === 'success'
+    }
+    expect(await glifo('●')).toBe(true)
+    agentes[0]!.status = 'completed'
+    await cambiarCola(CERRABLES)
+    expect(await glifo('○')).toBe(true)
+    await ui.unmount()
+  })
 
 test('Subagente: el latido pasa la ⚙ de trabajando a esperando sin que pase nada más', async (...m) => {
   const agentes = EN_12()
@@ -6971,7 +7018,7 @@ for (const surface of ['terminal', 'desktop'] as const) {
   test(`${surface}: cabecera y números sin ancho fijo en el escritorio; títulos cortados al plegar y partidos al desplegar`, async (...m) => {
     type Caja = { props: Record<string, unknown> }
     await preparar(m, { cola: [...INICIAL, { id: 236, texto: 'Un título de tarea muy largo que no cabe en el panel lateral estrecho', estado: 'en-cola', descripcion: 'detalle' }] })
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
     const conFondo = ((await ui.findAll({ type: 'Box' })) as Caja[]).filter(x => x.props.backgroundColor === '#3f3f46')
     expect(conFondo.length > 0).toBe(true)
     expect(conFondo.every(x => (surface === 'desktop' ? x.props.width === undefined : typeof x.props.width === 'number'))).toBe(true)
@@ -6988,35 +7035,83 @@ for (const surface of ['terminal', 'desktop'] as const) {
 // hijos (tarea 337): el número y el título de una tarea van fuera del botón, que es un «▸»; las órdenes y los botones de
 // color, en una caja con contorno de su color; la etiqueta de la SF, siempre en su fila, con su texto como label.
 type Nodo337 = { props: Record<string, unknown>; text?: string }
-test('desktop: número y título fuera del botón, que despliega con «▸»; el terminal, como estaba', async (...m) => {
+// En la app, la línea de una tarea se pulsa entera, como en el terminal: es un Client (pulsable.tsx) con el número, el
+// título y el «▸» o «▾» como texto, sin botón nativo; un clic en cualquier punto la despliega (tarea 432).
+test('desktop: la línea de la tarea, entera pulsable, con número, título y «▸» como texto; el terminal, como estaba', async (...m) => {
   await preparar(m, { cola: [...INICIAL, { id: 6, texto: 'En cola', estado: 'en-cola', descripcion: 'detalle' }] })
   const esc = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
-  expect(await hay(esc, { type: 'Button', key: 'pet:cola:6', text: /^[▸▾]$/ })).toBe(true)
+  expect(await hay(esc, { type: 'Client', key: 'pet:cola:6' })).toBe(true)
+  expect(await esc.find({ type: 'Button', key: 'pet:cola:6' })).toBe(undefined)
   expect(await esc.find({ type: 'Button', key: 'pet:cola:6:num' })).toBe(undefined)
-  expect(await hay(esc, { type: 'Text', text: /^En cola$/ })).toBe(true)
-  expect(await esc.find({ type: 'Button', text: /En cola/ })).toBe(undefined)
+  for (const texto of [/^6$/, /^En cola$/, /^▸$/]) expect(await hay(esc, { type: 'Text', text: texto, in: 'pet:cola:6' })).toBe(true)
+  // Un clic sobre el título, lejos del ▸, la despliega; otro, sobre el número, la pliega.
+  expect(await esc.find({ type: 'Text', text: /^detalle$/ })).toBe(undefined)
+  await esc.pointer({ type: 'up', x: 6, y: 0, button: 'left', in: 'pet:cola:6' })
+  expect(await hay(esc, { type: 'Text', text: /^▾$/, in: 'pet:cola:6' })).toBe(true)
+  expect(await hay(esc, { type: 'Text', text: /^detalle$/ })).toBe(true)
+  await esc.pointer({ type: 'up', x: 1, y: 0, button: 'left', in: 'pet:cola:6' })
+  expect(await hay(esc, { type: 'Text', text: /^▸$/, in: 'pet:cola:6' })).toBe(true)
+  expect(await esc.find({ type: 'Text', text: /^detalle$/ })).toBe(undefined)
   await esc.unmount()
   const ter = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await ter.find({ type: 'Client' })).toBe(undefined)
   expect(await hay(ter, { type: 'Button', key: 'pet:cola:6:num' })).toBe(true)
   expect(await hay(ter, { type: 'Button', key: 'pet:cola:6', text: /En cola/ })).toBe(true)
   await ter.unmount()
 })
 
-test('desktop: las órdenes de la tarea, con label y en una caja llena de su color; en el terminal, sin caja', async (...m) => {
-  await preparar(m, { cola: [{ id: 7, texto: 'Otra', estado: 'en-observacion' }] })
-  for (const surface of ['desktop', 'terminal'] as const) {
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
-    await ui.press({ key: 'sec:observacion' })
-    await ui.press({ key: 'pet:observacion:7' })
-    const boton = (await ui.find({ type: 'Button', key: 'explicar-tarea:observacion:7' })) as Nodo337 | undefined
-    expect(boton?.props.label).toBe('?')
-    const cajas = (await ui.findAll({ type: 'Box' })) as Nodo337[]
-    expect(cajas.some(x => x.props.borderStyle === undefined && x.props.backgroundColor === '#15803d')).toBe(surface === 'desktop')
-    // Plegadas otra vez, para que el montaje siguiente empiece igual.
-    await ui.press({ key: 'pet:observacion:7' })
-    await ui.press({ key: 'sec:observacion' })
-    await ui.unmount()
+// En la app, cada orden de la tarea, texto de su color sobre una etiqueta negra redondeada de altura mínima, como en el
+// terminal: un Client (pulsable.tsx), sin botón nativo ni caja llena de color, que se pulsa con un clic (tarea 432).
+test('desktop: las órdenes de la tarea, texto de color sobre una etiqueta negra redondeada, sin botón; el terminal, como estaba (432)', async (...m) => {
+  await preparar(m, { desplegadas: true, cola: CERRABLES, reloj: true, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
+  const esc = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  const ORDENES = [
+    ['probar', /^Activar rama$/, 'success'],
+    ['cerrar', /^Cerrar$/, 'success'],
+    ['explicar', /^\?$/, 'success'],
+    ['descartar', /^Descartar$/, '#f87171'],
+    ['paso', /^Paso \+$/, '#717171'],
+  ] as const
+  for (const [k, nombre, color] of ORDENES) {
+    const key = `${k}-tarea:arriba:12`
+    // La clave delante, para que el fallo diga qué orden no cumple.
+    expect([key, await hay(esc, { type: 'Client', key })]).toEqual([key, true])
+    expect([key, await hay(esc, { type: 'Button', key })]).toEqual([key, false])
+    const etiqueta = (await esc.find({ type: 'Box', in: key })) as Nodo337 | undefined
+    expect([key, etiqueta?.props]).toMatchObject([key, { backgroundColor: FONDO_ORDEN, borderStyle: 'round', borderColor: FONDO_ORDEN, paddingY: 0 }])
+    const textos = (await esc.findAll({ type: 'Text', text: nombre, in: key })) as Nodo337[]
+    expect([key, textos.some(x => x.props.color === color)]).toEqual([key, true])
   }
+  // Un clic en Cerrar pide la confirmación, como el botón del terminal.
+  await esc.pointer({ type: 'up', x: 1, y: 0, button: 'left', in: 'cerrar-tarea:arriba:12' })
+  expect(await hay(esc, { type: 'Text', text: /^¿Cerrar\? sí$/, in: 'cerrar-tarea:arriba:12' })).toBe(true)
+  await esc.unmount()
+  const ter = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await ter.find({ type: 'Client' })).toBe(undefined)
+  expect(await hay(ter, { type: 'Button', key: 'paso-tarea:arriba:12', text: /^ Paso \+ $/ })).toBe(true)
+  await ter.unmount()
+})
+
+// En la app, la marca del subagente, un ● o un ○ verde como en el terminal: un Client (pulsable.tsx) con el texto, sin
+// botón nativo ni caja llena de verde, que avisa con un clic; el ▸ o ▾ de la línea, texto, sin botón ni su contorno
+// (tarea 432).
+test('desktop: la marca del subagente, ● o ○ verde sin botón ni caja llena; el ▸ y el ▾, sin botón (432)', async (...m) => {
+  const a = await preparar(m, { desplegadas: true, cola: CERRABLES, agentes: EN_12(), reloj: true, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
+  const esc = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  const key = 'subagente-tarea:arriba:12'
+  expect(await hay(esc, { type: 'Client', key })).toBe(true)
+  expect(await esc.find({ type: 'Button', key })).toBe(undefined)
+  const glifos = (await esc.findAll({ type: 'Text', text: /^●$/, in: key })) as Nodo337[]
+  expect(glifos.some(x => x.props.color === 'success')).toBe(true)
+  expect(await esc.find({ type: 'Box', in: key })).toBe(undefined)
+  const caja = ((await esc.findAll({ type: 'Box' })) as Nodo367[]).find(x => (x.children ?? []).some(c => c.props?.key === key))
+  expect(caja?.props.backgroundColor).toBe(undefined)
+  await esc.pointer({ type: 'up', x: 0, y: 0, button: 'left', in: key })
+  expect(a.toasts).toContain('●: un subagente trabaja en la 12 (Tarea 12: cerrar la lista)')
+  // Ningún ▸ ni ▾ de tarea en un botón: van en el texto de su línea.
+  expect(await esc.find({ type: 'Button', text: /^[▸▾]$/ })).toBe(undefined)
+  expect(await hay(esc, { type: 'Text', text: /^▾$/, in: 'arriba:12' })).toBe(true)
+  await esc.unmount()
 })
 
 test('desktop: la etiqueta «SF x.y.z» de la cabecera y las de la izquierda, con su texto como label', async (...m) => {
@@ -7049,9 +7144,10 @@ for (const surface of ['desktop', 'terminal'] as const)
     await ui.unmount()
   })
 
-test('desktop: las órdenes de la tarea, llenas de su color: verde, rojo las que destruyen, gris apagado las discretas (367)', async (...m) => {
+// En la app de escritorio, desde la 432, texto de color sobre su etiqueta negra (Client); así, en VS Code, sin Client.
+test('vscode: las órdenes de la tarea, llenas de su color: verde, rojo las que destruyen, gris apagado las discretas (367)', async (...m) => {
   await preparar(m, { desplegadas: true, cola: CERRABLES, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
-  const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'vscode' })
   const fondo = async (k: string) => (await cajaDe(ui, `${k}-tarea:arriba:12`))?.props.backgroundColor
   for (const k of ['probar', 'cerrar']) expect(await fondo(k)).toBe('#15803d')
   expect(await fondo('descartar')).toBe('#dc2626')
@@ -7061,10 +7157,11 @@ test('desktop: las órdenes de la tarea, llenas de su color: verde, rojo las que
 
 // En la app, el botón nativo pinta solo su `label`, con la letra clara de la app: el color del texto de sus hijos no se
 // ve. Cada orden de la tarea y el ● del subagente, en una caja llena del relleno de su color, del tamaño reducido de la
-// 397; sin ella, salían en blanco (397, cuarta vuelta).
-test('desktop: ninguna orden de la tarea ni el ● del subagente sin la caja llena de su color (397)', async (...m) => {
+// 397; sin ella, salían en blanco (397, cuarta vuelta). Desde la 432, en la app de escritorio van en un Client; así, en
+// VS Code y el móvil, que no lo tienen.
+test('vscode: ninguna orden de la tarea ni el ● del subagente sin la caja llena de su color (397)', async (...m) => {
   await preparar(m, { desplegadas: true, cola: CERRABLES, agentes: EN_12(), extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
-  const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'vscode' })
   const RELLENO: Record<string, string> = { success: '#15803d', error: '#dc2626', '#f87171': '#dc2626', '#717171': '#52525b' }
   const botones = ((await ui.findAll({ type: 'Box' })) as Nodo367[]).flatMap(c =>
     (c.children ?? []).filter(h => h.type === 'Button' && String(h.props.key).includes('-tarea:arriba:')).map(b => ({ caja: c, boton: b })),
@@ -7075,24 +7172,25 @@ test('desktop: ninguna orden de la tarea ni el ● del subagente sin la caja lle
     const letra = String((boton.children ?? [])[0]?.props.color)
     // La clave delante, para que el fallo diga qué orden se quedó sin color.
     expect([boton.props.key, caja.props.backgroundColor]).toEqual([boton.props.key, RELLENO[letra] ?? letra])
-    expect(caja.props).toMatchObject({ paddingX: 0, paddingY: 'xs' })
+    // VS Code dibuja «xs», el paso más pequeño de la app, como 0.
+    expect(caja.props).toMatchObject({ paddingX: 0, paddingY: 0 })
   }
   await ui.unmount()
 })
 
 // En la app, los botones más pequeños: la caja llena, sin relleno a los lados (el botón nativo trae el suyo), y entre
 // dos botones de una fila, el paso más pequeño de la superficie, no una celda; con sus nombres de siempre. En el
-// terminal, como estaba: sin caja y una columna entre botones (tarea 397).
+// terminal, como estaba: sin caja y una columna entre botones (tarea 397). Las órdenes de la tarea, en la app de
+// escritorio, van en un Client desde la 432: aquí, las de la cabecera; las de la tarea, en el terminal.
 for (const surface of ['desktop', 'terminal'] as const)
   test(`${surface}: botones de la cabecera y de la tarea sin relleno a los lados y más juntos en la app (397)`, async (...m) => {
     await preparar(m, { desplegadas: true, cola: CERRABLES, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
     const ui = await m[0].ui.mount({ ...PANEL, surface })
     const grafica = surface === 'desktop'
-    const tarea = ['cerrar', 'explicar', 'descartar', 'paso'].map(k => `${k}-tarea:arriba:12`)
+    const tarea = grafica ? [] : ['cerrar', 'explicar', 'descartar', 'paso'].map(k => `${k}-tarea:arriba:12`)
     for (const key of ['turbo', 'release', ...tarea]) {
       const llena = await cajaDe(ui, key)
-      // Sin contorno; arriba y abajo, el paso más pequeño de la superficie (tercera vuelta de la 397). También las de
-      // la tarea, llenas de su color (cuarta vuelta).
+      // Sin contorno; arriba y abajo, el paso más pequeño de la superficie (tercera vuelta de la 397).
       if (grafica) expect(llena?.props).toMatchObject({ paddingX: 0, paddingY: 'xs' })
       if (grafica) expect(llena?.props.backgroundColor === undefined).toBe(false)
       expect(llena?.props.borderStyle).toBe(undefined)
@@ -7100,11 +7198,11 @@ for (const surface of ['desktop', 'terminal'] as const)
       expect(cajas.some(x => x.props.marginRight === (grafica ? 'xs' : 1))).toBe(true)
       expect(cajas.some(x => x.props.marginRight === (grafica ? 1 : 'xs'))).toBe(false)
     }
-    for (const [key, label] of [['turbo', 'TURBO'], ['release', 'RELEASE'], ['cerrar-tarea:arriba:12', 'Cerrar'], ['explicar-tarea:arriba:12', '?'], ['paso-tarea:arriba:12', 'Paso +']] as const)
+    const etiquetas = [['turbo', 'TURBO'], ['release', 'RELEASE'], ['cerrar-tarea:arriba:12', 'Cerrar'], ['explicar-tarea:arriba:12', '?'], ['paso-tarea:arriba:12', 'Paso +']] as const
+    for (const [key, label] of etiquetas.filter(([k]) => !grafica || !k.includes('-tarea:')))
       expect(((await ui.find({ type: 'Button', key })) as Nodo337 | undefined)?.props.label).toBe(label)
-    // En la app, el texto de cada botón, sin los espacios que lo rellenan en el terminal.
+    // En el terminal, el texto de cada botón, con los espacios que lo rellenan.
     const textos = ((await ui.findAll({ type: 'Text' })) as Nodo337[]).map(x => String(x.text ?? ''))
-    expect(textos.includes('Paso +')).toBe(grafica)
     expect(textos.includes(' Paso + ')).toBe(!grafica)
     await ui.unmount()
   })
@@ -7115,7 +7213,7 @@ for (const surface of ['desktop', 'terminal'] as const)
   test(`${surface}: el «?» y la «×» de los pasos, en línea y sin botón nativo en la app (397)`, async (...m) => {
     const { archivos, prompts } = await preparar(m, { cola: REABIERTA })
     const antes = archivos[COLA]
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
     const grafica = surface === 'desktop'
     await ui.press({ key: 'arriba:4' })
     await ui.press({ key: 'pasos:arriba:4' })
@@ -8029,7 +8127,7 @@ const SIN_LISTO: Pet = { id: 8, texto: 'Modo oscuro', estado: 'en-curso', pasos:
 for (const surface of ['terminal', 'desktop'] as const)
   test(`Lista para probar (${surface}): arriba, número y título en verde; las demás en curso, en dorado`, async (...m) => {
     await preparar(m, { cola: [LISTA, SIN_LISTO] })
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
     const titulo7 = await ui.findAll({ type: 'Text', text: /Acentos del CSV/ })
     expect(titulo7.some(conVerde)).toBe(true)
     expect(titulo7.some(conColorEnCurso)).toBe(false)
@@ -8086,7 +8184,7 @@ for (const surface of ['terminal', 'desktop'] as const)
   test(`Espera al propietario (${surface}): arriba, número y título en rojo; lista para probar a la vez, en verde`, async (...m) => {
     const listaYEspera: Pet = { ...LISTA, pasos: [...PASOS_LISTA, { texto: 'Esperar al propietario: el texto del botón', estado: 'pendiente' }] }
     await preparar(m, { cola: [ESPERA_PROPIETARIO, { ...listaYEspera, id: 7 }, SIN_LISTO] })
-    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
     const titulo9 = await ui.findAll({ type: 'Text', text: /Mudanza de carpetas/ })
     expect(titulo9.some(conRojo)).toBe(true)
     expect(titulo9.some(conColorEnCurso)).toBe(false)
