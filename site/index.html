@@ -565,9 +565,10 @@
   @media (min-width: 980px) { .orch.flip { grid-template-columns: 6fr 5fr; } .orch.flip .copy { order: 2; } }
   .chat .msg { background: var(--term-2); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; }
   .chat .msg p { margin: 0; font-weight: 400; }
-  .focus-line { justify-self: start; padding: 4px 10px; border-radius: 8px; background: var(--term-3); color: var(--term-text); font-weight: 700; }
-  .focus-line .k { display: inline-block; margin-right: 6px; padding: 0 6px; border-radius: 4px; background: var(--term-text); color: var(--term); font-weight: 800; letter-spacing: .08em; }
-  .chat .noted { color: var(--accent); }
+  /* As in Claude Code: the FOCUS label in negative squared letters and inline code in its light violet */
+  .chat .msg .focus-line { font-weight: 700; }
+  .focus-line .k { margin-right: 4px; font-size: 1.15em; letter-spacing: .04em; }
+  .chat code { font: inherit; color: #b1b9f9; }
   .chat .off { color: var(--term-dim); font-size: 12px; }
 
   /* Second quote, in amber */
@@ -1035,13 +1036,13 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
           <li><span class="en">Your task is waiting? Claude suggests one thing to do meanwhile.</span><span class="es">¿Tu tarea espera? Claude te propone una sola cosa que hacer entretanto.</span></li>
         </ul>
       </div>
-      <div class="lanes chat" role="img" data-en="You ask about task 47; Claude answers starting with the focus line, notes your new idea as task 53 and leaves the news of task 48 for one short line at the end" data-es="Preguntas por la tarea 47; Claude contesta empezando por la línea del foco, anota tu idea nueva como tarea 53 y deja lo de la 48 para una línea breve al final" aria-label="You ask about task 47; Claude answers starting with the focus line, notes your new idea as task 53 and leaves the news of task 48 for one short line at the end">
+      <div class="lanes chat" role="img" data-en="You ask about task 47; Claude answers starting with the focus line, notes your new idea as task 53 and leaves it and the news of task 48 for one short off-topic line each at the end" data-es="Preguntas por la tarea 47; Claude contesta empezando por la línea del foco, anota tu idea nueva como tarea 53 y deja lo suyo y lo de la 48 para el final, en una línea off-topic breve cada una" aria-label="You ask about task 47; Claude answers starting with the focus line, notes your new idea as task 53 and leaves it and the news of task 48 for one short off-topic line each at the end">
         <div class="you"><b><span class="en">you</span><span class="es">tú</span></b><span><span class="en">“Names with ñ still break in Excel. Oh, and invoices need a logo.”</span><span class="es">«Los nombres con ñ siguen saliendo mal en Excel. Ah, y las facturas necesitan logo.»</span></span></div>
         <div class="msg">
-          <p class="focus-line"><span class="k">FOCUS</span> <span class="en">Fix accents in the CSV export (T 47)</span><span class="es">Arreglar los acentos del CSV (T 47)</span></p>
+          <p class="focus-line"><span class="k">🅵🅾🅲🆄🆂</span> <code><span class="en">Fix accents in the CSV export</span><span class="es">Arreglar los acentos del CSV</span> (T❹ ❼ )</code></p>
           <p><span class="en">Fixed: the export is now UTF-8 with BOM, so Excel opens ñ and é. Ready to test on its branch.</span><span class="es">Arreglado: la exportación va ahora en UTF-8 con BOM y Excel abre la ñ y la é. Lista para probar en su rama.</span></p>
-          <p class="noted"><span class="en">The logo is noted as task 53, in the queue.</span><span class="es">Lo del logo queda anotado como tarea 53, en la cola.</span></p>
-          <p class="off"><span class="en">(off-topic T 48: dark mode ready to test)</span><span class="es">(off-topic T 48: modo oscuro listo para probar)</span></p>
+          <p class="off">(<code>ᴏꜰꜰ-ᴛᴏᴘɪᴄ</code> T❺ ❸ : <span class="en">invoice logo noted in the queue; shall I start it❓</span><span class="es">logo de las facturas anotado en la cola; ¿lo pongo en curso❓</span>)</p>
+          <p class="off">(<code>ᴏꜰꜰ-ᴛᴏᴘɪᴄ</code> T❹ ❽ : <span class="en">dark mode ready to test ▶️</span><span class="es">modo oscuro listo para probar ▶️</span>)</p>
         </div>
         <div class="foot"><span class="en">1 task in focus · 2 working quietly</span><span class="es">1 tarea en foco · 2 trabajando sin molestar</span></div>
       </div>

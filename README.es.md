@@ -52,11 +52,11 @@ Cada tarea tiene su propio subagente, trabajando en segundo plano en su propia r
 
 ## Claude sabe en qué estás. Y no te interrumpe.
 
-```text
-FOCUS Arreglar los acentos del CSV (T 47)
-…
-(off-topic T 48: modo oscuro listo para probar)
-```
+> 🅵🅾🅲🆄🆂 `Arreglar los acentos del CSV (T❹ ❼ )`
+>
+> Arreglado: la exportación va ahora en UTF-8 con BOM y Excel abre la ñ y la é. Lista para probar en su rama.
+>
+> (`ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❹ ❽ : modo oscuro listo para probar ▶️)
 
 Cada respuesta empieza por la tarea en la que estás. Lo de otras tareas espera al final de una respuesta, en una línea breve. Una idea que surge a mitad va a la cola, no a la conversación.
 

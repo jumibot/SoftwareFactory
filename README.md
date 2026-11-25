@@ -52,11 +52,11 @@ Every task gets its own subagent, working in the background on its own branch. W
 
 ## Claude knows what you’re on. And doesn’t interrupt.
 
-```text
-FOCUS Fix accents in the CSV export (T 47)
-…
-(off-topic T 48: dark mode ready to test)
-```
+> 🅵🅾🅲🆄🆂 `Fix accents in the CSV export (T❹ ❼ )`
+>
+> Fixed: the export is now UTF-8 with BOM, so Excel opens ñ and é. Ready to test on its branch.
+>
+> (`ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❹ ❽ : dark mode ready to test ▶️)
 
 Every answer starts with the task you are focused on. News from other tasks waits for the end of an answer, in one short line. An idea that comes up halfway goes to the queue, not into the conversation.
 
