@@ -653,8 +653,9 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           <Text color="success">{grafica ? glifo : ` ${glifo} `}</Text>
         </Button>
       )
-      // En la app, sin caja ni fondo, como las órdenes de la tarea: el ● en su color (tarea 397).
-      return grafica ? boton : enCaja(boton, 'success')
+      // En una superficie gráfica, en su caja llena de verde, como las órdenes de la tarea: el botón nativo no pinta el
+      // color de su texto, y sin caja el ● o el ○ salían en blanco (tarea 397). Siempre verde (tarea 383).
+      return enCaja(boton, 'success')
     }
 
     // Las órdenes de una tarea, en un menú de etiquetas en la primera fila de la tarea desplegada (decisión 168;
@@ -665,16 +666,20 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Cerrar, A observación (o Cerrar en observación, 241), Redescribir, «?» (254), A propuesta (243) y la que destruye (Eliminar, Descartar o Revertir); después, las de sus pasos: Separar pasos
     // y Paso +, al final y con la letra atenuada, para distinguirlas de las de la tarea (decisión 168, precisada por el
     // propietario el 2026-11-01).
-    // En la app, desde la tarea 397, sin caja ni fondo: el texto en su color (verde, rojo o atenuado), como en el
-    // terminal; las de la cabecera sí siguen llenas de su color (enCaja).
+    // En una superficie gráfica, en su caja llena de su color (enCaja), del tamaño reducido de la 397, como las de la
+    // cabecera: el botón nativo pinta solo su `label`, con la letra clara de la app, y sin la caja todas salían en
+    // blanco (tarea 397, que las había dejado sin caja).
     type Tarea = { id: number; texto: string; rama?: string | null }
     const etiquetaOrden = (key: string, color: string | undefined, nombre: string, pulsar: () => void) => (
       <Box marginRight={separa} flexShrink={0}>
-        <Button key={key} label={nombre} plain onPress={pulsar}>
-          <Text color={color} weight="regular" backgroundColor={grafica ? undefined : FONDO_ORDEN}>
-            {grafica ? nombre : ` ${nombre} `}
-          </Text>
-        </Button>
+        {enCaja(
+          <Button key={key} label={nombre} plain onPress={pulsar}>
+            <Text color={color} weight="regular" backgroundColor={grafica ? undefined : FONDO_ORDEN}>
+              {grafica ? nombre : ` ${nombre} `}
+            </Text>
+          </Button>,
+          color,
+        )}
       </Box>
     )
     // Eliminar, en las eliminables: en cola o en curso y sin rama. Descartar, en las descartables: con rama, en cola o
