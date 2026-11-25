@@ -8,7 +8,7 @@ description: Crea o pone al día el informe de una tarea deliberativa de la Soft
 
 Una tarea deliberativa (investigar, deliberar o diseñar; «Siete tipos de tarea en tres familias», 223) da **un informe y las tareas que salgan de él** («Una tarea deliberativa da un informe y las tareas que salgan», 218). Sus dilemas viven en el informe, al día con cada respuesta del propietario, y no en la cola ni en otro archivo. Lo que es de otra tarea se propone separar; al cerrar, lo que siga abierto sale a su tarea («En una deliberativa, lo que es de otra tarea se propone separar», 221). Una deliberativa no prueba nada y solo cambia su informe: lo que haya que aplicar lo hacen las tareas que crea.
 
-Esta skill dice qué lleva el informe, cómo se escriben sus preguntas y cómo es cada vuelta. El generador, los recursos, los temas y la comprobación son los de `crear_documentos`, que se lee junto a esta. Es la skill del agente de la familia deliberativa, cuando exista («Agentes especializados, uno por familia de tarea», 304); mientras tanto, la carga el subagente de la tarea.
+Esta skill dice qué lleva el informe, cómo se escriben sus preguntas y cómo es cada vuelta. El generador, los recursos, los temas y la comprobación son los de `crear_documentos`, que se lee junto a esta. Es la skill del agente de la familia deliberativa, cuando exista («Agentes del plugin por familia de tarea, solo si la especialización aporta», 282); mientras tanto, la carga el subagente de la tarea. El porqué de cada regla, en [references/porque.md](references/porque.md); se lee solo si hace falta.
 
 **El lector es el propietario, que tiene que decidir.** El informe le ahorra trabajo: lo que tiene que decidir se ve primero, cada pregunta se responde con una letra y la recomendación se distingue de un vistazo. Comunicar bien es un objetivo de la SF (decisión 231).
 
@@ -61,7 +61,7 @@ Recomendación
 :::
 ```
 
-- **Una decisión por pregunta**, con un título que la nombra y un número por importancia (1 la más importante). El número y el ancla `{: #pN}` no cambian aunque la pregunta se decida o se separe: los pasos de las tareas la citan por ellos («Decidir … (pregunta 5) (informe «Tipos de tarea», 274)»).
+- **Una decisión por pregunta**, con un título que la nombra y un número por importancia (1 la más importante). El número y el ancla `{: #pN}` no cambian aunque la pregunta se decida o se separe: los pasos de las tareas la citan por ellos («Decidir … (pregunta 5) (informe «Tipos de tarea», tarea 274)»).
 - **Contexto en una o dos frases**, solo si hace falta para elegir: qué pasa hoy o por qué hay que decidir.
 - **Dos o tres opciones**, `Opción A`, `Opción B`…, cada una con lo que implica en una o dos frases. «Como hoy» es una opción cuando lo es de verdad.
 - **Recomendación** con su porqué en una frase, y `recomendada=A` en el título para que se destaque. Toda pregunta abierta lleva recomendación; el generador avisa si falta.
@@ -85,7 +85,7 @@ Cada respuesta del propietario, o cada avance del análisis que cambie el inform
    python -I -X utf8 <skills>/informe_deliberativa/scripts/informe_to_html.py <informe>.md
    ```
 
-4. **Llevarlo a `develop`** sin rama, porque es un documento nuevo («Los documentos nuevos van a develop en cada vuelta y se ofrecen en el navegador», 216), con la orden que lo hace cuando exista («Documentos nuevos a develop en cada vuelta, y abrirlos en el navegador», 297).
+4. **Llevarlo a `develop`** sin rama, porque es un documento nuevo («Los documentos nuevos van a develop en cada vuelta y se ofrecen en el navegador», 216), con la orden que lo hace cuando exista (216).
 5. **Ofrecer abrir el HTML** en el navegador, con la versión nueva.
 
 ## Comprobación

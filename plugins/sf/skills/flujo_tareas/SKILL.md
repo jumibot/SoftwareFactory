@@ -6,7 +6,7 @@ description: Ciclo de vida de las tareas de un proyecto bajo la Software Factory
 
 # Flujo de tareas
 
-La regla de cada cambio de estado está en [references/estados.md](references/estados.md): una tarjeta por cambio, con cuándo, quién, qué autorización pide, qué hace en el repositorio y su orden. Este archivo dice cómo usarla.
+La regla de cada cambio de estado está en [references/estados.md](references/estados.md): una tarjeta por cambio, con cuándo, quién, qué autorización pide, qué hace en el repositorio y su orden. El porqué de cada regla, en [references/porque.md](references/porque.md); se lee solo si hace falta. Este archivo dice cómo usarla.
 
 ## Cómo se cambia la cola
 

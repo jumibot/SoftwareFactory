@@ -8,7 +8,7 @@ description: Fija y afina el estilo de los documentos de un proyecto (docs/ident
 
 El aspecto de los documentos es del proyecto, no de cada documento: lo guarda `docs/identidad/estilo.json` y lo aplica el generador único de `crear_documentos` a todos (decisiones 305 y 316 a 323). Esta skill es **la única que escribe `estilo.json`**. No maqueta ni toca el generador: elige valores de su catálogo, enseña con él cómo quedan y los guarda cuando el desarrollador los acepta. Qué significa cada parámetro y su valor por defecto, en `crear_documentos` («Estilo del proyecto»).
 
-**Fijar el estilo no bloquea nada** (323): sin `estilo.json`, el generador sale del paso con los valores por defecto de un tema y avisa. Esta skill se ofrece, no se impone.
+**Fijar el estilo no bloquea nada** (323): sin `estilo.json`, el generador sale del paso con los valores por defecto de un tema y avisa. Esta skill se ofrece, no se impone. El porqué de cada regla, en [references/porque.md](references/porque.md); se lee solo si hace falta.
 
 ## Herramienta
 

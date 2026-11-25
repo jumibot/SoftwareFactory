@@ -8,7 +8,7 @@ description: Lo común para crear cualquier documento de la Software Factory —
 
 Esta skill reúne lo común a todos los documentos de la SF. Encima van las **skills de cada tipo de documento**: cada una dice para quién es su documento, qué secciones lleva y con qué tono, cómo se crea (fases, diálogo con el autor, revisión) y qué recursos de este catálogo usa. Un recurso nuevo mejora todos los documentos a la vez, y crear un tipo de documento nuevo es escribir solo lo suyo («Una skill general de diseño de documentos, y skills de contenido encima», decisión 232).
 
-Comunicar bien es un objetivo de la SF: la usabilidad de los documentos no es un adorno (decisión 231).
+Comunicar bien es un objetivo de la SF: la usabilidad de los documentos no es un adorno (decisión 231). El porqué de cada regla, en [references/porque.md](references/porque.md); se lee solo si hace falta.
 
 ## Tipos de documento
 
@@ -380,7 +380,7 @@ Antes de sustituir un documento por una versión nueva, la que se va a sustituir
 python -I -X utf8 <skills>/crear_documentos/scripts/respaldar.py <documento>.md <motivo>
 ```
 
-Copia el `.md` y su `.html` como `<nombre>_antes-<motivo>.<ext>`; el motivo son una o dos palabras de lo que cambia la versión nueva. Volver atrás es copiar de vuelta la versión respaldada, sin tocar git. Si ya hay un respaldo con ese nombre, se detiene: se elige otro motivo (qué hacer con dos vueltas del mismo motivo, y qué documentos se respaldan, está por decidir en «Documentos nuevos a develop en cada vuelta», 297).
+Copia el `.md` y su `.html` como `<nombre>_antes-<motivo>.<ext>`; el motivo son una o dos palabras de lo que cambia la versión nueva. Volver atrás es copiar de vuelta la versión respaldada, sin tocar git. Si ya hay un respaldo con ese nombre, se detiene: se elige otro motivo (qué hacer con dos vueltas del mismo motivo, y qué documentos se respaldan, está por decidir; la regla de cada vuelta es «Los documentos nuevos van a develop en cada vuelta y se ofrecen en el navegador», 216).
 
 ## Comprobación
 

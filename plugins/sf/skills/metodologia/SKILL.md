@@ -6,7 +6,7 @@ description: "Método de la Software Factory (SF) para desarrollar proyectos con
 
 # Metodología de la Software Factory
 
-El método completo está en [references/desarrollo-de-proyectos.md](references/desarrollo-de-proyectos.md). Esta skill dice cuándo leer cada parte; las reglas están en el documento, no aquí.
+El método completo está en [references/desarrollo-de-proyectos.md](references/desarrollo-de-proyectos.md). Esta skill dice cuándo leer cada parte; las reglas están en el documento, no aquí. El porqué de las reglas que citan una decisión por su número, en [references/porque.md](references/porque.md); se lee solo si hace falta.
 
 Un proyecto está **bajo la SF** cuando tiene `.sf/proyecto.json` («Qué pertenece a cada proyecto consumidor»). En un proyecto sin ese archivo, no aplicar el método salvo que el propietario lo pida; si lo pide, incorporarlo con la skill `incorporar_proyecto_a_sf`.
 

@@ -6,6 +6,7 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 
 - **Al empezar la sesión y tras cada compactación, no en cada mensaje**: cada carga añade unos 4.000 tokens. Solo el principal: el subagente sigue su encargo (propietario, 2026-10-31).
 - **La entrega el mod, también en la SF** («En la SF, las reglas y sf:orquestacion las entrega el mod, como en los demás proyectos», 298): la SF se lleva como un proyecto más. La skill decía aún que en la SF la cargaba el principal; lo señaló el informe de la 431 (357).
+- **La orden de Python, la que da el mod** («La orden de Python sale del intérprete que se detecta, no de `python` fijo», 236): la SF llamaba siempre a `python`, que en macOS y Linux suele no existir (allí es `python3`). Con el intérprete que detecta el mod, funciona igual en Windows, macOS y Linux sin preparar nada.
 
 ## Papel del orquestador
 
@@ -27,6 +28,7 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 - **Bugs, a la cola antes de investigarlos**: uno se investigó en el chat y no se veía en el panel. «Intento que todas las tareas pasen por el panel» («Los bugs son tareas nuevas», 096). Errores ajenos a la tarea: «Errores detectados, a Pendientes» (077).
 - **Un fallo propio también es bug**: con la 216, el propietario no pudo cerrar desde el panel porque faltaba `cola.py listo`; se explicó el olvido y se cerró a mano sin anotar nada. «¿No consideras un bug lo que ha pasado?». Un olvido que se repite pide una regla, o código (propietario, 2026-11-01).
 - **Sin tarea en curso no se trabaja**, salvo para reorganizar la cola (149).
+- **Incorporar o poner al día, sin tarea** («Incorporar un proyecto es una operación sin tarea, guiada por menús», 209): se hacía como una tarea más, con rama, squash y prueba, y poner al día ya había dejado de serlo; así no pasa por la cola ni por el panel. Claude la guía con menús: dice qué va a crear, mover o cambiar, pide el OK y lo aplica en `develop` con su commit.
 - **Anotar al llegar, aunque esté sin concretar** («Lo que falta por concretar va como pasos de la tarea», 211): en otro proyecto, Claude dejó una petición en la conversación: «Cuando me digas qué quieres cambiar, lo anoto como tarea en curso». «Si el enunciado no basta, preguntar» se leía como preguntar antes de anotar, y lo que queda en la conversación se pierde. Lo que falta (concretar, deliberar, decidir o diseñar cómo) son pasos de la tarea.
 - **Menú al anotar**: el propietario quiere elegir en el momento si empieza una tarea o la deja pendiente; sin pasos, cada subtarea acababa como tarea suelta («Menú al anotar: paso, en curso o en cola», 139).
 - **Agresivo con los pasos y las fusiones**: los cambios pequeños como tareas sueltas llenaban la cola (propietario, 2026-10-31, tarea «Skill de orquestación», 205).
@@ -35,6 +37,8 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 - **Lo útil para terceros, en el plugin** («Lo útil para terceros viaja en el plugin, no en la memoria ni en CLAUDE.md», 247): al pedir el propietario que los descartes llevaran contexto, Claude lo guardó en su memoria, que solo ve quien trabaja en esa carpeta y esa máquina. «Todas tus propuestas para la sf que sean de utilidad para terceros no las guardes en memoria ni en claude.md sino en alguna parte en la que viajen con el plugin».
 
 ## Poner en curso
+
+- **Cerrar antes que abrir** («Cerrar antes que abrir», 157): en una sesión se crearon 17 tareas y se cerró una. Con muchas en curso a la vez, cada una con su subagente, sus decisiones y su estado, la orquestación se equivoca más. La cola larga no es el problema, sino las que hay en curso; por eso las peticiones se siguen anotando al llegar.
 
 - **Especificar y planificar**: una tarea con solo «Probar» y «Cerrar»: «Me hace pensar que no has hecho nada». Sin pasos, el panel no muestra el trabajo (149).
 - **Planificar sin pedir aprobación** («El principal planifica los pasos sin pedir aprobación», 181, que sustituye a la 180): esperar el OK de los pasos era un paso más del propietario. «No pidas confirmación, confío en ti». Enseñarlos al avisar le deja corregirlos.
@@ -56,16 +60,22 @@ El porqué, los datos y la decisión de cada regla de la skill, en el orden de s
 - **El encargo y el informe con formato fijo** (083). Lleva las reglas de «Cómo escribir», porque el subagente no carga esta skill, y el informe dice qué documentos compartidos actualizar, porque el subagente no los toca (auditoría de la orquestación («Auditar que la skill de orquestación recoge todo lo ordenado», 216)). Solo el principal escribe la cola; el mod lo impone a las herramientas de archivos («El mod impide que un subagente escriba la cola», 110).
 - **Recoger en cuanto vuelve** (149): si no, el panel queda desfasado.
 - **Ramas del subagente, borradas al cerrar** («Borrar las ramas del subagente al volver», 135): se acumulaban ramas sueltas.
+- **Una deliberativa, sin rama ni `sub-NN`** («Una tarea deliberativa da un informe y las tareas que salgan», 218; «Una deliberativa solo escribe su documento, sin rama; lo demás va a tareas propias con rama», 278): una deliberativa solo cambia su documento, que va directo a `develop` en cada vuelta con el respaldo de la anterior. Lo demás que haga falta cambiar va a una tarea aparte, con su rama, que se prueba y se cierra como las demás; así la deliberación se cierra limpia con su documento.
 - **El worktree se quita al cerrar, no para probar** (149): con el subagente en su rama auxiliar, la rama de la tarea queda libre; Cerrar falló en la 194 porque su worktree tenía activa la propia rama de la tarea.
 - **Cerrar desde el panel también para el subagente**: el panel cierra sin poder pararlo ni quitar su worktree; quedaba vivo (auditoría de la orquestación («Auditar que la skill de orquestación recoge todo lo ordenado», 216)).
 
 ## Probar y cerrar
 
 - **`listo --prueba` al acabar el último paso** (090, 149): sin los pasos de cierre el panel no muestra Cerrar.
+- **Los pasos de cierre, desde que la tarea entra en curso** («Los pasos de cierre, desde que la tarea entra en curso», 174): los añadía `listo` al acabar; si el principal se olvidaba de lanzarlo, el panel no ofrecía Cerrar, y al relanzarlo el paso de prueba se repetía. Así toda tarea en curso enseña su camino completo desde el principio.
+- **Ayudas de prueba, tras «Activar rama» y no obligatorias** («Ayudas de prueba: tras activar la rama y no obligatorias para cerrar», 184): un paso de prueba que Claude añadió quedó antes de los de cierre y, pendiente, impedía que el panel ofreciera Cerrar; el propietario no sabía cómo cerrarla. Las que hace Claude, al activar la rama, que es cuando el propietario va a probar.
 - **Probar antes de cerrar** (074): la observación se llenaba de tareas cerradas sin probar en su rama.
 - **Cerrar directamente lo que no tiene nada que probar**: deliberar, investigar, documentar o especificar no se prueban como el código; el propietario aprueba el resultado («Cerrar directamente lo que no tiene prueba», 154).
+- **El cierre marca «Activar rama para poder probar»** («El paso de prueba es «Activar rama para poder probar»», 172; 174): la C del panel ya es el OK del propietario («probada, ciérrala»), y lo que pone la tarea en prueba es activar su rama. Cerrar sin probar marca ese paso al cerrar.
+- **Una deliberativa se cierra con `cerrar`, nunca a observación** (218, 278): en ella no se prueba nada y solo cambia documentos; se cierra con la aprobación del propietario, como una documental.
 - **El cierre espera el OK** («Preguntar antes de cerrar una petición; lo nuevo, a la cola», 048): Claude cerró y publicó una skill sin permiso. Los commits en la rama, sin preguntar.
 - **Descartes con contexto** (propietario, 2026-11-03, tarea 324): se proponía descartar una tarea duplicada citándola por su número, y el propietario no recuerda cada tarea por su número; con qué pedía, dónde quedó hecha y qué supone, decide sin buscarla.
+- **El prefijo del squash, del tipo de la tarea** («El título del commit en formato conventional sale del tipo de tarea», 233): la C del panel cierra sin pedir nada, así que el título tiene que salir solo: implementar da `feat`, corregir `fix`, documentar y especificar `docs`. Sin tipo, `chore`; si hay dudas, se pregunta el tipo antes de cerrar (propietario: «chore está bien o preguntar por el tipo si hay dudas»).
 - **Decir si se cierra una en observación** (tarea 377): cerrar una tarea en curso la lleva a `develop`; cerrar una en observación solo da por buena la que ya entró. Decirlo al proponer y al confirmar le deja saber qué cierra.
 - **«Ciérrala» sin número, la rama activa** (095): se cerró otra tarea tras un cambio de rama.
 - **La pregunta de «¿Cómo va?»** por las en observación (050, 051, 204): el menú anterior mezclaba tareas y no decía qué era cada una; se cierra o se revierte, en el lenguaje de la SF.

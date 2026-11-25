@@ -8,7 +8,7 @@ description: "Crea o revisa un documento de visión — la explicación de prime
 
 Un **documento de visión** explica qué es un proyecto, para qué sirve y cómo funciona conceptualmente, antes de cualquier especificación técnica. Lo lee una persona que tiene que entender y decidir, no programar.
 
-Esta skill no contiene nada de ningún proyecto ni de ningún dominio. Lo propio de cada proyecto está en su identidad (ver «Lo propio de cada proyecto»).
+Esta skill no contiene nada de ningún proyecto ni de ningún dominio. Lo propio de cada proyecto está en su identidad (ver «Lo propio de cada proyecto»). El porqué de las reglas que citan una decisión, en [references/porque.md](references/porque.md); se lee solo si hace falta.
 
 ## Para quién es: para otros o para el autor
 

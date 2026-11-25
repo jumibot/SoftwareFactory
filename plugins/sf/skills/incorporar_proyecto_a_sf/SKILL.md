@@ -6,7 +6,7 @@ description: Prepara un proyecto para trabajar con la Software Factory (SF) sin 
 
 # Incorporar un proyecto a la SF
 
-La skill prepara el proyecto de la sesión para la SF: le da identidad, ramas, estado y cola, y el sitio de los documentos de la SF. Las reglas de la SF y `sf:orquestacion` no se escriben en el proyecto: las entrega el mod del plugin al empezar la sesión, tras `/clear` y tras compactar, siempre en la versión instalada. El método está en la skill `sf:metodologia`.
+La skill prepara el proyecto de la sesión para la SF: le da identidad, ramas, estado y cola, y el sitio de los documentos de la SF. Las reglas de la SF y `sf:orquestacion` no se escriben en el proyecto: las entrega el mod del plugin al empezar la sesión, tras `/clear` y tras compactar, siempre en la versión instalada. El método está en la skill `sf:metodologia`. El porqué de cada regla, en [references/porque.md](references/porque.md); se lee solo si hace falta.
 
 **Una operación, sin tarea.** Incorporar, poner al día y pasar a `sf/` no se anotan en la cola, no crean tarea ni rama y no pasan por el panel («Incorporar un proyecto es una operación sin tarea, guiada por menús», 209). Claude la lleva desde la línea de prompts, con menús (la herramienta de preguntas con opciones) y mensajes cortos: dice qué va a crear, mover o cambiar, pide el OK del propietario y lo aplica en `develop`, con su commit. Lo que salga mal se deshace con git.
 

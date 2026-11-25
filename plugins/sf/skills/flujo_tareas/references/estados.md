@@ -41,7 +41,7 @@ Una cola, una copia o un historial con los nombres de antes de la decisión 215 
 
 ### Letras de estado
 
-La letra es el estado de la tarea (054, 058). El panel no la muestra: da el color del número (propietario, 2026-10-31). La saca del historial de cada tarea (145):
+La letra es el estado de la tarea (054, 058). El panel no la muestra: da el color del número (propietario, 2026-10-31). La saca del historial de cada tarea (tarea 145):
 
 - **A**: en cola o en curso, creada (o nacida de un `/sf_split`) después de abrir la sesión.
 - **H**: en cola o en curso, ya estaba al abrir la sesión, está reabierta o no tiene historial. Una H no pasa a A (053, 069).
@@ -62,7 +62,7 @@ Fuera de la cola, la letra es el estado con que salió, en `.sf/historial.jsonl`
 
 ### Lo que el panel lee del historial
 
-El panel no deduce lo ocurrido comparando colas: lo lee del historial de cada tarea y de `.sf/historial.jsonl` (113, 145). De ahí salen la A y la H; Cerradas, las tareas con un evento de cierre en la sesión (`a-observacion`, `cerrada`, `descartada`, `revertida`, `reabierta`), sin las eliminadas ni las absorbidas; los commits de cada tarea, para Revertir; y los push pendientes. En `$.state` solo guarda las limpiadas, con la fecha de su último cierre.
+El panel no deduce lo ocurrido comparando colas: lo lee del historial de cada tarea y de `.sf/historial.jsonl` (113; tarea 145). De ahí salen la A y la H; Cerradas, las tareas con un evento de cierre en la sesión (`a-observacion`, `cerrada`, `descartada`, `revertida`, `reabierta`), sin las eliminadas ni las absorbidas; los commits de cada tarea, para Revertir; y los push pendientes. En `$.state` solo guarda las limpiadas, con la fecha de su último cierre.
 
 ## 2. Cambios de estado
 
@@ -137,7 +137,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Autorización:** con un encargo nuevo en el chat, el menú de alta (01) pregunta si se añade como paso a la tarea en la que encaja.
 - **Repositorio:** nada.
 - **Panel:** la cuenta «n/m» crece; una ayuda de prueba no cuenta y se ve con «(opcional)».
-- **CLI:** `cola.py paso añadir 92 "texto"`, `cola.py paso añadir 92 "Abrir el panel y mirar X" --prueba`; rechaza el texto de un paso de cierre (253, 174).
+- **CLI:** `cola.py paso añadir 92 "texto"`, `cola.py paso añadir 92 "Abrir el panel y mirar X" --prueba`; rechaza el texto de un paso de cierre (174).
 - **Sale de:** 067, 072, 080; en el historial, 115 (11).
 
 #### 07 · Marcar un paso
@@ -148,7 +148,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Autorización:** ninguna.
 - **Repositorio:** nada.
 - **Panel:** ▸ en curso, ✓ hecho; bajo la tarea de arriba, el paso en curso.
-- **CLI:** `cola.py paso marcar 92 3 en-curso`, `cola.py paso marcar 92 3 hecho --texto "Redactada la tabla"`. El número cuenta desde 1, como el `n` de cada paso en `ver 92`. Un paso de cierre no cambia de texto, ni otro toma el de uno de cierre (253).
+- **CLI:** `cola.py paso marcar 92 3 en-curso`, `cola.py paso marcar 92 3 hecho --texto "Redactada la tabla"`. El número cuenta desde 1, como el `n` de cada paso en `ver 92`. Un paso de cierre no cambia de texto, ni otro toma el de uno de cierre (174).
 - **Sale de:** 067, 081; en el historial, 115 (11).
 
 #### 08 · Quitar un paso pendiente
@@ -210,7 +210,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 #### 13 · Lista para probar
 
-- **De → a:** sin cambio; se escribe `prueba`. Los pasos de cierre ya están desde que la tarea entró en curso (02, 03, 27; 174); `listo` no los toca. Una tarea en curso de antes de la 174 los recibe al cargar la cola, una vez y al final; un repetido se quita (253).
+- **De → a:** sin cambio; se escribe `prueba`. Los pasos de cierre ya están desde que la tarea entró en curso (02, 03, 27; 174); `listo` no los toca. Una tarea en curso de antes de la 174 los recibe al cargar la cola, una vez y al final; un repetido se quita (174).
 - **Cuándo:** al acabar el último paso de trabajo. Sin «Cerrar la tarea», ninguna tarea se cierra, con rama o sin ella.
 - **Quién:** principal.
 - **Autorización:** ninguna. Propone probar, con cómo. Si la tarea no tiene nada que probar (deliberar, investigar, documentar, especificar…), propone cerrarla directamente, enseñando el resultado: el OK del propietario es la aprobación; se cierra (18 o 20), sin pasar por observación, y el cierre marca «Activar rama para poder probar» (172).
@@ -236,9 +236,9 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Cuándo:** el propietario pulsa Activar rama: tarea con rama existente que no es la activa.
 - **Quién:** panel.
 - **Autorización:** el clic, sin confirmar.
-- **Repositorio:** `git switch <rama>` y, si `develop` no está en ella, `git merge develop`: se prueba con lo último y el cierre no choca (270). Tras el merge, adelanta la `sub-NN` a la rama de la tarea (`merge --ff-only` en su worktree), para que el siguiente `--ff-only` del principal siga valiendo. No lo hace con cambios sin commit o con la rama en otro worktree. Con choques, `git merge --abort`, vuelve a la rama de antes, no marca el paso y dice qué archivos chocan (`probar-fallido`; en `--json`, `fallo: choques` y `motivo`): lo resuelve el subagente integrando `develop` en su rama. Si una rama auxiliar tiene commits que no están en la de la tarea (el subagente no ha terminado o falta traerlos), ni integra ni activa: se probaría sin ellos. No recarga el plugin.
+- **Repositorio:** `git switch <rama>` y, si `develop` no está en ella, `git merge develop`: se prueba con lo último y el cierre no choca (191). Tras el merge, adelanta la `sub-NN` a la rama de la tarea (`merge --ff-only` en su worktree), para que el siguiente `--ff-only` del principal siga valiendo. No lo hace con cambios sin commit o con la rama en otro worktree. Con choques, `git merge --abort`, vuelve a la rama de antes, no marca el paso y dice qué archivos chocan (`probar-fallido`; en `--json`, `fallo: choques` y `motivo`): lo resuelve el subagente integrando `develop` en su rama. Si una rama auxiliar tiene commits que no están en la de la tarea (el subagente no ha terminado o falta traerlos), ni integra ni activa: se probaría sin ellos. No recarga el plugin.
 - **Panel:** aviso «La N, en prueba: rama … activa, con develop integrado» (sin «con develop integrado» si ya estaba al día); la cabecera muestra la rama. Con choques o con trabajo sin traer (`fallo`: `choques` o `sin-traer`), avisa y pasa el caso a Claude, como el cierre fallido, para que lo resuelva el subagente de la tarea y repita `probar` (191).
-- **CLI:** `cola.py probar 92`. Activa la rama (si ya lo está, la deja: «ya era la activa», 253) y marca hecho «Activar rama para poder probar»: activar la rama no es darla por buena; el OK del propietario es cerrar (172).
+- **CLI:** `cola.py probar 92`. Activa la rama (si ya lo está, la deja: «ya era la activa», 174) y marca hecho «Activar rama para poder probar»: activar la rama no es darla por buena; el OK del propietario es cerrar (172).
 - **Sale de:** 091, 092, 103, 121.
 
 #### 16 · Mirarla ahora
@@ -271,7 +271,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Cuándo:** tarea en curso con rama existente (sin rama, 20) que tiene el paso «Cerrar la tarea» y ningún otro pendiente salvo «Activar rama para poder probar» y las ayudas de prueba, que quedan como estén (184). Pulsar Cerrar es el OK del propietario, «ciérrala»: «Activar rama para poder probar», si está, queda hecho. También la propuesta que toca un activo: lleva rama y squash, sin pasar por observación.
 - **Quién:** panel; principal, con el OK del propietario en el chat.
 - **Autorización:** dos clics, o el OK.
-- **Repositorio:** antes de nada, se niega si una `sub-NN` tiene commits que no están en la rama de la tarea: el principal no los trajo y el squash los perdería; el mensaje dice cómo traerlos (`git merge --ff-only sub-NN` con la rama activa, `git fetch . sub-NN:<rama>` sin activar). Igual en `a-observacion` (271). Después, `git switch develop`, `git merge --squash <rama>`, commit con los pasos hechos en el cuerpo y el número según el `commits` de `.sf/proyecto.json` («<tarea> (N)» con `libre`; con `conventional` o `propio`, el título «<prefijo>: <tarea>», con el prefijo del tipo de tarea (implementar, `feat`; corregir, `fix`; documentar, especificar, investigar, deliberar y diseñar, `docs`; sin tipo, `chore`, aunque antes de cerrar el principal pregunta el tipo si falta o hay dudas y lo anota con `tipo N T`; decisión 233), y el trailer `SF-Tarea: N` al pie, decisión 207), `git push <remoto> develop` (el `remoto` de la configuración; `origin` si no dice otro), `git branch -D <rama>`. El hash del squash entra en el historial (`cerrada`, «develop <hash>»). Con el remoto público, antes del push revisa lo que sale (`revision_publica.py`, decisión 259): si encuentra algo, no sube. Si el push falla o no se hace, cierra igual, lo anota (`push-fallido`) y avisa; se sube después con `subir`. Después recoge el subagente: `git worktree remove` y `git branch -D sub-NN`, sin forzar; un worktree con cambios sin commit se queda, y una auxiliar con commits que no entraron en `develop` se queda, con su worktree, y se avisa: nunca se borra (`recogida` o `recogida-con-avisos`, 169, 271). El panel no para el subagente: el aviso del mensaje siguiente pide al principal detenerlo y dice lo que quedó (11).
+- **Repositorio:** antes de nada, se niega si una `sub-NN` tiene commits que no están en la rama de la tarea: el principal no los trajo y el squash los perdería; el mensaje dice cómo traerlos (`git merge --ff-only sub-NN` con la rama activa, `git fetch . sub-NN:<rama>` sin activar). Igual en `a-observacion` (200). Después, `git switch develop`, `git merge --squash <rama>`, commit con los pasos hechos en el cuerpo y el número según el `commits` de `.sf/proyecto.json` («<tarea> (N)» con `libre`; con `conventional` o `propio`, el título «<prefijo>: <tarea>», con el prefijo del tipo de tarea (implementar, `feat`; corregir, `fix`; documentar, especificar, investigar, deliberar y diseñar, `docs`; sin tipo, `chore`, aunque antes de cerrar el principal pregunta el tipo si falta o hay dudas y lo anota con `tipo N T`; decisión 233), y el trailer `SF-Tarea: N` al pie, decisión 207), `git push <remoto> develop` (el `remoto` de la configuración; `origin` si no dice otro), `git branch -D <rama>`. El hash del squash entra en el historial (`cerrada`, «develop <hash>»). Con el remoto público, antes del push revisa lo que sale (`revision_publica.py`, decisión 259): si encuentra algo, no sube. Si el push falla o no se hace, cierra igual, lo anota (`push-fallido`) y avisa; se sube después con `subir`. Después recoge el subagente: `git worktree remove` y `git branch -D sub-NN`, sin forzar; un worktree con cambios sin commit se queda, y una auxiliar con commits que no entraron en `develop` se queda, con su worktree, y se avisa: nunca se borra (`recogida` o `recogida-con-avisos`, 169, 200). El panel no para el subagente: el aviso del mensaje siguiente pide al principal detenerlo y dice lo que quedó (11).
   Con la rama sin cambios respecto a `develop` (sin commits propios, o con lo suyo ya en `develop`), no hay squash ni commit: se borra la rama (antes pasa a `develop` si era la activa), se recoge el subagente y la tarea sale como cerrada, sin commit (`cerrada`, «sin cambios: <rama> borrada»; tarea 345).
 - **Panel:** Cerradas, con C y el commit; recuerda el push pendiente.
 - **CLI:** `cola.py cerrar 92`; sin «Cerrar la tarea» o con un paso de trabajo sin hacer sale con 1 y dice cómo arreglarlo.
@@ -542,4 +542,4 @@ Decisiones 113 y 115:
 - **Cómo se ve:** `cola.py copias` lista número (1, la más reciente), fecha, cantidad de tareas y qué cambió después (altas, bajas, cambios de estado y tareas que cambian).
 - **Cómo se recupera:** `cola.py recuperar 3` (o con el nombre del archivo) copia antes la cola actual, que pasa a ser la copia 1 (`recuperar 1` deshace la recuperación), y después pone la elegida. El panel relee. No toca `.sf/historial.jsonl`.
 
-Solo protege lo que escribe el CLI: una escritura a mano no deja copia. El panel también escribe con el CLI (145).
+Solo protege lo que escribe el CLI: una escritura a mano no deja copia. El panel también escribe con el CLI (tarea 145).

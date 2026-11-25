@@ -8,7 +8,7 @@ description: Diagramas SVG de la Software Factory para cualquier documento — e
 
 Un diagrama es un SVG inline (nunca ASCII ni mermaid) que explica lo que cuesta en prosa: un proceso que cambia, una estructura, quién habla con quién. Si una tabla o un párrafo dicen lo mismo, no se dibuja. **Lo mejor suele ser quitar**: cada nodo es una idea distinta, cada flecha dice algo y el diagrama está hecho cuando no se puede quitar nada. Densidad 4 de 10.
 
-Se aplica con la guía común `../metodologia/references/diagramas-svg.md` (cuándo dibujar, introducción antes del diagrama, nada que no esté en el texto, colores con significado, pie). Si chocan, manda esta skill en la forma y la interacción.
+Se aplica con la guía común `../metodologia/references/diagramas-svg.md` (cuándo dibujar, introducción antes del diagrama, nada que no esté en el texto, colores con significado, pie). Si chocan, manda esta skill en la forma y la interacción. El porqué de cada regla, en [references/porque.md](references/porque.md); se lee solo si hace falta.
 
 ## Antes de dibujar
 

@@ -5,7 +5,7 @@ description: Comprueba la instalación de la Software Factory (SF) en este equip
 
 # Comprobar la instalación de la SF
 
-La instalación la comprueba Claude, no el usuario («La instalación la comprueba y la diagnostica Claude», 244). El usuario solo la pide, por ejemplo «comprueba la instalación de la SF», y da el OK a lo que se arregla. No tiene que leer la salida de ninguna orden.
+La instalación la comprueba Claude, no el usuario («La instalación la comprueba y la diagnostica Claude», 244). El usuario solo la pide, por ejemplo «comprueba la instalación de la SF», y da el OK a lo que se arregla. No tiene que leer la salida de ninguna orden. El porqué de las reglas que citan una decisión, en [references/porque.md](references/porque.md); se lee solo si hace falta.
 
 **Una operación, sin tarea.** No se anota en la cola ni crea rama: se hace desde la línea de prompts, con mensajes cortos y un menú (la herramienta de preguntas con opciones) para el OK.
 
