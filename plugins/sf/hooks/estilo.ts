@@ -1,8 +1,19 @@
 
 
-// Azul claro de la tarea en curso: el amarillo queda para la SF (decisión 334). Sobre el gris de las etiquetas
-// (#3f3f46), contraste 5,8:1; sobre el fondo oscuro del panel, más de 9:1.
-export const COLOR_TAREA = '#93c5fd'
+// Dorado, oro viejo, de la tarea en curso (decisión del propietario, 2026-11-25, tarea 383; antes, el azul de la decisión
+// 334): ni el amarillo limón (#facc15) ni el de la marca (#f5c400). Un solo tono no llega a 4,5:1 en los dos temas: uno
+// por tema, según el de Claude Code (modoLogo). Con el tema oscuro, #d4af37: sobre el fondo oscuro (#1e1e1e), 7,9:1;
+// sobre el gris de las etiquetas (#3f3f46), 5,0:1. Con el claro, #8b6914: sobre blanco, 5,1:1.
+export const COLOR_TAREA = '#d4af37'
+export const COLOR_TAREA_CLARO = '#8b6914'
+export function colorTareaDe(modo: 'claro' | 'oscuro'): string {
+  return modo === 'claro' ? COLOR_TAREA_CLARO : COLOR_TAREA
+}
+// Verde claro de la tarea en curso lista para probar (tarea 383), en lugar del dorado: se lee bien en el panel oscuro.
+export const COLOR_LISTA = '#4ade80'
+// Rojo claro de la tarea en curso que espera al propietario (tarea 383): en letra, no en fondo, para no confundirla con
+// una reabierta (número sobre rojo) ni con el ● rojo del subagente que espera.
+export const COLOR_ESPERA = '#f87171'
 // Fondo de las etiquetas neutras de la cabecera: el marcador y la rama que no es de una tarea.
 export const FONDO_ETIQUETA = '#3f3f46'
 // Fondo de las etiquetas del menú de órdenes de una tarea. A prueba, negro (petición del propietario, 2026-11-01); el
@@ -16,22 +27,24 @@ export const ANCHO_NUMERO = 3
 export const hueco = (id: number | string) => Math.max(0, ANCHO_NUMERO - String(id).length)
 
 // Un color por letra, igual en las cuentas y en los códigos: verde solo para las C; las demás, sin color. La tarea
-// en curso, en azul (decisión 334; antes, amarillo). El rojo, solo para las reabiertas, como fondo del
+// en curso, en dorado (tarea 383; antes, azul, decisión 334, y amarillo). El rojo, solo para las reabiertas, como fondo del
 // número; las H de sesiones anteriores, sin rojo (petición del propietario, 2026-10-31).
 export const colorLetra = (l: string) => (l === 'C' ? 'success' : undefined)
 export const colorLetraApagada = (l: string) => (l === 'C' ? LETRA.cerrada : LETRA.neutra)
 
-// La marca del subagente de una tarea, verde si trabaja y roja si espera (decisión 162). Windows Terminal dibuja la
-// ⚙ (U+2699) como emoji, gris, sin el color del texto: va ● (U+25CF), que está en las fuentes de terminal y toma
-// el color. La alternativa es '⚙︎', la ⚙ con el selector de texto, que no todos los terminales respetan. Ocupa
-// una columna; con los espacios, tres.
+// La marca del subagente de una tarea, siempre verde: llena (●) si trabaja y vacía (○) si está parado, sea porque
+// terminó y espera instrucciones o porque se detuvo (petición del propietario, tarea 383; antes, roja si esperaba,
+// decisión 162). Windows Terminal dibuja la ⚙ (U+2699) como emoji, gris, sin el color del texto: va ● (U+25CF), y
+// ○ (U+25CB), que están en las fuentes de terminal y toman el color. La alternativa es '⚙︎', la ⚙ con el selector de
+// texto, que no todos los terminales respetan. Ocupan una columna; con los espacios, tres.
 export const MARCA_SUBAGENTE = '●'
+export const MARCA_SUBAGENTE_PARADO = '○'
 // Las órdenes de una tarea que destruyen (Eliminar, Descartar, Revertir), en rojo; las demás, con la letra normal
 // (decisión 168, precisada por el propietario el 2026-11-01). El rojo claro de ACTUALIZAR, legible sobre el gris.
 export const COLOR_ORDEN_DESTRUCTIVA = '#f87171'
 // El de TURBO, en la cabecera: cian, lejos del naranja de PRUEBA y en letra, no en fondo como el nombre.
 export const COLOR_TURBO = '#22d3ee'
-// El de RELEASE, a su lado: violeta, distinto del cian de TURBO, del naranja de PRUEBA y del azul de la tarea.
+// El de RELEASE, a su lado: violeta, distinto del cian de TURBO, del naranja de PRUEBA y del dorado de la tarea.
 export const COLOR_RELEASE = '#c084fc'
 // El de ACTUALIZAR, junto a RELEASE: rojo, para no confundirlos (decisión del propietario, 2026-10-29).
 export const COLOR_ACTUALIZAR = '#f87171'

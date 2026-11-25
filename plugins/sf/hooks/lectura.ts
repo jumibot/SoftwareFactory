@@ -506,7 +506,7 @@ const tareaDe = (descripcion: string): number | null => {
   const m = /^tarea\s+(\d+)(?!\d)/i.exec(descripcion.trim())
   return m ? Number(m[1]) : null
 }
-export type SubagentesDeTareas = { subagentes: Record<number, string>; subagentesEsperando: Record<number, string> }
+export type SubagentesDeTareas = { subagentes: Record<number, string>; subagentesEsperando: Record<number, string>; subagentesParados: Record<number, string> }
 // Lo leído, con lo apuntado de cada subagente y si el motor dio la lista (sin ella no se sabe quién vive).
 export type LecturaSubagentes = SubagentesDeTareas & { vistos: Record<string, SubagenteVisto>; conLista: boolean }
 export async function leerSubagentes($: $): Promise<LecturaSubagentes> {
@@ -535,16 +535,20 @@ export async function leerSubagentes($: $): Promise<LecturaSubagentes> {
   }
   const subagentes: Record<number, string> = {}
   const subagentesEsperando: Record<number, string> = {}
+  // Los parados también, para el ○ del panel (tarea 383): antes, sin marca.
+  const subagentesParados: Record<number, string> = {}
   for (const v of Object.values(ahora)) {
     if (v.estado === 'trabajando') subagentes[v.tarea] ??= v.descripcion
     else if (v.estado === 'esperando') subagentesEsperando[v.tarea] ??= v.descripcion
+    else subagentesParados[v.tarea] ??= v.descripcion
   }
   for (const id of Object.keys(subagentes)) delete subagentesEsperando[Number(id)]
-  return { subagentes, subagentesEsperando, vistos: ahora, conLista }
+  for (const id of [...Object.keys(subagentes), ...Object.keys(subagentesEsperando)]) delete subagentesParados[Number(id)]
+  return { subagentes, subagentesEsperando, subagentesParados, vistos: ahora, conLista }
 }
 export async function subagentesDeTareas($: $): Promise<SubagentesDeTareas> {
-  const { subagentes, subagentesEsperando } = await leerSubagentes($)
-  return { subagentes, subagentesEsperando }
+  const { subagentes, subagentesEsperando, subagentesParados } = await leerSubagentes($)
+  return { subagentes, subagentesEsperando, subagentesParados }
 }
 
 // Un subagente apuntado que cambia por un evento: su turno acaba (espera, o parado si no hubo respuesta) o se para

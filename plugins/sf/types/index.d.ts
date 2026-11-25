@@ -104,6 +104,9 @@ export type Estado = {
   // Los subagentes que esperan instrucciones (idle o completed, que se pueden retomar), por su tarea, si ninguno
   // trabaja en ella. Opcional: un estado guardado antes no lo tiene.
   subagentesEsperando?: Record<number, string>
+  // Los parados (failed, killed, o parados con TaskStop o sin respuesta), por su tarea, si ninguno trabaja ni espera
+  // en ella (tarea 383: su ○). Opcional, como el anterior.
+  subagentesParados?: Record<number, string>
   // Tareas que han entrado en develop: por su número, sus commits cortos «… (N)» en develop aún sin revertir, el
   // más reciente primero. Son las que la R del panel puede revertir.
   mergeadas: Record<string, string[]>

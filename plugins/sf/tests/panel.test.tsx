@@ -1,7 +1,8 @@
 import { expect, mock, test } from 'claude-code/testing'
-import { ANCHO_ETIQUETA, FONDO_ORDEN, MARCA_AVISO_EMERGENTE, MARCA_ERROR_EMERGENTE, anchoComun, centrar, puntosDe } from '../hooks/estilo'
+import type { Peticion } from '../types'
+import { ANCHO_ETIQUETA, COLOR_TAREA_CLARO, FONDO_ORDEN, MARCA_AVISO_EMERGENTE, MARCA_ERROR_EMERGENTE, anchoComun, centrar, puntosDe } from '../hooks/estilo'
 import { abreviarRutas, duracionEmergente, pareceError, textoEmergente } from '../hooks/emergentes'
-import { avisoComprobacion, avisoDependencias, proximaComprobacion, subirManifiesto } from '../hooks/cola'
+import { avisoComprobacion, avisoDependencias, esperaAlPropietario, listaParaProbar, proximaComprobacion, subirManifiesto } from '../hooks/cola'
 import { claveIncorporacion, colorDelEstilo, tareasEnDevelop } from '../hooks/lectura'
 import { colorDeSesion } from '../hooks/constantes'
 import { numeroTarea } from '../hooks/foco'
@@ -1608,24 +1609,24 @@ test('Cabecera: con rama, cuatro filas de alto, la cabecera normal y con los avi
   await ui.unmount()
 })
 
-// El azul: la línea, solo arriba; en las secciones, solo el código de la tarea en curso; los pasos, sin él
+// El dorado: la línea, solo arriba; en las secciones, solo el código de la tarea en curso; los pasos, sin él
 // (decisión del propietario, 2026-10-28, precisada el 2026-10-29).
-const COLOR_EN_CURSO = '#93c5fd'
+const COLOR_EN_CURSO = '#d4af37'
 const conColorEnCurso = (nodo: unknown) => JSON.stringify(nodo).includes(COLOR_EN_CURSO)
 
-test('Amarillo: la línea, solo arriba; en Pendientes, nada; los pasos, no', async (...m) => {
+test('Dorado: la línea, solo arriba; en Pendientes, nada; los pasos, no', async (...m) => {
   await preparar(m, { cola: [...REABIERTA, { id: 6, texto: 'En cola', estado: 'en-cola' }] })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
-  // Arriba, la línea de la tarea en azul, y solo ahí: en curso, no sale en Pendientes.
+  // Arriba, la línea de la tarea en dorado, y solo ahí: en curso, no sale en Pendientes.
   const lineas = await ui.findAll({ type: 'Text', text: /Fondos por bloque/ })
   expect(lineas.filter(conColorEnCurso)).toHaveLength(1)
   expect(String(lineas.find(conColorEnCurso)?.text ?? '')).toBe('Fondos por bloque')
   expect(await hay(ui, { type: 'Box', text: /^4 Fondos por bloque/ })).toBe(true)
   expect(await ui.find({ type: 'Button', key: 'pet:cola:4' })).toBe(undefined)
-  // Una tarea en cola, sin azul.
+  // Una tarea en cola, sin dorado.
   const fila6 = await ui.find({ type: 'Box', text: /^6 En cola$/ })
   expect(fila6 !== undefined && !conColorEnCurso(fila6)).toBe(true)
-  // El paso en curso, sin azul.
+  // El paso en curso, sin dorado.
   await ui.press({ key: 'arriba:4' })
   await ui.press({ key: 'pasos:arriba:4' })
   expect(await hay(ui, { type: 'Text', text: /Aplicarlo a los bloques/ })).toBe(true)
@@ -2643,7 +2644,7 @@ test('Rama: la activa, atenuada en la cabecera', async (...m) => {
   await ui.unmount()
 })
 
-test('Rama: la de una tarea en curso, en azul; una cabeza separada, su commit corto', async (...m) => {
+test('Rama: la de una tarea en curso, en dorado; una cabeza separada, su commit corto', async (...m) => {
   const { archivos, cambiarCola } = await preparar(m, { cola: CON_RAMAS, extra: GIT('ref: refs/heads/feature/1-panel\n') })
   const ui = await m[0].ui.mount({ ...ANCHO, surface: 'terminal' })
   expect(conColorEnCurso(await ui.find({ type: 'Text', text: /^ ?feature\/1-panel ?$/ }))).toBe(true)
@@ -2678,7 +2679,7 @@ test('Rama: en un worktree, .git es un archivo que apunta a su HEAD', async (...
     },
   })
   const ui = await m[0].ui.mount({ ...ANCHO, surface: 'terminal' })
-  // La 2 está en observación: su rama, en azul.
+  // La 2 está en observación: su rama, en dorado.
   expect(conColorEnCurso(await ui.find({ type: 'Text', text: /^ ?feature\/2-borrada ?$/ }))).toBe(true)
   // Las ramas, en la carpeta común: la 1 existe y la 2 no.
   await ui.press({ key: 'arriba:1' })
@@ -3556,11 +3557,15 @@ for (const status of ['pending', 'waiting']) {
 }
 
 // Al entregar su informe, el subagente queda esperando instrucciones (completed o idle): se puede retomar con su
-// contexto, así que su ⚙ sigue, roja, mientras la tarea esté en curso (decisión 162). Parado (killed) o
-// fallido (failed), se va.
-// El color de la ⚙ de la tarea, arriba: verde si trabaja, roja si espera instrucciones (decisión 162).
-const marca = async (ui: { find: (q: object) => Promise<unknown> }, id: number) =>
-  ((await ui.find({ type: 'Button', key: `subagente-tarea:arriba:${String(id)}` })) as { children: Nodo[] } | undefined)?.children[0]?.props
+// contexto. Esperando o detenido (killed, failed, TaskStop), su marca sigue mientras la tarea esté en curso, vacía.
+// La marca de la tarea, arriba: siempre verde, ● si trabaja y ○ si está parado (tarea 383; antes, roja si esperaba y
+// sin marca si se detenía, decisión 162).
+const marca = async (ui: { find: (q: object) => Promise<unknown> }, id: number) => {
+  const b = (await ui.find({ type: 'Button', key: `subagente-tarea:arriba:${String(id)}` })) as { text: string; children: Nodo[] } | undefined
+  return b === undefined ? undefined : { ...(b.children[0]?.props as object), glifo: b.text.trim() }
+}
+const TRABAJA = { color: 'success', glifo: '●' }
+const PARADA = { color: 'success', glifo: '○' }
 for (const status of ['completed', 'idle']) {
   test(`Subagente: ${status}, la ⚙ sigue, con Activar rama, la C y la D`, async (...m) => {
     const agentes = EN_12()
@@ -3568,7 +3573,7 @@ for (const status of ['completed', 'idle']) {
     const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
     agentes[0]!.status = status
     await cambiarCola(CERRABLES)
-    expect(await marca(ui, 12)).toEqual({ color: 'error' })
+    expect(await marca(ui, 12)).toEqual(PARADA)
     for (const b of ['probar', 'cerrar', 'descartar']) expect(await hay(ui, { type: 'Button', key: `${b}-tarea:arriba:12` })).toBe(true)
     await ui.unmount()
   })
@@ -3578,12 +3583,12 @@ test('Subagente: el que espera avisa distinto; si otro trabaja en la tarea, mand
   const agentes = [{ description: 'Tarea 12: cerrar la lista', status: 'completed' }]
   const a = await preparar(m, { cola: CERRABLES, agentes, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
-  expect(await marca(ui, 12)).toEqual({ color: 'error' })
+  expect(await marca(ui, 12)).toEqual(PARADA)
   await ui.press({ key: 'subagente-tarea:arriba:12' })
-  expect(a.toasts).toContain('●: el subagente de la 12 espera instrucciones (Tarea 12: cerrar la lista)')
+  expect(a.toasts).toContain('○: el subagente de la 12 espera instrucciones (Tarea 12: cerrar la lista)')
   agentes.push({ description: 'Tarea 12: segundo paso', status: 'running' })
   await a.cambiarCola(CERRABLES)
-  expect(await marca(ui, 12)).toEqual({ color: 'success' })
+  expect(await marca(ui, 12)).toEqual(TRABAJA)
   await ui.press({ key: 'subagente-tarea:arriba:12' })
   expect(a.toasts).toContain('●: un subagente trabaja en la 12 (Tarea 12: segundo paso)')
   await ui.unmount()
@@ -3603,42 +3608,59 @@ test('Subagente: el que espera no da ⚙ si la tarea no está en curso', async (
   await ui.unmount()
 })
 
+// En la app, el botón nativo pinta su label (tarea 397): el ● o el ○ van en él, verdes, en la caja verde que no los tapa.
+test('Subagente: en la app, el label es ● trabajando y ○ parado, en verde', async (...m) => {
+  const agentes = EN_12()
+  const { cambiarCola } = await preparar(m, { cola: CERRABLES, agentes, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'desktop' })
+  const boton = async () => (await ui.find({ type: 'Button', key: 'subagente-tarea:arriba:12' })) as ConProps & { children: Nodo[] }
+  expect((await boton()).props.label).toBe('●')
+  expect((await boton()).children[0]?.props).toMatchObject({ color: 'success' })
+  agentes[0]!.status = 'completed'
+  await cambiarCola(CERRABLES)
+  expect((await boton()).props.label).toBe('○')
+  expect((await boton()).children[0]?.props).toMatchObject({ color: 'success' })
+  await ui.unmount()
+})
+
 test('Subagente: el latido pasa la ⚙ de trabajando a esperando sin que pase nada más', async (...m) => {
   const agentes = EN_12()
   const a = await preparar(m, { cola: CERRABLES, agentes, reloj: true, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   agentes[0]!.status = 'completed'
   await a.reloj!.advance(60_000)
-  expect(await marca(ui, 12)).toEqual({ color: 'error' })
+  expect(await marca(ui, 12)).toEqual(PARADA)
   await ui.press({ key: 'subagente-tarea:arriba:12' })
-  expect(a.toasts).toContain('●: el subagente de la 12 espera instrucciones (Tarea 12: cerrar la lista)')
+  expect(a.toasts).toContain('○: el subagente de la 12 espera instrucciones (Tarea 12: cerrar la lista)')
   await ui.unmount()
 })
 
 // El motor deja de listar un subagente poco después de que entregue su informe, aunque siga retomable: el panel
 // recuerda en la sesión los que vio, y uno que trabajaba y desaparece de la lista espera instrucciones.
-const ESPERA = { color: 'error' }
+const ESPERA = PARADA
 test('Subagente: el motor deja de listarlo tras su informe y la ⚙ sigue, en espera', async (...m) => {
   const agentes = EN_12()
   const { cambiarCola } = await preparar(m, { cola: CERRABLES, agentes, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
-  expect(await marca(ui, 12)).toEqual({ color: 'success' })
+  expect(await marca(ui, 12)).toEqual(TRABAJA)
   agentes.splice(0)
   await cambiarCola(CERRABLES)
   expect(await marca(ui, 12)).toEqual(ESPERA)
   await ui.unmount()
 })
 
-test('Subagente: parado con TaskStop, la ⚙ se va aunque el motor ya no lo liste', async (...m) => {
+test('Subagente: parado con TaskStop, queda el ○ aunque el motor ya no lo liste', async (...m) => {
   const agentes = EN_12()
   m[1]('tool.call', { tool: 'TaskStop' }, () => ({ result: { message: 'stopped' } as never }))
-  const { cambiarCola } = await preparar(m, { desplegadas: true, cola: CERRABLES, agentes, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
+  const a = await preparar(m, { desplegadas: true, cola: CERRABLES, agentes, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
-  expect(await marca(ui, 12)).toEqual({ color: 'success' })
+  expect(await marca(ui, 12)).toEqual(TRABAJA)
   agentes.splice(0)
   await m[0].tool.call({ tool: 'TaskStop', task_id: 'a0' })
-  await cambiarCola(CERRABLES)
-  expect(await ui.find({ type: 'Button', key: 'subagente-tarea:arriba:12' })).toBe(undefined)
+  await a.cambiarCola(CERRABLES)
+  expect(await marca(ui, 12)).toEqual(PARADA)
+  await ui.press({ key: 'subagente-tarea:arriba:12' })
+  expect(a.toasts).toContain('○: el subagente de la 12 está detenido (Tarea 12: cerrar la lista)')
   for (const b of ['probar', 'cerrar', 'descartar']) expect(await hay(ui, { type: 'Button', key: `${b}-tarea:arriba:12` })).toBe(true)
   await ui.unmount()
 })
@@ -3655,26 +3677,26 @@ test('Subagente: si TaskStop no encuentra nada que parar (ya entregó su informe
   await ui.unmount()
 })
 
-test('Subagente: al pararlo (killed), la ⚙ se va y vuelven Activar rama, la C y la D', async (...m) => {
+test('Subagente: al pararlo (killed), queda el ○ y siguen Activar rama, la C y la D', async (...m) => {
   const agentes = EN_12()
   const { cambiarCola } = await preparar(m, { desplegadas: true, cola: CERRABLES, agentes, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   expect(await hay(ui, { type: 'Button', key: 'subagente-tarea:arriba:12' })).toBe(true)
   agentes[0]!.status = 'killed'
   await cambiarCola(CERRABLES)
-  expect(await ui.find({ type: 'Button', key: 'subagente-tarea:arriba:12' })).toBe(undefined)
+  expect(await marca(ui, 12)).toEqual(PARADA)
   for (const b of ['probar', 'cerrar', 'descartar']) expect(await hay(ui, { type: 'Button', key: `${b}-tarea:arriba:12` })).toBe(true)
   await ui.unmount()
 })
 
-test('Subagente: el latido relee los subagentes; la ⚙ se va sin que pase nada más', async (...m) => {
+test('Subagente: el latido relee los subagentes; la marca pasa a ○ sin que pase nada más', async (...m) => {
   const agentes = EN_12()
   const { reloj } = await preparar(m, { desplegadas: true, cola: CERRABLES, agentes, reloj: true, extra: { ...RAMAS_CERRAR, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   expect(await hay(ui, { type: 'Button', key: 'subagente-tarea:arriba:12' })).toBe(true)
   agentes[0]!.status = 'failed'
   await reloj!.advance(60_000)
-  expect(await ui.find({ type: 'Button', key: 'subagente-tarea:arriba:12' })).toBe(undefined)
+  expect(await marca(ui, 12)).toEqual(PARADA)
   expect(await hay(ui, { type: 'Button', key: 'probar-tarea:arriba:12' })).toBe(true)
   await ui.unmount()
 })
@@ -3712,7 +3734,7 @@ test('Subagente: un worktree con la rama de la 12, sin subagente, no da ⚙', as
     '/sf/.git/worktrees/agent-1/gitdir': '/sf/.claude/worktrees/agent-1/.git\n',
     '/sf/.claude/worktrees/agent-1/.git': 'gitdir: /sf/.git/worktrees/agent-1\n',
   }
-  await preparar(m, { desplegadas: true, cola: CERRABLES, agentes: EN_12('killed'), extra: { ...RAMAS_CERRAR, ...wt, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
+  await preparar(m, { desplegadas: true, cola: CERRABLES, agentes: [], extra: { ...RAMAS_CERRAR, ...wt, '/sf/.git/HEAD': 'ref: refs/heads/develop\n' } })
   const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
   expect(await ui.find({ type: 'Button', key: 'subagente-tarea:arriba:12' })).toBe(undefined)
   for (const b of ['probar', 'cerrar', 'descartar']) expect(await hay(ui, { type: 'Button', key: `${b}-tarea:arriba:12` })).toBe(true)
@@ -7816,4 +7838,97 @@ test('Color de sesión: el de /color más cercano al primario del estilo; sin es
   expect(await colorDelEstilo(con(estilo({ primario: '#777777' })), '/p', 'green')).toBe('green')
   expect(await colorDelEstilo(con(estilo(undefined)), '/p', 'green')).toBe('green')
   expect(await colorDelEstilo(con({ '/p/docs/identidad/estilo.json': '{ roto' }), '/p', null)).toBe(null)
+})
+
+// ── Lista para probar, en verde (tarea 383) ──
+const VERDE_LISTA = '#4ade80'
+const conVerde = (nodo: unknown) => JSON.stringify(nodo).includes(VERDE_LISTA)
+const evCli = (evento: string, detalle: string, segundos: number) => ({ ...ev(evento, detalle, segundos), quien: 'principal', via: 'cli' })
+const PASOS_LISTA = [{ texto: 'Exportar en UTF-8', estado: 'hecho' }, { texto: 'Activar rama para poder probar', estado: 'pendiente' }, { texto: 'Cerrar la tarea', estado: 'pendiente' }]
+const LISTA: Pet = { id: 7, texto: 'Acentos del CSV', estado: 'en-curso', rama: 'feature/7-csv', prueba: 'abrir el CSV en Excel', pasos: PASOS_LISTA, historial: [evCli('en-curso', '', 1), evCli('listo', 'abrir el CSV en Excel', 5)] }
+const SIN_LISTO: Pet = { id: 8, texto: 'Modo oscuro', estado: 'en-curso', pasos: [{ texto: 'Colores', estado: 'en-curso' }], historial: [evCli('en-curso', '', 1)] }
+
+for (const surface of ['terminal', 'desktop'] as const)
+  test(`Lista para probar (${surface}): arriba, número y título en verde; las demás en curso, en dorado`, async (...m) => {
+    await preparar(m, { cola: [LISTA, SIN_LISTO] })
+    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const titulo7 = await ui.findAll({ type: 'Text', text: /Acentos del CSV/ })
+    expect(titulo7.some(conVerde)).toBe(true)
+    expect(titulo7.some(conColorEnCurso)).toBe(false)
+    expect((await ui.findAll({ type: 'Text', text: /^7\s*$/ })).some(conVerde)).toBe(true)
+    const titulo8 = await ui.findAll({ type: 'Text', text: /Modo oscuro/ })
+    expect(titulo8.some(conColorEnCurso)).toBe(true)
+    expect(titulo8.some(conVerde)).toBe(false)
+    await ui.unmount()
+  })
+
+// El dorado de la tarea en curso, un tono por tema (decisión del propietario, 2026-11-25): con el tema claro, el oscuro
+// del claro; el verde y el rojo, los mismos.
+test('Dorado: con el tema claro de Claude Code, la tarea en curso en el dorado oscuro; las listas para probar, en verde', async (...m) => {
+  m[1]('config.list', () => ({ value: [FILA_TEMA('light')] }) as never)
+  await preparar(m, { cola: [LISTA, SIN_LISTO] })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  const titulo8 = await ui.findAll({ type: 'Text', text: /Modo oscuro/ })
+  expect(titulo8.some(x => JSON.stringify(x).includes(COLOR_TAREA_CLARO))).toBe(true)
+  expect(titulo8.some(conColorEnCurso)).toBe(false)
+  expect((await ui.findAll({ type: 'Text', text: /Acentos del CSV/ })).some(conVerde)).toBe(true)
+  await ui.unmount()
+})
+
+test('Lista para probar: desde «listo» hasta volver al trabajo o salir de en curso; activar la rama no lo quita', () => {
+  const t = (cambios: Partial<Peticion>): Peticion =>
+    ({ id: 7, texto: 'x', estado: 'en-curso', prueba: 'mirar', descripcion: null, commit: null, observando: false, rama: 'feature/7-x', pasos: PASOS_LISTA as Peticion['pasos'], historial: [], ...cambios }) as Peticion
+  const e = (evento: string, detalle: string | null = null) => ({ evento, fecha: 1, detalle, via: 'cli' })
+  const listo = e('listo', 'mirar')
+  expect(listaParaProbar(t({ historial: [listo] }))).toBe(true)
+  // Sin «listo», no; con lo que no es volver al trabajo después (un informe, lo comprobado, un paso hecho), sigue.
+  expect(listaParaProbar(t({ historial: [e('en-curso')] }))).toBe(false)
+  expect(listaParaProbar(t({ historial: [listo, e('informe', 'terminado'), e('comprobado', '2: pruebas'), e('paso', '1 hecho: Exportar en UTF-8')] }))).toBe(true)
+  // Con la rama activada para probar (su paso, hecho), sigue en verde: se puede probar.
+  expect(listaParaProbar(t({ historial: [listo, e('probar', 'feature/7-x')], pasos: PASOS_LISTA.map((x, i) => (i === 1 ? { ...x, estado: 'hecho' } : x)) as Peticion['pasos'] }))).toBe(true)
+  // Vuelve a tener trabajo: un paso nuevo o reabierto, la cola o una reapertura; un paso de cierre que vuelve a pendiente, no.
+  expect(listaParaProbar(t({ historial: [listo, e('paso', 'añadido 2: Otro arreglo')] }))).toBe(false)
+  expect(listaParaProbar(t({ historial: [listo, e('paso', '1 en-curso: Exportar en UTF-8')] }))).toBe(false)
+  expect(listaParaProbar(t({ historial: [listo, e('en-cola')] }))).toBe(false)
+  expect(listaParaProbar(t({ historial: [listo, e('reabierta', 'bug')] }))).toBe(false)
+  expect(listaParaProbar(t({ historial: [listo, e('paso', '3 pendiente: Cerrar la tarea')] }))).toBe(true)
+  // Un «listo» nuevo tras volver al trabajo, otra vez lista.
+  expect(listaParaProbar(t({ historial: [listo, e('paso', 'añadido 2: Otro'), e('listo', 'mirar otra vez')] }))).toBe(true)
+  // Fuera de en curso (cerrada a observación, en cola), no.
+  expect(listaParaProbar(t({ estado: 'en-observacion', historial: [listo] }))).toBe(false)
+  expect(listaParaProbar(t({ estado: 'descartada', historial: [listo] }))).toBe(false)
+})
+
+// ── Esperando al propietario, en rojo (tarea 383) ──
+const ROJO_ESPERA = '#f87171'
+const conRojo = (nodo: unknown) => JSON.stringify(nodo).includes(ROJO_ESPERA)
+const ESPERA_PROPIETARIO: Pet = { id: 9, texto: 'Mudanza de carpetas', estado: 'en-curso', pasos: [{ texto: 'Preparar la lista', estado: 'hecho' }, { texto: 'Esperar al propietario: OK a la mudanza de carpetas', estado: 'pendiente' }], historial: [evCli('en-curso', '', 1)] }
+
+for (const surface of ['terminal', 'desktop'] as const)
+  test(`Espera al propietario (${surface}): arriba, número y título en rojo; lista para probar a la vez, en verde`, async (...m) => {
+    const listaYEspera: Pet = { ...LISTA, pasos: [...PASOS_LISTA, { texto: 'Esperar al propietario: el texto del botón', estado: 'pendiente' }] }
+    await preparar(m, { cola: [ESPERA_PROPIETARIO, { ...listaYEspera, id: 7 }, SIN_LISTO] })
+    const ui = await m[0].ui.mount({ ...PANEL, surface })
+    const titulo9 = await ui.findAll({ type: 'Text', text: /Mudanza de carpetas/ })
+    expect(titulo9.some(conRojo)).toBe(true)
+    expect(titulo9.some(conColorEnCurso)).toBe(false)
+    expect((await ui.findAll({ type: 'Text', text: /^9\s*$/ })).some(conRojo)).toBe(true)
+    const titulo7 = await ui.findAll({ type: 'Text', text: /Acentos del CSV/ })
+    expect(titulo7.some(conVerde)).toBe(true)
+    expect(titulo7.some(conRojo)).toBe(false)
+    expect((await ui.findAll({ type: 'Text', text: /Modo oscuro/ })).some(conRojo)).toBe(false)
+    await ui.unmount()
+  })
+
+test('Espera al propietario: mientras su paso «Esperar al propietario: …» esté sin hacer y la tarea en curso', () => {
+  const t = (pasos: { texto: string; estado: string }[], estado = 'en-curso'): Peticion =>
+    ({ id: 9, texto: 'x', estado, prueba: null, descripcion: null, commit: null, observando: false, rama: null, pasos, historial: [] }) as unknown as Peticion
+  const paso = (estado: string) => ({ texto: 'Esperar al propietario: OK a la mudanza', estado })
+  expect(esperaAlPropietario(t([paso('pendiente')]))).toBe(true)
+  expect(esperaAlPropietario(t([paso('en-curso')]))).toBe(true)
+  // Con la respuesta, hecho: deja de esperar.
+  expect(esperaAlPropietario(t([paso('hecho')]))).toBe(false)
+  // Sin el prefijo exacto, no: «Esperar a «otra tarea»» espera a otra tarea, no al propietario.
+  expect(esperaAlPropietario(t([{ texto: 'Esperar a «Mudanza» (388)', estado: 'pendiente' }, { texto: 'Decidir el color', estado: 'pendiente' }]))).toBe(false)
+  expect(esperaAlPropietario(t([paso('pendiente')], 'en-cola'))).toBe(false)
 })

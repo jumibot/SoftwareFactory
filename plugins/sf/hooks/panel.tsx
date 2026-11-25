@@ -1,12 +1,12 @@
 import { atom, read, update } from 'claude-code'
 import type { Register, RenderChildren } from 'claude-code'
 import type { Actualizacion, Cerrada, Estado, FuenteVersion, Incorporacion, Paso, Peticion, Prueba, Sesion, VistaIncorporacion, VistaPanel } from '../types'
-import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, observable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, refrescar, eliminable, eliminarTarea, enCursoOObservando, enCursoTarea, ponibleEnCurso, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
+import { actualizarPlugin, aPropuestaTarea, devolvible, avisoComprobacion, avisoRefresco, esRefresco, cerrable, observable, cerrarTarea, cerrarObservada, reobservarTarea, comprobarActualizacion, convertirPropuesta, descartable, descartarTarea, pedirIncorporar, elegirPasos, refrescar, eliminable, eliminarTarea, enCursoOObservando, enCursoTarea, esperaAlPropietario, listaParaProbar, ponibleEnCurso, explicarTarea, enCursoRecientes, limpiarCerradas, porCambio, pasoQuitable, pedirRedescripcion, pedirTurbo, preguntarPaso, probable, probarTarea, publicarVersion, revertibleEnObservacion, siguientesVersiones, versionActual, quitarPaso, revertirTarea, separablePendientes, tareaPrincipal } from './cola'
 import { CLAVE_PLEGADO, COLORES, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO, RGB } from './constantes'
 import { COLOR_MARCA, COLOR_MARCA_CLARO, DESPUES, RELLENO_MARCA, LEMA, LETRA_MARCA, NOMBRE, NOMBRE_ANCHO, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
 import { ANCHO_LOGO, coloresLogo, logoSvg, logoTexto } from './logo'
 import { modoLogo } from './tema'
-import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, COLOR_TURBO, COLOR_TAREA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, colorLetra, colorLetraApagada, hueco, puntosDe } from './estilo'
+import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, MARCA_SUBAGENTE_PARADO, COLOR_TURBO, COLOR_TAREA, colorTareaDe, COLOR_LISTA, COLOR_ESPERA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, colorLetra, colorLetraApagada, hueco, puntosDe } from './estilo'
 import { atrasada, commitsDe, creadaEn, cuentaPasos, texto, ultimoCierre } from './lectura'
 import { AVISO_PANTALLA, anotarPantalla, sinPantallaCompleta } from './pantalla'
 import { ORDEN_CONTINUAR, borrarIncorporacion, terminada } from './contexto'
@@ -385,6 +385,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const est = await read($, estado)
 
     if (est === null) return <Text dimColor>Leyendo el estado…</Text>
+    // El dorado de la tarea en curso, en el tono del tema de Claude Code (tarea 383).
+    const colorEnCurso = colorTareaDe(await modoLogo($))
     // Con la SF apagada en la sesión no hay panel (decisión 296): si queda uno abierto, se cierra.
     if (await sfApagada($).catch(() => false)) {
       void $.ui.close({ id: PANEL }).catch(() => undefined)
@@ -418,7 +420,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const reabierta = (id: number) => enCola.get(id)?.reabierta === true
     const fondoNumero = (id: number) => (reabierta(id) ? 'error' : undefined)
     const colorNumero = (id: number, enCurso = false) =>
-      enCurso ? COLOR_TAREA : reabierta(id) ? TEXTO_TAREA : (colorLetra(letra(id)) ?? TEXTO_TAREA)
+      enCurso ? colorEnCurso : reabierta(id) ? TEXTO_TAREA : (colorLetra(letra(id)) ?? TEXTO_TAREA)
     // Las peticiones (pet:<sección>:<id>), los commits (hecho:<hash>) y las propuestas (prop:<título>) empiezan plegados.
     const abierta = (clave: string) =>
       !(
@@ -522,7 +524,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // terminal el gris de su texto, que en la app asomaba como un cuadrado de esquinas rectas tras el botón (tarea 367).
     const fondoFuera = (c?: string) => (grafica ? undefined : c)
 
-    // El paso en curso, sin azul, también arriba: el azul es solo para la tarea (decisión del propietario,
+    // El paso en curso, sin dorado, también arriba: el dorado es solo para la tarea (decisión del propietario,
     // 2026-10-28).
     // El primer clic de un botón con confirmación: lo deja esperando el segundo; a los 5 s vuelve a ser el símbolo.
     const aConfirmar = await read($, porConfirmar)
@@ -621,29 +623,38 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       )
     }
 
-    // El ● del subagente de una tarea, a la derecha de su línea plegada: la única marca que queda en ella (decisión
-    // 168). Sale de los subagentes en marcha, no de los worktrees; su descripción, para el aviso. Verde mientras
-    // trabaja y rojo mientras espera instrucciones, solo con la tarea en curso; parado, sin ● (decisión 162).
-    const subagenteDe = (p: Peticion): { descripcion: string; esperando: boolean } | undefined => {
+    // La marca del subagente de una tarea, a la derecha de su línea plegada: la única que queda en ella (decisión 168).
+    // Sale de los subagentes vistos, no de los worktrees; su descripción, para el aviso. Siempre verde: llena (●)
+    // mientras trabaja y vacía (○) parado, haya terminado y espere instrucciones o se haya detenido, solo con la tarea
+    // en curso (petición del propietario, tarea 383; antes, roja si esperaba y sin marca si se detenía, decisión 162).
+    const subagenteDe = (p: Peticion): { descripcion: string; trabaja: boolean; esperando: boolean } | undefined => {
       const trabajando = est.subagentes[p.id]
-      if (trabajando !== undefined) return { descripcion: trabajando, esperando: false }
-      const esperando = p.estado === 'en-curso' ? est.subagentesEsperando?.[p.id] : undefined
-      return esperando !== undefined ? { descripcion: esperando, esperando: true } : undefined
+      if (trabajando !== undefined) return { descripcion: trabajando, trabaja: true, esperando: false }
+      if (p.estado !== 'en-curso') return undefined
+      const esperando = est.subagentesEsperando?.[p.id]
+      if (esperando !== undefined) return { descripcion: esperando, trabaja: false, esperando: true }
+      const parado = est.subagentesParados?.[p.id]
+      return parado !== undefined ? { descripcion: parado, trabaja: false, esperando: false } : undefined
     }
     const marcaSubagente = (p: Peticion, donde: string) => {
       const subagente = subagenteDe(p)
       if (subagente === undefined) return null
-      const aviso = subagente.esperando
-        ? `${MARCA_SUBAGENTE}: el subagente de la ${String(p.id)} espera instrucciones (${subagente.descripcion})`
-        : `${MARCA_SUBAGENTE}: un subagente trabaja en la ${String(p.id)} (${subagente.descripcion})`
+      const glifo = subagente.trabaja ? MARCA_SUBAGENTE : MARCA_SUBAGENTE_PARADO
+      const aviso = subagente.trabaja
+        ? `${glifo}: un subagente trabaja en la ${String(p.id)} (${subagente.descripcion})`
+        : subagente.esperando
+          ? `${glifo}: el subagente de la ${String(p.id)} espera instrucciones (${subagente.descripcion})`
+          : `${glifo}: el subagente de la ${String(p.id)} está detenido (${subagente.descripcion})`
       const avisar = () => emergente($, aviso, false)
+      // En la app, el botón nativo pinta su label con la letra clara (tarea 397): el ● o el ○, con su forma, sobre la
+      // caja verde, que no lo tapa.
       const boton = (
-        <Button key={`subagente-tarea:${donde}:${p.id}`} label={MARCA_SUBAGENTE} plain onPress={avisar}>
-          <Text color={subagente.esperando ? 'error' : 'success'}>{grafica ? MARCA_SUBAGENTE : ` ${MARCA_SUBAGENTE} `}</Text>
+        <Button key={`subagente-tarea:${donde}:${p.id}`} label={glifo} plain onPress={avisar}>
+          <Text color="success">{grafica ? glifo : ` ${glifo} `}</Text>
         </Button>
       )
       // En la app, sin caja ni fondo, como las órdenes de la tarea: el ● en su color (tarea 397).
-      return grafica ? boton : enCaja(boton, subagente.esperando ? 'error' : 'success')
+      return grafica ? boton : enCaja(boton, 'success')
     }
 
     // Las órdenes de una tarea, en un menú de etiquetas en la primera fila de la tarea desplegada (decisión 168;
@@ -736,7 +747,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
 
     // Activar rama (antes Probar, y antes la letra T): activa la rama de la tarea con git para ponerla en prueba, sin darla por buena; con un clic (decisiones
     // del propietario, 2026-10-29). Solo si la rama existe y no es la activa; si lo es, la cabecera ya la muestra en
-    // azul. Si la rama está en otro worktree, sale igual: al pulsarla, probarTarea lo comprueba y no cambia de rama.
+    // dorado. Si la rama está en otro worktree, sale igual: al pulsarla, probarTarea lo comprueba y no cambia de rama.
     const conProbar = (p: Peticion) => probable(p, est.ramas, est.rama)
     // Cerrar y A observación, en las tareas en curso que solo esperan probarse y cerrarse, con rama o sin ella (decisiones
     // del propietario, 2026-10-29, y 188). Con dos clics.
@@ -1050,7 +1061,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const k = `pet:${donde}:${p.id}`
       const hayMas = hayDetalle(p, conPrueba, ordenes)
       // Sin ▸/▾: el código de una tarea que se despliega va subrayado (norma del propietario, 2026-10-28).
-      // El código, con el color de su letra; el de una tarea en curso, en azul. Su texto, sin azul: la línea en azul solo va arriba (decisión del propietario,
+      // El código, con el color de su letra; el de una tarea en curso, en dorado. Su texto, sin dorado: la línea en dorado solo va arriba (decisión del propietario,
       // 2026-10-28, precisada el 2026-10-29: se refería al texto). Subrayado si se despliega.
       const enCursoP = enCursoOObservando(p)
       const codigo = (
@@ -1093,7 +1104,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const cuenta = String(lista.length)
       return seccion(clave, titulo, cuenta, lista.map(p => peticion(p, conPrueba, clave)))
     }
-    // Las en curso van arriba, en azul; aquí, la cola. En observación va después, en el mismo bloque.
+    // Las en curso van arriba, en dorado; aquí, la cola. En observación va después, en el mismo bloque.
     // El error de la cola va con los demás avisos, bajo la cabecera.
     const secPeticiones = grupo(grupos[1])
     const secObservacion = grupo(grupos[2])
@@ -1550,10 +1561,10 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // Arriba del todo, tras el proyecto, la tarea en la que se trabaja; con varias en curso, cuántas más hay.
     const enCurso = enCursoRecientes(est)
     const tarea = tareaPrincipal(est)
-    // En azul en todos los proyectos (decisión 334): el amarillo es de la SF. Antes, amarillo (decisión del
-    // propietario, 2026-10-27).
-    const colorTarea = COLOR_TAREA
-    // Cada tarea en curso de arriba, en azul y entera, en varias líneas si hace falta (decisión del propietario,
+    // En dorado en todos los proyectos (decisión del propietario, 2026-11-25, tarea 383): el amarillo es de la SF. Antes,
+    // azul (decisión 334) y, antes, amarillo (decisión del propietario, 2026-10-27).
+    const colorTarea = colorEnCurso
+    // Cada tarea en curso de arriba, en dorado y entera, en varias líneas si hace falta (decisión del propietario,
     // 2026-10-29; antes, solo la primera). Plegada, solo su título; con algo que desplegar, su número va subrayado y
     // un clic la despliega: debajo, su detalle, como en las secciones (decisión del propietario, 2026-10-31).
     const tareaArriba = (p: Peticion) => {
@@ -1566,15 +1577,18 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const conPrueba = true
       const hayMas = hayDetalle(p, conPrueba, ordenes)
       const abiertaT = hayMas && abierta(k)
+      // Lista para probar, en verde y no en dorado, número y título, mientras lo está; esperando al propietario, en
+      // rojo. Si coinciden, el verde (tarea 383).
+      const color = listaParaProbar(p) ? COLOR_LISTA : esperaAlPropietario(p) ? COLOR_ESPERA : colorTarea
       // El número y, a su derecha, el título, con sangría colgante (decisión del propietario, 2026-10-31).
       const linea = filaTitulo(
-        <Text color={colorTarea} weight="regular">
+        <Text color={color} weight="regular">
           <Text backgroundColor={fondoNumero(p.id)} underline={hayMas}>
             {p.id}
           </Text>{' '}
         </Text>,
         columnaTitulo(p.id),
-        <Text color={colorTarea} weight="regular">
+        <Text color={color} weight="regular">
           {conTipo(abiertaT ? p.texto : titulo, p.tipo)}
         </Text>,
         hayMas ? k : null,
@@ -1595,7 +1609,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     const lineaTarea = tarea ? (
       <Box flexDirection="row" marginTop={1}>
         <Box flexDirection="column" flexShrink={1}>
-          {/* Todo en azul, número incluido, y sin negrita; las demás en curso, debajo, una línea cada una. */}
+          {/* Todo en dorado, número incluido, y sin negrita; las demás en curso, debajo, una línea cada una. */}
           {enCurso.length > 0 ? (
             enCurso.map(p => tareaArriba(p))
           ) : (
@@ -1624,7 +1638,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     )
     // La rama activa de la carpeta del proyecto, sola en la tercera fila de la cabecera, a la izquierda (tarea 260; antes,
     // a la derecha de la segunda): fondo neutro; en el
-    // azul de la tarea si es la rama de una tarea en curso o en observación; en una cabeza separada, el commit corto
+    // dorado de la tarea si es la rama de una tarea en curso o en observación; en una cabeza separada, el commit corto
     // (decisión del propietario, 2026-10-29).
     // develop con commits sin subir a su remoto (tarea 355): «develop ↑N», con la cifra en verde. El primer clic avisa
     // de que lo subido se ve al momento si el repositorio es público y pide confirmarlo en la propia etiqueta; el
@@ -1686,7 +1700,8 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       return (
         <Box flexDirection="row" flexShrink={1}>
           {/* Etiqueta con el estilo de la de los prompts (decisión del propietario, 2026-10-29): fondo neutro; la letra,
-              en el azul de la tarea si es la rama de una tarea, y si no, atenuada. */}
+              en el dorado de la tarea si es la rama de una tarea (el del tema oscuro: el fondo gris es el mismo en los dos
+              temas), y si no, atenuada. */}
           <Text color={deTarea ? COLOR_TAREA : undefined} dimColor={!deTarea} backgroundColor={FONDO_ETIQUETA} wrap="truncate-end">
             {` ${nombre} `}
           </Text>

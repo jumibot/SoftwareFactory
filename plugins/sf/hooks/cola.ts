@@ -191,6 +191,31 @@ export function pasoQuitable(x: { texto?: unknown; estado?: unknown }): boolean 
   return x.estado === 'pendiente' && !PASOS_DE_CIERRE.includes(String(x.texto))
 }
 
+// Una tarea lista para probar (tarea 383): en curso, con un «listo» de cola.py en su historial y, desde él, sin vuelta
+// al trabajo: ni pasos nuevos o reabiertos, ni paso por la cola, ni reapertura. El panel la pinta en verde mientras lo
+// está: se puede probar, tenga o no la rama activa (el propietario, al probarla); activarla no lo quita. Deja de
+// estarlo al volver al trabajo o al salir de en curso (cerrada, en observación, descartada).
+const VUELVE_AL_TRABAJO = new Set(['en-cola', 'en-curso', 'reabierta'])
+const pasoDeTrabajo = (detalle: string | null) => {
+  const m = /^(?:añadido \d+|\d+ (?:pendiente|en-curso)): (.*)$/s.exec(detalle ?? '')
+  return m !== null && !PASOS_DE_CIERRE.includes(m[1]!)
+}
+export function listaParaProbar(p: Peticion): boolean {
+  if (p.estado !== 'en-curso') return false
+  const listo = p.historial.map(e => e.evento).lastIndexOf('listo')
+  if (listo < 0) return false
+  return !p.historial.slice(listo + 1).some(e => VUELVE_AL_TRABAJO.has(e.evento) || (e.evento === 'paso' && pasoDeTrabajo(e.detalle)))
+}
+
+// Una tarea que espera al propietario (tarea 383, decisión del propietario): en curso, con un paso sin hacer que empieza
+// por «Esperar al propietario:» (una decisión, una respuesta, un retoque suyo). El principal lo añade al quedar a la
+// espera y lo marca hecho al recibir la respuesta. El panel la pinta en rojo mientras lo está; si además está lista
+// para probar, manda el verde: probar es lo que toca.
+export const PREFIJO_ESPERA = 'Esperar al propietario:'
+export function esperaAlPropietario(p: Peticion): boolean {
+  return enCursoOObservando(p) && p.pasos.some(x => x.estado !== 'hecho' && x.texto.trim().startsWith(PREFIJO_ESPERA))
+}
+
 // Quita un paso pendiente de una tarea (la «×» del panel, confirmada; decisión del propietario, 2026-10-29), con
 // «cola.py paso quitar». Solo si en ese sitio sigue el mismo paso, sin empezar y no es de cierre: Claude
 // puede haber cambiado la cola entretanto; entonces no hace nada, sin avisar. Devuelve el aviso si cola.py no lo quita.
@@ -1212,7 +1237,7 @@ export async function refrescarSubagentes($: $): Promise<void> {
   const ahora = await subagentesDeTareas($)
   const actual = await read($, estado)
   if (!actual) return
-  const antes = { subagentes: actual.subagentes, subagentesEsperando: actual.subagentesEsperando ?? {} }
+  const antes = { subagentes: actual.subagentes, subagentesEsperando: actual.subagentesEsperando ?? {}, subagentesParados: actual.subagentesParados ?? {} }
   if (JSON.stringify(antes) === JSON.stringify(ahora)) return
   await update($, estado, e => (e ? { ...e, ...ahora } : e))
 }
