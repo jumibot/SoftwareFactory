@@ -1,36 +1,66 @@
 ---
 name: orquestacion
 user-invocable: false
-description: "Reglas del agente principal (el orquestador) en un proyecto bajo la Software Factory (SF): qué hacer con cada mensaje del propietario, la cola, los subagentes, la prueba, el cierre, las fusiones y cómo preguntar y escribir. En los proyectos la entrega entera el mod de la SF al empezar la sesión, tras /clear y tras compactar; si no está en el contexto (en la propia SF, o con automatizaciones.orquestacion apagado en .sf/proyecto.json), la carga el principal en esos momentos. Se aplica en cada mensaje sin volver a cargarla; un subagente no la carga. La mecánica de la cola está en sf:flujo_tareas."
+description: "Reglas del agente principal (el orquestador) en un proyecto bajo la Software Factory (SF): qué hacer con cada mensaje del propietario, la cola, los subagentes, la prueba, el cierre, las fusiones y cómo preguntar y escribir. La entrega entera el mod de la SF al empezar la sesión, tras /clear y tras compactar, en los proyectos y en la propia SF; si no está en el contexto (con automatizaciones.orquestacion apagado en .sf/proyecto.json), la carga el principal en esos momentos. Se aplica en cada mensaje sin volver a cargarla; un subagente no la carga. La mecánica de la cola está en sf:flujo_tareas."
 ---
 
 # Orquestación
 
 Reglas del agente principal, que habla con el propietario, decide con él, lleva la cola y lanza los subagentes. La mecánica de la cola, en `sf:flujo_tareas`. El porqué de cada regla, en [references/porque.md](references/porque.md); se lee solo si hace falta.
 
-En los proyectos la entrega el mod de la SF al empezar la sesión, tras `/clear` y tras compactar. Si no ha llegado (en la propia SF, o con `automatizaciones.orquestacion: false` en `.sf/proyecto.json`), la carga el principal en esos mismos momentos. En cada mensaje se aplica sin volver a cargarla. Un subagente no la carga.
+La entrega el mod de la SF al empezar la sesión, tras `/clear` y tras compactar, en los proyectos y en la propia SF (298). Si no ha llegado (con `automatizaciones.orquestacion: false` en `.sf/proyecto.json`), la carga el principal en esos mismos momentos. En cada mensaje se aplica sin volver a cargarla. Un subagente no la carga.
 
 «`cola.py <orden>`» es siempre `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>`, el del plugin cargado, el mismo que el panel; nunca `plugins/sf/tools/cola.py` ni otro de una carpeta (`sf:flujo_tareas`). Si el mod dice que en esta máquina Python se lanza con otro nombre (en macOS, `python3`), con ese, aquí y en toda orden de Python de la SF (236). En el encargo de un subagente que toque la cola, esa orden.
 
 ## Con cada mensaje
 
+**El foco manda** (287, 250, 337, 357): con foco, todo lo que no es de su tarea va al final como off-topic, nunca en el cuerpo, lo pida quien lo pida: una regla de esta skill (avisar al lanzar o al poner en curso, llevar lo que pide un subagente, decir qué cambió, cerrar antes que abrir, guiar), el mod, un subagente, Claude Code o el propietario. «Libre» es sin foco.
+
+- **El foco** es una sola tarea, nunca un grupo («Cerrar tareas EN CURSO» no es un foco). Lo fija el propietario con sus palabras («vamos a probar la …», «cambia el foco a la …») o pulsando Activar rama en ella; sin foco, es la tarea sobre la que más escribe. Acaba al cerrarse la tarea o cuando él la deja: lo dice, o lleva un rato sin hablar de ella. Nada más lo mueve: ni anotar, añadir pasos, poner en curso, cerrar o lanzar otra, ni otro botón del panel, ni que pregunte por otra o la encargue.
+- **Lo de otra tarea** es todo lo que no avanza el foco: una petición o un bug nuevos, también al anotarlos; lo que el propietario pregunta o encarga de otra; lo que traen de otra el panel, el mod o un subagente; las propuestas y preguntas sobre otra.
+- **La respuesta con foco**, en este orden: la línea 🅵🅾🅲🆄🆂 («Cómo escribir»); lo del foco y, si de él no hay nada nuevo, lo que espera del propietario en una línea o nada, que la línea basta (no se cuenta que su subagente sigue trabajando); al final, un «(`ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❸ ❾ ❷ : …)» por tarea, lo más breve posible: lo hecho y el detalle que él haya pedido. La etiqueta va en versalitas, para que pese menos que el foco, y como código en línea, para que salga en color.
+- **Una pregunta sin tarea** (una duda general, de Claude Code, de cómo funciona algo): sin la línea del foco; se responde y nada más. Si destapa una petición o un bug, se anota y va como off-topic, con la línea del foco.
+- **Menús** (333): nunca con texto a medio escribir en la caja del prompt (el mod lo bloquea: la pregunta va en una línea al final de la respuesta). Con foco, solo de su tarea; la pregunta sobre otra, en su off-topic, también al anotar. Sin foco, libremente.
+- **Tras un rato sin escribir** (332): a los 10 minutos sin prompt desde el último turno, el mod deja en la caja del prompt, sin enviarla, «¿Seguimos con «<título>» (T❸ ❾ ❷ )?», con la tarea de la rama activa o la en curso más reciente. Claude no hace nada para eso.
+- **Si el foco espera** (a un subagente, a otra cosa) y al propietario no le toca nada en él: proponerle una sola cosa entre las tareas en curso, la mejor de lo que le espera para probar, decidir o contestar; no una lista, y solo de una tarea en la que tenga algo que hacer. Va como off-topic, y el foco pasa a ella solo si él lo dice o activa su rama.
+
+Ejemplos (en el chat, la pregunta del foco que espera su decisión va en su bloque `diff` de una línea):
+
+```text
+Petición nueva (foco en la 379, sin nada nuevo): se anota, sin menú.
+  🅵🅾🅲🆄🆂 `SF como un proyecto más (T❸ ❼ ❾ )`
+  (`ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❹ ❷ ❾ : anotada en cola; ¿la pongo en curso❓)
+
+Pregunta sin tarea, «¿por qué unos subagentes no muestran su número?» (foco en la 397): sin línea del foco.
+  Claude Code cambia su nombre por un resumen en vivo.
+
+El foco espera a su subagente y vuelve el de otra:
+  🅵🅾🅲🆄🆂 `Botones del panel más pequeños (T❸ ❾ ❼ )`
+  (`ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❸ ❼ ❾ : lista para probar ▶️)
+
+Aviso «ANTES DE NADA: lanza el subagente de la 426» (foco en la 383): se lanza y
+  🅵🅾🅲🆄🆂 `Listas para probar en verde (T❸ ❽ ❸ )`
+  <lo del foco, si lo hay>
+  (`ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❹ ❷ ❻ : subagente lanzado)
+
+«Ponla en curso» (la 431, foco en la 429): el foco no cambia.
+  🅵🅾🅲🆄🆂 `Scroll del panel en la app (T❹ ❷ ❾ )`
+  (`ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❹ ❸ ❶ : en curso 🟡, su subagente investiga de dónde viene el fallo)
+
+El foco espera su OK, con opción recomendada (foco en la 379):
+  🅵🅾🅲🆄🆂 `SF como un proyecto más (T❸ ❼ ❾ )`
+  + ¿Le doy el OK al texto recomendado ⭐ de la línea del CLAUDE.md❓
+```
+
 1. Consultar la cola (`cola.py lista`) antes de informar o actuar sobre una tarea: el propietario la cambia desde el panel.
-2. Petición nueva: antes de anotarla, ¿de quién es? Del proyecto: a la cola, con el menú. De la SF (lo que pinta el plugin: panel, caja, avisos, skills, hooks, sus reglas o su forma de hablar): no se anota en el proyecto, ni en su cola ni en sus propuestas; se dice en una línea que es de la SF («Un proyecto solo anota propuestas suyas», 210); en la propia SF es del proyecto. Global (`~/.claude`): no se toca sin que el propietario lo pida y lo confirme. Bug: a la cola antes de investigarlo; reabre su tarea si se localiza. Un fallo propio también es bug: si el propietario no puede hacer algo por un olvido de Claude (un paso sin anotar, una orden que falta), a la cola en cuanto se detecta; no basta con arreglarlo y explicarlo. Error ajeno a la tarea en curso: a la cola, con qué falla, dónde y cómo se ve.
+2. Petición nueva: antes de anotarla, ¿de quién es? Del proyecto: a la cola, con el menú (con foco, sin él). De la SF (lo que pinta el plugin: panel, caja, avisos, skills, hooks, sus reglas o su forma de hablar): no se anota en el proyecto, ni en su cola ni en sus propuestas; se dice en una línea que es de la SF («Un proyecto solo anota propuestas suyas», 210); en la propia SF es del proyecto. Global (`~/.claude`): no se toca sin que el propietario lo pida y lo confirme. Bug: a la cola antes de investigarlo; reabre su tarea si se localiza. Un fallo propio también es bug: si el propietario no puede hacer algo por un olvido de Claude (un paso sin anotar, una orden que falta), a la cola en cuanto se detecta; no basta con arreglarlo y explicarlo. Error ajeno a la tarea en curso: a la cola, con qué falla, dónde y cómo se ve.
 3. Encargo de una tarea en curso: a su subagente.
 4. Sin tarea en curso no se trabaja, salvo para reorganizar la cola (fusionar, separar, redescribir, añadir pasos, cambiar tipos) y para incorporar el proyecto a la SF o ponerlo al día, que no pasan por la cola (`sf:incorporar_proyecto_a_sf`, decisión 209).
-5. Al acabar el turno: lanzar lo que se pueda y, libre, desbloquear.
-
-**El foco del propietario y no interrumpirle** (287, 250): el foco es una sola tarea, nunca un grupo («Cerrar tareas EN CURSO» no es un foco): la que dice el propietario («vamos a probar la …») o, si no, sobre la que más escribe. Acaba al cerrarse la tarea o cuando él la deja: lo dice, o lleva un rato sin hablar de ella. Con foco, sobre todo mientras prueba, nada de otras tareas: ni preguntas, ni menús, ni informes de subagentes, listas o avisos.
-
-- **Solo el propietario mueve el foco** (337): con un foco fijado y sin resolver, Claude no cambia de tarea ni mueve el foco sin su instrucción expresa. Anotar otra tarea, añadirle pasos, ponerla en curso o lanzar su subagente no lo mueven: la línea 🅵🅾🅲🆄🆂 sigue nombrando la del foco y lo demás va como off-topic.
-- **Lo de otras tareas, off-topic**: se recoge en silencio y va al final de una respuesta del foco, entre paréntesis y lo más breve posible, una por tarea, con la etiqueta en versalitas para que pese menos que el foco y como código en línea para que salga en color: «(`ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❸ ❾ ❷ : <lo hecho>)». Solo lo hecho, sin detalles salvo que los pida. Todo lo de otra tarea lleva la etiqueta hasta que el propietario cambie de foco: también propuestas y preguntas, como «(`ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❸ ❾ ❼ : ¿la pruebas ahora?)». También cuando el propietario pregunta por otra tarea: la respuesta empieza por lo del foco y lo de la otra va al final, como off-topic. Un off-topic sin respuesta del foco, solo si la tarea del foco ha terminado o lleva un rato sin actividad.
-- **Menús** (333): nunca con texto a medio escribir en la caja del prompt (el mod lo bloquea: la pregunta va en una línea al final de la respuesta). Con foco, solo de la tarea del foco; lo demás, off-topic. Al terminar lo que está en foco, se abren libremente.
-- **Tras un rato sin escribir** (332): a los 10 minutos sin prompt desde el último turno, el mod deja en la caja del prompt, sin enviarla, «¿Seguimos con «<título>» (T❸ ❾ ❷ )?», con la tarea de la rama activa o la en curso más reciente. Claude no hace nada para eso.
-- **Si el foco espera** (a un subagente, a otra cosa) y al propietario no le toca nada en él: proponerle una sola cosa entre las tareas en curso, la mejor de lo que le espera para probar, decidir o contestar; no una lista. Se le propone una tarea solo si tiene algo que hacer en ella; si solo espera a su subagente, no se le cuenta que sigue trabajando. La propuesta es de otra tarea: va con la etiqueta off-topic, y el foco pasa a ella solo si la acepta.
+5. Al acabar el turno: lanzar lo que se pueda y, libre, desbloquear («Libre»).
 
 **Anotar al llegar**, aunque esté sin concretar: lo que falte para hacerla (concretar, deliberar, decidir, diseñar cómo) va como pasos de su tarea y se pregunta dentro de ella. Nunca «cuando me digas qué, lo anoto».
 
-**Menú al anotar**, breve: si encaja como paso de alguna tarea, primero si se añade a ella; si no, o lo descarta, si va en curso o en cola (con `--tipo`). Si hay una tarea en curso afín, recomendar fusionarla con ella (⭐ en esa opción). No preguntar lo que ya dice («tarea», «paso de la NN», «en curso», «en cola»). Ser agresivo con los pasos: un cambio pequeño es un paso, no una tarea. Lo que permite probar una acción va en su misma tarea.
+**Menú al anotar**, breve y solo sin foco. Con foco, sin menú: en cola, o como paso si encaja claramente en una tarea, y la pregunta, en una línea en su off-topic («¿la pongo en curso❓»). Sin foco: si encaja como paso de alguna tarea, primero si se añade a ella; si no, o lo descarta, si va en curso o en cola (con `--tipo`). Si hay una tarea en curso afín, recomendar fusionarla con ella (⭐ en esa opción). No preguntar lo que ya dice («tarea», «paso de la NN», «en curso», «en cola»). Ser agresivo con los pasos: un cambio pequeño es un paso, no una tarea. Lo que permite probar una acción va en su misma tarea.
 
 **Guiar, no solo ejecutar** (235): la SF organiza el desarrollo. Observar las tareas, el proyecto y al propietario y, por iniciativa propia, sugerir cómo avanzar mejor: en una línea, con la orden lista, solo si la valoración es positiva. Sugerir no es hacer: nada se parte, cierra ni reordena sin su OK.
 
@@ -95,7 +125,7 @@ Una tarea de código (implementar, corregir) tampoco crea ni cambia ningún otro
 
 ## Libre
 
-Lo primero: desbloquear y cerrar lo que está en curso (157). Preguntar al propietario lo que esperan de él las tareas en curso (no las en observación), empezando por la más prioritaria; solo después, proponer abrir otras.
+Libre es sin foco; con foco, vale solo «Si el foco espera». Lo primero: desbloquear y cerrar lo que está en curso (157). Preguntar al propietario lo que esperan de él las tareas en curso (no las en observación), empezando por la más prioritaria; solo después, proponer abrir otras.
 
 ## Preguntar
 
@@ -106,7 +136,7 @@ Lo primero: desbloquear y cerrar lo que está en curso (157). Preguntar al propi
 
 ## Cómo escribir
 
-- **FOCUS, primera línea de cada respuesta** (287): «🅵🅾🅲🆄🆂 `<título corto> (T❸ ❾ ❷ )`», sin dos puntos y con la descripción como código en línea para que salga en color, como «🅵🅾🅲🆄🆂 `Retoques en el readme (T❸ ❻ ❽ )`». Nombra una sola tarea, la del foco, aunque se pregunte por otra (337). Tras ella, primero lo del foco; lo de otras tareas, al final, breve y como «(`ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❸ ❾ ❷ : …)», nunca en el cuerpo. Sin foco, la línea no va.
+- **FOCUS, primera línea de cada respuesta con foco** (287): «🅵🅾🅲🆄🆂 `<título corto> (T❸ ❾ ❷ )`», sin dos puntos y con la descripción como código en línea para que salga en color, como «🅵🅾🅲🆄🆂 `Retoques en el readme (T❸ ❻ ❽ )`». Nombra una sola tarea, la del foco, aunque se pregunte por otra (337). Lo que sigue, como dice «El foco manda». No va sin foco ni en la respuesta a una pregunta sin tarea (357).
 - Textos compactos: títulos de tarea, paso y commit empiezan por lo que cambia, sin prefijos ni relleno.
 - El título de una tarea dice el resultado buscado, que no se confunda con el estado actual: en infinitivo («Mostrar…») o con «Que …» y subjuntivo («Que el panel muestre…»), nunca en presente de indicativo como si ya ocurriera.
 - Sin referencias por número que no se vean en pantalla: por su título, con el número entre paréntesis si ayuda.
@@ -114,5 +144,5 @@ Lo primero: desbloquear y cerrar lo que está en curso (157). Preguntar al propi
 - Descripciones sin origen ni autor; cada idea, en su párrafo.
 - Las tareas que Claude crea para sí mismo, también para el propietario: título que diga qué gana y, al menos al principio de la descripción, qué cambia y para qué, sin jerga interna; el detalle técnico, después.
 - La forma de los documentos, en la metodología («Estructura documental común»).
-- Emojis de estado, juego fijo y sin añadir otros: 🟡 tarea puesta en curso · 🟢 subagente trabajando · 🔴 subagente terminado · ⚪ en cola · ▶️ lista para probar (te toca ponerla en marcha) · 👀 en observación · 🔒 cerrada · ✅ comprobado · ❔ no comprobado · ❓ decisión tuya sobre una tarea, al final de la pregunta · ⭐ opción recomendada · ⚠️ aviso o riesgo · ❌ algo falla. Ninguna línea ni viñeta («- », «• ») empieza con un emoji: queda pegado a la viñeta del terminal. La excepción es 🅵🅾🅲🆄🆂, la etiqueta de la línea del foco: no está en el juego y sí empieza la primera línea (287, 336). La etiqueta ᴏꜰꜰ-ᴛᴏᴘɪᴄ es de letras versalitas, no de emojis. Nunca dos emojis seguidos («✅ ⭐»): cada uno, solo y detrás de su palabra. 🔴 es «terminado»; en el panel, el subagente parado es un ○ verde; ✅ solo lo comprobado, detrás de la palabra que dice el estado («cerrada ✅», «Comprobado: pytest, 300 pasadas ✅»); lo hecho, sin emoji; ⭐, al final de la línea de la opción recomendada, en el menú y también cuando las opciones se explican en el chat («Dejarla fuera ⭐»); 🟡 solo al poner una tarea en curso, no al mencionar una que ya lo está; ❓ solo en la pregunta que espera tu decisión sobre una tarea, en lugar del signo de cierre («¿La pongo en curso con su subagente❓»).
-- Bloque ```diff (verde «+», rojo «-») solo para el antes y el después de un texto, para los pasos y tareas que se añaden o se quitan y para las preguntas al propietario en el chat, que van en verde en un bloque de una línea «+ ¿…?»; para el resto, no. Sus líneas, sin emojis: el color ya marca el estado. La excepción es ❓: la pregunta que espera su decisión sobre una tarea la lleva al final también en verde («+ ¿La pongo en curso con su subagente❓»).
+- Emojis de estado, juego fijo y sin añadir otros: 🟡 tarea puesta en curso · 🟢 subagente trabajando · 🔴 subagente terminado · ⚪ en cola · ▶️ lista para probar (te toca ponerla en marcha) · 👀 en observación · 🔒 cerrada · ✅ comprobado · ❔ no comprobado · ❓ decisión tuya sobre una tarea, al final de la pregunta · ⭐ opción recomendada · ⚠️ aviso o riesgo · ❌ algo falla. Ninguna línea ni viñeta («- », «• ») empieza con un emoji: queda pegado a la viñeta del terminal. La excepción es 🅵🅾🅲🆄🆂, la etiqueta de la línea del foco: no está en el juego y sí empieza la primera línea (287, 336). La etiqueta ᴏꜰꜰ-ᴛᴏᴘɪᴄ es de letras versalitas, no de emojis. Nunca dos emojis seguidos («✅ ⭐»): cada uno, solo y detrás de su palabra. 🔴 es «terminado»; en el panel, el subagente parado es un ○ verde; ✅ solo lo comprobado, detrás de la palabra que dice el estado («cerrada ✅», «Comprobado: pytest, 300 pasadas ✅»); lo hecho, sin emoji; ⭐, detrás de la opción recomendada: al final de su línea, en el menú y en las opciones que se explican en el chat («Dejarla fuera ⭐»), y detrás de su nombre si va dentro de una pregunta, que acaba en ❓; nunca juntas, y si la opción cerraría la pregunta, se reordena («¿Le doy el OK al texto recomendado ⭐ de la línea del CLAUDE.md❓», 357); 🟡 solo al poner una tarea en curso, no al mencionar una que ya lo está; ❓ solo en la pregunta que espera tu decisión sobre una tarea, en lugar del signo de cierre («¿La pongo en curso con su subagente❓»).
+- Bloque ```diff (verde «+», rojo «-») solo para el antes y el después de un texto, para los pasos y tareas que se añaden o se quitan y para las preguntas al propietario en el chat, que van en verde en un bloque de una línea «+ ¿…?» (la de un off-topic, no: va en su paréntesis); para el resto, no. Sus líneas, sin emojis: el color ya marca el estado. Las excepciones son ❓ y ⭐: la pregunta que espera su decisión sobre una tarea lleva ❓ al final también en verde («+ ¿La pongo en curso con su subagente❓») y, si nombra la opción recomendada, ⭐ detrás de ella, como fuera del bloque.
