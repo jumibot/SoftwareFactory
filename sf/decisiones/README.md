@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 382 | 2026-11-25 | [El foco y las esperas guardados en la cola: recordatorio solo con foco, el foco sigue en observación y el mod lo da al arrancar](382-2026-11-25-el-foco-y-las-esperas-guardados-en-la-cola-recordatorio-solo-con-foco-el-foco-sigue-en-observacion-y-el-mod-lo-da-al-arrancar.md) |
 | 381 | 2026-11-25 | [Un juego fijo de emojis de estado en las respuestas del principal, coherente con el panel](381-2026-11-25-un-juego-fijo-de-emojis-de-estado-en-las-respuestas-del-principal-coherente-con-el-panel.md) |
 | 380 | 2026-11-25 | [La línea del foco abre cada respuesta y lo de otras tareas va al final](380-2026-11-25-la-linea-del-foco-abre-cada-respuesta-y-lo-de-otras-tareas-va-al-final.md) |
 | 379 | 2026-11-25 | [El mod entrega las reglas y sf:orquestacion al empezar la sesión, tras /clear y tras compactar](379-2026-11-25-el-mod-entrega-las-reglas-y-sf-orquestacion-al-empezar-la-sesion-tras-clear-y-tras-compactar.md) |
