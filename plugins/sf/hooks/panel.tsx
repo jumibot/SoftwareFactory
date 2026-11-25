@@ -221,6 +221,10 @@ const TEXTO_DESTINO = { eliminar: 'eliminar', pendiente: 'a Pendientes' } as con
 type Accion = keyof typeof ACCIONES
 
 export let panelIntentado = false
+// En pantalla completa, el panel se abre solo, salvo en un proyecto sin SF que aún no ha empezado a incorporarse: ahí,
+// como fuera de ella, la bienvenida es la caja flotante sobre el prompt, y el panel se abre solo al empezar la
+// incorporación (cuando hay progreso que enseñar) o con /sf (tarea 440).
+export const abrirPanelSolo = (est: Pick<Estado, 'tipo' | 'incorporacion'>): boolean => est.tipo !== 'sin-sf' || !!est.incorporacion
 export function recortar(t: string, n: number): string {
   return t.length > n ? `${t.slice(0, n - 1)}…` : t
 }
@@ -250,8 +254,9 @@ export function lineaEstado(e: Estado): string {
 }
 
 export function registrarPanel(on: Parameters<Register>[0]): void {
-  // Centro de control: en pantalla completa, el panel lateral (se abre solo); si no hay panel (pantalla normal,
-  // terminal estrecho o panel cerrado a mano), una caja pequeña sobre el prompt con el estado y la cola.
+  // Centro de control: en pantalla completa, el panel lateral (se abre solo, salvo sin SF antes de incorporar: tarea
+  // 440); si no hay panel (pantalla normal, terminal estrecho, panel cerrado a mano o sin SF y sin incorporación en
+  // marcha), una caja pequeña sobre el prompt con el estado y la cola, o la bienvenida.
   on('ui.render', { component: 'AbovePrompt' }, async ($, e, next) => {
     anotarPantalla(e)
     const est = await read($, estado)
@@ -263,7 +268,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const cerrado = await read($, panelCerrado)
       const panel = (await $.ui.panes()).find(p => p.id === PANEL)
       if (panel?.isPlaced && panel.isShown) return next(e)
-      if (!panel && !panelIntentado && !cerrado) {
+      if (!panel && !panelIntentado && !cerrado && abrirPanelSolo(est)) {
         panelIntentado = true
         const r = await $.ui.open({ id: PANEL, title: 'Software Factory' })
         if (r.isPlaced) return next(e)

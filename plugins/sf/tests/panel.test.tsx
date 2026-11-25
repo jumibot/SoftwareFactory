@@ -1,5 +1,5 @@
 import { expect, mock, test } from 'claude-code/testing'
-import type { Peticion } from '../types'
+import type { Incorporacion, Peticion } from '../types'
 import { ANCHO_ETIQUETA, COLOR_TAREA_CLARO, FONDO_ORDEN, MARCA_AVISO_EMERGENTE, MARCA_ERROR_EMERGENTE, anchoComun, centrar, puntosDe } from '../hooks/estilo'
 import { abreviarRutas, duracionEmergente, pareceError, textoEmergente } from '../hooks/emergentes'
 import { avisoComprobacion, avisoDependencias, esperaAlPropietario, listaParaProbar, proximaComprobacion, subirManifiesto } from '../hooks/cola'
@@ -8,7 +8,7 @@ import { colorDeSesion } from '../hooks/constantes'
 import { numeroTarea } from '../hooks/foco'
 import { PRUEBA_PYTHON } from '../hooks/python'
 import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE } from '../hooks/subagentes'
-import { firmaEstructura, firmaLista, pedirArriba, vistaCuerpo } from '../hooks/panel'
+import { abrirPanelSolo, firmaEstructura, firmaLista, pedirArriba, vistaCuerpo } from '../hooks/panel'
 import { NOMBRE, NOMBRE_ANCHO, bienvenida, partir } from '../hooks/bienvenida'
 import { BARRA, COLOR_BARRA, COLOR_BARRA_CLARO, COLOR_LETRAS, COLOR_LETRAS_CLARO, LETRAS, logoSvg } from '../hooks/logo'
 
@@ -7277,6 +7277,33 @@ const progreso = (actual: number, respuestas: (string | null)[], carpeta = RAIZ)
     actual,
     pasos: ['Caso', 'Diagnóstico', 'Identidad', 'Repositorio', 'Convenciones', 'Cambios y OK', 'Aplicar', 'CLAUDE.md', 'Pasar a sf/', 'Comprobación'].map((nombre, i) => ({ nombre, respuesta: respuestas[i] ?? null })),
   })
+
+// En pantalla completa, sin SF, la bienvenida es la caja flotante, como fuera de ella: el panel no se abre solo hasta que
+// empieza la incorporación (tarea 440).
+test('Caja: en pantalla completa, sin SF, la bienvenida flotante y el panel sin abrir hasta empezar la incorporación', async (...m) => {
+  // Abierto y colocado, la caja cede el sitio y el motor pinta lo suyo («motor»): así se ve si el mod lo ha abierto.
+  // El mod lo intenta una vez por carga: que se abra al empezar la incorporación prueba que antes no lo hizo.
+  const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
+  const ui = await m[0].ui.mount(CAJA)
+  for (const t of [/^Tu fábrica de software sobre Claude Code/, /\/sf abre el panel/]) expect(await hay(ui, { type: 'Text', text: t })).toBe(true)
+  expect(await hay(ui, { type: 'Button', key: 'incorporar-caja' })).toBe(true)
+  await ui.unmount()
+  // Empezada la incorporación, hay progreso que enseñar: el panel se abre solo y la caja le cede el sitio.
+  archivos[PROGRESO] = progreso(1, [])
+  await cambiarCola(INICIAL)
+  const otra = await m[0].ui.mount(CAJA)
+  expect(await hay(otra, { type: 'Text', text: /^motor$/ })).toBe(true)
+  expect(await hay(otra, { type: 'Text', text: /\/sf abre el panel/ })).toBe(false)
+  await otra.unmount()
+})
+
+test('Caja: el panel se abre solo en pantalla completa, salvo sin SF antes de empezar la incorporación (tarea 440)', () => {
+  const inc = { caso: 'existente', actual: 1, pasos: [] } as unknown as Incorporacion
+  expect(abrirPanelSolo({ tipo: 'sin-sf', incorporacion: null })).toBe(false)
+  expect(abrirPanelSolo({ tipo: 'sin-sf' })).toBe(false)
+  expect(abrirPanelSolo({ tipo: 'sin-sf', incorporacion: inc })).toBe(true)
+  expect(abrirPanelSolo({ tipo: 'proyecto', incorporacion: null })).toBe(true)
+})
 
 test('Incorporación: sin SF, bajo la bienvenida sin su invitación, todos los pasos si caben y el actual en amarillo', async (...m) => {
   const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
