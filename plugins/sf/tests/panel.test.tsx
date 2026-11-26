@@ -8,6 +8,7 @@ import { colorDeSesion } from '../hooks/constantes'
 import { numeroTarea } from '../hooks/foco'
 import { PRUEBA_PYTHON } from '../hooks/python'
 import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE } from '../hooks/subagentes'
+import { CABECERA_EN_CURSO, NINGUNA, SIN_CAMBIOS, bloqueEnCurso, tituloCorto } from '../hooks/encurso'
 import { abrirPanelSolo, firmaEstructura, firmaLista, pedirArriba, vistaCuerpo } from '../hooks/panel'
 import { NOMBRE, NOMBRE_ANCHO, bienvenida, partir } from '../hooks/bienvenida'
 import { BARRA, COLOR_BARRA, COLOR_BARRA_CLARO, COLOR_LETRAS, COLOR_LETRAS_CLARO, LETRAS, logoSvg } from '../hooks/logo'
@@ -163,6 +164,8 @@ async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = 
   const prompts: string[] = []
   // Lo que cada prompt lleva como contexto para Claude, en su orden (undefined: nada).
   const contextos: (readonly string[] | undefined)[] = []
+  // El bloque de las tareas en curso de cada prompt (tarea 442; undefined: nada).
+  const enCursos: (string | undefined)[] = []
   const ordenes: string[] = []
   // Las órdenes de cola.py, sin las opciones comunes: «descartar 12».
   const colas: string[] = []
@@ -224,7 +227,11 @@ async function preparar([$, on]: Motor, { sinDecisiones = false, sinGenerador = 
   on('turn.complete', (_, e) => ({ text: e.answer }))
   on('prompt.submit', (_, e) => {
     prompts.push(e.text)
-    contextos.push(e.context)
+    // Las tareas en curso (tarea 442) van aparte, en enCursos: así los demás casos miran solo lo suyo.
+    const esEnCurso = (c: string) => c.startsWith(CABECERA_EN_CURSO)
+    const resto = e.context?.filter(c => !esEnCurso(c))
+    contextos.push(resto?.length === e.context?.length ? e.context : resto?.length ? resto : undefined)
+    enCursos.push(e.context?.find(esEnCurso))
     return { text: e.text }
   })
   on('prompt.fill', (_, e) => {
@@ -695,7 +702,7 @@ def5678	${(AHORA - 3 * 3600000) / 1000}	Panel de la SF: un título de commit muy
     if (fuera.length) archivos[HISTORIAL_JSONL] = (archivos[HISTORIAL_JSONL] ?? '') + fuera.map(x => JSON.stringify(x) + '\n').join('')
     await $.tool.call({ tool: 'Bash', command: 'true' })
   }
-  return { archivos, guardado, comandos, prompts, contextos, ordenes, colas, lineasCola, entradas, toasts, marcados, rellenos, cwds, cierres, lineas, cambiarCola, reloj: relojEnMemoria }
+  return { archivos, guardado, comandos, prompts, contextos, enCursos, ordenes, colas, lineasCola, entradas, toasts, marcados, rellenos, cwds, cierres, lineas, cambiarCola, reloj: relojEnMemoria }
 }
 
 // ACTUALIZAR: lo instalado del plugin sf y el catálogo de donde sale, en la carpeta del usuario (/home).
@@ -8247,4 +8254,75 @@ test('Espera al propietario: mientras su paso «Esperar al propietario: …» es
   // Sin el prefijo exacto, no: «Esperar a «otra tarea»» espera a otra tarea, no al propietario.
   expect(esperaAlPropietario(t([{ texto: 'Esperar a «Mudanza» (388)', estado: 'pendiente' }, { texto: 'Decidir el color', estado: 'pendiente' }]))).toBe(false)
   expect(esperaAlPropietario(t([paso('pendiente')], 'en-cola'))).toBe(false)
+})
+
+// ── Las tareas en curso en el contexto (tarea 442, decisión 284) ──
+const SIN_SUBS = { subagentes: {}, subagentesEsperando: {}, subagentesParados: {} }
+const peticion = (c: Partial<Peticion>): Peticion =>
+  ({ id: 1, texto: 'x', estado: 'en-curso', prueba: null, descripcion: null, commit: null, observando: false, rama: null, pasos: [], historial: [], ...c }) as Peticion
+
+test('En curso (442): una línea por tarea en curso, por número, con lista para probar, espera al propietario y su subagente', () => {
+  const e = (evento: string, detalle: string | null = null) => ({ evento, fecha: 1, detalle, via: 'cli' })
+  const bloque = bloqueEnCurso(
+    [
+      peticion({ id: 9, texto: 'Lista', historial: [e('listo', 'mirar')] }),
+      peticion({ id: 3, texto: 'Espera', pasos: [{ texto: 'Esperar al propietario: el color', estado: 'pendiente' }] }),
+      peticion({ id: 5, texto: 'Sin subagente' }),
+      peticion({ id: 6, texto: 'Detenido' }),
+      // La 8 absorbió la 2: el subagente de la 2 es el suyo (tarea 426).
+      peticion({ id: 8, texto: 'Fusionada', historial: [e('fusion', 'absorbe 2')] }),
+      peticion({ id: 4, texto: 'En cola', estado: 'en-cola' }),
+      peticion({ id: 7, texto: 'Observada', estado: 'en-observacion' }),
+    ],
+    { subagentes: { 9: 'Tarea 9: a' }, subagentesEsperando: { 3: 'Tarea 3: b', 2: 'Tarea 2: c' }, subagentesParados: { 6: 'Tarea 6: d' } },
+  )
+  expect(bloque).toBe(
+    'Tareas en curso (las demás, con `cola.py lista`):\n' +
+      '- 3 «Espera» · espera al propietario · subagente parado, espera instrucciones\n' +
+      '- 5 «Sin subagente» · sin subagente\n' +
+      '- 6 «Detenido» · subagente detenido\n' +
+      '- 8 «Fusionada» · subagente parado, espera instrucciones\n' +
+      '- 9 «Lista» · lista para probar · subagente trabaja',
+  )
+  expect(bloqueEnCurso([peticion({ estado: 'en-cola' })], SIN_SUBS)).toBe(NINGUNA)
+})
+
+test('En curso (442): el título, cortado por palabras con «…»; uno corto, tal cual', () => {
+  expect(tituloCorto('Corto')).toBe('Corto')
+  expect(tituloCorto('Que el mod traiga la lista de tareas en curso con cada mensaje, como dice la decisión')).toBe('Que el mod traiga la lista de tareas en curso con…')
+  expect(tituloCorto('a'.repeat(60))).toBe(`${'a'.repeat(50)}…`)
+})
+
+test('En curso (442): el primer mensaje lleva la lista; el siguiente sin cambios, una línea; con cambios, otra vez entera', async (...m) => {
+  const { enCursos, archivos } = await preparar(m, { agentes: [{ description: 'Tarea 1: panel', status: 'running' }] })
+  await escribe(m, 'hola')
+  const primera = 'Tareas en curso (las demás, con `cola.py lista`):\n- 1 «Panel lateral» · subagente trabaja\n- 4 «Fondos por bloque» · sin subagente'
+  expect(enCursos.at(-1)).toBe(primera)
+  await escribe(m, 'otra')
+  expect(enCursos.at(-1)).toBe(SIN_CAMBIOS)
+  archivos[COLA] = JSON.stringify({ peticiones: [...INICIAL, { id: 9, texto: 'Nueva', estado: 'en-curso', historial: [evCli('listo', 'mirar', 1)] }] })
+  await escribe(m, 'y otra')
+  expect(enCursos.at(-1)).toBe(`${primera}\n- 9 «Nueva» · lista para probar · sin subagente`)
+})
+
+test('En curso (442): un prompt que no es del propietario no la lleva; tras /clear o compactar, vuelve entera', async (...m) => {
+  const { enCursos } = await preparar(m, { agentes: [] })
+  await escribe(m, 'hola')
+  expect(enCursos.at(-1)).toMatch(/^Tareas en curso \(/)
+  await m[0].prompt.submit({ text: 'aviso', origin: { kind: 'task-notification' }, wait: false })
+  expect(enCursos.at(-1)).toBe(undefined)
+  await escribe(m, 'hola')
+  expect(enCursos.at(-1)).toBe(SIN_CAMBIOS)
+  for (const source of ['compact', 'clear']) {
+    await m[0].classic.SessionStart({ source })
+    await escribe(m, 'hola')
+    expect(enCursos.at(-1)).toMatch(/^Tareas en curso \(/)
+  }
+})
+
+test('En curso (442): sin cola (una carpeta sin SF), nada', async (...m) => {
+  const { enCursos, archivos } = await preparar(m, { agentes: [] })
+  delete archivos[COLA]
+  await escribe(m, 'hola')
+  expect(enCursos.at(-1)).toBe(undefined)
 })

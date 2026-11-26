@@ -17,6 +17,7 @@ import { registrarPanel, turnarAvisos } from './panel'
 import { leerTema, registrarTema } from './tema'
 import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE, FUENTES_ARRANQUE, arranqueEnMarcha, arranqueTurnoAcabado, encargarArranque, leerAvisoSubagentes, rearmarAvisosSubagentes, recuperarSubagentes, SIN_AVISO } from './subagentes'
 import { armarSugerencia, cancelarSugerencia, frenarMenu } from './foco'
+import { olvidarEnCurso, tomarEnCurso } from './encurso'
 import { asegurarSesion, decidirSesion, forzarActiva, forzarInactiva, latirSesion, sesionSfActual, sfApagada, soltarAlCerrar, tomarAvisoSesion } from './latido'
 
 // Valores de estado del mod: el motor exige declararlos en el archivo que los usa; con el mismo
@@ -274,6 +275,8 @@ export const register: Register = on => {
   // sf:orquestacion como contexto (decisiones 187 y 298); con la SF apagada, nada (297). Si falla, la sesión sigue sin ellas.
   on('classic.SessionStart', async ($, e, next) => {
     const r = await next(e)
+    // El principal ya no tiene la lista de tareas en curso: el siguiente mensaje la lleva entera (tarea 442).
+    if (!e.agent_id) await olvidarEnCurso($).catch(() => undefined)
     if (e.source === 'clear') {
       await cargar($, true).catch(err => $.ui.log(`tras /clear: ${String(err)}`, { to: 'debug' }))
       await alCargarIncorporacion($).catch(() => undefined)
@@ -449,14 +452,20 @@ export const register: Register = on => {
     const aviso = await leerAvisoSubagentes($).catch(() => SIN_AVISO)
     const lanzar = aviso.lanzar && (await arranqueEnMarcha($)) ? AVISO_ARRANQUE_EN_MARCHA : aviso.lanzar
     const recoger = aviso.recoger
-    const avisos = [avisoSesion, lanzar, reglas, incorporar, panel, pantalla, recoger].filter((x): x is string => !!x)
+    // Las tareas en curso, o que siguen igual (tarea 442, decisión 284).
+    const enCurso = delPropietario ? await tomarEnCurso($).catch(() => null) : null
+    const avisos = [avisoSesion, lanzar, reglas, incorporar, panel, enCurso?.texto, pantalla, recoger].filter((x): x is string => !!x)
     if (!avisos.length) return next(e)
-    // Si el mensaje no llega a entrar (otro hook lo descarta), el aviso del panel queda pendiente para el siguiente.
+    // Si el mensaje no llega a entrar (otro hook lo descarta), el aviso del panel y la lista quedan pendientes para el siguiente.
     const r = await next({ ...e, context: [...(e.context ?? []), ...avisos] }).catch(async (err: unknown) => {
       await tomado?.devolver()
+      await enCurso?.devolver()
       throw err
     })
-    if ('drop' in r) await tomado?.devolver()
+    if ('drop' in r) {
+      await tomado?.devolver()
+      await enCurso?.devolver()
+    }
     return r
   })
 
