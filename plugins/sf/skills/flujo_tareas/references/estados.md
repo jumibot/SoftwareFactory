@@ -111,10 +111,10 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Cuándo:** se aparca una tarea empezada.
 - **Quién:** principal.
 - **Autorización:** el OK del propietario.
-- **Repositorio:** vuelve a la cola sin rama. Si la suya no tiene commits propios respecto a `develop`, se borra (antes pasa a `develop` si era la activa); si ya no existía, se quita la anotación. Lo de su subagente, vacío, se recoge como al cerrar: worktree y rama auxiliar. Con commits propios en su rama o en una auxiliar, o con cambios sin commit en el worktree del subagente, el CLI lo rechaza; para dejarla, se cierra, se pasa a observación o se descarta (170, 275).
+- **Repositorio:** vuelve a la cola sin rama. Si la suya no tiene commits propios respecto a `develop`, se borra (antes pasa a `develop` si era la activa); si ya no existía, se quita la anotación. Lo de su subagente, vacío, se recoge como al cerrar: worktree y rama auxiliar. Con commits propios en su rama o en una auxiliar, o con cambios sin commit en el worktree del subagente, el CLI lo rechaza; para dejarla, se cierra, se pasa a observación o se descarta (170).
 - **Panel:** vuelve a Pendientes; la sesión la apunta en `dejadas`.
 - **CLI:** `cola.py en-cola 87`.
-- **Sale de:** 115 (9), 170, 275.
+- **Sale de:** 115 (9), 170.
 
 #### 05 · Crear la rama
 
