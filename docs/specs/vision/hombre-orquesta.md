@@ -1,3 +1,7 @@
+---
+destino: proyecto
+herramientas: recomendadas
+---
 # SoftwareFactory: el taller del hombre orquesta
 
 <div class="caso">
@@ -184,23 +188,23 @@ Vive en un solo sitio: **Claude Code es el sistema nervioso central**, y la SF, 
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 46 560 424" width="100%" role="img" aria-label="Claude Code conectado al backend de la SF" style="font-family:var(--fuente-texto);display:block">
-<defs><marker id="hoA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#004d47"/></marker></defs>
+<defs><marker id="hoA" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--texto-suave)"/></marker></defs>
 <rect x="14" y="54" width="164" height="52" rx="8" fill="none" stroke="#00726b" stroke-width="1.5"/><text x="96" y="76" text-anchor="middle" font-size="14" font-weight="700" fill="#004d47">App educativa</text><text x="96" y="94" text-anchor="middle" font-size="11.5" fill="#555">su sesión de Claude Code</text>
 <rect x="198" y="54" width="164" height="52" rx="8" fill="none" stroke="#00726b" stroke-width="1.5"/><text x="280" y="76" text-anchor="middle" font-size="14" font-weight="700" fill="#004d47">Dispositivo</text><text x="280" y="94" text-anchor="middle" font-size="11.5" fill="#555">su sesión de Claude Code</text>
 <rect x="382" y="54" width="164" height="52" rx="8" fill="none" stroke="#00726b" stroke-width="1.5"/><text x="464" y="76" text-anchor="middle" font-size="14" font-weight="700" fill="#004d47">App clínica</text><text x="464" y="94" text-anchor="middle" font-size="11.5" fill="#555">su sesión de Claude Code</text>
-<line x1="96" y1="106" x2="96" y2="122" stroke="#004d47" stroke-width="2"/><line x1="280" y1="106" x2="280" y2="122" stroke="#004d47" stroke-width="2"/><line x1="464" y1="106" x2="464" y2="122" stroke="#004d47" stroke-width="2"/><line x1="96" y1="122" x2="464" y2="122" stroke="#004d47" stroke-width="2"/>
-<line x1="150" y1="122" x2="150" y2="200" stroke="#004d47" stroke-width="2" marker-end="url(#hoA)"/>
+<line x1="96" y1="106" x2="96" y2="122" style="stroke:var(--texto-suave)" stroke-width="2"/><line x1="280" y1="106" x2="280" y2="122" style="stroke:var(--texto-suave)" stroke-width="2"/><line x1="464" y1="106" x2="464" y2="122" style="stroke:var(--texto-suave)" stroke-width="2"/><line x1="96" y1="122" x2="464" y2="122" style="stroke:var(--texto-suave)" stroke-width="2"/>
+<line x1="150" y1="122" x2="150" y2="200" style="stroke:var(--texto-suave)" stroke-width="2" marker-end="url(#hoA)"/>
 <text x="160" y="150" font-size="12" font-weight="700" fill="#00726b">eventos</text><text x="160" y="166" font-size="11.5" fill="#555">empieza, espera,</text><text x="160" y="181" font-size="11.5" fill="#555">termina</text>
-<line x1="410" y1="204" x2="410" y2="126" stroke="#004d47" stroke-width="2" marker-end="url(#hoA)"/>
+<line x1="410" y1="204" x2="410" y2="126" style="stroke:var(--texto-suave)" stroke-width="2" marker-end="url(#hoA)"/>
 <text x="300" y="150" font-size="12" font-weight="700" fill="#00726b">contexto</text><text x="300" y="166" font-size="11.5" fill="#555">al abrir cada</text><text x="300" y="181" font-size="11.5" fill="#555">sesión</text>
-<rect x="14" y="206" width="532" height="88" rx="8" fill="#00726b"/>
-<text x="34" y="236" font-size="16" font-weight="700" fill="#fff">El backend de la SF</text>
-<text x="34" y="258" font-size="12.5" fill="#e0f4f3">el tablero, la daily, la bandeja de decisiones</text>
-<text x="34" y="278" font-size="12.5" fill="#e0f4f3">los informes de cierre y el tope de frentes</text>
-<line x1="60" y1="358" x2="60" y2="300" stroke="#004d47" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#hoA)"/>
+<rect x="14" y="206" width="532" height="88" rx="8" fill="#00726b" stroke="#00726b" stroke-width="1.5"/>
+<text x="34" y="236" font-size="16" font-weight="700" style="fill:var(--sobre-primario)">El backend de la SF</text>
+<text x="34" y="258" font-size="12.5" style="fill:var(--sobre-primario)">el tablero, la daily, la bandeja de decisiones</text>
+<text x="34" y="278" font-size="12.5" style="fill:var(--sobre-primario)">los informes de cierre y el tope de frentes</text>
+<line x1="60" y1="358" x2="60" y2="300" style="stroke:var(--texto-suave)" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#hoA)"/>
 <text x="14" y="376" font-size="12" font-weight="700" fill="#00726b">de fuera, se trae</text>
 <text x="14" y="392" font-size="11.5" fill="#555">ChatGPT, Claude Design…</text>
-<line x1="280" y1="298" x2="280" y2="382" stroke="#004d47" stroke-width="2" marker-end="url(#hoA)"/>
+<line x1="280" y1="298" x2="280" y2="382" style="stroke:var(--texto-suave)" stroke-width="2" marker-end="url(#hoA)"/>
 <text x="292" y="336" font-size="12" font-weight="700" fill="#00726b">un resumen y una bandeja</text>
 <text x="292" y="352" font-size="11.5" fill="#555">no veinte avisos sueltos</text>
 <rect x="200" y="388" width="160" height="44" rx="22" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/>
@@ -244,21 +248,21 @@ Alrededor hay tres familias, y en varias cosas van por delante:
 <text x="14" y="30" font-size="14.5" font-weight="700" fill="#004d47">Coordinar agentes<tspan font-size="12.5" font-weight="400" fill="#888">   Vibe Kanban, Conductor, Agent HQ, Codex</tspan></text>
 <text x="14" y="52" font-size="12.5" fill="#1a1a1a">muchos agentes en paralelo, cada uno en su rama</text>
 <text x="14" y="70" font-size="12.5" fill="#888">ven sesiones y agentes, no proyectos con su visión</text>
-<line x1="14" y1="88" x2="546" y2="88" stroke="#e0f4f3" stroke-width="2"/>
+<line x1="14" y1="88" x2="546" y2="88" style="stroke:var(--borde)" stroke-width="1.5"/>
 <text x="14" y="118" font-size="14.5" font-weight="700" fill="#004d47">Métodos de especificación<tspan font-size="12.5" font-weight="400" fill="#888">   Spec Kit, Kiro, BMAD, Superpowers</tspan></text>
 <text x="14" y="140" font-size="12.5" fill="#1a1a1a">especificar, planificar y verificar con rigor</text>
 <text x="14" y="158" font-size="12.5" fill="#888">cuidan el artefacto de un proyecto</text>
-<line x1="14" y1="176" x2="546" y2="176" stroke="#e0f4f3" stroke-width="2"/>
+<line x1="14" y1="176" x2="546" y2="176" style="stroke:var(--borde)" stroke-width="1.5"/>
 <text x="14" y="206" font-size="14.5" font-weight="700" fill="#004d47">Claude Code<tspan font-size="12.5" font-weight="400" fill="#888">   de Anthropic</tspan></text>
 <text x="14" y="228" font-size="12.5" fill="#1a1a1a">avisos, vista de sesiones, hooks, MCP y plugins</text>
 <text x="14" y="246" font-size="12.5" fill="#888">pone la mecánica para todos tus proyectos</text>
 <line x1="280" y1="266" x2="280" y2="290" stroke="#00726b" stroke-width="2"/>
-<rect x="14" y="296" width="532" height="124" rx="8" fill="#00726b"/>
-<text x="34" y="326" font-size="16" font-weight="700" fill="#fff">SoftwareFactory</text>
-<text x="34" y="348" font-size="12.5" fill="#e0f4f3">tu cartera vista desde ti: cómo va cada proyecto</text>
-<text x="34" y="368" font-size="12.5" fill="#e0f4f3">la visión como brújula y un tope de frentes abiertos</text>
-<text x="34" y="388" font-size="12.5" fill="#e0f4f3">los seis trabajos ordenados en la daily</text>
-<text x="34" y="408" font-size="12.5" fill="#e0f4f3">pedirte menos atención, sobre la mecánica de Claude Code</text>
+<rect x="14" y="296" width="532" height="124" rx="8" fill="#00726b" stroke="#00726b" stroke-width="1.5"/>
+<text x="34" y="326" font-size="16" font-weight="700" style="fill:var(--sobre-primario)">SoftwareFactory</text>
+<text x="34" y="348" font-size="12.5" style="fill:var(--sobre-primario)">tu cartera vista desde ti: cómo va cada proyecto</text>
+<text x="34" y="368" font-size="12.5" style="fill:var(--sobre-primario)">la visión como brújula y un tope de frentes abiertos</text>
+<text x="34" y="388" font-size="12.5" style="fill:var(--sobre-primario)">los seis trabajos ordenados en la daily</text>
+<text x="34" y="408" font-size="12.5" style="fill:var(--sobre-primario)">pedirte menos atención, sobre la mecánica de Claude Code</text>
 </svg>
 <figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Tres familias que optimizan la producción, y una que se ocupa de quien la dirige.</figcaption>
 </figure>

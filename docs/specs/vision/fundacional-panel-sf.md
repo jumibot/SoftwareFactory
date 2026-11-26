@@ -94,7 +94,7 @@ Claude Code avisa al mod al empezar la sesión, al acabar cada turno y tras cada
 
 <figure class="vertical">
 <svg viewBox="0 0 560 560" width="100%" role="img" style="font-family:var(--fuente-texto);display:block">
-<title>Claude escribe la cola, los pasos y los commits; el mod los lee en cada aviso y los dibuja en el panel; el propietario da órdenes desde el panel; el enlace con el Commander está previsto</title>
+<title>Claude escribe la cola, los pasos y los commits; el mod los lee en cada aviso y los dibuja en el panel; el propietario da órdenes desde el panel; el enlace con la SF está previsto</title>
 <rect x="60" y="14" width="440" height="80" rx="10" fill="none" style="stroke:var(--primario)" stroke-width="2"/>
 <text x="280" y="46" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--oscuro)">Claude, en la sesión</text>
 <text x="280" y="72" text-anchor="middle" font-size="15" style="fill:var(--texto-suave)">anota peticiones y pasos en .sf/ y hace commits</text>
@@ -110,7 +110,7 @@ Claude Code avisa al mod al empezar la sesión, al acabar cada turno y tras cada
 <line x1="280" y1="366" x2="280" y2="452" style="stroke:var(--texto-suave)" stroke-width="2" stroke-dasharray="6 5"/>
 <text x="292" y="414" font-size="15" style="fill:var(--texto-suave)">estado ↑ · órdenes ↓ · previsto</text>
 <rect x="110" y="452" width="340" height="80" rx="10" fill="none" style="stroke:var(--texto-suave)" stroke-width="2" stroke-dasharray="7 5"/>
-<text x="280" y="484" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--texto-suave)">Claude Code Commander</text>
+<text x="280" y="484" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--texto-suave)">Software Factory</text>
 <text x="280" y="510" text-anchor="middle" font-size="15" style="fill:var(--texto-suave)">previsto · todas las sesiones</text>
 </svg>
 <figcaption>Trazo continuo, lo que existe; discontinuo, lo previsto. El estado va de Claude al panel; las órdenes del propietario vuelven a Claude como peticiones.</figcaption>
@@ -143,11 +143,11 @@ No decide qué es una petición ni la anota: eso lo hace Claude. No ve las otras
 
 ### Cómo crece
 
-Las nuevas responsabilidades de control de la SF se plantean primero en el panel [[M1]](#src-M1 "Decisión «El mod, centro de control de la SF»"){: .ref}, y lo que se observa al usarlo entra en su Registro, que es la fuente de sus mejoras. Cuando exista el Claude Code Commander, el mod de cada sesión será su enlace: le enviará el estado y recogerá sus órdenes [[M5]](#src-M5 "Fundacional del Claude Code Commander"){: .ref}. Con JKanban incorporado, cada petición será una tarea del tablero y el archivo de la cola, su copia sin conexión.
+Las nuevas responsabilidades de control de la SF se plantean primero en el panel [[M1]](#src-M1 "Decisión «El mod, centro de control de la SF»"){: .ref}, y lo que se observa al usarlo entra en su Registro, que es la fuente de sus mejoras. Cuando exista la Software Factory, el mod de cada sesión será su enlace: le enviará el estado y recogerá sus órdenes [[M5]](#src-M5 "Fundacional de la Software Factory"){: .ref}. Con JKanban incorporado, cada petición será una tarea del tablero y el archivo de la cola, su copia sin conexión.
 
 ## Escenarios de uso | Siete situaciones en las que el panel aporta valor | S1–S7 {#escenarios}
 
-El panel aporta valor en el trabajo diario dentro de una sesión: al volver a ella, al recibir peticiones sueltas, al seguir una tarea larga y al cerrar lo empezado. Con varias sesiones a la vez, cada panel ve solo la suya; esa vista de conjunto es del Commander. Los siete escenarios son compatibles y un mismo día pasa por todos.
+El panel aporta valor en el trabajo diario dentro de una sesión: al volver a ella, al recibir peticiones sueltas, al seguir una tarea larga y al cerrar lo empezado. Con varias sesiones a la vez, cada panel ve solo la suya; esa vista de conjunto es de la SF. Los siete escenarios son compatibles y un mismo día pasa por todos.
 
 La base de cada escenario es un hecho del propio proyecto o una fuente publicada. El valor descrito es un objetivo de diseño.
 {: .texto}
@@ -495,7 +495,7 @@ Se comprueba en
 
 ## Qué debe demostrar | Del código probado al uso diario | Fases {#fases}
 
-El panel se demuestra usándolo. Lo construido está casi todo probado; ahora toca observar si cambia la forma de trabajar en varios proyectos y, después, conectarlo con el Commander y con JKanban. La observación es cualitativa: fricciones, aciertos y lo que dice el propietario, en el Registro [[M1]](#src-M1 "Decisión «Medir el uso del panel: cualitativo»"){: .ref}.
+El panel se demuestra usándolo. Lo construido está casi todo probado; ahora toca observar si cambia la forma de trabajar en varios proyectos y, después, conectarlo con la SF y con JKanban. La observación es cualitativa: fricciones, aciertos y lo que dice el propietario, en el Registro [[M1]](#src-M1 "Decisión «Medir el uso del panel: cualitativo»"){: .ref}.
 
 ::: tarjetas 3
 
@@ -524,19 +524,19 @@ Condición para avanzar
 ### Fase 3 · Enlace
 
 Circuito
-:   El mod envía su estado al Commander; la cola pasa a JKanban.
+:   El mod envía su estado a la SF; la cola pasa a JKanban.
 
 Motivo
 :   Una sesión no ve a las otras; la vista de conjunto necesita el enlace.
 
 Condición para avanzar
-:   El estado llega sin pérdidas y el panel sigue funcionando si el Commander cae.
+:   El estado llega sin pérdidas y el panel sigue funcionando si la SF cae.
 
 :::
 
 ### Decisiones de avance
 
-Antes de la fase 3 se decide el canal entre el mod y el Commander, que está en la propuesta del Commander [[M3]](#src-M3 "Propuesta «Claude Code Commander: lo que falta concretar»"){: .ref}.
+Antes de la fase 3 se decide el canal entre el mod y la SF, que está en la propuesta de la SF [[M3]](#src-M3 "Propuesta «Claude Code Commander: lo que falta concretar»"){: .ref}.
 
 Se valida en tres planos. El técnico, que cada función hace lo que dice en una sesión real. El operativo, que la cola y los pasos se mantienen al día sin pedirlo. El de la persona, que retomar cuesta menos y lo empezado se cierra.
 
@@ -584,13 +584,13 @@ Fuentes revisadas el 27 y el 28 de octubre de 2026. E = estudios y evidencias; A
 **M2 · Especificación de la SF** Apartado «Plugin y mods de la SF», con el contenido actual del mod.<br>[Abrir documento](../funcional/software-factory.md)
 {: #src-M2}
 
-**M3 · Propuesta «Claude Code Commander: lo que falta concretar»** Canal entre el mod y el Commander, en `docs/propuestas.md`.<br>[Abrir documento](../../../sf/propuestas.md)
+**M3 · Propuesta «Claude Code Commander: lo que falta concretar»** Canal entre el mod y la SF, en `docs/propuestas.md`.<br>[Abrir documento](../../../sf/propuestas.md)
 {: #src-M3}
 
 **M4 · Cola e historial del 27 y 28 de octubre de 2026** `.sf/peticiones.json` de la SF (43 peticiones y 33 sin probar el 27; 41 más y 3 en Testing el 28) y los commits de `plugins/sf/hooks` y `plugins/sf/tests` (de la versión 0.2.0 a la 0.25.2 el 27, y 60 más hasta la 0.34.3 el 28).
 {: #src-M4}
 
-**M5 · Fundacional del Claude Code Commander** El mod como enlace de cada sesión.<br>[Abrir documento](fundacional-claude-code-commander.html)
+**M5 · Fundacional de la Software Factory** El mod como enlace de cada sesión.<br>[Abrir documento](fundacional-software-factory.html)
 {: #src-M5}
 
 **M6 · Metodología de la SF, sección 2** Cola de peticiones, pasos y un commit por petición.<br>[Abrir documento](../../../plugins/sf/skills/metodologia/references/desarrollo-de-proyectos.md)

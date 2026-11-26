@@ -1,10 +1,12 @@
-<!-- destino: proyecto -->
-<!-- herramientas: recomendadas -->
+---
+destino: proyecto
+herramientas: recomendadas
+---
 # Sprints con objetivo: saber qué toca cada vez que abres Claude Code
 
 **Estado:** 4 de noviembre de 2026, versión 0.25. Basado en las decisiones 260 a 262, 264 a 266, 269, 271 a 277 y en el informe «Sprints con objetivo» 1.13 (tarea 347).
 
-<div class="lector" data-titulo="El verano de Marc · prólogo" data-al-abrir="historia" data-marca="/SF" data-invitacion="Pulsa el logo de la Software Factory para vivir, con el verano de Marc, qué cambia cuando cada sprint tiene un objetivo" style="--lector-marca:#827dbd;--lector-marca-claro:#b3aee6">
+<div class="lector" data-titulo="El verano de Marc · prólogo" data-al-abrir="historia" data-marca="/SF" data-invitacion="Pulsa el logo de la Software Factory para vivir, con el verano de Marc, qué cambia cuando cada sprint tiene un objetivo" style="--lector-marca:#6a62b5;--lector-marca-claro:#7b74c2">
 <div class="libro">
 <p class="libro-capitulo">Prólogo</p>
 <p class="libro-titulo">Tres días para el jueves</p>
@@ -24,6 +26,7 @@ Cada vez que abres Claude Code, Claude hace la **daily** sin que se la pidas, ha
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 440" width="100%" role="img" aria-label="El ciclo del sprint: abrir Claude Code, daily, seguir mientras queden tareas del objetivo; si no, revisión y objetivo nuevo" style="font-family:var(--fuente-texto);display:block">
+<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#5b53a6}.sp-marca-claro{fill:#6f67b8}:root[data-theme="dark"] .sp-marca{fill:#9d97d4}:root[data-theme="dark"] .sp-marca-claro{fill:#c9c5ef}</style>
 <line x1="34" y1="40" x2="34" y2="400" stroke="#b2deda" stroke-width="2"/>
 <circle cx="34" cy="40" r="7" fill="#00726b"/>
 <text x="56" y="38" font-size="14.5" font-weight="700" fill="#004d47">Abres Claude Code · o escribes /sf_daily</text>
@@ -34,11 +37,11 @@ Cada vez que abres Claude Code, Claude hace la **daily** sin que se la pidas, ha
 <circle cx="34" cy="180" r="7" fill="#fff" stroke="#00726b" stroke-width="2"/>
 <text x="56" y="178" font-size="14.5" font-weight="700" fill="#004d47">¿Quedan tareas del objetivo?</text>
 <text x="56" y="196" font-size="12.5" fill="#555">sí: sigues el sprint, cerrando antes que abriendo</text>
-<circle cx="34" cy="250" r="7" fill="#fff" stroke="#a6501a" stroke-width="2"/>
-<text x="56" y="248" font-size="14.5" font-weight="700" fill="#a6501a">No quedan · revisión y planificación</text>
+<circle cx="34" cy="250" r="7" fill="#fff" class="sp-sprint-l" stroke-width="2"/>
+<text x="56" y="248" font-size="14.5" font-weight="700" class="sp-sprint">No quedan · revisión y planificación</text>
 <text x="56" y="266" font-size="12.5" fill="#555">qué se consiguió, en una línea de números y lo importante</text>
-<circle cx="34" cy="320" r="7" fill="#fff" stroke="#a6501a" stroke-width="2"/>
-<text x="56" y="318" font-size="14.5" font-weight="700" fill="#a6501a">Objetivo nuevo · lo eliges tú</text>
+<circle cx="34" cy="320" r="7" fill="#fff" class="sp-sprint-l" stroke-width="2"/>
+<text x="56" y="318" font-size="14.5" font-weight="700" class="sp-sprint">Objetivo nuevo · lo eliges tú</text>
 <text x="56" y="336" font-size="12.5" fill="#555">si dudas, Claude propone dos o tres con su recomendación</text>
 <circle cx="34" cy="400" r="7" fill="#00726b"/>
 <text x="56" y="398" font-size="14.5" font-weight="700" fill="#004d47">Empieza el sprint siguiente</text>
@@ -98,25 +101,26 @@ El objetivo de Àlex es pequeño a propósito. El método ya tenía la **fase** 
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 330" width="100%" role="img" aria-label="Jerarquía: fase, devslice, sprints y tareas, con un ejemplo ilustrativo" style="font-family:var(--fuente-texto);display:block">
+<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#5b53a6}.sp-marca-claro{fill:#6f67b8}:root[data-theme="dark"] .sp-marca{fill:#9d97d4}:root[data-theme="dark"] .sp-marca-claro{fill:#c9c5ef}</style>
 <rect x="10" y="10" width="540" height="310" rx="10" fill="none" stroke="#b2deda" stroke-width="1.5"/>
 <text x="26" y="38" font-size="14.5" font-weight="700" fill="#004d47">Fase · desarrollo</text>
 <text x="26" y="56" font-size="12.5" fill="#555">dónde está el proyecto en el método</text>
 <rect x="30" y="72" width="500" height="236" rx="10" fill="none" stroke="#00726b" stroke-width="1.5"/>
 <text x="46" y="98" font-size="14.5" font-weight="700" fill="#00726b">Devslice · el viaje de los viales</text>
 <text x="46" y="116" font-size="12.5" fill="#555">días o semanas; algo completo que se ve funcionar</text>
-<rect x="50" y="132" width="220" height="160" rx="10" fill="none" stroke="#a6501a" stroke-width="2"/>
-<text x="64" y="156" font-size="13.5" font-weight="700" fill="#a6501a">Sprint actual</text>
+<rect x="50" y="132" width="220" height="160" rx="10" fill="none" class="sp-sprint-l" stroke-width="2"/>
+<text x="64" y="156" font-size="13.5" font-weight="700" class="sp-sprint">Sprint actual</text>
 <text x="64" y="174" font-size="12" fill="#555">«que el gemelo simule</text>
 <text x="64" y="189" font-size="12" fill="#555">entero el verano de Marc»</text>
 <text x="64" y="216" font-size="12.5" fill="#004d47">● campaña de 60 días</text>
 <text x="64" y="238" font-size="12.5" fill="#004d47">● acumuladores fuera</text>
 <text x="64" y="260" font-size="12.5" fill="#004d47">● recarga en la farmacia</text>
-<rect x="290" y="132" width="220" height="70" rx="10" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4 3"/>
-<text x="304" y="160" font-size="13.5" font-weight="700" fill="#777">Sprint anterior</text>
-<text x="304" y="180" font-size="12" fill="#777">cerrado, con su revisión</text>
-<rect x="290" y="222" width="220" height="70" rx="10" fill="none" stroke="#999" stroke-width="1" stroke-dasharray="4 3"/>
-<text x="304" y="250" font-size="13.5" font-weight="700" fill="#777">Sprint siguiente</text>
-<text x="304" y="270" font-size="12" fill="#777">su objetivo, cuando toque</text>
+<rect x="290" y="132" width="220" height="70" rx="10" fill="none" style="stroke:var(--borde-campo)" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="304" y="160" font-size="13.5" font-weight="700" style="fill:var(--texto-suave)">Sprint anterior</text>
+<text x="304" y="180" font-size="12" style="fill:var(--texto-suave)">cerrado, con su revisión</text>
+<rect x="290" y="222" width="220" height="70" rx="10" fill="none" style="stroke:var(--borde-campo)" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="304" y="250" font-size="13.5" font-weight="700" style="fill:var(--texto-suave)">Sprint siguiente</text>
+<text x="304" y="270" font-size="12" style="fill:var(--texto-suave)">su objetivo, cuando toque</text>
 </svg>
 <figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Ilustrativo: el devslice y las tareas son un ejemplo, no un plan.</figcaption>
 </figure>
@@ -202,17 +206,18 @@ El panel enseña **solo el sprint actual**: su objetivo, en una línea bajo la c
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 260" width="100%" role="img" aria-label="El panel con el objetivo del sprint bajo la cabecera y la marca en las tareas del sprint" style="font-family:var(--fuente-texto);display:block">
-<rect x="10" y="10" width="540" height="240" rx="10" fill="none" stroke="#999" stroke-width="1"/>
-<text x="26" y="38" font-size="15" font-weight="700" fill="#827dbd">/<tspan fill="#b3aee6">SF</tspan></text><text x="62" y="38" font-size="14" font-weight="700" fill="#004d47">SmartColdBox</text>
+<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#5b53a6}.sp-marca-claro{fill:#6f67b8}:root[data-theme="dark"] .sp-marca{fill:#9d97d4}:root[data-theme="dark"] .sp-marca-claro{fill:#c9c5ef}</style>
+<rect x="10" y="10" width="540" height="240" rx="10" fill="none" style="stroke:var(--borde-campo)" stroke-width="1"/>
+<text x="26" y="38" font-size="15" font-weight="700" class="sp-marca">/<tspan class="sp-marca-claro">SF</tspan></text><text x="62" y="38" font-size="14" font-weight="700" fill="#004d47">SmartColdBox</text>
 <text x="380" y="38" font-size="12.5" fill="#555">TURBO  RELEASE</text>
-<rect x="26" y="52" width="508" height="30" rx="6" fill="none" stroke="#a6501a" stroke-width="1.5"/>
-<text x="38" y="72" font-size="13" font-weight="700" fill="#a6501a">Objetivo · que el gemelo simule entero el verano de Marc</text>
+<rect x="26" y="52" width="508" height="30" rx="6" fill="none" class="sp-sprint-l" stroke-width="1.5"/>
+<text x="38" y="72" font-size="13" font-weight="700" class="sp-sprint">Objetivo · que el gemelo simule entero el verano de Marc</text>
 <text x="26" y="110" font-size="13" font-weight="700" fill="#004d47">En curso</text>
-<text x="34" y="134" font-size="12.5" fill="#a6501a">●</text><text x="52" y="134" font-size="12.5" fill="#333">Ejecutar completa la campaña de 60 días</text>
-<text x="34" y="156" font-size="12.5" fill="#a6501a">●</text><text x="52" y="156" font-size="12.5" fill="#333">Recargar en la farmacia, no en casa</text>
-<text x="34" y="178" font-size="12.5" fill="#a6501a">◐</text><text x="52" y="178" font-size="12.5" fill="#333">Que el visor del gemelo arranque</text><text x="372" y="178" font-size="11.5" fill="#a6501a">fuera del objetivo</text>
+<text x="34" y="134" font-size="12.5" class="sp-sprint">●</text><text x="52" y="134" font-size="12.5" style="fill:var(--texto)">Ejecutar completa la campaña de 60 días</text>
+<text x="34" y="156" font-size="12.5" class="sp-sprint">●</text><text x="52" y="156" font-size="12.5" style="fill:var(--texto)">Recargar en la farmacia, no en casa</text>
+<text x="34" y="178" font-size="12.5" class="sp-sprint">◐</text><text x="52" y="178" font-size="12.5" style="fill:var(--texto)">Que el visor del gemelo arranque</text><text x="372" y="178" font-size="11.5" class="sp-sprint">fuera del objetivo</text>
 <text x="26" y="210" font-size="13" font-weight="700" fill="#004d47">En cola</text>
-<text x="52" y="234" font-size="12.5" fill="#777">Decidir si el pesaje entra en el prototipo</text>
+<text x="52" y="234" font-size="12.5" style="fill:var(--texto-suave)">Decidir si el pesaje entra en el prototipo</text>
 </svg>
 <figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Boceto ilustrativo: la forma de la marca se decide al construirlo.</figcaption>
 </figure>

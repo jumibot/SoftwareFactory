@@ -219,7 +219,7 @@ Guardar una skill no implica que baste para ejecutar todo su plugin: identificar
 
 Las skills operativas pertenecen a cada aplicación. La SF puede proporcionar plantillas o piezas reutilizables, manteniendo explícita su versión y evitando que una actualización de skills de desarrollo altere inadvertidamente el producto.
 
-### Claude Code Commander — acuerdo (propietario, 2026-10-27)
+### Software Factory — acuerdo (propietario, 2026-10-27)
 
 Aplicación aparte de la SF, pieza clave para trabajar con varias sesiones de Claude Code a la vez. Vive en el plugin `sf` y se usa desde el ordenador, la tableta y el móvil; la tecnología está por decidir. Su alcance, que se irá concretando:
 

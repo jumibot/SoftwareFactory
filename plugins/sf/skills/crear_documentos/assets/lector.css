@@ -115,7 +115,7 @@
 /* La historia completa: el botón tras el primer lector y la capa a pantalla completa con el lector del tamaño
    de un móvil, su índice de capítulos y el diálogo de las escenas en forma de libro. */
 .lector-abrir { text-align: center; margin: -1.2rem 0 2.2rem; }
-.lector-abrir button { font: 600 .9rem var(--fuente-texto); color: var(--tinta-oscura); background: #fff; border: 1px solid var(--borde);
+.lector-abrir button { font: 600 .9rem var(--fuente-texto); color: var(--tinta-oscura); background: var(--superficie, #fff); border: 1px solid var(--borde);
                        border-radius: 999px; padding: .5rem 1.2rem; cursor: pointer; }
 .lector-abrir button:hover { border-color: var(--tinta-oscura); }
 .lector-abrir button:focus-visible { outline: 3px solid var(--primario); outline-offset: 3px; }

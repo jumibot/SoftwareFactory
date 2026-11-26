@@ -1,3 +1,7 @@
+---
+destino: proyecto
+herramientas: recomendadas
+---
 # SoftwareFactory: tu forma de construir, convertida en fábrica
 
 <div class="caso">
@@ -10,10 +14,10 @@
 Para eso existe **SoftwareFactory**: tu forma de construir aplicaciones con Claude Code, convertida en método y herramientas que se reutilizan. Está hecha a la medida de tus proyectos: emprendimientos que nacen de cero, centrados en las personas, a menudo con un agente de IA dentro o con una parte de hardware. LecturaFàcil no pasará de la visión al código de golpe. Primero tendrá una especificación del conjunto, con su interfaz, y una definición técnica. Después se construirá por devslices: incrementos pequeños y completos, que se preparan uno a uno.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 44 560 476" width="100%" role="img" aria-label="Recorrido de LecturaFàcil por el método, de la visión al cierre" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<svg viewBox="0 44 560 476" width="100%" role="img" aria-label="Recorrido de LecturaFàcil por el método, de la visión al cierre" style="font-family:var(--fuente-texto);display:block">
 <line x1="34" y1="64" x2="34" y2="482" stroke="#b2deda" stroke-width="2"/>
 <circle cx="34" cy="64" r="7" fill="#00726b"/><text x="56" y="62" font-size="14.5" font-weight="700" fill="#004d47">Visión<tspan font-size="12.5" font-weight="700" fill="#00726b">   ✓ escrita</tspan></text><text x="56" y="80" font-size="12.5" fill="#555">el mismo Kant para Yasmin, Pau y su clase</text>
-<rect x="290" y="98" width="120" height="22" rx="11" fill="#00726b"/><text x="350" y="113" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">estás aquí</text>
+<rect x="290" y="98" width="120" height="22" rx="11" fill="#00726b"/><text x="350" y="113" text-anchor="middle" font-size="12" font-weight="700" style="fill:var(--sobre-primario)">estás aquí</text>
 <circle cx="34" cy="134" r="7" fill="#fff" stroke="#00726b" stroke-width="2"/><text x="56" y="132" font-size="14.5" font-weight="700" fill="#004d47">Especificación funcional global</text><text x="56" y="150" font-size="12.5" fill="#555">funcionalidades, interfaz, recorridos, estados, criterios</text>
 <circle cx="34" cy="194" r="7" fill="#fff" stroke="#00726b" stroke-width="2"/><text x="56" y="192" font-size="14.5" font-weight="700" fill="#004d47">Definición técnica</text><text x="56" y="210" font-size="12.5" fill="#555">escritorio: Python, Tkinter, SQLite y un agente</text>
 <circle cx="34" cy="254" r="7" fill="#fff" stroke="#00726b" stroke-width="2"/><text x="56" y="252" font-size="14.5" font-weight="700" fill="#004d47">Devslices</text><text x="56" y="270" font-size="12.5" fill="#555">pequeñas: una o dos sesiones cada una</text>
@@ -84,7 +88,7 @@ Primero viene la **especificación funcional global**: el comportamiento del pro
 Después llega la **definición técnica**: con qué y cómo se construye. El detalle no tiene que ser total: basta con entender el producto completo y las decisiones que lo sostienen.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 604" width="100%" role="img" aria-label="Lo que se define en la especificación funcional y en la definición técnica de LecturaFàcil" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<svg viewBox="0 0 560 604" width="100%" role="img" aria-label="Lo que se define en la especificación funcional y en la definición técnica de LecturaFàcil" style="font-family:var(--fuente-texto);display:block">
 <text x="14" y="24" font-size="15" font-weight="700" fill="#004d47">Especificación funcional global</text>
 <text x="34" y="60" font-size="13.5" font-weight="700" fill="#004d47">Funcionalidades y reglas</text><text x="34" y="77" font-size="12" fill="#555">perfiles de lector, dial, línea roja, ayudas</text>
 <text x="34" y="102" font-size="13.5" font-weight="700" fill="#004d47">Interfaz</text><text x="34" y="119" font-size="12" fill="#555">pantallas y navegación, diseñadas antes de elegir la técnica</text>
@@ -110,7 +114,7 @@ Después llega la **definición técnica**: con qué y cómo se construye. El de
 Antes de elegir ninguna tecnología se **crea la interfaz**: pantallas, navegación y lo que ocurre en cada estado, como cargando, vacío, error o sin permiso. En LecturaFàcil, el corazón es la pantalla de revisión, donde el docente ve cada hoja, entiende cada cambio y decide.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 492" width="100%" role="img" aria-label="Boceto de la pantalla de revisión de LecturaFàcil" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<svg viewBox="0 0 560 492" width="100%" role="img" aria-label="Boceto de la pantalla de revisión de LecturaFàcil" style="font-family:var(--fuente-texto);display:block">
 <rect x="14" y="8" width="532" height="474" rx="10" fill="#fff" stroke="#b2deda" stroke-width="1.5"/>
 <line x1="14" y1="40" x2="546" y2="40" stroke="#b2deda" stroke-width="1.5"/>
 <text x="30" y="30" font-size="13" font-weight="700" fill="#004d47">LecturaFàcil · Revisar versiones · 2.º B · Kant</text>
@@ -118,25 +122,25 @@ Antes de elegir ninguna tecnología se **crea la interfaz**: pantallas, navegaci
 <text x="110" y="68" font-size="12.5" fill="#888">Pau · nivel 1</text>
 <text x="222" y="68" font-size="12.5" font-weight="700" fill="#00726b">Yasmin · nivel 3</text>
 <line x1="222" y1="76" x2="330" y2="76" stroke="#00726b" stroke-width="2.5"/>
-<rect x="30" y="92" width="500" height="148" rx="6" fill="#f7f7f7"/>
+<rect x="30" y="92" width="500" height="148" rx="6" style="fill:var(--fondo-suave);stroke:var(--linea)"/>
 <text x="46" y="116" font-size="13" font-weight="700" fill="#1a1a1a">Qui és Kant</text>
 <text x="46" y="138" font-size="12.5" fill="#1a1a1a">Kant és un filòsof.</text>
 <text x="46" y="158" font-size="12.5" fill="#1a1a1a">Kant va viure a Prússia fa més de 200 anys.</text>
-<rect x="46" y="172" width="250" height="8" rx="4" fill="#ddd"/><rect x="46" y="190" width="200" height="8" rx="4" fill="#ddd"/><rect x="46" y="208" width="230" height="8" rx="4" fill="#ddd"/>
+<rect x="46" y="172" width="250" height="8" rx="4" style="fill:var(--borde)"/><rect x="46" y="190" width="200" height="8" rx="4" style="fill:var(--borde)"/><rect x="46" y="208" width="230" height="8" rx="4" style="fill:var(--borde)"/>
 <rect x="340" y="104" width="176" height="122" rx="6" fill="#fff" stroke="#b2deda"/>
 <text x="352" y="124" font-size="11.5" font-weight="700" fill="#00726b">Glosario</text>
 <text x="352" y="144" font-size="11.5" fill="#1a1a1a">enteniment · العقل</text>
 <text x="352" y="162" font-size="11.5" fill="#1a1a1a">menor d'edat · قاصر</text>
-<rect x="352" y="174" width="120" height="7" rx="3.5" fill="#ddd"/><rect x="352" y="190" width="100" height="7" rx="3.5" fill="#ddd"/>
+<rect x="352" y="174" width="120" height="7" rx="3.5" style="fill:var(--borde)"/><rect x="352" y="190" width="100" height="7" rx="3.5" style="fill:var(--borde)"/>
 <text x="30" y="270" font-size="13.5" font-weight="700" fill="#004d47">Qué ha cambiado, y por qué</text>
 <text x="30" y="294" font-size="12.5" fill="#1a1a1a">La frase larga se parte</text><text x="530" y="294" text-anchor="end" font-size="12" fill="#888">frases cortas</text>
 <text x="30" y="316" font-size="12.5" fill="#1a1a1a">Primero el ejemplo, después el concepto</text><text x="530" y="316" text-anchor="end" font-size="12" fill="#888">concreto antes que abstracto</text>
 <text x="30" y="338" font-size="12.5" fill="#1a1a1a">Los conceptos se quedan</text><text x="530" y="338" text-anchor="end" font-size="12" font-weight="700" fill="#00726b">línea roja ✓</text>
 <text x="30" y="360" font-size="12" fill="#888">+ 3 cambios más</text>
-<line x1="30" y1="378" x2="530" y2="378" stroke="#e0f4f3" stroke-width="2"/>
+<line x1="30" y1="378" x2="530" y2="378" style="stroke:var(--borde)" stroke-width="1.5"/>
 <text x="30" y="402" font-size="12" fill="#888">Si el agente no puede adaptar: aviso, y el original queda intacto</text>
 <rect x="290" y="418" width="110" height="32" rx="16" fill="#fff" stroke="#00726b" stroke-width="1.5"/><text x="345" y="439" text-anchor="middle" font-size="12.5" font-weight="700" fill="#00726b">Ajustar regla</text>
-<rect x="410" y="418" width="120" height="32" rx="16" fill="#00726b"/><text x="470" y="439" text-anchor="middle" font-size="12.5" font-weight="700" fill="#fff">Aprobar</text>
+<rect x="410" y="418" width="120" height="32" rx="16" fill="#00726b" stroke="#00726b" stroke-width="1.5"/><text x="470" y="439" text-anchor="middle" font-size="12.5" font-weight="700" style="fill:var(--sobre-primario)">Aprobar</text>
 <text x="30" y="474" font-size="11.5" font-style="italic" fill="#888">nada llega a la clase sin el visto bueno del docente</text>
 </svg>
 <figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Boceto ilustrativo de la pantalla de revisión, con la hoja de Yasmin y los cambios que recoge su documento de visión.</figcaption>
@@ -155,21 +159,21 @@ El centro de su visión ya trabaja con Google Classroom y escucha textos con Tex
 Falta decidir qué piezas tiene el producto y cómo se hablan. Para un escritorio pequeño, el método propone **Modelo–Vista–Presentador**. La vista muestra y recoge acciones, el presentador coordina, y el modelo guarda las reglas de la Lectura Fácil sin saber nada de Tkinter ni de SQL. La arquitectura se ajusta a la complejidad real: capas más elaboradas, como Clean, solo cuando se justifican, y sin carpetas vacías.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 506" width="100%" role="img" aria-label="Arquitectura posible de LecturaFàcil: Modelo-Vista-Presentador con el agente detrás de un adaptador" style="font-family:'DM Sans',Arial,sans-serif;display:block">
-<defs><marker id="vc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#004d47"/></marker></defs>
+<svg viewBox="0 0 560 506" width="100%" role="img" aria-label="Arquitectura posible de LecturaFàcil: Modelo-Vista-Presentador con el agente detrás de un adaptador" style="font-family:var(--fuente-texto);display:block">
+<defs><marker id="vc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--texto-suave)"/></marker></defs>
 <text x="280" y="22" text-anchor="middle" font-size="13" fill="#555">el docente, en su ordenador</text>
-<line x1="280" y1="30" x2="280" y2="50" stroke="#004d47" stroke-width="2" marker-end="url(#vc)"/>
+<line x1="280" y1="30" x2="280" y2="50" style="stroke:var(--texto-suave)" stroke-width="2" marker-end="url(#vc)"/>
 <rect x="80" y="54" width="400" height="56" rx="8" fill="#fff" stroke="#00726b" stroke-width="1.5"/>
 <text x="280" y="78" text-anchor="middle" font-size="14.5" font-weight="700" fill="#004d47">Vista · Tkinter</text>
 <text x="280" y="98" text-anchor="middle" font-size="12" fill="#555">grupos, textos y la pantalla de revisión</text>
-<line x1="280" y1="112" x2="280" y2="132" stroke="#004d47" stroke-width="2" marker-end="url(#vc)"/>
+<line x1="280" y1="112" x2="280" y2="132" style="stroke:var(--texto-suave)" stroke-width="2" marker-end="url(#vc)"/>
 <rect x="80" y="136" width="400" height="56" rx="8" fill="#fff" stroke="#00726b" stroke-width="1.5"/>
 <text x="280" y="160" text-anchor="middle" font-size="14.5" font-weight="700" fill="#004d47">Presentador</text>
 <text x="280" y="180" text-anchor="middle" font-size="12" fill="#555">coordina cada acción y sus estados: cargando, error…</text>
-<line x1="280" y1="194" x2="280" y2="214" stroke="#004d47" stroke-width="2" marker-end="url(#vc)"/>
-<rect x="80" y="218" width="400" height="62" rx="8" fill="#00726b"/>
-<text x="280" y="244" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">Modelo</text>
-<text x="280" y="266" text-anchor="middle" font-size="12" fill="#e0f4f3">perfiles, dial, reglas y línea roja · sin Tkinter ni SQL</text>
+<line x1="280" y1="194" x2="280" y2="214" style="stroke:var(--texto-suave)" stroke-width="2" marker-end="url(#vc)"/>
+<rect x="80" y="218" width="400" height="62" rx="8" fill="#00726b" stroke="#00726b" stroke-width="1.5"/>
+<text x="280" y="244" text-anchor="middle" font-size="15" font-weight="700" style="fill:var(--sobre-primario)">Modelo</text>
+<text x="280" y="266" text-anchor="middle" font-size="12" style="fill:var(--sobre-primario)">perfiles, dial, reglas y línea roja · sin Tkinter ni SQL</text>
 <text x="280" y="306" text-anchor="middle" font-size="12" font-style="italic" fill="#888">lo externo, en el borde, detrás de un adaptador</text>
 <ellipse cx="62" cy="336" rx="22" ry="6" fill="#e0f4f3" stroke="#00726b"/><path d="M40,336 V364 A22,6 0 0 0 84,364 V336" fill="#e0f4f3" stroke="#00726b"/><ellipse cx="62" cy="336" rx="22" ry="6" fill="#e0f4f3" stroke="#00726b"/>
 <text x="104" y="346" font-size="14" font-weight="700" fill="#004d47">Persistencia · SQLite</text><text x="104" y="364" font-size="12" fill="#555">SQL nativo, sin ORM, y migraciones versionadas</text>
@@ -210,22 +214,22 @@ Cuando falta información, Claude consulta lo que hay y después pregunta todo l
 La aplicación lanza a Claude Code con su SDK de Python. Por defecto, ese SDK carga la configuración del usuario y la del proyecto, y [busca skills hasta la raíz del repositorio](https://code.claude.com/docs/en/agent-sdk/skills.md). Sin cuidado, el agente que adapta textos cargaría las skills con las que desarrollas. Por eso trabaja en su propio directorio, fuera del repositorio y solo con su skill. Una prueba comprueba qué skills carga al arrancar.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 400" width="100%" role="img" aria-label="El Claude que desarrolla y el agente dentro de LecturaFàcil, separados" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<svg viewBox="0 0 560 400" width="100%" role="img" aria-label="El Claude que desarrolla y el agente dentro de LecturaFàcil, separados" style="font-family:var(--fuente-texto);display:block">
 <rect x="14" y="8" width="532" height="150" rx="8" fill="#fff" stroke="#00726b" stroke-width="1.5"/>
 <text x="34" y="36" font-size="15" font-weight="700" fill="#004d47">El Claude que desarrolla</text>
 <text x="34" y="62" font-size="12.5" fill="#1a1a1a">lo usas tú, con tu suscripción de Claude Code</text>
 <text x="34" y="84" font-size="12.5" fill="#1a1a1a">las skills de la SF: especificar, preparar, probar, cerrar</text>
 <text x="34" y="106" font-size="12.5" fill="#1a1a1a">trabaja en el repositorio de LecturaFàcil</text>
 <text x="34" y="128" font-size="12.5" fill="#1a1a1a">puede leer y escribir código, con tu permiso</text>
-<line x1="14" y1="182" x2="546" y2="182" stroke="#991b1b" stroke-width="1.6" stroke-dasharray="6 5"/>
-<text x="280" y="204" text-anchor="middle" font-size="12.5" font-style="italic" fill="#991b1b">nada pasa de uno a otro sin una versión</text>
-<rect x="14" y="222" width="532" height="170" rx="8" fill="#00726b"/>
-<text x="34" y="250" font-size="15" font-weight="700" fill="#fff">El agente dentro de LecturaFàcil</text>
-<text x="34" y="276" font-size="12.5" fill="#e0f4f3">pago por uso: cada llamada tiene un coste</text>
-<text x="34" y="298" font-size="12.5" fill="#e0f4f3">solo la skill de Lectura Fácil, sin herramientas que no necesita</text>
-<text x="34" y="320" font-size="12.5" fill="#e0f4f3">su propio directorio, fuera del repositorio</text>
-<text x="34" y="342" font-size="12.5" fill="#e0f4f3">cada respuesta pasa por los validadores</text>
-<text x="34" y="364" font-size="12.5" fill="#e0f4f3">lo usan los docentes, sin nombres de alumnos</text>
+<line x1="14" y1="182" x2="546" y2="182" style="stroke:var(--error, #991b1b)" stroke-width="1.6" stroke-dasharray="6 5"/>
+<text x="280" y="204" text-anchor="middle" font-size="12.5" font-style="italic" style="fill:var(--error, #991b1b)">nada pasa de uno a otro sin una versión</text>
+<rect x="14" y="222" width="532" height="170" rx="8" fill="#00726b" stroke="#00726b" stroke-width="1.5"/>
+<text x="34" y="250" font-size="15" font-weight="700" style="fill:var(--sobre-primario)">El agente dentro de LecturaFàcil</text>
+<text x="34" y="276" font-size="12.5" style="fill:var(--sobre-primario)">pago por uso: cada llamada tiene un coste</text>
+<text x="34" y="298" font-size="12.5" style="fill:var(--sobre-primario)">solo la skill de Lectura Fácil, sin herramientas que no necesita</text>
+<text x="34" y="320" font-size="12.5" style="fill:var(--sobre-primario)">su propio directorio, fuera del repositorio</text>
+<text x="34" y="342" font-size="12.5" style="fill:var(--sobre-primario)">cada respuesta pasa por los validadores</text>
+<text x="34" y="364" font-size="12.5" style="fill:var(--sobre-primario)">lo usan los docentes, sin nombres de alumnos</text>
 </svg>
 <figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Dos Claude con papeles, permisos y versiones distintos. Mejorar uno no cambia al otro sin querer.</figcaption>
 </figure>
@@ -256,7 +260,7 @@ Las funcionalidades dicen **qué** hará LecturaFàcil. Las **devslices** dicen 
 El orden sigue una regla sencilla: **primero, lo que hace falta para comprobar que lo siguiente funciona**. Por eso LecturaFàcil empieza por lo básico: docentes, grupos, perfiles y materias. El agente llega al final. Hasta entonces, un agente simulado devuelve versiones de ejemplo, como las de Kant de su visión, detrás del mismo adaptador. Cuando llegue Claude Code, la pantalla, la línea roja y los validadores ya estarán probados.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 30 560 796" width="100%" role="img" aria-label="Plan de devslices de LecturaFàcil en cuatro fases, con el agente al final" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<svg viewBox="0 30 560 796" width="100%" role="img" aria-label="Plan de devslices de LecturaFàcil en cuatro fases, con el agente al final" style="font-family:var(--fuente-texto);display:block">
 <text x="546" y="44" text-anchor="end" font-size="12" fill="#888">sesiones</text>
 <text x="14" y="64" font-size="14.5" font-weight="700" fill="#00726b">La base<tspan font-size="12" font-weight="400" fill="#888">   lo que necesita todo lo demás</tspan></text>
 <text x="34" y="92" font-size="13.5" font-weight="700" fill="#004d47">Docentes</text><text x="34" y="109" font-size="12" fill="#555">el armazón: ventana, MVP y SQLite con su migración</text><text x="546" y="92" text-anchor="end" font-size="12" fill="#00726b">1–2</text>
@@ -266,7 +270,7 @@ El orden sigue una regla sencilla: **primero, lo que hace falta para comprobar q
 <text x="14" y="262" font-size="14.5" font-weight="700" fill="#00726b">El texto y su revisión<tspan font-size="12" font-weight="400" fill="#888">   con un agente simulado</tspan></text>
 <text x="34" y="290" font-size="13.5" font-weight="700" fill="#004d47">Guardar un texto</text><text x="34" y="307" font-size="12" fill="#555">un texto de una materia, que sigue ahí al reabrir</text><text x="546" y="290" text-anchor="end" font-size="12" fill="#00726b">1</text>
 <text x="34" y="330" font-size="13.5" font-weight="700" fill="#004d47">Original y versión, lado a lado</text><text x="34" y="347" font-size="12" fill="#555">la pantalla de revisión y el contrato del agente</text><text x="546" y="330" text-anchor="end" font-size="12" fill="#00726b">1–2</text>
-<rect x="26" y="354" width="524" height="42" rx="6" fill="none" stroke="#00726b" stroke-width="1.2"/>
+<rect x="24" y="352" width="530" height="46" rx="6" fill="none" stroke="#00726b" stroke-width="1.2"/>
 <text x="34" y="370" font-size="13.5" font-weight="700" fill="#00726b">La línea roja</text><text x="34" y="387" font-size="12" fill="#555">el validador rechaza la versión sin un concepto protegido</text><text x="542" y="370" text-anchor="end" font-size="12" fill="#00726b">1</text>
 <text x="34" y="420" font-size="13.5" font-weight="700" fill="#004d47">Comprobar las reglas</text><text x="34" y="437" font-size="12" fill="#555">validadores medibles: largo de frase, un término por concepto</text><text x="546" y="420" text-anchor="end" font-size="12" fill="#00726b">1–2</text>
 <text x="34" y="460" font-size="13.5" font-weight="700" fill="#004d47">Revisar y aprobar</text><text x="34" y="477" font-size="12" fill="#555">cada cambio con su regla, y el visto bueno</text><text x="546" y="460" text-anchor="end" font-size="12" fill="#00726b">1–2</text>
@@ -329,7 +333,7 @@ El tablero es tu **ventana permanente** al trabajo. Cada devslice tiene sus tare
 Tres cosas que a menudo se confunden son distintas. El **criterio** es lo que se exige, y vive en la especificación de la devslice. Las **pruebas** son la forma de comprobarlo, y viven en el código. El **resultado** es lo que pasó al ejecutarlas sobre una versión concreta, y vive en un informe. Un criterio puede necesitar varias pruebas, y que pasen aporta evidencia, pero no cambia el criterio.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 402" width="100%" role="img" aria-label="Cierre de la devslice La línea roja: criterio, pruebas, resultado, tablero y aprobación" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<svg viewBox="0 0 560 402" width="100%" role="img" aria-label="Cierre de la devslice La línea roja: criterio, pruebas, resultado, tablero y aprobación" style="font-family:var(--fuente-texto);display:block">
 <line x1="34" y1="52" x2="34" y2="360" stroke="#b2deda" stroke-width="2"/>
 <circle cx="34" cy="52" r="7" fill="#fff" stroke="#00726b" stroke-width="2"/>
 <text x="56" y="56" font-size="14.5" font-weight="700" fill="#004d47">Criterio<tspan font-size="12" font-weight="400" fill="#888">   en la especificación de la devslice</tspan></text>
@@ -372,26 +376,26 @@ La fábrica tendrá **una skill para cada paso del método**, pero no inventa su
 Hoy existen la de visión, la de interfaz y la de definición técnica, estas dos todavía sin probar. Las acompañan skills de apoyo, como la de infografías técnicas en 3D o las de GSAP y three.js. Faltan las de planificar y preparar devslices, las de pruebas, la de cierre y la del tablero. También hay perfiles técnicos, como el de escritorio con un agente dentro que usará LecturaFàcil.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 345" width="100%" role="img" aria-label="De la carpeta skills a cada proyecto, con versión" style="font-family:'DM Sans',Arial,sans-serif;display:block">
-<defs><marker id="vb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#004d47"/></marker></defs>
+<svg viewBox="0 0 560 345" width="100%" role="img" aria-label="De la carpeta skills a cada proyecto, con versión" style="font-family:var(--fuente-texto);display:block">
+<defs><marker id="vb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--texto-suave)"/></marker></defs>
 <ellipse cx="280" cy="26" rx="120" ry="14" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/>
 <path d="M160,26 V106 A120,14 0 0 0 400,106 V26" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/>
 <ellipse cx="280" cy="26" rx="120" ry="14" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/>
 <text x="280" y="58" text-anchor="middle" font-size="15" font-weight="700" fill="#004d47">skills/ de SoftwareFactory</text>
 <text x="280" y="78" text-anchor="middle" font-size="12" fill="#555">propias y externas, con procedencia</text>
 <text x="280" y="95" text-anchor="middle" font-size="12" fill="#555">plantillas y perfiles técnicos</text>
-<line x1="280" y1="124" x2="280" y2="152" stroke="#004d47" stroke-width="2" marker-end="url(#vb)"/>
-<rect x="150" y="156" width="260" height="44" rx="22" fill="#00726b"/>
-<text x="280" y="176" text-anchor="middle" font-size="14" font-weight="700" fill="#fff">una versión estable</text>
-<text x="280" y="192" text-anchor="middle" font-size="11.5" fill="#e0f4f3">evaluada antes de publicarse</text>
-<line x1="280" y1="202" x2="280" y2="230" stroke="#004d47" stroke-width="2" marker-end="url(#vb)"/>
+<line x1="280" y1="124" x2="280" y2="146" style="stroke:var(--texto-suave)" stroke-width="2" marker-end="url(#vb)"/>
+<rect x="150" y="156" width="260" height="44" rx="22" fill="#00726b" stroke="#00726b" stroke-width="1.5"/>
+<text x="280" y="176" text-anchor="middle" font-size="14" font-weight="700" style="fill:var(--sobre-primario)">una versión estable</text>
+<text x="280" y="192" text-anchor="middle" font-size="11.5" style="fill:var(--sobre-primario)">evaluada antes de publicarse</text>
+<line x1="280" y1="210" x2="280" y2="234" style="stroke:var(--texto-suave)" stroke-width="2" marker-end="url(#vb)"/>
 <text x="60" y="258" font-size="14.5" font-weight="700" fill="#004d47">LecturaFàcil</text><text x="250" y="258" font-size="12.5" fill="#555">el piloto, sabe qué versión usa</text>
 <text x="60" y="290" font-size="14.5" font-weight="700" fill="#004d47">OncoCore</text><text x="250" y="290" font-size="12.5" fill="#555">la misma u otra, a su ritmo</text>
 <text x="60" y="322" font-size="14.5" font-weight="700" fill="#004d47">El próximo proyecto</text><text x="250" y="322" font-size="12.5" fill="#555">arranca con lo aprendido</text>
 <line x1="40" y1="242" x2="40" y2="330" stroke="#b2deda" stroke-width="2"/>
-<path d="M440,318 C548,318 548,60 404,60" fill="none" stroke="#00726b" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#vb)"/>
-<text x="414" y="140" font-size="11.5" font-weight="700" fill="#00726b">mejora</text>
-<text x="414" y="156" font-size="11.5" font-weight="700" fill="#00726b">aprobada</text>
+<path d="M440,318 H512 Q520,318 520,310 V68 Q520,60 512,60 H404" fill="none" stroke="#00726b" stroke-width="1.6" stroke-dasharray="5 4" marker-end="url(#vb)"/>
+<text x="508" y="180" text-anchor="end" font-size="11.5" font-weight="700" fill="#00726b">mejora</text>
+<text x="508" y="196" text-anchor="end" font-size="11.5" font-weight="700" fill="#00726b">aprobada</text>
 </svg>
 <figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Una sola fuente, versiones con nombre y un camino de vuelta para lo que se aprende.</figcaption>
 </figure>
@@ -430,24 +434,24 @@ Proponer no es cambiar. Ninguna mejora se aplica ni se distribuye sin tu aprobac
 La idea de una fábrica de software personal se inspira en el vídeo de Eric Risco *Programar con agentes ya no basta: monta tu Software Factory*. Alrededor hay tres familias de propuestas, cada una con su propio método:
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 410" width="100%" role="img" aria-label="Familias de propuestas y SoftwareFactory" style="font-family:'DM Sans',Arial,sans-serif;display:block">
+<svg viewBox="0 0 560 410" width="100%" role="img" aria-label="Familias de propuestas y SoftwareFactory" style="font-family:var(--fuente-texto);display:block">
 <text x="14" y="30" font-size="14.5" font-weight="700" fill="#004d47">Kits de especificación<tspan font-size="12.5" font-weight="400" fill="#888">   Spec Kit, de GitHub</tspan></text>
 <text x="14" y="52" font-size="12.5" fill="#1a1a1a">especificar → planificar → tareas → implementar</text>
 <text x="14" y="70" font-size="12.5" fill="#888">su medida es la especificación de cada funcionalidad</text>
-<line x1="14" y1="88" x2="546" y2="88" stroke="#e0f4f3" stroke-width="2"/>
+<line x1="14" y1="88" x2="546" y2="88" style="stroke:var(--borde)" stroke-width="1.5"/>
 <text x="14" y="118" font-size="14.5" font-weight="700" fill="#004d47">Bibliotecas de skills con método<tspan font-size="12.5" font-weight="400" fill="#888">   Superpowers</tspan></text>
 <text x="14" y="140" font-size="12.5" fill="#1a1a1a">planificar, pruebas primero, verificar antes de terminar</text>
 <text x="14" y="158" font-size="12.5" fill="#888">disciplina de trabajo con el método de su autor</text>
-<line x1="14" y1="176" x2="546" y2="176" stroke="#e0f4f3" stroke-width="2"/>
+<line x1="14" y1="176" x2="546" y2="176" style="stroke:var(--borde)" stroke-width="1.5"/>
 <text x="14" y="206" font-size="14.5" font-weight="700" fill="#004d47">Equipos de agentes simulados<tspan font-size="12.5" font-weight="400" fill="#888">   BMAD</tspan></text>
 <text x="14" y="228" font-size="12.5" fill="#1a1a1a">analista, jefe de producto, arquitecto, desarrollador…</text>
 <text x="14" y="246" font-size="12.5" fill="#888">reparte el trabajo en papeles de un equipo ágil</text>
 <line x1="280" y1="266" x2="280" y2="290" stroke="#00726b" stroke-width="2"/>
-<rect x="14" y="296" width="532" height="104" rx="8" fill="#00726b"/>
-<text x="34" y="326" font-size="16" font-weight="700" fill="#fff">SoftwareFactory</text>
-<text x="34" y="348" font-size="12.5" fill="#e0f4f3">tus proyectos: desde cero, arriesgados, con agentes o hardware</text>
-<text x="34" y="368" font-size="12.5" fill="#e0f4f3">la visión a fondo primero; el detalle, cuando esté claro</text>
-<text x="34" y="388" font-size="12.5" fill="#e0f4f3">tus skills validadas y piezas de otros, con su procedencia</text>
+<rect x="14" y="296" width="532" height="104" rx="8" fill="#00726b" stroke="#00726b" stroke-width="1.5"/>
+<text x="34" y="326" font-size="16" font-weight="700" style="fill:var(--sobre-primario)">SoftwareFactory</text>
+<text x="34" y="348" font-size="12.5" style="fill:var(--sobre-primario)">tus proyectos: desde cero, arriesgados, con agentes o hardware</text>
+<text x="34" y="368" font-size="12.5" style="fill:var(--sobre-primario)">la visión a fondo primero; el detalle, cuando esté claro</text>
+<text x="34" y="388" font-size="12.5" style="fill:var(--sobre-primario)">tus skills validadas y piezas de otros, con su procedencia</text>
 </svg>
 <figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Tres maneras de ordenar el trabajo con agentes, y la tuya, hecha para tus proyectos, que toma piezas de todas.</figcaption>
 </figure>

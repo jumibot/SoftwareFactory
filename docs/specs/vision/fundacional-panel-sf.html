@@ -4,18 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de la SF · Documento fundacional</title>
-  <meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#25283a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
   <style>
-    :root { --primario: #1d6fb6; --oscuro: #124571; --primario-vivo: #5693c8; --fondo: #f1f5f9; --borde: #e2e8f0; --linea: #e2e8f0; --fondo-medio: #e2e8f0; --fondo-suave: #f8fafc; --tenue: #99bede; --pagina: #f8fafc; --texto: #1f2937; --texto-suave: #4b5563; --texto-tenue: #9ca3af; --acento: #be185d; --acento-fondo: #fbf1f5; --acento-borde: #edbed2; --primario-rgb: 29, 111, 182; --fuente-texto: 'DM Sans', Arial, sans-serif; --fuente-titulos: 'Outfit', 'DM Sans', sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; }
+    :root { --primario: #f5c400; --oscuro: #25283a; --primario-vivo: #f8d340; --fondo: #fefcf2; --borde: #b9bcc4; --linea: #d8d8da; --fondo-medio: #ebeae7; --fondo-suave: #f5f5f4; --tenue: #fae48c; --pagina: #fbfbfa; --texto: #25283a; --texto-suave: #4f5871; --texto-tenue: #666e83; --acento: #876c00; --acento-fondo: #f8f6f0; --acento-borde: #ddd6b8; --segundo: #2f5597; --sobre-primario: #1a1a1a; --primario-texto: #876c00; --tinta-oscura: #25283a; --superficie: #ffffff; --cabecera: #af8f13; --sobre-cabecera: #25283a; --primario-linea: #ac8900; --borde-campo: #8d909b; --primario-rgb: 245, 196, 0; --fuente-texto: 'DM Sans', system-ui, sans-serif; --fuente-titulos: 'Bricolage Grotesque', 'DM Sans', sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; }
+    @media screen {
+    :root[data-theme="dark"] { --primario: #f5c400; --oscuro: #383a4c; --primario-vivo: #f8d340; --fondo: #3e3825; --borde: #575d75; --linea: #3c3e50; --fondo-medio: #2f3349; --fondo-suave: #23263a; --tenue: #77631a; --pagina: #1b1d2c; --texto: #f2f2f0; --texto-suave: #b8bdc9; --texto-tenue: #9aa1b2; --acento: #f5c400; --acento-fondo: #3e3825; --acento-borde: #937914; --segundo: #8fb0f0; --sobre-primario: #1b1d2c; --primario-texto: #f5c400; --tinta-oscura: #f2f2f0; --superficie: #23263a; --cabecera: #67571d; --sobre-cabecera: #f2f2f0; --primario-linea: #f5c400; --borde-campo: #6c7186; --primario-rgb: 245, 196, 0; --sx-cadena: #57a062; --sx-numero: #be8059; --sx-funcion: #579b9b; --sx-atributo: #be8059; --error: #d07772; color-scheme: dark; }
+    :root[data-theme="dark"] .lector { --primario: #f5c400; --oscuro: #25283a; --primario-vivo: #f8d340; --fondo: #fefcf2; --borde: #b9bcc4; --linea: #d8d8da; --fondo-medio: #ebeae7; --fondo-suave: #f5f5f4; --tenue: #fae48c; --pagina: #fbfbfa; --texto: #25283a; --texto-suave: #4f5871; --texto-tenue: #666e83; --acento: #876c00; --acento-fondo: #f8f6f0; --acento-borde: #ddd6b8; --segundo: #2f5597; --sobre-primario: #1a1a1a; --primario-texto: #876c00; --tinta-oscura: #25283a; --superficie: #ffffff; --cabecera: #af8f13; --sobre-cabecera: #25283a; --primario-linea: #ac8900; --borde-campo: #8d909b; --primario-rgb: 245, 196, 0; color-scheme: light; }
+    }
   </style>
-  <style data-kit="skills/documento_fundacional/assets/estilo_fundacional.css">
+  <style data-kit="skills/crear_documentos/assets/estilo_documento.css">
 /* Maqueta editorial del documento fundacional (skill documento_fundacional).
  * Portada (clara u oscura, con cifras), menú fijo, secciones numeradas «01 / ETIQUETA», entradilla,
  * recuadros (aviso, decisión), tarjetas, columnas, fichas con buscador, fuentes y referencias.
- * Colores y tipografías: variables del tema del proyecto (var(--primario), var(--fuente-titulos)…).
+ * Colores y tipografías: variables del estilo o del tema del proyecto (var(--primario), var(--fuente-titulos)…).
+ * El primario usado como texto es var(--primario-texto) y el texto sobre el primario, var(--sobre-primario) (decisión 319).
  * Apta para imprimir o guardar como PDF en A4. */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -26,7 +31,7 @@ body { margin: 0; background: var(--pagina); color: var(--texto); font-family: v
 /* Letra de lectura en pantalla: 17 px, y 18 px en pantallas grandes. La impresión va a 10 pt. */
 @media screen { body { font-size: 1.0625rem; } }
 @media screen and (min-width: 1600px) { body { font-size: 1.125rem; } }
-a { color: var(--primario); text-underline-offset: 3px; }
+a { color: var(--primario-texto, var(--primario)); text-underline-offset: 3px; }
 a:hover { text-decoration-thickness: 2px; }
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
 h1, h2, h3, h4 { text-wrap: balance; }
@@ -44,45 +49,60 @@ strong { font-weight: 650; }
 @media (min-width: 1025px) { .hoja, .portada-dentro, .menu-dentro { width: min(1240px, 100% - 64px); } }
 
 /* Portada */
-.portada { background: #fff; border-bottom: 1px solid var(--linea); padding: clamp(1.4rem, 3vw, 2.2rem) 0 1.5rem; }
+.portada { background: var(--superficie); border-bottom: 1px solid var(--linea); padding: clamp(1.4rem, 3vw, 2.2rem) 0 1.5rem; }
 .portada.oscura { background: var(--oscuro); color: #fff; border-bottom: 0; }
-.marca { font-size: .8125rem; font-weight: 750; letter-spacing: .2em; text-transform: uppercase; color: var(--primario);
+.marca { font-size: .8125rem; font-weight: 750; letter-spacing: .2em; text-transform: uppercase; color: var(--primario-texto, var(--primario));
          margin: 0 0 .8rem; display: flex; align-items: center; gap: .8rem; }
 .marca img { height: 40px; width: auto; }
+/* Portada clara con logo para fondo oscuro (o en placa): cada uno en su modo de «Lectura». */
+.marca img.logo-oscuro { display: none; }
+/* En la portada oscura, el logo para fondo oscuro si lo hay (en papel, la portada vuelve a clara). */
+@media screen { .portada.oscura .marca img.logo-claro:has(+ img.logo-oscuro) { display: none; }
+                .portada.oscura .marca img.logo-oscuro { display: inline; } }
 .oscura .marca { color: var(--tenue); }
+@media screen { .oscura .tipo-doc { color: var(--tenue); } }  /* como la marca: el primario no se lee sobre el oscuro */
+.portada.oscura a { color: #fff; text-decoration-color: var(--tenue); }  /* el primario no se lee sobre el oscuro */
+.enlace-proyecto { margin: -.8rem 0 1.2rem; font-size: .9375rem; overflow-wrap: anywhere; }
+.marca img.placa { background: #fff; border-radius: 6px; padding: 4px; box-sizing: content-box; }
 .titular { font-family: var(--fuente-titulos); font-size: clamp(1.9rem, 3.6vw, 2.5rem); line-height: 1.08; font-weight: 650;
            margin: 0 0 .9rem; letter-spacing: -.015em; }
 .titular .lema { display: block; font-size: .5em; font-weight: 400; line-height: 1.35; margin-top: .35rem; letter-spacing: 0; }
-.tipo-doc { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario); margin: 0 0 .8rem; }
+.tipo-doc { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin: 0 0 .8rem; }
 .subtitulo { font-size: clamp(1.08rem, 2.4vw, 1.3rem); line-height: 1.45; color: var(--texto-suave); margin: 0 0 1.6rem; }
 .oscura .subtitulo { color: rgba(255,255,255,.82); }
 .portada-linea { height: 3px; background: var(--primario); border: 0; margin: 0 0 1rem; max-width: 36em; }
 .idea h3 { font-family: var(--fuente-titulos); font-size: 1.15rem; margin: 0 0 .5rem; }
 .idea p { margin: 0 0 .5rem; font-size: 1.05rem; max-width: 80ch; }
-.oscura .idea p { color: rgba(255,255,255,.86); }
+.oscura .idea > p { color: rgba(255,255,255,.86); }
+/* «portada: compacta»: título, raya pegada, versión en gris y la entrada con menos aire */
+.portada.compacta { padding: clamp(1rem, 2.4vw, 1.5rem) 0 1rem; }
+.compacta .titular { margin: 0 0 .45rem; }
+.compacta .portada-linea { margin: 0 0 .4rem; }
+.portada-datos { font-size: .8125rem; color: var(--texto-suave); margin: 0 0 .55rem; }
+.compacta .idea p { margin: 0 0 .3rem; }
 .datos-version { margin: 1.4rem 0 0; font-size: .875rem; color: var(--texto-suave); }
 .datos-version span { display: block; color: var(--texto-tenue); font-size: .8125rem; margin-top: .15rem; }
 .oscura .datos-version, .oscura .datos-version span { color: rgba(255,255,255,.72); }
 .cifras { display: flex; flex-wrap: wrap; gap: 1rem 2.6rem; border-top: 1px solid var(--linea); padding-top: 1.2rem; margin-top: 1.8rem; }
 .oscura .cifras { border-color: rgba(255,255,255,.22); }
-.cifras strong { display: block; font-family: var(--fuente-titulos); font-size: 1.75rem; line-height: 1.2; color: var(--primario);
+.cifras strong { display: block; font-family: var(--fuente-titulos); font-size: 1.75rem; line-height: 1.2; color: var(--primario-texto, var(--primario));
                  font-variant-numeric: tabular-nums; }
 .oscura .cifras strong { color: var(--tenue); }
 .cifras span { font-size: .875rem; color: var(--texto-suave); }
 .oscura .cifras span { color: rgba(255,255,255,.85); }
 
 /* Menú fijo */
-.menu { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid var(--linea); }
+.menu { position: sticky; top: 0; z-index: 10; background: var(--superficie); border-bottom: 1px solid var(--linea); }
 .menu-dentro { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; align-items: center; padding: .7rem 0; }
 .menu a { display: inline-block; padding: .25rem 0; font-size: .8125rem; font-weight: 700; text-decoration: none; }
 .menu a:hover { text-decoration: underline; }
 button { font: inherit; font-size: .82rem; font-weight: 700; border: 1px solid var(--primario); border-radius: var(--esquinas, 6px);
-         background: var(--primario); color: #fff; padding: .5rem .8rem; cursor: pointer;
+         background: var(--primario); color: var(--sobre-primario, #fff); padding: .5rem .8rem; cursor: pointer;
          touch-action: manipulation; transition: background-color .15s, border-color .15s; }
-button:hover { background: var(--oscuro); border-color: var(--oscuro); }
+button:hover { background: var(--oscuro); border-color: var(--oscuro); color: #fff; }
 .menu-botones { margin-left: auto; display: flex; gap: .5rem; }
-.plegar { background: #fff; color: var(--primario); }
-.plegar:hover { background: var(--fondo); color: var(--oscuro); border-color: var(--oscuro); }
+.plegar { background: var(--superficie); color: var(--primario-texto, var(--primario)); }
+.plegar:hover { background: var(--fondo); color: var(--tinta-oscura); border-color: var(--tinta-oscura); }
 html:not(.js) .plegar { display: none; }
 
 /* Figuras: SVG en el .md dentro de <figure class="vertical"> (560 de ancho), que caben en el móvil sin desplazamiento */
@@ -91,12 +111,22 @@ figure svg { width: 100%; height: auto; max-width: 1100px; margin: 0 auto; }
 figure.vertical svg { max-width: 560px; }
 figcaption { font-size: .875rem; font-style: italic; color: var(--texto-suave); text-align: center; margin-top: .6rem; }
 @media print { figure { break-inside: avoid; } }
-/* En modo oscuro, los esquemas (colores del tema, sin fondo) se invierten con la página, como el texto. */
-html[data-modo="oscuro"] figure.vertical svg { filter: none; }
+/* Infografía técnica incrustada («::: infografia»): un marco a lo ancho de la columna, su pie y «Abrir aparte».
+   Al imprimir, la imagen fija de la vista principal y la dirección de la página en lugar del marco. */
+.infografia-marco { height: min(var(--infografia-alto, 640px), 85vh); border-radius: var(--esquinas, 6px); overflow: hidden;
+  border: 1px solid var(--borde); background: var(--oscuro); }
+.infografia-marco iframe { display: block; width: 100%; height: 100%; border: 0; }
+.infografia-fija, .infografia-direccion { display: none; }
+.infografia-abrir { white-space: nowrap; font-style: normal; }
+@media print {
+  .infografia-marco, .infografia-abrir { display: none; }
+  .infografia-fija { display: block; width: 100%; height: auto; border-radius: var(--esquinas, 6px); }
+  .infografia-direccion { display: inline; font-style: normal; }
+}
 
 /* Secciones */
 .seccion { padding: 2.8rem 0 .4rem; }
-.etiqueta { display: block; font-size: .8125rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; color: var(--primario); margin: 0 0 .4rem; }
+.etiqueta { display: block; font-size: .8125rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin: 0 0 .4rem; }
 .seccion h2 { font-family: var(--fuente-titulos); font-size: clamp(1.55rem, 3.4vw, 2.2rem); line-height: 1.18; font-weight: 650;
               margin: 0 0 1.1rem; letter-spacing: -.01em; }
 .seccion h3 { font-family: var(--fuente-titulos); font-size: 1.22rem; line-height: 1.3; font-weight: 650; margin: 1.8rem 0 .5rem; }
@@ -109,7 +139,7 @@ html[data-modo="oscuro"] figure.vertical svg { filter: none; }
            background: var(--oscuro); color: #fff; border-radius: var(--esquinas, 8px); overflow-wrap: anywhere; }
 .seccion ul { padding-left: 1.2rem; margin: .6rem 0 1.2rem; }
 .seccion ul > li { margin: 0 0 .45rem; }
-.seccion ul > li::marker { color: var(--primario); }
+.seccion ul > li::marker { color: var(--primario-texto, var(--primario)); }
 
 button:disabled { opacity: .45; cursor: default; }
 .avisos-globales > .recuadro:first-child { margin-top: 2rem; }
@@ -126,22 +156,28 @@ button:disabled { opacity: .45; cursor: default; }
                          transform: rotate(-45deg); transition: transform .2s; }
 /* Una sola convención, como en las herramientas: ▸ plegado, ▾ abierto. */
 .seccion[open] > .seccion-titulo::after { transform: rotate(45deg); }
-.seccion-titulo:hover h2 { color: var(--primario); }
+/* Sin etiqueta («numero-titulo» y «titulo», o una sección sin etiqueta): el título va en la primera fila. */
+.seccion-titulo.sin-etiqueta::after { grid-row: 1; margin-top: .95rem; }
+.seccion-numero { color: var(--primario-texto, var(--primario)); font-variant-numeric: tabular-nums; margin-right: .45em; }
+.seccion-titulo:hover h2 { color: var(--primario-texto, var(--primario)); }
 .seccion-titulo:focus-visible { outline: 3px solid var(--acento); outline-offset: 4px; }
 .seccion:not([open]) { padding-bottom: 0; }
 .seccion:not([open]) > .seccion-titulo h2 { margin-bottom: 0; }
 @media (prefers-reduced-motion: reduce) { .seccion-titulo::after { transition: none; } }
 
 /* Listas numeradas «01 Título. texto» */
-.seccion ol { list-style: none; counter-reset: punto; padding: 0; margin: 1rem 0 1.4rem; }
-.seccion ol > li { counter-increment: punto; position: relative; padding-left: 2.6rem; margin: 0 0 .9rem; }
-.seccion ol > li::before { content: counter(punto, decimal-leading-zero); position: absolute; left: 0; top: -.05rem;
-                           font-family: var(--fuente-titulos); font-weight: 650; font-size: 1.05rem; color: var(--primario); }
+.seccion ol:not(.nt-lista) { list-style: none; counter-reset: punto; padding: 0; margin: 1rem 0 1.4rem; }
+/* La sangría reserva el ancho del número más largo: --cifras lo pone el generador en cada lista (dos por defecto). */
+.seccion ol:not(.nt-lista) > li { counter-increment: punto; position: relative; margin: 0 0 .9rem;
+                                  padding-left: calc(var(--cifras, 2) * .7rem + 1.2rem); }
+.seccion ol:not(.nt-lista) > li::before { content: counter(punto, decimal-leading-zero); position: absolute; left: 0; top: -.05rem;
+                           font-variant-numeric: tabular-nums; white-space: nowrap;
+                           font-family: var(--fuente-titulos); font-weight: 650; font-size: 1.05rem; color: var(--primario-texto, var(--primario)); }
 
 /* Recuadros: > **Etiqueta** · > [!aviso] · > [!decision] */
 .recuadro { background: var(--fondo); border-left: 4px solid var(--primario); padding: 1rem 1.3rem .3rem; margin: 1.5rem 0;
             border-radius: 0 var(--esquinas, 8px) var(--esquinas, 8px) 0; break-inside: avoid; }
-.recuadro-etiqueta { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario); margin: 0 0 .35rem !important; }
+.recuadro-etiqueta { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin: 0 0 .35rem !important; }
 .recuadro p { margin: 0 0 .75rem; }
 .recuadro h3 { margin-top: 0; }
 .recuadro.aviso { background: var(--acento-fondo); border-color: var(--acento); }
@@ -150,23 +186,23 @@ button:disabled { opacity: .45; cursor: default; }
 .recuadro.decision .recuadro-etiqueta, .recuadro.decision h3 { color: var(--tenue); }
 .recuadro.decision a { color: #fff; }
 .destacado { margin: 2rem 0; padding: 0 0 0 1.2rem; border-left: 3px solid var(--tenue); font-family: var(--fuente-titulos);
-             font-size: clamp(1.12rem, 2.6vw, 1.3rem); line-height: 1.45; color: var(--oscuro); break-inside: avoid; }
+             font-size: clamp(1.12rem, 2.6vw, 1.3rem); line-height: 1.45; color: var(--tinta-oscura); break-inside: avoid; }
 .destacado p { margin: 0; }
 
 /* Tarjetas, fichas y columnas */
 .tarjetas { display: grid; gap: 1.1rem; margin: 1.2rem 0 1.6rem; }
 .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.tarjeta { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--linea); border-radius: var(--esquinas, 12px);
+.tarjeta { display: flex; flex-direction: column; background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--esquinas, 12px);
            padding: 1.3rem 1.4rem .4rem; min-width: 0; }
 .tarjeta > :first-child { margin-top: 0; }
 .tarjeta h3 { margin: 0 0 .5rem; font-size: 1.18rem; }
 .tarjeta h4 { margin: 0 0 .4rem; }
 .tarjeta p { margin: 0 0 .75rem; }
 .etiqueta-tarjeta { order: -1; font-size: .8125rem !important; font-weight: 750; letter-spacing: .08em; text-transform: uppercase;
-                    color: var(--primario); margin: 0 0 .45rem !important; }
+                    color: var(--primario-texto, var(--primario)); margin: 0 0 .45rem !important; }
 .metrica { font-size: .875rem !important; color: var(--texto-suave); }
-.metrica strong { display: block; font-family: var(--fuente-titulos); font-size: 2rem; line-height: 1.15; color: var(--primario);
+.metrica strong { display: block; font-family: var(--fuente-titulos); font-size: 2rem; line-height: 1.15; color: var(--primario-texto, var(--primario));
                   font-variant-numeric: tabular-nums; }
 .columnas { display: grid; gap: 1rem; margin: .6rem 0 .8rem; }
 .columnas.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -175,30 +211,87 @@ button:disabled { opacity: .45; cursor: default; }
 .ficha { border-top: 4px solid var(--tenue); }
 .ficha h3 { font-size: 1.6rem; letter-spacing: -.01em; }
 
+/* Tarjetas con cabecera («#### Título {color=… icono=…}» o «::: tarjetas N plegables»): la cabecera lleva el color
+ * de la tarjeta de fondo y su icono; plegables, son <details> con la cabecera siempre a la vista (plegadas al cargar
+ * en el móvil, abiertas al imprimir). Dentro, cada campo lleva su marca de color y una lista en un campo sale en chips. */
+details.tarjeta { display: block; }
+.tarjeta.con-cabecera { padding: 0; overflow: hidden; }
+.tarjeta-cabecera { display: flex; align-items: center; gap: .65rem; padding: .85rem 1.2rem; margin: 0;
+                    background: var(--fondo-medio); color: var(--tinta-oscura); list-style: none; }
+.con-color > .tarjeta-cabecera { background: var(--c); color: #fff; }
+.tarjeta-cabecera .tarjeta-titulo { margin: 0; color: inherit; font-size: 1.18rem; line-height: 1.25; }
+.tarjeta-icono { flex: none; }
+.tarjeta-cuerpo { padding: 1rem 1.3rem .5rem; }
+.tarjeta-cuerpo > :first-child { margin-top: 0; }
+.tarjeta-cuerpo > dl:first-child > dt:first-child { border-top: 0; padding-top: 0; }
+summary.tarjeta-cabecera { cursor: pointer; min-height: 44px; }
+summary.tarjeta-cabecera::-webkit-details-marker { display: none; }
+summary.tarjeta-cabecera::after { content: ""; flex: none; margin-left: auto; width: .55rem; height: .55rem; border-right: 2px solid currentColor;
+                                  border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .2s; }
+details.tarjeta:not([open]) > summary.tarjeta-cabecera::after { transform: rotate(-45deg); }
+summary.tarjeta-cabecera:focus-visible { outline: 3px solid var(--c-oscuro, var(--primario)); outline-offset: -3px; }
+.tarjeta.con-color dt { display: flex; align-items: center; gap: .45rem; color: var(--c-oscuro); border-top-color: var(--c-borde); }
+.tarjeta.con-color dt::before { content: ""; flex: none; width: .55rem; height: .55rem; border-radius: 2px; background: var(--c); }
+.con-color dd > ul { list-style: none; padding: 0; margin: .35rem 0; display: flex; flex-wrap: wrap; gap: .4rem; }
+.con-color dd > ul > li { margin: 0; padding: .15rem .7rem; border: 1px solid var(--c-borde); border-radius: 999px; background: var(--c-suave);
+                          color: var(--c-oscuro); font-size: .875rem; font-weight: 650; }
+
 /* Campos: lista de definición («Término» / «:   definición») para los campos que se repiten en tarjetas, fichas
  * y apartados (cuándo aporta valor, límite, qué medir, lectura para el proyecto…). El rótulo es pequeño, con un
  * filete encima, y el texto del campo empieza sin negrita. */
 .seccion dl { margin: 0 0 .9rem; }
 .seccion dl > dt:first-child { margin-top: .2rem; }
-.seccion dt { font-size: .8125rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 750; color: var(--primario);
+.seccion dt { font-size: .8125rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 750; color: var(--primario-texto, var(--primario));
               margin: .8rem 0 .25rem; padding-top: .7rem; border-top: 1px solid var(--linea); }
 .seccion dd { margin: 0; }
 .seccion dd p { margin: .3rem 0; }
 .seccion dd > :last-child { margin-bottom: 0; }
 
+/* Botón «Plegar las tarjetas» delante de un bloque de tarjetas plegables (assets/plegado.js). No se imprime. */
+.plegar-tarjetas { display: block; margin: .8rem 0 -.4rem auto; min-height: 28px; padding: .2rem .7rem; border: 1px solid var(--borde);
+                   border-radius: 6px; background: var(--superficie); color: var(--tinta-oscura); font: inherit; font-size: .875rem; font-weight: 650; cursor: pointer; }
+.plegar-tarjetas:hover { background: var(--fondo); color: var(--tinta-oscura); }
+.plegar-tarjetas:focus-visible { outline: 3px solid var(--primario); outline-offset: 2px; }
+
+/* Preguntas con opciones («::: preguntas»): tarjetas con cabecera y la marca de su estado (abierta, decidida,
+ * separada). La opción recomendada lleva un filete del color del tema y su marca; la elegida, la suya, y las demás
+ * pasan a gris. «Recomendación» y «Decisión» van en un recuadro suave. El estado no usa los colores de la serie,
+ * que en el documento ya significan otra cosa. */
+.pregunta > .tarjeta-cabecera { flex-wrap: wrap; row-gap: .35rem; }
+.pregunta > summary.tarjeta-cabecera { position: relative; padding-right: 2.6rem; }
+.pregunta > summary.tarjeta-cabecera::after { position: absolute; right: 1.2rem; top: 1.3rem; margin: 0; }
+.estado-pregunta { margin-left: auto; flex: none; padding: .12rem .6rem; border-radius: 999px; font-size: .8125rem; font-weight: 700;
+                   letter-spacing: .04em; line-height: 1.5; white-space: nowrap; }
+.estado-pregunta.abierta { background: var(--superficie); color: var(--acento); border: 1.5px solid var(--acento); }
+.estado-pregunta.decidida { background: var(--primario); color: var(--sobre-primario, #fff); border: 1.5px solid var(--primario); }
+.estado-pregunta.separada { background: var(--superficie); color: var(--texto-suave); border: 1.5px dashed var(--texto-tenue); }
+.pregunta dt.opcion { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
+.pregunta dt.opcion.recomendada, .pregunta dd.opcion.recomendada,
+.pregunta dt.opcion.elegida, .pregunta dd.opcion.elegida { border-left: 3px solid var(--primario); padding-left: .75rem; }
+.pregunta dt.opcion.elegida, .pregunta dd.opcion.elegida { border-left-color: var(--tinta-oscura); }
+.pregunta dd.opcion.descartada { color: var(--texto-suave); }
+.marca-opcion { padding: .05rem .5rem; border-radius: 4px; font-size: .8125rem; letter-spacing: .06em; font-weight: 750; color: var(--sobre-primario, #fff);
+                background: var(--primario); }
+.marca-opcion.elegida { background: var(--oscuro); color: #fff; }
+.pregunta dt.recomendacion, .pregunta dt.decision { margin-bottom: 0; padding: .6rem .85rem 0; border-top: 0;
+                                                     background: var(--fondo); border-radius: 8px 8px 0 0; }
+.pregunta dd.recomendacion, .pregunta dd.decision { padding: .25rem .85rem .7rem; background: var(--fondo); border-radius: 0 0 8px 8px; }
+.pregunta dt.decision, .pregunta dd.decision { background: var(--fondo-medio); }
+.pregunta dt.decision { color: var(--tinta-oscura); }
+
 /* Insignias, referencias y saltos */
 a.insignia { display: inline-block; padding: .22rem .5rem; margin: .1rem .1rem .1rem 0; border-radius: 5px; background: var(--fondo-medio);
-             color: var(--oscuro); font-size: .8125rem; font-weight: 750; text-decoration: none; }
+             color: var(--tinta-oscura); font-size: .8125rem; font-weight: 750; text-decoration: none; }
 a.insignia:hover { background: var(--borde); }
 a.ref:hover { text-decoration: underline; }
 a.ref { font-size: .8125rem; font-weight: 750; text-decoration: none; white-space: nowrap; }
 a.salto { font-size: .875rem; }
 
 /* Buscador de fichas (assets/fichas.js) */
-.buscador { display: flex; align-items: end; flex-wrap: wrap; gap: .8rem; background: #fff; border: 1px solid var(--linea);
+.buscador { display: flex; align-items: end; flex-wrap: wrap; gap: .8rem; background: var(--superficie); border: 1px solid var(--linea);
             padding: 1rem; border-radius: var(--esquinas, 10px); margin: 1.4rem 0 1rem; }
 .buscador label { display: grid; gap: .3rem; font-size: .8125rem; font-weight: 700; flex: 1 1 220px; }
-.buscador input, .buscador select { font: inherit; color: inherit; border: 1px solid var(--borde); border-radius: 6px; background: #fff;
+.buscador input, .buscador select { font: inherit; color: inherit; border: 1px solid var(--borde-campo, var(--borde)); border-radius: 6px; background: var(--superficie);
                                     padding: .55rem; width: 100%; min-width: 0; }
 .cuenta { font-size: .875rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
 .sin-resultados { display: none; padding: 1.2rem; color: var(--texto-suave); }
@@ -210,16 +303,45 @@ a.salto { font-size: .875rem; }
 .fuentes :target { background: var(--fondo); }
 
 /* Tablas */
-.seccion table { width: 100%; border-collapse: collapse; margin: 1.2rem 0 1.6rem; font-size: .9rem; background: #fff; }
+.seccion table { width: 100%; border-collapse: collapse; margin: 1.2rem 0 1.6rem; font-size: .9rem; background: var(--superficie); }
 .seccion th { background: var(--oscuro); color: #fff; text-align: left; font-size: .8125rem; letter-spacing: .06em;
               text-transform: uppercase; padding: .5rem .7rem; }
 .seccion td { border-bottom: 1px solid var(--linea); padding: .55rem .7rem; vertical-align: top; }
-.seccion td:first-child { font-weight: 650; color: var(--oscuro); width: 28%; }
+.seccion td:first-child { font-weight: 650; color: var(--tinta-oscura); width: 28%; }
 .seccion tr:nth-child(even) td { background: var(--fondo-suave); }
 
 .pie { margin-top: 3rem; border-top: 1px solid var(--linea); padding: 1rem 0 2.5rem; font-size: .875rem; color: var(--texto-suave); }
 .pie p { margin: 0 0 .4rem; }
-code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; border-radius: 3px; }
+code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; border-radius: 3px; overflow-wrap: anywhere; }
+/* Bloques de código: fondo suave y filete (pagina.codigo: bloque, el de por defecto; «linea» los deja entre dos líneas). */
+pre { background: var(--fondo-suave); border-left: 3px solid var(--primario); padding: .9rem 1.1rem; margin: 1rem 0 1.4rem;
+      border-radius: 0 var(--esquinas, 6px) var(--esquinas, 6px) 0; overflow-x: auto; line-height: 1.5; font-size: .9rem; }
+pre code { background: none; padding: 0; border-radius: 0; font-size: inherit; }
+/* Coloreado de los bloques de código (scripts/resaltar_codigo.py): colores con significado fijo, variables --sx-…. */
+:root { --sx-clave: var(--primario-texto, var(--primario)); --sx-cadena: #1f812d; --sx-numero: #a6501a; --sx-palabra: var(--acento);
+        --sx-funcion: #1f7a7a; --sx-atributo: #a6501a; --sx-comentario: var(--texto-suave); }
+pre code .sx-p { color: var(--sx-clave); }
+pre code .sx-s { color: var(--sx-cadena); }
+pre code .sx-n { color: var(--sx-numero); }
+pre code .sx-k { color: var(--sx-palabra); font-weight: 600; }
+pre code .sx-f, pre code .sx-t { color: var(--sx-funcion); }
+pre code .sx-a { color: var(--sx-atributo); }
+pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
+
+/* Modo oscuro de «Lectura» (decisión 347): la paleta oscura la ponen las variables con data-theme="dark". Aquí, lo que
+ * cambia de rol: sobre las superficies oscuras, el primario aclarado en lugar del tenue; en las tarjetas con color,
+ * los campos y los chips con el color aclarado (350); y el logo de la portada clara. */
+@media screen {
+  :where(:root[data-theme="dark"]) :is(.oscura .marca, .oscura .tipo-doc, .oscura .cifras strong, .recuadro.decision .recuadro-etiqueta,
+                                       .recuadro.decision h3) { color: var(--primario); }
+  :root[data-theme="dark"] .portada.oscura a { text-decoration-color: var(--primario); }
+  :root[data-theme="dark"] .tarjeta.con-color dt { color: var(--c-oscuro-o, var(--c-oscuro)); border-top-color: var(--c-borde-o, var(--c-borde)); }
+  :root[data-theme="dark"] .con-color dd > ul > li { color: var(--c-oscuro-o, var(--c-oscuro)); border-color: var(--c-borde-o, var(--c-borde));
+                                                     background: var(--c-suave-o, var(--c-suave)); }
+  :root[data-theme="dark"] summary.tarjeta-cabecera:focus-visible { outline-color: var(--c-oscuro-o, var(--primario)); }
+  :root[data-theme="dark"] .marca img.logo-claro { display: none; }
+  :root[data-theme="dark"] .marca img.logo-oscuro { display: inline; }
+}
 
 @media (max-width: 860px) {
   .cols-3 { grid-template-columns: 1fr; }
@@ -237,63 +359,194 @@ code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; bo
   .seccion td { border: 0; padding: .25rem .6rem; }
   .seccion td:first-child { width: 100%; }
   .seccion td::before { content: attr(data-label); display: block; font-size: .8125rem; letter-spacing: .08em;
-                        text-transform: uppercase; color: var(--texto-tenue); }
+                        text-transform: uppercase; color: var(--texto-suave); }
   .seccion tr:nth-child(even) td { background: none; }
 }
 
 @media print {
   @page { size: A4; margin: 15mm 15mm 17mm; }
   html { scroll-behavior: auto; }
-  body { background: #fff; font-size: 10pt; }
+  body { background: var(--superficie); font-size: 10pt; }
   .hoja, .portada-dentro { width: 100%; }
-  .portada, .portada.oscura { background: #fff; color: var(--texto); padding: 0 0 1rem; break-after: page; border: 0; }
-  .oscura .marca, .oscura .cifras strong { color: var(--primario); }
+  .portada, .portada.oscura { background: var(--superficie); color: var(--texto); padding: 0 0 1rem; break-after: page; border: 0; }
+  .oscura .marca, .oscura .cifras strong { color: var(--primario-texto, var(--primario)); }
   .oscura .subtitulo, .oscura .idea p, .oscura .datos-version, .oscura .datos-version span, .oscura .cifras span { color: var(--texto); }
-  .menu, .buscador, .sin-resultados, .imprimir, .saltar { display: none !important; }
+  .menu, .buscador, .sin-resultados, .imprimir, .saltar, .plegar-tarjetas { display: none !important; }
   .seccion-titulo::after { display: none; }
   details.seccion::details-content { content-visibility: visible; display: block; } /* abiertas aunque no haya JS */
   .ficha[hidden] { display: flex !important; }
   .seccion { padding-top: 1.4rem; }
   .cols-2, .cols-3, .columnas.cols-2 { display: block; }
   .tarjeta { break-inside: avoid; margin-bottom: .8rem; }
+  details.tarjeta::details-content { content-visibility: visible; display: block; }
+  summary.tarjeta-cabecera::after { display: none; }
+  .con-color > .tarjeta-cabecera, .estado-pregunta, .marca-opcion { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .seccion h2, .etiqueta, .seccion h3, .seccion h4, .seccion dt { break-after: avoid; }
   .seccion ol > li, .seccion tr, .fuentes p { break-inside: avoid; }
   .fuentes { display: block; }
   .recuadro.decision { background: var(--fondo); color: var(--texto); }
-  .recuadro.decision .recuadro-etiqueta, .recuadro.decision h3 { color: var(--primario); }
+  .recuadro.decision .recuadro-etiqueta, .recuadro.decision h3 { color: var(--primario-texto, var(--primario)); }
   a { color: inherit; text-decoration: none; }
 }
 
+  </style>
+  <style data-kit="skills/crear_documentos/assets/narrativa.css">
+/* Recursos que vienen de la maqueta de la visión, en el catálogo común (decisión 308): los narrativos (escena con sus
+ * turnos, caso conductor, expediente, aviso de ficción) y los generales (ficha con <dl> y su estado acordado,
+ * comparativa de versiones, preguntas frecuentes, ejemplo narrado), las subsecciones plegables (### abiertas, ####
+ * plegadas) y los gráficos anchos que se desplazan en el móvil. El generador lo añade solo si el documento los usa.
+ * Colores y tipografías: variables del estilo o del tema del proyecto. */
+
+/* Tres niveles de lectura: la narración, en la letra de texto; las escenas dialogadas, en la letra de escena, con
+ * etiqueta, margen lateral y fondo suave; los datos del caso, fuentes y evidencias, compactos y con cifras tabulares. */
+.escena { font-family: var(--fuente-escena); background: var(--fondo-suave); border-left: 3px solid var(--tenue);
+          border-radius: 0 var(--esquinas, 12px) var(--esquinas, 12px) 0; padding: 1rem 1.4rem .9rem; margin: 1.8rem 0; }
+.escena p { margin: 0; }
+.escena-etiqueta { font-family: var(--fuente-texto); font-size: .8125rem; font-weight: 700; letter-spacing: .09em;
+                   text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin-bottom: .35rem !important; }
+.escena-contexto { font-size: .95rem; color: var(--texto-suave); line-height: 1.5; margin-bottom: .6rem !important; }
+.turno { display: grid; grid-template-columns: 9.5rem 1fr; gap: .15rem 1.1rem; padding: .6rem 0; border-top: 1px solid var(--linea); }
+.ponente { font-family: var(--fuente-texto); font-size: .8125rem; font-weight: 700; color: var(--tinta-oscura); line-height: 1.35; padding-top: .2rem; }
+.ponente small { display: block; font-weight: 400; color: var(--texto-suave); font-size: .8125rem; }
+.turno > p:last-child { font-size: 1.04rem; line-height: 1.6; color: var(--texto); }
+.turno.sistema .ponente { color: var(--texto-suave); }
+.turno.sistema > p:last-child { font-family: var(--fuente-texto); font-size: .9rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+.escena-pie { font-family: var(--fuente-texto); font-size: .8125rem; color: var(--texto-suave); border-top: 1px solid var(--linea);
+              padding-top: .5rem; margin-top: .1rem !important; }
+
+/* Hilo conductor: la narración del caso, en cursiva, en un recuadro claro con la etiqueta «El caso». */
+.caso, .expediente { background: var(--fondo-suave); border: 1px solid var(--linea); border-radius: var(--esquinas, 10px);
+                     padding: .9rem 1.3rem 1rem; margin: 1.4rem 0 1.6rem; }
+.caso-etiqueta, .expediente b:first-child { display: block; font-size: .8125rem; font-weight: 700; letter-spacing: .09em;
+                                            text-transform: uppercase; color: var(--tinta-oscura); margin: 0 0 .35rem; font-style: normal; }
+.caso p { margin: 0; }
+.caso p + p { margin-top: .6rem; }
+.caso > p:not(.caso-etiqueta) { font-size: 1.08rem; line-height: 1.65; color: var(--texto); font-style: italic; }
+.expediente { font-size: .92rem; font-variant-numeric: tabular-nums; color: var(--texto); padding: .6rem 1.3rem .7rem; }
+
+/* Aviso de ficción: al principio del documento, antes del prólogo. */
+.aviso-ficcion { border-left: 4px solid #b91c1c; background: color-mix(in srgb, #b91c1c 7%, var(--pagina));
+                 border-radius: 0 var(--esquinas, 8px) var(--esquinas, 8px) 0; padding: .7rem 1.1rem; margin: .4rem 0 1.4rem;
+                 font-size: .92rem; line-height: 1.55; color: var(--texto); }
+.aviso-ficcion p { margin: 0; }
+.aviso-ficcion p + p { margin-top: .4rem; }
+
+/* Ficha de datos: <div class="ficha"> con una lista <dl>; dt.acordado marca el estado final y dt.evidencia la solidez
+ * de la evidencia. No es la tarjeta de «::: fichas» (.tarjeta.ficha). */
+div.ficha:not(.tarjeta) { border: 1px solid var(--borde); border-radius: var(--esquinas, 12px); padding: .9rem 1.2rem; margin: 1.6rem 0; font-size: .92rem; }
+.ficha-titulo { font-family: var(--fuente-titulos); font-weight: 600; color: var(--tinta-oscura); font-size: 1.02rem; margin: 0 0 .5rem; }
+div.ficha:not(.tarjeta) dl { display: grid; grid-template-columns: 11rem 1fr; margin: 0; }
+div.ficha:not(.tarjeta) dt, div.ficha:not(.tarjeta) dd { margin: 0; padding: .42rem 0; border-top: 1px solid var(--linea); }
+div.ficha:not(.tarjeta) dt { font-size: .8125rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--texto-suave); padding-top: .55rem; }
+div.ficha:not(.tarjeta) dt.acordado, div.ficha:not(.tarjeta) dd.acordado { border-top: 2px solid var(--primario); }
+div.ficha:not(.tarjeta) dt.acordado { color: var(--primario-texto, var(--primario)); }
+div.ficha:not(.tarjeta) dt.evidencia { color: var(--acento); }
+
+/* Comparativa de versiones en tarjetas: una por idea y, dentro, una subtarjeta por versión (data-version) con el texto
+ * y el comentario de lo que cambió. 4 columnas (o --cols) en escritorio, 2 en tableta y 1 en móvil. */
+.comparativa { margin: 1.6rem 0 1.4rem; font-size: .9rem; }
+.cmp-cab { display: none; }
+.cmp-fila { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: .7rem; background: var(--pagina);
+            border: 1px solid var(--linea); border-radius: var(--esquinas, 12px); padding: 1rem 1.05rem 1.05rem; margin-bottom: 1rem; }
+.cmp-idea { grid-column: 1 / -1; margin: 0 0 .1rem; font-family: var(--fuente-titulos); font-size: .8125rem; font-weight: 700;
+            letter-spacing: .07em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); }
+.cmp-celda { background: var(--fondo); border-radius: 8px; padding: .7rem .8rem .75rem; min-width: 0; }
+.cmp-celda[data-version^="Original"] { background: transparent; border: 1px dashed var(--tenue); }
+.cmp-celda::before { content: attr(data-version); display: block; font-size: .8125rem; font-weight: 700; color: var(--tinta-oscura);
+                     margin-bottom: .35rem; letter-spacing: .02em; }
+.cmp-celda p { margin: 0; }
+.cmp-texto { font-size: .9rem; line-height: 1.5; color: var(--texto); }
+.cmp-texto + .cmp-texto { margin-top: .2rem !important; }
+.cmp-nota { margin-top: .6rem !important; padding-top: .5rem; border-top: 1px solid var(--linea); font-size: .8125rem;
+            line-height: 1.45; color: var(--texto-suave); }
+.cmp-vacia .cmp-texto { color: var(--texto-suave); font-style: italic; }
+.cmp-pie { background: var(--fondo); }
+.cmp-pie .cmp-celda { background: var(--pagina); }
+.cmp-pie .cmp-texto { font-variant-numeric: tabular-nums; font-weight: 700; font-size: .95rem; }
+@media (max-width: 1000px) { .cmp-fila { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .cmp-fila { grid-template-columns: 1fr; } }
+
+/* Preguntas frecuentes: <dl class="faq">, pregunta en <dt> y respuesta en <dd>, sin cabecera ni franjas. */
+dl.faq { margin: .6rem 0 1.2rem; }
+dl.faq dt { font-weight: 600; color: var(--tinta-oscura); margin: 1rem 0 .15rem; }
+dl.faq dt:first-child { margin-top: 0; }
+dl.faq dd { margin: 0; color: var(--texto); }
+
+/* Ejemplo narrado: un caso real contado en prosa, en un recuadro como el del código. */
+.ejemplo { background: var(--fondo-suave); border: 1px solid var(--linea); border-radius: var(--esquinas, 6px);
+           padding: 1rem 1.2rem; margin: 1rem 0 1.4rem; }
+.ejemplo p { margin: 0 0 .6rem; }
+.ejemplo p:last-child { margin-bottom: 0; }
+
+/* Subsecciones plegables (perfil con «subsecciones»: «plegables»): cada ### abierta y cada #### plegada, con la misma
+ * convención que las herramientas: ▸ plegado, ▾ abierto. */
+.subseccion { margin: 1.4rem 0 0; }
+.subsubseccion { margin: .55rem 0 0; }
+.subseccion-summary, .subsubseccion-summary { display: flex; align-items: center; gap: .45rem; cursor: pointer; list-style: none;
+                                              user-select: none; text-wrap: balance; min-height: 44px; }
+.subseccion-summary { font-family: var(--fuente-titulos); font-size: 1.22rem; line-height: 1.3; font-weight: 650;
+                      color: var(--tinta-oscura); margin: .4rem 0 .3rem; }
+.subsubseccion-summary { font-size: 1rem; font-weight: 650; color: var(--tinta-oscura); margin: .2rem 0 .1rem; }
+.subseccion-summary::-webkit-details-marker, .subsubseccion-summary::-webkit-details-marker { display: none; }
+.subseccion-summary::marker, .subsubseccion-summary::marker { content: ''; }
+.subseccion-summary::after, .subsubseccion-summary::after {
+  content: ""; flex: none; margin-left: auto; width: .5rem; height: .5rem; border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .2s; opacity: .7; }
+.subseccion[open] > .subseccion-summary::after, .subsubseccion[open] > .subsubseccion-summary::after { transform: translateY(-2px) rotate(45deg); }
+.subseccion-summary:hover, .subsubseccion-summary:hover { color: var(--primario-texto, var(--primario)); }
+.subseccion-summary:focus-visible, .subsubseccion-summary:focus-visible { outline: 3px solid var(--primario); outline-offset: 3px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { .subseccion-summary::after, .subsubseccion-summary::after { transition: none; } }
+
+@media (max-width: 720px) {
+  .escena { padding: .9rem 1rem .8rem; }
+  .turno { grid-template-columns: 1fr; }
+  div.ficha:not(.tarjeta) dl { grid-template-columns: 1fr; }
+  div.ficha:not(.tarjeta) dd { border-top: none; padding-top: 0; }
+  /* Un gráfico ancho conserva un tamaño legible y se desplaza en horizontal, con su aviso; los verticales y las infografías caben. */
+  figure:not(.vertical):not(.diagrama):not(.infografia) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  figure:not(.vertical):not(.diagrama):not(.infografia) > svg { min-width: 680px; }
+  figure:not(.vertical):not(.diagrama):not(.infografia)::before { content: 'Desliza para ver el gráfico completo →'; display: block;
+    font-size: .8125rem; color: var(--texto-suave); text-align: right; margin-bottom: .3rem; }
+  figure:not(.vertical):not(.diagrama):not(.infografia) figcaption { position: sticky; left: 0; max-width: calc(100vw - 2rem); text-align: left; }
+}
+@media print {
+  .subseccion-summary::after, .subsubseccion-summary::after { display: none; }
+  .escena, .caso, div.ficha:not(.tarjeta), .cmp-fila { break-inside: avoid; }
+  figure:not(.vertical):not(.diagrama):not(.infografia)::before { content: none; }
+}
+</style>
+  <style data-estilo="v4">
+    code, pre, kbd, .formula { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; } .seccion-titulo::after { display: none; } :root { --esquinas: 6px; } .portada, .menu { border-bottom: 0; } .pie { border-top: 0; } .recuadro:not(.decision) { border-left: 0; border-radius: var(--esquinas, 8px); }
   </style>
   <style data-kit="tools/kit_documentos/herramientas.css">
 /* Columna de herramientas del documento (assets/herramientas.js): la usan documento_vision y documento_fundacional.
  * Solo usa las variables del tema (--primario, --oscuro, --fondo, --linea, --borde, --texto, --texto-suave,
  * --acento, --acento-fondo, --fondo-suave) y no depende de la hoja de estilos de cada documento. */
 .herramienta button, .abrir-herramienta { font: inherit; font-size: .82rem; font-weight: 700; line-height: 1.2; cursor: pointer;
-  border: 1px solid var(--primario); border-radius: var(--esquinas, 6px); background: var(--primario); color: #fff; padding: .45rem .8rem; }
+  border: 1px solid var(--primario); border-radius: var(--esquinas, 6px); background: var(--primario); color: var(--sobre-primario, #fff); padding: .45rem .8rem; }
 .herramienta button:disabled { opacity: .45; cursor: default; }
 .herramienta button:focus-visible, .herramienta input:focus-visible, .herramienta textarea:focus-visible, .abrir-herramienta:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 .herramienta ol, .herramienta p { margin: 0; padding: 0; }
 .bd-campo { display: block; }
-/* Columna de herramientas y buscador, según el modelo de los 20 casos de OncoCore.
+/* Columna de herramientas y buscador.
  * Desde 1400 px, la herramienta va anclada en una columna a la derecha, de ancho ajustable y plegable;
  * la chincheta de la barra (a la derecha del engranaje) las despega todas como ventanas flotantes, que se arrastra y se minimiza. Por debajo, minimizada del todo
  * hasta pulsar «Buscar» en el menú; entonces se abre como panel inferior, sin tapar la cabecera ni el menú. */
 .columna-herramientas { display: none; }
 html.con-columna body { padding-right: var(--ancho-columna, 360px); }
 html.con-columna .columna-herramientas { display: block; position: fixed; z-index: 30; top: 0; right: 0; bottom: 0;
-  width: var(--ancho-columna, 360px); padding: 1rem 1rem 1rem 1.15rem; background: #fff; border-left: 1px solid var(--linea);
+  width: var(--ancho-columna, 360px); padding: 1rem 1rem 1rem 1.15rem; background: var(--superficie); border-left: 1px solid var(--linea);
   overflow-y: auto; overscroll-behavior: contain; }
 .redim { position: absolute; top: 0; bottom: 0; left: -3px; width: 7px; cursor: col-resize; touch-action: none; }
 .redim:hover, .redim.activo { background: var(--primario); opacity: .35; }
-.herramienta { display: flex; flex-direction: column; gap: .7rem; color: var(--texto); background: #fff; }
+.herramienta { display: flex; flex-direction: column; gap: .7rem; color: var(--texto); background: var(--superficie); }
 .herramienta[data-modo="oculto"] { display: none; }
 .herr-cabecera { display: flex; align-items: center; justify-content: space-between; gap: .5rem; user-select: none; }
-.herr-titulo { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario); }
+.herr-titulo { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); }
 .herr-acciones { display: flex; gap: .3rem; }
-.herr-acciones button { background: #fff; color: var(--oscuro); border-color: var(--borde); line-height: 1;
+.herr-acciones button { background: var(--superficie); color: var(--tinta-oscura); border-color: var(--borde); line-height: 1;
   min-width: 2rem; min-height: 2rem; padding: .25rem .45rem; display: inline-grid; place-items: center; font-size: 1.05rem; }
-.herr-acciones button:hover { background: var(--fondo); border-color: var(--oscuro); }
+.herr-acciones button:hover { background: var(--fondo); border-color: var(--tinta-oscura); color: var(--tinta-oscura); }
 .herr-plegar::before { content: ""; width: .5rem; height: .5rem; border: solid currentColor; border-width: 0 2px 2px 0;
   transform: translateY(-2px) rotate(45deg); transition: transform .15s; }
 .herramienta.plegada .herr-plegar::before { transform: rotate(-45deg); }
@@ -313,13 +566,13 @@ html:not(.herr-estrecho) .herramienta[data-modo="flotante"] .herr-cabecera { cur
 html.herr-estrecho .herramienta[data-modo="flotante"] { top: auto; left: 0 !important; right: 0; bottom: 0; width: auto;
   max-height: 70vh; border-radius: var(--esquinas, 10px) var(--esquinas, 10px) 0 0; border-width: 1px 0 0; }
 html.herr-estrecho .dc-anclar { display: none !important; }
-.abrir-herramienta { display: none; background: #fff; color: var(--primario); }
+.abrir-herramienta { display: none; background: var(--superficie); color: var(--primario-texto, var(--primario)); }
 html.herr-estrecho .abrir-herramienta { display: inline-block; }
-.abrir-herramienta:hover { background: var(--fondo); color: var(--oscuro); border-color: var(--oscuro); }
+.abrir-herramienta:hover { background: var(--fondo); color: var(--tinta-oscura); border-color: var(--tinta-oscura); }
 .botones-herramientas { display: none; }
 html.herr-estrecho .botones-herramientas { display: flex; gap: .5rem; position: fixed; right: 16px; bottom: 16px; z-index: 31; }
 .botones-herramientas .abrir-herramienta { box-shadow: 0 4px 14px rgba(0, 0, 0, .18); }
-.bd-campo input { font: inherit; width: 100%; padding: .6rem .7rem; border: 1px solid var(--borde); border-radius: 6px; background: #fff; color: inherit; }
+.bd-campo input { font: inherit; width: 100%; padding: .6rem .7rem; border: 1px solid var(--borde-campo, var(--borde)); border-radius: 6px; background: var(--superficie); color: inherit; }
 .bd-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .bd-navegar { display: flex; align-items: center; gap: .4rem; }
 .bd-cuenta { flex: 1; font-size: .875rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
@@ -328,8 +581,8 @@ html.herr-estrecho .botones-herramientas { display: flex; gap: .5rem; position: 
 .bd-resultados { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
 .bd-resultados button { width: 100%; text-align: left; display: grid; gap: .25rem; padding: .6rem .7rem; font-weight: 400;
   background: var(--fondo-suave); color: var(--texto); border: 1px solid var(--linea); }
-.bd-resultados button:hover { background: var(--fondo); border-color: var(--primario); }
-.bd-seccion { font-size: .8125rem; font-weight: 750; color: var(--primario); }
+.bd-resultados button:hover { background: var(--fondo); border-color: var(--primario); color: var(--texto); }
+.bd-seccion { font-size: .8125rem; font-weight: 750; color: var(--primario-texto, var(--primario)); }
 .bd-fragmento { font-size: .875rem; line-height: 1.45; }
 .bd-fragmento b { background: var(--acento-fondo); }
 mark.bd-hit { background: var(--acento-fondo); color: inherit; border-radius: 2px; box-shadow: 0 0 0 1px var(--acento); }
@@ -337,7 +590,7 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 /* Barra del documento: versión (sube al guardar), estado de las notas, versión de las herramientas y «Guardar». */
 .barra-doc { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .35rem .8rem; font-size: .8125rem; color: var(--texto-suave); }
 .report-header .barra-doc { display: flex; margin-top: .45rem; }
-.dc-ver b { color: var(--oscuro); font-family: ui-monospace, Consolas, monospace; font-weight: 700; }
+.dc-ver b { color: var(--tinta-oscura); font-family: ui-monospace, Consolas, monospace; font-weight: 700; }
 .dc-kit { font-family: ui-monospace, Consolas, monospace; font-size: .75rem; color: var(--texto-suave); cursor: help; margin-left: .7rem; }
 /* Cambios sin guardar: led rojo en el botón; el texto de estado se oculta a la vista, no a los lectores de pantalla */
 .barra-doc.sucio .dc-estado { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -345,12 +598,12 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 .barra-doc.sucio .dc-guardar::after { content: ""; position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%;
   background: #ff3b30; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .85), 0 0 6px 1px rgba(255, 59, 48, .8); }
 .dc-guardar { font: inherit; font-size: .8125rem; font-weight: 700; cursor: pointer; border: 1px solid var(--primario); border-radius: var(--esquinas, 6px);
-  background: var(--primario); color: #fff; padding: .3rem .75rem; min-height: 24px; }
-.dc-guardar:hover { background: var(--oscuro); border-color: var(--oscuro); }
-/* En la columna, la barra es su primera tarjeta, como en OncoCore: versión y herramientas, estado y «Guardar». */
+  background: var(--primario); color: var(--sobre-primario, #fff); padding: .3rem .75rem; min-height: 24px; }
+.dc-guardar:hover { background: var(--oscuro); border-color: var(--oscuro); color: #fff; }
+/* En la columna, la barra es su primera tarjeta: versión y herramientas, estado y «Guardar». */
 .columna-herramientas > .barra-doc { display: flex; flex-wrap: nowrap; min-width: 0; box-sizing: border-box; justify-content: space-between; align-items: center; gap: .7rem;
   padding: .45rem .45rem .45rem .8rem; font-size: .78rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px);
-  background: linear-gradient(180deg, var(--fondo) 0, #fff 100%); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
+  background: linear-gradient(180deg, var(--fondo) 0, var(--superficie) 100%); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
 .columna-herramientas > .barra-doc .dc-ver { white-space: nowrap; line-height: 1.35; }
 .columna-herramientas > .barra-doc .dc-kit { display: block; margin: 0; font-size: .7rem; }
 .columna-herramientas > .barra-doc .dc-estado { flex: 1 1 0; min-width: 0; line-height: 1.35; }
@@ -358,20 +611,20 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 /* Notas personales */
 .nt-campo { display: grid; gap: .25rem; font-size: .8125rem; font-weight: 700; color: var(--texto-suave); }
 .nt-campo input, .nt-nota textarea { font: inherit; font-size: .9rem; font-weight: 400; color: inherit; width: 100%; padding: .5rem .6rem;
-  border: 1px solid var(--borde); border-radius: 6px; background: #fff; }
+  border: 1px solid var(--borde-campo, var(--borde)); border-radius: 6px; background: var(--superficie); }
 .nt-nota textarea { resize: vertical; min-height: 4.2em; line-height: 1.45; }
 .nt-ayuda, .nt-vacio { font-size: .8125rem; color: var(--texto-suave); }
 .nt-lista { list-style: none; display: grid; gap: .6rem; }
-/* Tarjetas de nota (modelo gene_associations de OncoCore). En la columna no hay panel común: cada nota es su propia
+/* Tarjetas de nota. En la columna no hay panel común: cada nota es su propia
  * tarjeta, con el aspecto de una herramienta; en la ventana flotante y en el móvil van dentro del panel «Notas». */
 .nt-general-zona, .nt-foco { display: grid; gap: .8rem; }
 .nt-general-zona:empty, .nt-foco:empty { display: none; }
-.nt-tarjeta { position: relative; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); background: #fff; }
+.nt-tarjeta { position: relative; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); background: var(--superficie); }
 .nt-tarjeta::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: var(--esquinas, 10px) var(--esquinas, 10px) 0 0; background: var(--primario); }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-tarjeta-cab { width: 100%; display: flex; justify-content: space-between; gap: .6rem; align-items: center; text-align: left;
   background: none; border: 0; border-radius: 0; padding: .8rem .9rem .6rem; color: inherit; }
 .nt-tarjeta-cab .herr-titulo { line-height: 1.35; }
-.nt-flecha { flex: 0 0 auto; width: .5rem; height: .5rem; border: solid var(--oscuro); border-width: 0 2px 2px 0; transform: translateY(-2px) rotate(45deg); transition: transform .15s; }
+.nt-flecha { flex: 0 0 auto; width: .5rem; height: .5rem; border: solid var(--tinta-oscura); border-width: 0 2px 2px 0; transform: translateY(-2px) rotate(45deg); transition: transform .15s; }
 .nt-tarjeta.plegada .nt-flecha { transform: rotate(-45deg); }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-tarjeta-cuerpo { display: grid; gap: .6rem; padding: 0 .9rem .9rem; }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-tarjeta.plegada > .nt-tarjeta-cuerpo { display: none; }
@@ -380,45 +633,45 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 .nt-nota textarea.nt-amplia { min-height: 9em; }
 .nt-pie:has(> span:first-child:empty) { justify-content: flex-end; }
 .nt-acciones { display: inline-flex; gap: .35rem; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-convertir { background: #fff; color: var(--primario); border-color: var(--borde); font-size: .75rem; padding: .3rem .6rem; }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-convertir { background: var(--superficie); color: var(--primario-texto, var(--primario)); border-color: var(--borde); font-size: .75rem; padding: .3rem .6rem; }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-convertir:not(:disabled):hover { border-color: var(--primario); }
 .nt-cuantas { color: var(--texto-suave); letter-spacing: 0; }
 .nt-resumen { list-style: none; display: grid; gap: .25rem; }
 .nt-resumen:empty { display: none; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-ir { width: 100%; text-align: left; background: #fff; color: var(--texto); border-color: var(--linea); font-weight: 400; font-size: .8125rem; line-height: 1.4; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-ir:hover { border-color: var(--primario); color: var(--oscuro); }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-ir { width: 100%; text-align: left; background: var(--superficie); color: var(--texto); border-color: var(--linea); font-weight: 400; font-size: .8125rem; line-height: 1.4; }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-ir:hover { border-color: var(--primario); color: var(--tinta-oscura); }
 /* En la columna, el panel «Notas» se vuelve transparente y las tarjetas toman el aspecto de herramienta. */
 .herr-notas.por-seccion[data-modo="columna"] { padding: 0; border: 0; background: none; box-shadow: none; }
 .herr-notas.por-seccion[data-modo="columna"]::before { display: none; }
 .herr-notas.por-seccion[data-modo="columna"] > .herr-cabecera { display: none; }
 .herr-notas.por-seccion[data-modo="columna"] > .herr-cuerpo { display: flex !important; gap: 1rem; }
-.herr-notas.por-seccion[data-modo="columna"] .nt-tarjeta { background: linear-gradient(180deg, var(--fondo) 0, #fff 3.2rem); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
-.herr-notas.por-seccion[data-modo="columna"] .nt-vacio { padding: .8rem .9rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); background: #fff; }
+.herr-notas.por-seccion[data-modo="columna"] .nt-tarjeta { background: linear-gradient(180deg, var(--fondo) 0, var(--superficie) 3.2rem); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
+.herr-notas.por-seccion[data-modo="columna"] .nt-vacio { padding: .8rem .9rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); background: var(--superficie); }
 /* La nota de la sección, en su sitio y solo para leer: se escribe en la columna. */
 .nota-espejo { margin: 1rem 0 .5rem; padding: .5rem .85rem .65rem; border: 1px dashed var(--borde, #b9c4c9); border-radius: 8px; background: var(--fondo-suave); cursor: pointer; }
-.nota-espejo-t { font-size: .75rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; color: var(--primario); margin-bottom: .2rem; }
+.nota-espejo-t { font-size: .75rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin-bottom: .2rem; }
 .nota-espejo-x { white-space: pre-wrap; font-size: .95rem; }
 @media print { .nota-espejo { display: none; } }
-.nt-grupo { font-size: .8125rem; font-weight: 750; color: var(--primario); margin-top: .4rem; }
+.nt-grupo { font-size: .8125rem; font-weight: 750; color: var(--primario-texto, var(--primario)); margin-top: .4rem; }
 .nt-nota { display: grid; gap: .4rem; padding: .6rem .65rem; background: var(--fondo-suave); border: 1px solid var(--linea); border-radius: 8px; }
 .nt-nota.actual { border-color: var(--primario); box-shadow: 0 0 0 2px var(--fondo); }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-cita { background: none; color: var(--texto); border: 0; border-left: 3px solid var(--acento); border-radius: 0; padding: .1rem 0 .1rem .55rem;
   font-weight: 400; font-style: italic; font-size: .875rem; line-height: 1.45; text-align: left; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-cita:hover { color: var(--oscuro); background: var(--acento-fondo); }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-cita:hover { color: var(--tinta-oscura); background: var(--acento-fondo); }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-cita.perdida { border-left-color: var(--texto-suave); color: var(--texto-suave); text-decoration: line-through; }
 .nt-pie { display: flex; align-items: center; justify-content: space-between; gap: .5rem; font-size: .75rem; color: var(--texto-suave); }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-borrar { background: #fff; color: var(--texto-suave); border-color: var(--borde); font-size: .75rem; padding: .2rem .55rem; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-borrar:hover { color: #b3261e; border-color: #b3261e; }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-borrar { background: var(--superficie); color: var(--texto-suave); border-color: var(--borde); font-size: .75rem; padding: .2rem .55rem; }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-borrar:hover { color: var(--error, #b3261e); border-color: var(--error, #b3261e); }
 mark.nota-cita { background: var(--acento-fondo); color: inherit; border-bottom: 2px solid var(--acento); cursor: pointer; padding: 0; }
-mark.nota-cita.destello { background: var(--acento); color: #fff; transition: background .3s; }
+mark.nota-cita.destello { background: var(--acento); color: var(--pagina); transition: background .3s; }
 .boton-anotar { position: absolute; z-index: 45; font: inherit; font-size: .8125rem; font-weight: 700; cursor: pointer; border: 0; border-radius: var(--esquinas, 6px);
   background: var(--oscuro); color: #fff; padding: .4rem .8rem; min-height: 32px; box-shadow: 0 6px 18px rgba(0, 0, 0, .25); }
 .boton-anotar[hidden] { display: none; }
 
-/* Aspecto de tarjeta (como en OncoCore): franja de color arriba, fondo tintado y sombra del color del tema. */
+/* Aspecto de tarjeta: franja de color arriba, fondo tintado y sombra del color del tema. */
 html.con-columna .columna-herramientas { background: var(--fondo-suave); box-shadow: -6px 0 18px rgba(var(--primario-rgb, 0, 0, 0), .08); }
 .herramienta { position: relative; padding: .9rem 1rem 1rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px);
-  background: linear-gradient(180deg, var(--fondo) 0, #fff 3.2rem); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
+  background: linear-gradient(180deg, var(--fondo) 0, var(--superficie) 3.2rem); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
 .herramienta::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: var(--esquinas, 10px) var(--esquinas, 10px) 0 0;
   background: var(--primario); }
 html.con-columna .columna-herramientas { display: flex; flex-direction: column; gap: 1rem; }
@@ -435,7 +688,7 @@ html:not(.herr-estrecho) .herramienta[data-modo="flotante"] .herr-asa { display:
 .redim:hover::after, .redim.activo::after { background: var(--primario); }
 html.redimensionando, html.redimensionando * { cursor: col-resize !important; user-select: none; }
 /* Buscador: sin resultados en rojo; el grupo del resultado actual, marcado. */
-.bd-cuenta.vacia { color: #b3261e; font-weight: 700; }
+.bd-cuenta.vacia { color: var(--error, #b3261e); font-weight: 700; }
 .bd-resultados button.activo { border-color: var(--primario); box-shadow: inset 4px 0 0 var(--primario); background: var(--fondo); }
 /* Destello de la sección a la que se salta (buscador, notas o enlace). */
 .destello-seccion > summary { animation: destello-seccion 1.2s ease-out; border-radius: 6px; }
@@ -447,7 +700,7 @@ a.externo::after { content: " ↗"; font-size: .85em; }
 /* ── Lectura (lectura.js) ── */
 .herr-lectura .lc-fila { display: flex; align-items: center; gap: .5rem; margin: .45rem 0; font-size: .875rem; cursor: pointer; }
 .herr-lectura .lc-modo { justify-content: space-between; }
-.herr-lectura select { font: inherit; padding: .2rem .4rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo-suave); color: inherit; }
+.herr-lectura select { font: inherit; padding: .2rem .4rem; border: 1px solid var(--borde-campo, var(--borde)); border-radius: 6px; background: var(--fondo-suave); color: inherit; }
 .herr-lectura input[type="checkbox"] { width: 1rem; height: 1rem; accent-color: var(--primario); }
 .herr-lectura .lc-tablas { margin-top: .4rem; font: inherit; font-size: .8125rem; padding: .3rem .6rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo-suave); color: var(--texto); cursor: pointer; }
 /* «Lectura» como modal: lo abre el engranaje junto a «Guardar». */
@@ -456,7 +709,7 @@ a.externo::after { content: " ↗"; font-size: .85em; }
 .dc-iconos { display: inline-flex; align-items: center; gap: .1rem; flex: 0 0 auto; margin-left: auto; margin-right: -.3rem; }
 .barra-doc .dc-icono { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 30px; height: 30px; min-height: 0; padding: 0;
   cursor: pointer; border: 0; border-radius: 50%; background: none; color: var(--texto-suave); }
-.barra-doc .dc-icono:hover { color: var(--oscuro); background: none; }
+.barra-doc .dc-icono:hover { color: var(--tinta-oscura); background: none; }
 .barra-doc .dc-icono:focus-visible { outline: 2px solid var(--primario); outline-offset: 2px; }
 .dc-atajo { display: none !important; }
 html.con-columna .dc-atajo { display: inline-flex !important; }
@@ -467,24 +720,24 @@ nav.menu.menu-vacio { display: none; }
 .dc-config:focus-visible, .ml-cerrar:focus-visible { outline: 2px solid var(--primario); outline-offset: 2px; }
 .modal-lectura { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 0, 0, .35); }
 .modal-lectura[hidden] { display: none; }
-html[data-modo="oscuro"] .modal-lectura { background: rgba(255, 255, 255, .45); }  /* invertido, oscurece el fondo */
+html[data-modo="oscuro"] .modal-lectura { background: rgba(0, 0, 0, .55); }
 .ml-caja { position: relative; width: min(26rem, 100%); max-height: calc(100vh - 32px); overflow: auto; box-sizing: border-box; padding: 1rem 1.2rem 1.1rem;
-  color: var(--texto); background: #fff; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); box-shadow: 0 12px 40px rgba(0, 0, 0, .25); }
+  color: var(--texto); background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); box-shadow: 0 12px 40px rgba(0, 0, 0, .25); }
 .ml-caja::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: var(--esquinas, 10px) var(--esquinas, 10px) 0 0; background: var(--primario); }
 .ml-cab { display: flex; align-items: center; justify-content: space-between; gap: .7rem; margin-bottom: .9rem; }
 .ml-caja:focus { outline: none; }  /* al abrir, el foco va a la caja, no al primer control */
 .ml-caja .lc-modo { gap: 1rem; margin-bottom: .7rem; }
 .ml-caja select { padding: .35rem .6rem; min-height: 32px; }
 .ml-caja select:focus-visible, .ml-caja input:focus-visible { outline: 2px solid var(--primario); outline-offset: 1px; }
-.ml-cerrar { width: 30px; height: 30px; padding: 0; cursor: pointer; font: inherit; font-size: .9rem; line-height: 1; color: var(--oscuro);
-  border: 1px solid var(--borde); border-radius: 6px; background: #fff; }
-.ml-cerrar:hover { background: var(--fondo); border-color: var(--oscuro); }
+.ml-cerrar { width: 30px; height: 30px; padding: 0; cursor: pointer; font: inherit; font-size: .9rem; line-height: 1; color: var(--tinta-oscura);
+  border: 1px solid var(--borde); border-radius: 6px; background: var(--superficie); }
+.ml-cerrar:hover { background: var(--fondo); border-color: var(--tinta-oscura); color: var(--tinta-oscura); }
 .herr-lectura .lc-ayuda { font-size: .75rem; color: var(--texto-suave); margin: .6rem 0 0; }
 /* Versión del documento y del kit, al pie del modal de configuración */
 .ml-caja .lc-version { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .9rem; margin: .8rem 0 0; padding-top: .7rem; border-top: 1px solid var(--linea); font-size: .75rem; color: var(--texto-suave); }
 .ml-caja .lc-version .dc-kit { margin-left: .7rem; }
 /* Chincheta de toda la barra de herramientas, a la derecha del engranaje: ancladas, en el primario; despegadas, inclinada */
-.dc-anclar[aria-pressed="true"] { color: var(--primario) !important; }
+.dc-anclar[aria-pressed="true"] { color: var(--primario-texto, var(--primario)) !important; }
 .dc-anclar[aria-pressed="false"] svg { transform: rotate(45deg); }
 .botones-herramientas > .dc-anclar, .menu-botones > .dc-anclar { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px;
   padding: 0; border: 0; border-radius: 50%; background: none; color: var(--texto-suave); cursor: pointer; }
@@ -493,19 +746,15 @@ html[data-modo="oscuro"] .modal-lectura { background: rgba(255, 255, 255, .45); 
 /* En el menú, la barra ocupa el hueco libre: el engranaje a la izquierda y los iconos y «Guardar» junto a los botones */
 .menu-dentro > .barra-doc { flex: 1 1 auto; }
 
-/* Modo oscuro: se invierte la página y se devuelven a su color las imágenes y los gráficos, para que valga con
-   cualquier tema sin un juego de colores aparte. */
-html[data-modo="oscuro"] { background: #fff; filter: invert(.92) hue-rotate(180deg); }
-html[data-modo="oscuro"] img, html[data-modo="oscuro"] svg, html[data-modo="oscuro"] video, html[data-modo="oscuro"] picture,
-html[data-modo="oscuro"] canvas, html[data-modo="oscuro"] iframe { filter: invert(1) hue-rotate(180deg); }
-html[data-modo="oscuro"] .herramienta svg, html[data-modo="oscuro"] button svg { filter: none; }
+/* Modo oscuro: lectura.js pone data-theme="dark" en <html> y el documento toma la paleta oscura del estilo (decisión
+   347), sin invertir la página: las imágenes, las infografías y los gráficos se ven con sus colores. */
 
 /* Título de la sección abierta fijo arriba (se desplaza con transform). */
 summary.titulo-fijo { position: relative; z-index: 6; box-shadow: 0 8px 12px -10px rgba(0, 0, 0, .35); }
 
 /* Fuentes: bocadillo y frase resaltada. */
 .bocadillo-fuente { position: absolute; z-index: 60; width: min(420px, calc(100vw - 16px)); padding: .75rem .9rem; font-size: .875rem; line-height: 1.45;
-  background: #fff; color: var(--texto); border: 1px solid var(--borde); border-top: 3px solid var(--primario); border-radius: var(--esquinas, 10px);
+  background: var(--superficie); color: var(--texto); border: 1px solid var(--borde); border-top: 3px solid var(--primario); border-radius: var(--esquinas, 10px);
   box-shadow: 0 10px 28px rgba(var(--primario-rgb, 0, 0, 0), .18); }
 .bocadillo-fuente[hidden] { display: none; }
 .bocadillo-fuente > :first-child { margin: 0; }
@@ -515,7 +764,7 @@ mark.resalta-fuente { background: var(--acento-fondo); color: inherit; border-ra
 /* Subapartados de detalle en bocadillo (visión). */
 html.sub-en-bocadillo details.subsubseccion { position: relative; }
 html.sub-en-bocadillo details.subsubseccion[open] > .sub-cuerpo { position: absolute; left: 0; right: 0; top: 100%; z-index: 40; max-height: 60vh; overflow: auto;
-  padding: .9rem 1.1rem; background: #fff; border: 1px solid var(--borde); border-top: 3px solid var(--primario); border-radius: var(--esquinas, 10px);
+  padding: .9rem 1.1rem; background: var(--superficie); border: 1px solid var(--borde); border-top: 3px solid var(--primario); border-radius: var(--esquinas, 10px);
   box-shadow: 0 12px 30px rgba(var(--primario-rgb, 0, 0, 0), .2); }
 
 /* Tablas con ancho de columna ajustable. */
@@ -530,7 +779,7 @@ table.anchos-propios th, table.anchos-propios td { overflow-wrap: anywhere; }
 .leyenda-doc { margin: 0 0 1.4rem; padding: .7rem 1rem; border: 1px solid var(--borde); border-radius: var(--esquinas, 10px); background: var(--fondo-suave); }
 .leyenda-doc > summary { cursor: pointer; font-weight: 700; font-size: .9375rem; list-style: none; }
 .leyenda-doc > summary::-webkit-details-marker { display: none; }
-.leyenda-doc > summary::before { content: "▸ "; color: var(--primario); }
+.leyenda-doc > summary::before { content: "▸ "; color: var(--primario-texto, var(--primario)); }
 .leyenda-doc[open] > summary::before { content: "▾ "; }
 .leyenda-doc > summary:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; border-radius: 4px; }
 .leyenda-doc dl { display: grid; grid-template-columns: minmax(0, 14rem) 1fr; gap: .55rem 1.1rem; margin: .8rem 0 .2rem; align-items: start; }
@@ -548,19 +797,19 @@ p.editable:hover .btn-editar, .btn-editar:focus-visible { opacity: 1; border-col
 @media (hover: none) { .btn-editar { opacity: .6; } }
 .ed-meta { margin-left: .4rem; }
 .ed-traza { display: inline-block; padding: 0 .4rem; font-size: .72rem; line-height: 1.5; border-radius: 999px; background: var(--acento-fondo); color: var(--texto); vertical-align: .1em; cursor: help; }
-.btn-retirar { padding: 0 .45rem; font-size: .72rem; line-height: 1.5; border: 1px solid var(--borde); border-radius: 999px; background: #fff; color: #b3261e; cursor: pointer; }
+.btn-retirar { padding: 0 .45rem; font-size: .72rem; line-height: 1.5; border: 1px solid var(--borde); border-radius: 999px; background: var(--superficie); color: var(--error, #b3261e); cursor: pointer; }
 p.parrafo-anadido { border-left: 3px solid var(--acento-borde, var(--borde)); padding-left: .7rem; }
 p.editando { outline: 2px solid var(--primario); outline-offset: 4px; border-radius: 3px; }
 .ed-texto { outline: none; }
 .ed-barra { position: sticky; bottom: 8px; z-index: 30; display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem .8rem; margin: .5rem 0 1rem;
-  padding: .45rem .6rem; background: #fff; border: 1px solid var(--borde); border-radius: var(--esquinas, 10px); box-shadow: 0 6px 18px rgba(var(--primario-rgb, 0, 0, 0), .15); }
+  padding: .45rem .6rem; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--esquinas, 10px); box-shadow: 0 6px 18px rgba(var(--primario-rgb, 0, 0, 0), .15); }
 .ed-grupo { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; }
 .ed-btn { min-width: 28px; min-height: 28px; padding: .15rem .5rem; font: inherit; font-size: .8125rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo-suave); color: var(--texto); cursor: pointer; }
 .ed-btn:hover { border-color: var(--primario); }
-.ed-btn[aria-pressed="true"] { background: var(--primario); color: #fff; border-color: var(--primario); }
+.ed-btn[aria-pressed="true"] { background: var(--primario); color: var(--sobre-primario, #fff); border-color: var(--primario); }
 .ed-fmt[data-cmd="bold"] { font-weight: 700; } .ed-fmt[data-cmd="italic"] { font-style: italic; }
 .ed-fmt[data-cmd="underline"] { text-decoration: underline; } .ed-fmt[data-cmd="strikeThrough"] { text-decoration: line-through; }
-.ed-aplicar { background: var(--primario); color: #fff; border-color: var(--primario); font-weight: 700; }
+.ed-aplicar { background: var(--primario); color: var(--sobre-primario, #fff); border-color: var(--primario); font-weight: 700; }
 .ed-pista { font-size: .75rem; color: var(--texto-suave); }
 .nt-convertir { font: inherit; font-size: .75rem; padding: .1rem .45rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo-suave); color: var(--texto); cursor: pointer; }
 
@@ -580,8 +829,13 @@ p.editando { outline: 2px solid var(--primario); outline-offset: 4px; border-rad
 
 /* Pie con la procedencia del documento (la ponen los generadores). */
 .procedencia { font-size: .75rem; color: var(--texto-suave); margin-top: .35rem; font-variant-numeric: tabular-nums; }
+/* La maqueta anterior al generador único (309) tiene el pie oscuro (.site-footer) y el código sin cortar: con el kit
+ * puesto al día (actualizar_copia.py), el pie y su procedencia se leen a 4,5:1 y una ruta larga no desborda el móvil.
+ * Regenerar el documento lo pasa a la maqueta actual, que ya lo hace. */
+.site-footer, .site-footer .procedencia { color: rgba(255,255,255,.78); }
+:where(code) { overflow-wrap: anywhere; }
 
-/* Tamaño de las notas en la columna (modelo OncoCore): el panel ocupa lo que dejan las demás herramientas y cada
+/* Tamaño de las notas en la columna: el panel ocupa lo que dejan las demás herramientas y cada
  * nota abierta se reparte ese alto con las otras, entre 12em y el 60 % de la pantalla; su texto llena la tarjeta. */
 html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="columna"] { display: flex; }
 html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="columna"]:has(.nt-tarjeta:not(.plegada):not(.nt-todas)) { flex: 1 0 auto; }
@@ -593,36 +847,58 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .herr-notas.por-seccion[data-modo="columna"] .nt-nota:has(> textarea.nt-amplia) { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 7em; }
 .herr-notas.por-seccion[data-modo="columna"] textarea.nt-amplia { flex: 1 1 auto; min-height: 7em; resize: none; }
 
-/* Notas en su sitio (1.8.0; discretas desde la 1.8.1): sin columna, como en OncoCore, cada sección acaba con un
+/* Notas en su sitio (1.8.0; discretas desde la 1.8.1): sin columna, cada sección acaba con un
    rótulo pequeño, el campo de texto abierto y «Convertir en párrafo» a la derecha, sin caja ni plegado. La nota general
    y «Tus notas» van al principio del documento. */
 :is(.nt-sitio, .nt-sitio-inicio) button { font: inherit; font-size: .8rem; font-weight: 600; line-height: 1.2; cursor: pointer;
-  border: 1px solid var(--linea); border-radius: var(--esquinas, 6px); background: #fff; color: var(--primario); padding: .4rem .8rem; }
+  border: 1px solid var(--linea); border-radius: var(--esquinas, 6px); background: var(--superficie); color: var(--primario-texto, var(--primario)); padding: .4rem .8rem; }
 :is(.nt-sitio, .nt-sitio-inicio) button:not(:disabled):hover { border-color: var(--primario); }
 :is(.nt-sitio, .nt-sitio-inicio) button:disabled { opacity: .5; cursor: default; }
 :is(.nt-sitio, .nt-sitio-inicio) :is(ol, p) { margin: 0; padding: 0; }
 .nt-sitio { margin: 1.4rem 0 .4rem; }
 .nt-sitio-inicio { display: grid; gap: 1rem; margin: 0 0 1.6rem; }
-.nt-sitio-t { font-size: .75rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; color: var(--oscuro); margin: 0 0 .45rem; }
+.nt-sitio-t { font-size: .75rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; color: var(--tinta-oscura); margin: 0 0 .45rem; }
 :is(.nt-sitio, .nt-sitio-inicio) .nt-nota { background: none; border: 0; padding: 0; gap: .5rem; }
 :is(.nt-sitio, .nt-sitio-inicio) .nt-nota + .nt-nota { margin-top: .6rem; }
 :is(.nt-sitio, .nt-sitio-inicio) .nt-nota textarea, :is(.nt-sitio, .nt-sitio-inicio) .nt-nota textarea.nt-amplia {
-  min-height: 4.5em; background: #fff; border: 1px solid var(--borde); border-radius: var(--esquinas, 8px); }
+  min-height: 4.5em; background: var(--superficie); border: 1px solid var(--borde-campo, var(--borde)); border-radius: var(--esquinas, 8px); }
 :is(.nt-sitio, .nt-sitio-inicio) .nt-pie { justify-content: flex-end; }
 /* «Tus notas», al principio: plegable, pero sin caja */
 .nt-sitio-inicio .nt-tarjeta { border: 0; background: none; }
 .nt-sitio-inicio .nt-tarjeta::before { display: none; }
 .nt-sitio-inicio .nt-tarjeta-cab { width: auto; justify-content: flex-start; padding: 0; border: 0; background: none; color: inherit; }
-.nt-sitio-inicio .nt-tarjeta-cab .herr-titulo { font-size: .75rem; color: var(--oscuro); }
+.nt-sitio-inicio .nt-tarjeta-cab .herr-titulo { font-size: .75rem; color: var(--tinta-oscura); }
 .nt-sitio-inicio .nt-tarjeta-cuerpo { padding: .6rem 0 0; }
 .nt-sitio-inicio .nt-ir { width: 100%; text-align: left; font-weight: 400; color: var(--texto); }
 @media print { .nt-sitio, .nt-sitio-inicio { display: none; } }
 .abrir-herramienta[hidden] { display: none !important; }
+
+/* ── Diagramas (diagramas.js): ajustes de las figuras, por grupos plegables; los botones, fijos arriba ── */
+.dg-ajustes { display: flex; flex-direction: column; gap: .35rem; }
+.dg-acciones { position: sticky; top: 0; z-index: 1; display: flex; gap: .5rem; flex-wrap: wrap; padding: .2rem 0 .5rem;
+  background: inherit; border-bottom: 1px solid var(--linea); }
+.herramienta.herr-diagramas .dg-acciones { background: var(--superficie); }
+.dg-acciones .lc-tablas { margin: 0; }
+.dg-grupo { border-bottom: 1px solid var(--linea); padding: .1rem 0 .35rem; }
+.dg-grupo > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: .45rem; min-height: 2rem;
+  font-size: .75rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--texto-suave); }
+.dg-grupo > summary::-webkit-details-marker { display: none; }
+.dg-grupo > summary::before { content: ""; width: .4rem; height: .4rem; border: solid currentColor; border-width: 0 2px 2px 0;
+  transform: rotate(-45deg); transition: transform .15s; }
+.dg-grupo[open] > summary::before { transform: rotate(45deg); }
+.dg-grupo > summary:focus-visible { outline: 3px solid var(--primario); outline-offset: 2px; border-radius: 4px; }
+/* Una rejilla para toda la herramienta: etiqueta corta a la izquierda, de ancho fijo, y desplegable con el resto de la fila,
+   del mismo ancho en todos los grupos. */
+.dg-ajustes .dg-sel { display: grid; grid-template-columns: 5.5rem minmax(0, 1fr); align-items: center; gap: .6rem; }
+.dg-ajustes .dg-sel > span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dg-ajustes .dg-sel select { width: 100%; min-width: 0; }
+.dg-ajustes .lc-fila { margin: .3rem 0; min-height: 24px; }
+.dg-ajustes label:has(input:disabled) { opacity: .55; cursor: default; }
 </style>
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
-<header class="portada"><div class="portada-dentro"><p class="marca">SoftwareFactory · Documento fundacional · Octubre 2026</p><h1 class="titular">Panel de la SF<span class="lema">El método, a la vista<br>mientras se trabaja.</span></h1><p class="subtitulo">El panel lateral de la SF en Claude Code: tareas, pasos, pruebas y la mejora de la propia SF en cada sesión.</p><hr class="portada-linea"></div></header>
+<header class="portada oscura"><div class="portada-dentro"><p class="marca"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2YyZjJmMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjJmMmYwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPC9zdmc+Cg==" alt="" width="72" height="40">SoftwareFactory · Documento fundacional · Octubre 2026</p><h1 class="titular">Panel de la SF<span class="lema">El método, a la vista<br>mientras se trabaja.</span></h1><p class="subtitulo">El panel lateral de la SF en Claude Code: tareas, pasos, pruebas y la mejora de la propia SF en cada sesión.</p></div></header>
 <nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
 <div class="hoja">
   <main id="contenido" tabindex="-1"><div class="avisos-globales"><aside class="recuadro"><p class="recuadro-etiqueta">Alcance</p><p>El panel existe y el propietario lo usa a diario: es el mod del plugin <code>sf</code>, versión 0.34.3, con 36 casos de prueba automáticos. Quedan tres funciones por probar, y las tres necesitan otro proyecto. Lo que este documento dice que aporta es un objetivo de diseño; lo que dice el propietario es su percepción, no una medida, y los hechos publicados llevan su referencia.</p></aside></div><details class="seccion" id="razon" open><summary class="seccion-titulo"><span class="etiqueta">01 / Razón para desarrollar</span><h2>El método, visible en cada sesión</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El panel de la SF es una columna junto a la conversación de Claude Code que enseña en qué se está trabajando, con qué pasos, qué espera en la cola, qué falta por probar y qué se ha cerrado. También hace cumplir solas algunas reglas del método. Su propósito es que quien dirige varios proyectos con Claude siga el hilo sin preguntarlo y no dependa de que Claude se acuerde de las reglas.</p>
@@ -675,23 +951,23 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <p>Claude Code avisa al mod al empezar la sesión, al acabar cada turno y tras cada herramienta que puede escribir. En cada aviso, el mod relee <code>.sf/</code> y los últimos commits, de modo que un paso o una petición nueva aparece en el panel a mitad del turno, no al final.</p>
 <figure class="vertical">
 <svg viewBox="0 0 560 560" width="100%" role="img" style="font-family:var(--fuente-texto);display:block">
-<title>Claude escribe la cola, los pasos y los commits; el mod los lee en cada aviso y los dibuja en el panel; el propietario da órdenes desde el panel; el enlace con el Commander está previsto</title>
-<rect x="60" y="14" width="440" height="80" rx="10" fill="none" style="stroke:var(--primario)" stroke-width="2"/>
-<text x="280" y="46" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--oscuro)">Claude, en la sesión</text>
+<title>Claude escribe la cola, los pasos y los commits; el mod los lee en cada aviso y los dibuja en el panel; el propietario da órdenes desde el panel; el enlace con la SF está previsto</title>
+<rect x="60" y="14" width="440" height="80" rx="10" fill="none" style="stroke:var(--primario-linea)" stroke-width="2"/>
+<text x="280" y="46" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--tinta-oscura)">Claude, en la sesión</text>
 <text x="280" y="72" text-anchor="middle" font-size="15" style="fill:var(--texto-suave)">anota peticiones y pasos en .sf/ y hace commits</text>
-<line x1="280" y1="94" x2="280" y2="150" style="stroke:var(--primario)" stroke-width="2"/>
+<line x1="280" y1="94" x2="280" y2="150" style="stroke:var(--primario-linea)" stroke-width="2"/>
 <text x="292" y="128" font-size="15" style="fill:var(--texto-suave)">avisos de Claude Code</text>
-<rect x="60" y="150" width="440" height="80" rx="10" fill="none" style="stroke:var(--primario)" stroke-width="2"/>
-<text x="280" y="182" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--oscuro)">Mod de la SF</text>
+<rect x="60" y="150" width="440" height="80" rx="10" fill="none" style="stroke:var(--primario-linea)" stroke-width="2"/>
+<text x="280" y="182" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--tinta-oscura)">Mod de la SF</text>
 <text x="280" y="208" text-anchor="middle" font-size="15" style="fill:var(--texto-suave)">lee .sf/ y git log · bloquea otro proyecto</text>
-<line x1="280" y1="230" x2="280" y2="286" style="stroke:var(--primario)" stroke-width="2"/>
-<rect x="60" y="286" width="440" height="80" rx="10" fill="none" style="stroke:var(--primario)" stroke-width="2"/>
-<text x="280" y="318" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--oscuro)">Panel lateral</text>
+<line x1="280" y1="230" x2="280" y2="286" style="stroke:var(--primario-linea)" stroke-width="2"/>
+<rect x="60" y="286" width="440" height="80" rx="10" fill="none" style="stroke:var(--primario-linea)" stroke-width="2"/>
+<text x="280" y="318" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--tinta-oscura)">Panel lateral</text>
 <text x="280" y="344" text-anchor="middle" font-size="15" style="fill:var(--texto-suave)">tareas en curso, pasos y tres bloques</text>
 <line x1="280" y1="366" x2="280" y2="452" style="stroke:var(--texto-suave)" stroke-width="2" stroke-dasharray="6 5"/>
 <text x="292" y="414" font-size="15" style="fill:var(--texto-suave)">estado ↑ · órdenes ↓ · previsto</text>
 <rect x="110" y="452" width="340" height="80" rx="10" fill="none" style="stroke:var(--texto-suave)" stroke-width="2" stroke-dasharray="7 5"/>
-<text x="280" y="484" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--texto-suave)">Claude Code Commander</text>
+<text x="280" y="484" text-anchor="middle" font-size="18" font-weight="700" style="fill:var(--texto-suave)">Software Factory</text>
 <text x="280" y="510" text-anchor="middle" font-size="15" style="fill:var(--texto-suave)">previsto · todas las sesiones</text>
 </svg>
 <figcaption>Trazo continuo, lo que existe; discontinuo, lo previsto. El estado va de Claude al panel; las órdenes del propietario vuelven a Claude como peticiones.</figcaption>
@@ -713,7 +989,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <h3>Qué no hace</h3>
 <p>No decide qué es una petición ni la anota: eso lo hace Claude. No ve las otras sesiones abiertas, porque un mod solo conoce la suya. No controla las órdenes de terminal, que quedan bajo la regla escrita. En un terminal estrecho, el panel no cabe junto a la conversación y queda una caja pequeña sobre el prompt <a class="ref" href="#src-A2" title="Anthropic · interfaz de los mods">[A2]</a>.</p>
 <h3>Cómo crece</h3>
-<p>Las nuevas responsabilidades de control de la SF se plantean primero en el panel <a class="ref" href="#src-M1" title="Decisión «El mod, centro de control de la SF»">[M1]</a>, y lo que se observa al usarlo entra en su Registro, que es la fuente de sus mejoras. Cuando exista el Claude Code Commander, el mod de cada sesión será su enlace: le enviará el estado y recogerá sus órdenes <a class="ref" href="#src-M5" title="Fundacional del Claude Code Commander">[M5]</a>. Con JKanban incorporado, cada petición será una tarea del tablero y el archivo de la cola, su copia sin conexión.</p></div></details><details class="seccion" id="escenarios"><summary class="seccion-titulo"><span class="etiqueta">03 / Escenarios de uso</span><h2>Siete situaciones en las que el panel aporta valor</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El panel aporta valor en el trabajo diario dentro de una sesión: al volver a ella, al recibir peticiones sueltas, al seguir una tarea larga y al cerrar lo empezado. Con varias sesiones a la vez, cada panel ve solo la suya; esa vista de conjunto es del Commander. Los siete escenarios son compatibles y un mismo día pasa por todos.</p>
+<p>Las nuevas responsabilidades de control de la SF se plantean primero en el panel <a class="ref" href="#src-M1" title="Decisión «El mod, centro de control de la SF»">[M1]</a>, y lo que se observa al usarlo entra en su Registro, que es la fuente de sus mejoras. Cuando exista la Software Factory, el mod de cada sesión será su enlace: le enviará el estado y recogerá sus órdenes <a class="ref" href="#src-M5" title="Fundacional de la Software Factory">[M5]</a>. Con JKanban incorporado, cada petición será una tarea del tablero y el archivo de la cola, su copia sin conexión.</p></div></details><details class="seccion" id="escenarios"><summary class="seccion-titulo"><span class="etiqueta">03 / Escenarios de uso</span><h2>Siete situaciones en las que el panel aporta valor</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El panel aporta valor en el trabajo diario dentro de una sesión: al volver a ella, al recibir peticiones sueltas, al seguir una tarea larga y al cerrar lo empezado. Con varias sesiones a la vez, cada panel ve solo la suya; esa vista de conjunto es de la SF. Los siete escenarios son compatibles y un mismo día pasa por todos.</p>
 <p class="texto">La base de cada escenario es un hecho del propio proyecto o una fuente publicada. El valor descrito es un objetivo de diseño.</p>
 <div class="tarjetas cols-2">
 <article class="tarjeta">
@@ -991,7 +1267,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <dd>La revisión de novedades al empezar cada fase.</dd>
 </dl>
 </article>
-</div></div></details><details class="seccion" id="fases"><summary class="seccion-titulo"><span class="etiqueta">07 / Qué debe demostrar</span><h2>Del código probado al uso diario</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El panel se demuestra usándolo. Lo construido está casi todo probado; ahora toca observar si cambia la forma de trabajar en varios proyectos y, después, conectarlo con el Commander y con JKanban. La observación es cualitativa: fricciones, aciertos y lo que dice el propietario, en el Registro <a class="ref" href="#src-M1" title="Decisión «Medir el uso del panel: cualitativo»">[M1]</a>.</p>
+</div></div></details><details class="seccion" id="fases"><summary class="seccion-titulo"><span class="etiqueta">07 / Qué debe demostrar</span><h2>Del código probado al uso diario</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El panel se demuestra usándolo. Lo construido está casi todo probado; ahora toca observar si cambia la forma de trabajar en varios proyectos y, después, conectarlo con la SF y con JKanban. La observación es cualitativa: fricciones, aciertos y lo que dice el propietario, en el Registro <a class="ref" href="#src-M1" title="Decisión «Medir el uso del panel: cualitativo»">[M1]</a>.</p>
 <div class="tarjetas cols-3">
 <article class="tarjeta">
 <h3>Fase 1 · Probar lo construido</h3>
@@ -1019,16 +1295,16 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <h3>Fase 3 · Enlace</h3>
 <dl>
 <dt>Circuito</dt>
-<dd>El mod envía su estado al Commander; la cola pasa a JKanban.</dd>
+<dd>El mod envía su estado a la SF; la cola pasa a JKanban.</dd>
 <dt>Motivo</dt>
 <dd>Una sesión no ve a las otras; la vista de conjunto necesita el enlace.</dd>
 <dt>Condición para avanzar</dt>
-<dd>El estado llega sin pérdidas y el panel sigue funcionando si el Commander cae.</dd>
+<dd>El estado llega sin pérdidas y el panel sigue funcionando si la SF cae.</dd>
 </dl>
 </article>
 </div>
 <h3>Decisiones de avance</h3>
-<p>Antes de la fase 3 se decide el canal entre el mod y el Commander, que está en la propuesta del Commander <a class="ref" href="#src-M3" title="Propuesta «Claude Code Commander: lo que falta concretar»">[M3]</a>.</p>
+<p>Antes de la fase 3 se decide el canal entre el mod y la SF, que está en la propuesta de la SF <a class="ref" href="#src-M3" title="Propuesta «Claude Code Commander: lo que falta concretar»">[M3]</a>.</p>
 <p>Se valida en tres planos. El técnico, que cada función hace lo que dice en una sesión real. El operativo, que la cola y los pasos se mantienen al día sin pedirlo. El de la persona, que retomar cuesta menos y lo empezado se cierra.</p>
 <aside class="recuadro decision"><p class="recuadro-etiqueta">Decisión propuesta</p><p>Cerrar las tres pruebas pendientes en sus proyectos y observar dos semanas de uso con el Registro antes de añadir funciones que no pida una observación.</p></aside></div></details><details class="seccion" id="fuentes"><summary class="seccion-titulo"><span class="etiqueta">08 / Fuentes</span><h2>Fuentes y referencias</h2></summary><div class="seccion-cuerpo"><p class="nota">Fuentes revisadas el 27 y el 28 de octubre de 2026. E = estudios y evidencias; A = documentación de Anthropic; T = productos comparables; M = documentos y datos del propio proyecto.</p>
 <div class="fuentes">
@@ -1043,19 +1319,20 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <p id="src-T1"><strong>T1 · ccusage</strong> Tokens y coste por día, sesión y bloque, a partir de los registros locales.<br><a href="https://github.com/ryoppippi/ccusage" target="_blank" rel="noopener noreferrer">Abrir fuente ↗</a></p>
 <p id="src-M1"><strong>M1 · Decisiones de la SF</strong> Cola de peticiones, un proyecto por sesión, realimentación, pasos de una tarea, probar antes de cerrar, aviso de versión, registro de uso, panel estándar, sin línea de estado, textos compactos y el mod como centro de control, en <code>docs/decisiones/</code>.<br><a href="../../../sf/decisiones/README.md">Abrir documento</a></p>
 <p id="src-M2"><strong>M2 · Especificación de la SF</strong> Apartado «Plugin y mods de la SF», con el contenido actual del mod.<br><a href="../funcional/software-factory.md">Abrir documento</a></p>
-<p id="src-M3"><strong>M3 · Propuesta «Claude Code Commander: lo que falta concretar»</strong> Canal entre el mod y el Commander, en <code>docs/propuestas.md</code>.<br><a href="../../../sf/propuestas.md">Abrir documento</a></p>
+<p id="src-M3"><strong>M3 · Propuesta «Claude Code Commander: lo que falta concretar»</strong> Canal entre el mod y la SF, en <code>docs/propuestas.md</code>.<br><a href="../../../sf/propuestas.md">Abrir documento</a></p>
 <p id="src-M4"><strong>M4 · Cola e historial del 27 y 28 de octubre de 2026</strong> <code>.sf/peticiones.json</code> de la SF (43 peticiones y 33 sin probar el 27; 41 más y 3 en Testing el 28) y los commits de <code>plugins/sf/hooks</code> y <code>plugins/sf/tests</code> (de la versión 0.2.0 a la 0.25.2 el 27, y 60 más hasta la 0.34.3 el 28).</p>
-<p id="src-M5"><strong>M5 · Fundacional del Claude Code Commander</strong> El mod como enlace de cada sesión.<br><a href="fundacional-claude-code-commander.html">Abrir documento</a></p>
+<p id="src-M5"><strong>M5 · Fundacional de la Software Factory</strong> El mod como enlace de cada sesión.<br><a href="fundacional-software-factory.html">Abrir documento</a></p>
 <p id="src-M6"><strong>M6 · Metodología de la SF, sección 2</strong> Cola de peticiones, pasos y un commit por petición.<br><a href="../../../plugins/sf/skills/metodologia/references/desarrollo-de-proyectos.md">Abrir documento</a></p>
 <p id="src-M7"><strong>M7 · Registro de uso de la SF</strong> Lo que observa Claude y lo que dice el propietario al trabajar con el panel, en <code>.sf/registro.json</code> de la SF y en <code>docs/uso-del-panel.md</code>.<br><a href="../../uso-del-panel.md">Abrir documento</a></p>
 </div></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Documento fundacional · Versión 0.3 · 28/10/2026 · En uso diario · Documento de proyecto</p><p>Panel de la SF · Documento de desarrollo de SoftwareFactory. Diferencia hechos publicados, objetivos de diseño y supuestos. Las decisiones las toma el propietario de la SF.</p><p class="procedencia">Generado el 29/10/2026 11:54 · fuente fundacional-panel-sf.md · huella 365de32f9489 · commit d673962 (con cambios sin commit)</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Documento fundacional · Versión 0.3 · 28/10/2026 · En uso diario · Documento de proyecto</p><p>Panel de la SF · Documento de desarrollo de SoftwareFactory. Diferencia hechos publicados, objetivos de diseño y supuestos. Las decisiones las toma el propietario de la SF.</p><p class="procedencia">Generado el 26/11/2026 15:35 · fuente fundacional-panel-sf.md · huella 7710d4171cfd · commit 3976d6a (con cambios sin commit) · estilo v4</p></footer>
 </div>
-<script data-kit="skills/documento_fundacional/assets/plegado.js">
-/* Secciones plegables del documento fundacional (skill documento_fundacional).
+<script data-kit="skills/crear_documentos/assets/plegado.js">
+/* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
  * Cada sección es un <details> que se pliega tocando su título. Este script añade:
  * abrir la sección de destino al seguir un enlace interno (menú, referencias, insignias),
- * el botón «Plegar todo / Desplegar todo» del menú y abrir todo al imprimir.
+ * el botón «Plegar todo / Desplegar todo» del menú, un botón «Plegar las tarjetas / Desplegar las tarjetas»
+ * delante de cada bloque de tarjetas plegables y abrir todo al imprimir.
  * Sin JavaScript, las secciones se ven abiertas y se pliegan igual tocando el título. */
 (function () {
   document.documentElement.classList.add('js');
@@ -1071,8 +1348,27 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     if (el) abrirHasta(el);
   });
   const alCargar = () => { const el = destino(location.hash); if (el) { abrirHasta(el); el.scrollIntoView(); } };
+  // Tarjetas plegables («::: tarjetas N plegables»): abiertas en pantallas anchas, plegadas al cargar en el móvil.
+  if (matchMedia('(max-width: 640px)').matches)
+    document.querySelectorAll('details.tarjeta.plegable').forEach(d => { d.open = false; });
+
+  // «Plegar las tarjetas / Desplegar las tarjetas» delante de cada bloque con tarjetas plegables (también preguntas y fichas).
+  (window.alCopiarDocumento = window.alCopiarDocumento || []).push(c => c.querySelectorAll('.plegar-tarjetas').forEach(x => x.remove()));
+  document.querySelectorAll('.tarjetas, .fichas').forEach(bloque => {
+    const tarjetas = [...bloque.querySelectorAll(':scope > details.tarjeta.plegable')];
+    if (tarjetas.length < 2) return;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'plegar-tarjetas';
+    const rotularBloque = () => { b.textContent = tarjetas.some(d => d.open) ? 'Plegar las tarjetas' : 'Desplegar las tarjetas'; };
+    b.addEventListener('click', () => { const abrir = !tarjetas.some(d => d.open); tarjetas.forEach(d => { d.open = abrir; }); rotularBloque(); });
+    tarjetas.forEach(d => d.addEventListener('toggle', rotularBloque));
+    rotularBloque();
+    bloque.before(b);
+  });
+
   window.addEventListener('hashchange', alCargar);
-  alCargar();
+  alCargar();  // después de plegar las tarjetas, para que el destino del enlace quede abierto
 
   const boton = document.querySelector('.plegar');
   const rotular = () => { if (boton) boton.textContent = secciones.some(d => d.open) ? 'Plegar todo' : 'Desplegar todo'; };
@@ -1084,10 +1380,13 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
   secciones.forEach(d => d.addEventListener('toggle', rotular));
   rotular();
 
-  // Al imprimir se abre todo; después se recupera cómo estaba.
-  let antes = null;
-  window.addEventListener('beforeprint', () => { antes = secciones.map(d => d.open); secciones.forEach(d => { d.open = true; }); });
-  window.addEventListener('afterprint', () => { if (antes) secciones.forEach((d, i) => { d.open = antes[i]; }); antes = null; });
+  // Al imprimir se abre todo (secciones y tarjetas); después se recupera cómo estaba.
+  let antes = null, plegables = [];
+  window.addEventListener('beforeprint', () => {
+    plegables = [...document.querySelectorAll('details')];
+    antes = plegables.map(d => d.open); plegables.forEach(d => { d.open = true; });
+  });
+  window.addEventListener('afterprint', () => { if (antes) plegables.forEach((d, i) => { d.open = antes[i]; }); antes = null; });
 })();
 </script>
 <script data-kit="tools/kit_documentos/herramientas.js">
@@ -1096,7 +1395,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
  * Lo usan documento_vision (.report-body con bloques .bloque) y documento_fundacional (main con secciones .seccion);
  * el estilo está en herramientas.css. Al cambiar cualquiera de estos archivos, se sube VERSION (aquí).
  * Las demás piezas usan window.herramientasDocumento (herramienta(), aplicar(), mostrar()…).
- * Modelo: el documento de los 20 casos de referencia de OncoCore (kit_documentos v1.0.57). Reescrito para la SF.
+ * Procedencia: docs/referencias/procedencia/kit_documentos.md del repositorio de la SF.
  * · Pantalla grande (≥ 1400 px): cada herramienta va anclada en una columna a la derecha, de ancho ajustable, y se
  *   pliega con su flecha. La chincheta de la barra, a la derecha del engranaje, despega todas las herramientas como
  *   ventanas flotantes (se arrastran por la cabecera, se minimizan, doble clic las devuelve a su sitio) y las vuelve a anclar.
@@ -1105,20 +1404,20 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
  * Buscador: no distingue mayúsculas ni tildes, resalta, salta con Intro / Mayús+Intro, agrupa por sección y abre la
  *   sección plegada.
  * Notas: personales, de tres clases que el documento activa por separado: sobre un texto seleccionado («Anotar»,
- *   nota-texto), una por sección (nota-seccion) y una general de todo el documento (nota-global). Como en
- *   gene_associations de OncoCore, la columna muestra sola la nota de la sección que se lee, plegada si está vacía,
- *   y lo escrito se ve también al final de su sección. Sin columna (ventanas flotantes o pantalla pequeña), como en
- *   OncoCore, cada nota vuelve a su sitio: una tarjeta editable al final de su sección, y la nota general y «Tus
+ *   nota-texto), una por sección (nota-seccion) y una general de todo el documento (nota-global). En
+ *   la columna se muestra sola la nota de la sección que se lee, plegada si está vacía,
+ *   y lo escrito se ve también al final de su sección. Sin columna (ventanas flotantes o pantalla pequeña),
+ *   cada nota vuelve a su sitio: una tarjeta editable al final de su sección, y la nota general y «Tus
  *   notas» al principio del documento; la ventana «Notas» no aparece. Si el documento
  *   no nombra ninguna de las tres, van las tres. Se guardan solas en el
  *   navegador; «Guardar» crea un documento anotado (copia del HTML con las notas dentro, en el bloque JSON
  *   #notas-documento) y sube la versión. Esa copia se puede pasar al autor: tools/kit_documentos/extraer_notas.py las lista.
  * Sin JavaScript no aparece nada; no se imprime. */
 (function () {
-  const VERSION = '1.8.1';
+  const VERSION = '1.10.0';
   const main = document.querySelector('main, .report-body');
   if (!main) return;
-  const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title';
+  const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title, .seccion-titulo h2';
   const raiz = document.documentElement;
   const grande = matchMedia('(min-width: 1400px)');
   const suave = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
@@ -1547,7 +1846,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
   function persistir() { if (CON_NOTAS) escribir(CLAVE_NOTAS, { notas, borradas: [...borradas], guardado }); estado(); }
 
   if (CON_NOTAS) {
-  // Modelo de gene_associations (kit de OncoCore): sin botones para crear notas. La columna muestra sola la nota de la
+  // Sin botones para crear notas. La columna muestra sola la nota de la
   // sección que se lee (y las de las secciones que la contienen), cada una con su cabecera, plegada si está vacía; lo
   // escrito se ve también, solo para leer, al final de su sección. La nota general va arriba y «Todas las notas»
   // resume las demás.
@@ -1570,7 +1869,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     const v = todasEl.classList.toggle('plegada'); e.currentTarget.setAttribute('aria-expanded', String(!v));
   });
   autorEl.addEventListener('input', () => escribir(CLAVE_AUTOR, autorEl.value.trim()));
-  // Sin columna, las notas van en su sitio (modelo de OncoCore): la general y «Tus notas», al principio del documento.
+  // Sin columna, las notas van en su sitio: la general y «Tus notas», al principio del documento.
   function sitio() { return enSitio(notasT); }  // función: la usa también el arranque, fuera de este bloque
   const inicioSitio = document.createElement('div');
   inicioSitio.className = 'nt-sitio-inicio';
@@ -1618,7 +1917,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
   const enFoco = () => secActual ? cadena(secActual).map(x => x.id).join('|') : '';
   let pintado = null;
   const escribiendo = () => focoEl.contains(document.activeElement) || generalEl.contains(document.activeElement);
-  notasT.el.classList.add('por-seccion');  // en la columna, cada nota es su propia tarjeta, como en OncoCore
+  notasT.el.classList.add('por-seccion');  // en la columna, cada nota es su propia tarjeta
   function actualizarFoco() { if (!sitio() && enFoco() !== pintado && !escribiendo()) pintarNotas(); }
   function seguirSeccion() {
     let s = null;
@@ -1752,7 +2051,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     pintarResumen();
     espejos();
   }
-  // Sin columna, como en OncoCore: un rótulo pequeño, el campo abierto y las acciones; sin caja ni plegado.
+  // Sin columna: un rótulo pequeño, el campo abierto y las acciones; sin caja ni plegado.
   function bloqueSitio(titulo, items) {
     const b = document.createElement('section');
     b.className = 'nt-sitio-bloque';
@@ -2041,13 +2340,13 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 /* Opciones de lectura del documento (biblioteca tools/kit_documentos/, con herramientas.js, que va antes).
  * Cada opción se elige en <html data-herramientas> (catálogo y valores iniciales en tema_identidad.py). Las que el
  * lector ajusta (el engranaje junto a «Guardar» abre «Lectura») parten del valor del autor y se recuerdan por documento:
- * · modo: claro, oscuro o el del sistema (por defecto el del sistema; «oscuro» en la lista = empezar en oscuro);
+ * · modo: claro, oscuro o el del sistema; el documento abre siempre en claro y el oscuro lo elige el lector;
  * · acordeon: un solo bloque abierto a la vez;
  * · cabecera: el título de la sección abierta se queda arriba mientras se lee;
  * · fuentes: al pasar por una referencia [E1], bocadillo con la fuente y la frase que respalda resaltada;
  * · bocadillos: los subapartados de detalle (visión) se abren en un bocadillo, sin desplazar el texto.
  * Las que elige solo el autor: tablas (anchos ajustables) y leyenda («Cómo leer este documento»).
- * Modelo: kit_documentos de OncoCore (v1.0.57: ANCHOS_JS, ACORDEON_JS, FIJO_JS, FUENTE_JS, RESALTA_JS). */
+ * Procedencia: docs/referencias/procedencia/kit_documentos.md del repositorio de la SF. */
 (function () {
   const api = window.herramientasDocumento;
   if (!api) return;
@@ -2061,7 +2360,9 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
   const CLAVE = 'documento-lectura:' + ruta;
   const guardadas = leer(CLAVE, {}) || {};
   const pref = {
-    modo: guardadas.modo || (ACTIVAS.has('oscuro') ? 'oscuro' : 'sistema'),
+    // Hasta la 1.8 se guardaba «sistema» sin que el lector lo eligiera: solo vale el modo que eligió en «Lectura».
+    modo: (guardadas.modoElegido && guardadas.modo) || 'claro',
+    modoElegido: !!guardadas.modoElegido,
     acordeon: guardadas.acordeon ?? ACTIVAS.has('acordeon'),
     cabecera: guardadas.cabecera ?? ACTIVAS.has('cabecera'),
     fuentes: guardadas.fuentes ?? ACTIVAS.has('fuentes'),
@@ -2071,7 +2372,11 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 
   // ── Modo claro / oscuro / sistema ──
   const sistema = matchMedia('(prefers-color-scheme: dark)');
-  function aplicarModo() { raiz.dataset.modo = pref.modo === 'sistema' ? (sistema.matches ? 'oscuro' : 'claro') : pref.modo; }
+  // El oscuro aplica la paleta oscura del estilo (decisión 347): data-theme="dark" en <html>, como los diagramas.
+  function aplicarModo() {
+    raiz.dataset.modo = pref.modo === 'sistema' ? (sistema.matches ? 'oscuro' : 'claro') : pref.modo;
+    if (raiz.dataset.modo === 'oscuro') raiz.dataset.theme = 'dark'; else delete raiz.dataset.theme;
+  }
   sistema.addEventListener('change', aplicarModo);
   aplicarModo();
 
@@ -2313,6 +2618,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     if (ACTIVAS.has('notas')) items.push([null, 'Notas: selecciona un texto y pulsa «Anotar». Quedan en tu navegador; «Guardar» las lleva a un archivo.']);
     if (ACTIVAS.has('edicion')) items.push([null, 'Editar: el lápiz junto a un párrafo lo abre para cambiarlo aquí mismo; «Modificado» dice cuándo y qué ponía antes.']);
     if (ACTIVAS.has('lectura')) items.push([null, 'Lectura: el engranaje junto a «Guardar» abre el modo oscuro y las demás preferencias.']);
+    if (ACTIVAS.has('diagramas') && document.querySelector('figure.diagrama')) items.push([null, 'Diagramas: pulsa un elemento para ver su ficha; «Diagramas», en las herramientas, cambia cómo se ven todas las figuras.']);
     const ley = document.createElement('details');
     ley.className = 'leyenda-doc';
     ley.innerHTML = '<summary>Cómo leer este documento</summary><dl></dl>';
@@ -2378,7 +2684,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     alCopiar.push(c => c.querySelectorAll('.modal-lectura, .dc-config').forEach(x => x.remove()));
     const sel = lec.q('select');
     sel.value = pref.modo;
-    sel.addEventListener('change', () => { pref.modo = sel.value; guardar(); aplicarModo(); });
+    sel.addEventListener('change', () => { pref.modo = sel.value; pref.modoElegido = true; guardar(); aplicarModo(); });
     lec.el.querySelectorAll('input[data-clave]').forEach(c => {
       c.checked = !!pref[c.dataset.clave];
       c.addEventListener('change', () => {
@@ -2392,7 +2698,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     const bt = lec.q('.lc-tablas');
     if (bt) bt.addEventListener('click', () => { anchos = {}; escribir(CLAVE_T, anchos); tablas.forEach(t => ponerAnchos(t, null)); });
   }
-  alCopiar.push(c => { delete c.dataset.modo; });
+  alCopiar.push(c => { delete c.dataset.modo; delete c.dataset.theme; });
   seguir();
 })();
 </script>
@@ -2409,7 +2715,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
  * · Los párrafos añadidos desde una nota («Convertir en párrafo», herramientas.js) llevan «Añadido · fecha» y
  *   «Retirar», que pide confirmación en el propio botón.
  * Lo pintado (lápiz, barra, etiquetas) no viaja en la copia guardada: se vuelve a poner al abrirla.
- * Modelo: _EDICION_JS y _PARRAFOS_JS del kit_documentos de OncoCore (v1.0.57), sin sus etiquetas clínicas. */
+ * Procedencia: docs/referencias/procedencia/kit_documentos.md del repositorio de la SF. */
 (function () {
   const api = window.herramientasDocumento;
   const EDITA = api && api.ACTIVAS.has('edicion');

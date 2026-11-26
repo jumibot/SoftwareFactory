@@ -406,7 +406,7 @@ def css_parametros(estilo: dict | None) -> str:
     if portada.get("fondo") == "primario":
         # El color de cabecera del estilo, un tono del primario menos brillante, y su texto (decisión 351)
         css.append(".portada.oscura { background: var(--cabecera); color: var(--sobre-cabecera); }"
-                   " .portada.oscura .marca, .portada.oscura .tipo-doc, .portada.oscura .subtitulo, .portada.oscura .idea p, .portada.oscura a,"
+                   " .portada.oscura .marca, .portada.oscura .tipo-doc, .portada.oscura .subtitulo, .portada.oscura .idea > p, .portada.oscura a,"
                    " .portada.oscura .datos-version, .portada.oscura .datos-version span, .portada.oscura .cifras strong,"
                    " .portada.oscura .cifras span { color: var(--sobre-cabecera); }")
         css.append("@media print { .portada.oscura, .portada.oscura :is(.marca, .tipo-doc, .subtitulo, .idea p, a, .datos-version,"
