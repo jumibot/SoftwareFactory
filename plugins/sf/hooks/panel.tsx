@@ -1996,8 +1996,10 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // el amarillo de la marca y negrita, como la cabecera de la lista; los que faltan, atenuados. Se ven todos si caben en el
     // alto del panel; si no, se pliegan los mínimos (pasosQueCaben), y ▲ y ▼ mueven la ventana, que vuelve a seguir al
     // actual en cuanto Claude pasa de paso. Sale bajo la bienvenida sin SF y, con SF (al actualizar, o
-    // tras aplicar), arriba del cuerpo.
-    const inc = est.incorporacion ?? null
+    // tras aplicar), arriba del cuerpo. Terminada y con el panel operativo, no se pinta: el panel normal sale en cuanto
+    // Claude anota el último paso, sin esperar al turno siguiente, que es cuando el mod borra el progreso (tarea 443, a
+    // petición del propietario). Sin panel operativo (simulada, o un diagnóstico sin SF), sigue, con «Hecho».
+    const inc = est.incorporacion && !(est.tipo !== 'sin-sf' && terminada(est.incorporacion)) ? est.incorporacion : null
     const vista = inc ? await read($, vistaIncorporacion) : null
     const continuarIncorporacion = () => pedirIncorporar($, ORDEN_CONTINUAR)
     // Abandonar lo borra todo, sin guardar lo respondido (decisión 286).
@@ -2252,7 +2254,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // El mismo panel en todos los proyectos, la SF incluida, sin adaptaciones (decisión del propietario,
     // 2026-10-28): un solo bloque, sin rótulo (decisión 197).
     // Con una incorporación a medias, su caja en lugar de las tareas: el proyecto ya tiene .sf/proyecto.json desde
-    // Aplicar, pero faltan CLAUDE.md, Pasar a sf/ y la Comprobación. El panel normal sale al terminarla (tarea 366).
+    // Aplicar, pero faltan CLAUDE.md, Pasar a sf/ y la Comprobación. El panel normal sale al terminarla (tareas 366 y 443).
     return conMargen(
       <Box flexDirection="column">
         {cabecera()}

@@ -7582,7 +7582,7 @@ test('Incorporación: la ventana vuelve a seguir al paso actual cuando Claude pa
   await ui.unmount()
 })
 
-test('Incorporación terminada: con panel operativo se queda hasta el turno siguiente; sin él, con «Hecho», que la cierra', async (...m) => {
+test('Incorporación terminada: con panel operativo desaparece al momento (443) y el turno siguiente borra el progreso; sin él, con «Hecho», que la cierra', async (...m) => {
   const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: GIT('ref: refs/heads/develop\n') })
   const todos = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j']
   // Sin SF (simulada, o un diagnóstico): terminada, sigue, sin Continuar ni Abandonar y con «Hecho»; el turno no la quita.
@@ -7596,14 +7596,18 @@ test('Incorporación terminada: con panel operativo se queda hasta el turno sigu
   await acabaTurno(m, 't1')
   await m[0].turn.start({ text: 'sigue', turnId: 't2' })
   expect(sinPasos(archivos)).toBe(false)
-  // Con el panel operativo (ya hay .sf/proyecto.json): la lista, con Aplicar y Comprobación marcados, se queda.
+  // Con el panel operativo (ya hay .sf/proyecto.json): la caja desaparece al momento, sin esperar al turno siguiente
+  // (tarea 443: seguía con «Terminada · 10 de 10 pasos»); el progreso aún está en el archivo.
   archivos['/sf/.sf/proyecto.json'] = JSON.stringify({ proyecto: 'Demo', color: 'blue' })
   await cambiarCola(INICIAL)
-  expect(await hay(ui, { type: 'Text', text: '10 de 10 pasos' })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
+  expect(await hay(ui, { type: 'Text', text: ' Terminada ' })).toBe(false)
+  expect(await hay(ui, { type: 'Text', text: '10 de 10 pasos' })).toBe(false)
   expect(await hay(ui, { type: 'Button', key: 'incorporacion:cerrar' })).toBe(false)
+  expect(await hay(ui, PENDIENTES_BOTON)).toBe(true)
   await acabaTurno(m, 't2')
   expect(sinPasos(archivos)).toBe(false)
-  // Y al empezar el turno siguiente, el mod la quita.
+  // Y al empezar el turno siguiente, el mod borra el progreso.
   await m[0].turn.start({ text: 'gracias', turnId: 't3' })
   expect(sinPasos(archivos)).toBe(true)
   expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
@@ -7623,7 +7627,7 @@ test('Incorporación terminada sin SF: «Hecho» quita la lista y vuelve la invi
   await ui.unmount()
 })
 
-test('Incorporación: con SF (al actualizar), arriba del cuerpo; de otra carpeta, no sale; borrado, se va', async (...m) => {
+test('Incorporación: con SF (al actualizar), arriba del cuerpo; de otra carpeta, no sale; terminada o borrado, se va', async (...m) => {
   const { archivos, cambiarCola } = await preparar(m, { sinMarca: true, extra: { '/sf/.sf/proyecto.json': JSON.stringify({ proyecto: 'Demo', color: 'blue' }) } })
   archivos[PROGRESO] = progreso(2, ['Actualizar'])
   await cambiarCola(INICIAL)
@@ -7632,9 +7636,13 @@ test('Incorporación: con SF (al actualizar), arriba del cuerpo; de otra carpeta
   archivos[PROGRESO] = progreso(2, ['Actualizar'], '/otra')
   await cambiarCola(INICIAL)
   expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
+  // Terminada, con SF: no se pinta (tarea 443).
   archivos[PROGRESO] = progreso(0, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
   await cambiarCola(INICIAL)
-  expect(await hay(ui, { type: 'Text', text: '10 de 10 pasos' })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
+  archivos[PROGRESO] = progreso(2, ['Actualizar'])
+  await cambiarCola(INICIAL)
+  expect(await hay(ui, { type: 'Text', text: 'paso 2 de 10' })).toBe(true)
   delete archivos[PROGRESO]
   await cambiarCola(INICIAL)
   expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
@@ -7808,7 +7816,7 @@ test('Incorporación (366): con SF a medias (tras Aplicar), su caja en lugar de 
   expect(sinPasos(archivos)).toBe(false)
   archivos[PROGRESO] = progreso(0, ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'])
   await cambiarCola(INICIAL)
-  expect(await hay(ui, { type: 'Text', text: '10 de 10 pasos' })).toBe(true)
+  expect(await hay(ui, { type: 'Text', text: 'INCORPORACIÓN' })).toBe(false)
   expect(await hay(ui, PENDIENTES_BOTON)).toBe(true)
   await ui.unmount()
 })

@@ -326,11 +326,10 @@ export async function alCargarIncorporacion($: $): Promise<'retomada' | 'pausa' 
   await pausarIncorporacion($)
   return 'pausa'
 }
-// Una incorporación terminada (todos sus pasos anotados, ninguno en curso) se queda en el panel hasta que el proyecto
-// tiene su panel operativo (`conSf`: .sf/proyecto.json válido); entonces, al empezar el siguiente turno del principal,
-// la borra el mod: así el propietario ve Aplicar y Comprobación marcados y repasa la lista junto al panel nuevo. La
-// skill ya no la borra al terminar. Sin panel operativo (simulada, o diagnosticar sin SF), sigue hasta Abandonar
-// (tarea 333, norma del propietario).
+// Una incorporación terminada (todos sus pasos anotados, ninguno en curso) con el panel operativo (`conSf`:
+// .sf/proyecto.json válido) ya no se pinta (tarea 443: la caja «Terminada» seguía hasta el turno siguiente); su
+// progreso lo borra el mod al empezar el siguiente turno del principal. La skill no lo borra al terminar. Sin panel
+// operativo (simulada, o diagnosticar sin SF), sigue en el panel hasta «Hecho» (tarea 333, norma del propietario).
 export const terminada = (inc: { actual: number; pasos: { respuesta: string | null }[] }) => inc.actual === 0 && inc.pasos.every(p => !!p.respuesta)
 export async function cerrarIncorporacionTerminada($: $, conSf: boolean): Promise<boolean> {
   if (!conSf) return false
