@@ -1,11 +1,14 @@
 import { atom, read } from 'claude-code'
 import type { Estado } from '../types'
 import { enCursoRecientes } from './cola'
+import { focoGuardado, leerPeticiones, raizSesion } from './lectura'
 import type { $ } from './lectura'
 import { sfApagada } from './latido'
+import { lineaFoco, numeroTarea, recordatorioFoco } from './recordatorio'
 
-// No interrumpir al propietario (tarea 372). El foco lo sabe solo Claude (decisión 328); el mod pone dos cosas:
-// la sugerencia tras un rato sin escribir (decisión 332) y el freno a los menús con texto a medio escribir (333).
+// No interrumpir al propietario (tarea 372). El mod pone la sugerencia tras un rato sin escribir (decisión 332), el
+// freno a los menús con texto a medio escribir (333) y, con el foco guardado en la cola («cola.py foco N», tarea 436),
+// el recordatorio de que lo que traen sus avisos de otras tareas va como off-topic (decisión 357, 9 y 10).
 
 const estado = atom({ plugin: 'sf', key: 'estado' } as const, null, {
   shape: 'estado-17',
@@ -20,19 +23,28 @@ let vuelta = 0
 
 // Lo pendiente, como pregunta: la tarea de la rama activa si está en curso; si no, la en curso que cambió la última.
 // Sin ninguna en curso, nada.
+// Con el foco guardado en la cola y en curso, el foco (tarea 436).
 export function textoSugerencia(est: Estado | null): string | null {
   if (!est || est.tipo === 'sin-sf') return null
   const enCurso = enCursoRecientes(est)
   const rama = est.rama && !est.rama.separada ? est.rama.nombre : null
-  const p = enCurso.find(x => rama !== null && x.rama === rama) ?? enCurso[0]
+  const p = enCurso.find(x => x.id === est.foco) ?? enCurso.find(x => rama !== null && x.rama === rama) ?? enCurso[0]
   return p ? `¿Seguimos con «${p.texto}» (${numeroTarea(p.id)})?` : null
 }
 
-// El número de una tarea en el chat (tarea 417): dígitos en círculo negro pegados a la T y un espacio detrás de cada uno,
-// porque el terminal los pinta más anchos y sin espacio se montan: 392 → «T❸ ❾ ❷ ».
-const CIRCULOS = '⓿❶❷❸❹❺❻❼❽❾'
-export function numeroTarea(id: number | string): string {
-  return 'T' + [...String(id)].map(d => (/[0-9]/.test(d) ? `${[...CIRCULOS][Number(d)]} ` : d)).join('')
+// El número de una tarea en el chat (tarea 417), la línea del foco y el recordatorio, en recordatorio.ts (tarea 436).
+export { lineaFoco, numeroTarea, recordatorioFoco }
+
+// Al empezar la sesión (también al reanudarla), tras /clear y tras compactar, la línea del foco guardado en la cola,
+// para que Claude lo tenga aunque la conversación lo haya perdido (decisión 382); sin foco, o en un subagente, null.
+const FUENTES_FOCO = new Set(['startup', 'resume', 'clear', 'compact'])
+export function textoFocoInicial(foco: { id: number; texto: string } | null): string | null {
+  return foco ? `Foco guardado en la cola: ${lineaFoco(foco)}. Es el foco hasta que el propietario lo cambie (cola.py foco).` : null
+}
+export async function contextoFoco($: $, e: { source: string; agent_id?: string }): Promise<string | null> {
+  if (!FUENTES_FOCO.has(e.source) || e.agent_id) return null
+  const { peticiones, foco } = await leerPeticiones($, await raizSesion($))
+  return textoFocoInicial(focoGuardado(peticiones, foco))
 }
 
 // Un turno del principal empieza o el propietario escribe: la sugerencia pendiente ya no va.

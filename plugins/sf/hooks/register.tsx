@@ -16,7 +16,7 @@ import { CATALOGO_PRUEBA, apagarAlCerrar, apagarAlEntrar, cambiarPrueba, desdeCo
 import { registrarPanel, turnarAvisos } from './panel'
 import { leerTema, registrarTema } from './tema'
 import { AVISO_ARRANQUE_EN_MARCHA, ESPERA_ARRANQUE, FUENTES_ARRANQUE, arranqueEnMarcha, arranqueTurnoAcabado, encargarArranque, leerAvisoSubagentes, rearmarAvisosSubagentes, recuperarSubagentes, SIN_AVISO } from './subagentes'
-import { armarSugerencia, cancelarSugerencia, frenarMenu } from './foco'
+import { armarSugerencia, cancelarSugerencia, contextoFoco, frenarMenu, recordatorioFoco } from './foco'
 import { olvidarEnCurso, tomarEnCurso } from './encurso'
 import { asegurarSesion, decidirSesion, forzarActiva, forzarInactiva, latirSesion, sesionSfActual, sfApagada, soltarAlCerrar, tomarAvisoSesion } from './latido'
 
@@ -304,6 +304,8 @@ export const register: Register = on => {
             $.ui.log(`reglas en SessionStart: ${String(err)}`, { to: 'debug' })
             return null
           }),
+      // La línea del foco guardado en la cola, si lo hay (decisión 382).
+      apagada ? null : await contextoFoco($, e).catch(() => null),
       // El intérprete de Python, en cualquier carpeta, si no es `python` (236), como en una carpeta sin SF.
       await contextoPython($, e).catch(() => null),
     ].filter((x): x is string => !!x)
@@ -352,8 +354,8 @@ export const register: Register = on => {
     if (e.agentId || r.deny !== undefined) return r
     // Con la SF apagada en la sesión, sin avisos de subagentes: son de la sesión que la tiene (decisión 193).
     if (await sfApagada($).catch(() => false)) return r
-    const { lanzar, recoger } = await leerAvisoSubagentes($).catch(() => SIN_AVISO)
-    const aviso = [lanzar, recoger].filter((x): x is string => !!x)
+    const { lanzar, recoger, tareas, foco } = await leerAvisoSubagentes($).catch(() => SIN_AVISO)
+    const aviso = [lanzar, recoger, recordatorioFoco(foco, tareas ?? [])].filter((x): x is string => !!x)
     return aviso.length ? { ...r, context: [...(r.context ?? []), ...aviso] } : r
   }).catch(($, e, next) => next(e))
 
@@ -454,7 +456,9 @@ export const register: Register = on => {
     const recoger = aviso.recoger
     // Las tareas en curso, o que siguen igual (tarea 442, decisión 284).
     const enCurso = delPropietario ? await tomarEnCurso($).catch(() => null) : null
-    const avisos = [avisoSesion, lanzar, reglas, incorporar, panel, enCurso?.texto, pantalla, recoger].filter((x): x is string => !!x)
+    // Con el foco guardado, una línea si los avisos traen algo de otras tareas: va como off-topic (tarea 436).
+    const foco = recordatorioFoco(aviso.foco ?? tomado?.foco, [...(panel ? (tomado?.tareas ?? []) : []), ...(aviso.tareas ?? [])])
+    const avisos = [avisoSesion, lanzar, reglas, incorporar, panel, enCurso?.texto, pantalla, recoger, foco].filter((x): x is string => !!x)
     if (!avisos.length) return next(e)
     // Si el mensaje no llega a entrar (otro hook lo descarta), el aviso del panel y la lista quedan pendientes para el siguiente.
     const r = await next({ ...e, context: [...(e.context ?? []), ...avisos] }).catch(async (err: unknown) => {

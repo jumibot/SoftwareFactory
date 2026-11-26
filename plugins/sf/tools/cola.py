@@ -81,6 +81,8 @@ import time
 from pathlib import Path
 
 ESTADOS = ('en-cola', 'en-curso', 'en-observacion', 'descartada')
+# Una tarea abierta: ni cerrada ni en observación. Mientras la N lo está, la que la espera sigue esperando (tarea 436).
+ABIERTAS = ('en-cola', 'en-curso')
 # El `estado` con que sale de la cola una tarea, en su línea de .sf/historial.jsonl. «revertida», solo en las líneas
 # anteriores a la decisión 134: ahora una revertida sale eliminada o vuelve a la cola.
 ESTADOS_SALIDA = ('cerrada', 'eliminada', 'absorbida', 'descartada', 'revertida')
@@ -288,6 +290,8 @@ class Cola:
         self.original: str | None = None
         # Lo que la respuesta JSON lleva además de ok y mensaje (el panel lo lee).
         self.extra: dict = {}
+        # Lo que dice la respuesta de las tareas que han dejado de esperar al guardar (tarea 436).
+        self.liberadas: list = []
 
     # Bloqueo: un archivo creado en exclusiva; si otro lo tiene, espera; si es muy antiguo, lo quita.
     def bloquear(self) -> None:
@@ -372,6 +376,7 @@ class Cola:
         return destino
 
     def guardar(self) -> None:
+        self.repasar()
         self.copiar()
         self.migrar_historial()
         texto = json.dumps(self.datos, ensure_ascii=False, indent=2) + '\n'
@@ -379,6 +384,32 @@ class Cola:
         temporal.write_bytes(texto.encode('utf-8'))
         sustituir(temporal, self.archivo)
         self.original = texto
+
+    def repasar(self) -> None:
+        """Esperas y foco al día antes de guardar, haga lo que haga la orden y la lance quien la lance (tarea 436). La
+        que espera a una que ya no está abierta (cerrada, en observación, descartada, fuera de la cola) deja de
+        esperar: se anota en su historial, que el mod lee para avisar a Claude de lo hecho desde el panel, y la
+        respuesta lo dice. El foco de una tarea que ya no está en la cola, o descartada, se quita."""
+        abiertas = {t.get('id') for t in self.tareas if isinstance(t, dict) and t.get('estado') in ABIERTAS}
+        for t in self.tareas:
+            n = t.get('espera') if isinstance(t, dict) else None
+            if n is None or n in abiertas:
+                continue
+            del t['espera']
+            if t.get('estado') not in ABIERTAS:  # la que esperaba ya no está abierta: nada que avisar
+                continue
+            como = self.como_quedo(n)
+            self.anotar(t, 'espera', f'liberada: la {n} {como}')
+            self.liberadas.append(texto_liberada(t, n, como))
+        foco = self.datos.get('foco')
+        if foco is not None and not any(t.get('id') == foco and t.get('estado') != 'descartada' for t in self.tareas
+                                         if isinstance(t, dict)):
+            del self.datos['foco']
+
+    def como_quedo(self, n: int) -> str:
+        """Cómo está la N, que ya no está abierta: «en observación», «descartada», «cerrada»…"""
+        t = self.buscar(n)
+        return nombre_estado(t) if t is not None else situacion(self.archivadas().get(n) or {})
 
     def archivadas(self) -> dict:
         """El último registro de cada número que salió de la cola, de .sf/historial.jsonl."""
@@ -588,6 +619,23 @@ def a_en_curso(t: dict) -> None:
     t['estado'] = 'en-curso'
     asegurar_cierre(t)
     cierre_pendiente(t)
+
+
+def paso_de_espera(t: dict) -> int | None:
+    """El número del primer paso pendiente «Esperar a …» (no «Esperar al propietario»), de antes de guardar la espera
+    como dato (tarea 436); None sin él."""
+    return next((i for i, x in enumerate(pasos(t), 1) if isinstance(x, dict) and x.get('estado') != 'hecho'
+                 and str(x.get('texto') or '').startswith('Esperar a ')
+                 and not str(x.get('texto')).startswith('Esperar al propietario')), None)
+
+
+def texto_liberada(t: dict, n: int, como: str) -> str:
+    """Lo que dice la respuesta cuando la M deja de esperar a la N (tarea 436)."""
+    m = t['id']
+    i = paso_de_espera(t)
+    marcar = f'marca hecho su paso {i} («paso marcar {m} {i} hecho») y ' if i else ''
+    sigue = 'lanza su subagente' if t.get('estado') == 'en-curso' else 'ya puede ponerse en curso'
+    return f'La {m} ya no espera a la {n} ({como}): {marcar}{sigue}.'
 
 
 def enumerar(lista: list) -> str:
@@ -946,8 +994,11 @@ def recogida(cola: Cola, t: dict, sin_integrar: dict, destino: str | None = None
 def o_lista(cola: Cola, a) -> str:
     if not cola.tareas:
         return 'Cola vacía.'
+    foco = cola.datos.get('foco')
     return '\n'.join(f'{t.get("id")}\t{nombre_estado(t)}{" · la mira el propietario" if t.get("observando") else ""}'
-                     f'{" · " + t["rama"] if t.get("rama") else ""}{cuenta_pasos(t)}\t{t.get("texto")}'
+                     f'{" · " + t["rama"] if t.get("rama") else ""}{cuenta_pasos(t)}'
+                     f'{" · espera a la " + str(t["espera"]) if t.get("espera") is not None else ""}'
+                     f'{" · foco" if t.get("id") == foco else ""}\t{t.get("texto")}'
                      for t in cola.tareas)
 
 
@@ -971,6 +1022,9 @@ def o_ver(cola: Cola, a) -> str:
     # se muestra; la cola no lo guarda.
     if isinstance(t.get('pasos'), list):
         t = {**t, 'pasos': [{'n': i, **x} if isinstance(x, dict) else x for i, x in enumerate(t['pasos'], 1)]}
+    # Si es el foco, «foco»: true; la cola lo guarda aparte (tarea 436). La espera ya va en su campo «espera».
+    if cola.buscar(a.n) is not None and cola.datos.get('foco') == a.n:
+        t = {**t, 'foco': True}
     return json.dumps(t, ensure_ascii=False, indent=2)
 
 
@@ -1224,6 +1278,67 @@ def o_redescribir(cola: Cola, a) -> str:
     return f'La {a.n}, con su descripción nueva.'
 
 
+def o_espera(cola: Cola, a) -> str:
+    """La M espera a la N (tarea 436): un dato, no un paso de texto. Mientras la N siga abierta, el mod no pide lanzar
+    el subagente de la M; al cerrarse o pasar a observación la N, la espera se quita sola (Cola.repasar) y se avisa.
+    Con --quitar, se deshace."""
+    t = cola.tarea(a.m, *ABIERTAS)
+    antes = t.get('espera')
+    if a.quitar:
+        if a.n is not None:
+            raise Rechazo(f'Con --quitar, solo la que espera: espera {a.m} --quitar.')
+        if antes is None:
+            raise Rechazo(f'La {a.m} no espera a ninguna.')
+        del t['espera']
+        cola.anotar(t, 'espera', f'quitada: esperaba a la {antes}')
+        cola.guardar()
+        return (f'La {a.m} ya no espera a la {antes}.'
+                + (' Lanza su subagente si no lo tiene.' if t.get('estado') == 'en-curso' else ''))
+    if a.n is None:
+        raise Rechazo(f'Di a cuál espera: espera {a.m} N (o espera {a.m} --quitar).')
+    if a.n == a.m:
+        raise Rechazo(f'La {a.m} no puede esperarse a sí misma.')
+    otra = cola.tarea(a.n)
+    if otra.get('estado') not in ABIERTAS:
+        raise Rechazo(f'La {a.n} está {nombre_estado(otra)}: no hay que esperarla.')
+    vistas, siguiente = {a.m}, otra
+    while siguiente is not None and siguiente.get('espera') is not None:  # sin ciclos: se esperarían para siempre
+        if siguiente['espera'] in vistas:
+            raise Rechazo(f'La {a.n} ya espera, directa o indirectamente, a la {a.m}: se esperarían para siempre.')
+        vistas.add(siguiente['espera'])
+        siguiente = cola.buscar(siguiente['espera'])
+    if antes == a.n:
+        return f'La {a.m} ya espera a la {a.n}.'
+    t['espera'] = a.n
+    cola.anotar(t, 'espera', f'a la {a.n}')
+    cola.guardar()
+    return (f'La {a.m} espera a la {a.n}' + (f' (antes, a la {antes})' if antes is not None else '')
+            + f': su subagente no trabaja hasta que la {a.n} se cierre o pase a observación; entonces se avisa.')
+
+
+def o_foco(cola: Cola, a) -> str:
+    """El foco, guardado en la cola (tarea 436): lo fijan las palabras del propietario («foco N») y Activar rama del
+    panel; se quita al salir la tarea de la cola o al descartarla (Cola.repasar), o con --quitar. Sin número, lo dice."""
+    actual = cola.datos.get('foco')
+    if a.quitar:
+        if a.n is not None:
+            raise Rechazo('Con --quitar, sin número: foco --quitar.')
+        if actual is None:
+            return 'Sin foco.'
+        del cola.datos['foco']
+        cola.guardar()
+        return f'Sin foco: quitado el de la {actual}.'
+    if a.n is None:
+        t = cola.buscar(actual) if actual is not None else None
+        return f'Foco: la {actual}, «{t.get("texto")}».' if t else 'Sin foco.'
+    t = cola.tarea(a.n, 'en-cola', 'en-curso', 'en-observacion')
+    if actual == a.n:
+        return f'El foco ya es la {a.n}, «{t.get("texto")}».'
+    cola.datos['foco'] = a.n
+    cola.guardar()
+    return f'Foco: la {a.n}, «{t.get("texto")}».'
+
+
 def o_subagente(cola: Cola, a) -> str:
     t = cola.tarea(a.n, 'en-curso')
     if es_deliberativa(t) and not t.get('rama'):
@@ -1361,6 +1476,9 @@ def o_probar(cola: Cola, a) -> str:
         if x.get('texto') == PASO_PROBAR:
             x['estado'] = 'hecho'
     cola.anotar(t, 'probar', rama + (' · con develop integrado' if integrar else ''))
+    # Activar rama, del panel, fija el foco (decisión 357, tarea 436); la misma orden lanzada por Claude, no.
+    if cola.via == 'panel':
+        cola.datos['foco'] = a.n
     cola.guardar()
     # Lo importante primero: el panel lo enseña en un aviso emergente, que se corta por el final (tarea 257).
     return (f'La {a.n}, en prueba: rama {rama}{" (ya era la activa)" if ya else " activa"}'
@@ -2295,6 +2413,19 @@ def o_fusionar(cola: Cola, a) -> str:
     con = (f' (con {"la" if len(heredadas) == 1 else "las"} {enumerar(heredadas)}, que '
            f'{"había" if len(otras) == 1 else "habían"} absorbido)') if heredadas else ''
     cola.anotar(queda, 'fusion', f'absorbe {enumerar(otras)}{con}')
+    # Las esperas y el foco de las que salen pasan a la que queda (tarea 436): quien esperaba a una absorbida espera a
+    # la que queda; la que queda hereda la espera de una absorbida si no tenía, y no se espera a sí misma.
+    if queda.get('espera') is None:
+        heredada = next((t['espera'] for t in salen if t.get('espera') is not None and t['espera'] not in ids), None)
+        if heredada is not None:
+            queda['espera'] = heredada
+    if queda.get('espera') in ids:
+        del queda['espera']
+    for t in cola.tareas:
+        if t is not queda and t not in salen and t.get('espera') in otras:
+            t['espera'] = queda['id']
+    if cola.datos.get('foco') in otras:
+        cola.datos['foco'] = queda['id']
     for t in salen:
         propia = t.get('rama') if t is not destino else None
         borrada = f', rama {propia} {"borrada" if propia in sobran else "ya no existía"}' if propia else ''
@@ -2629,7 +2760,7 @@ def analizador() -> argparse.ArgumentParser:
             if a_ == 'i':
                 s.add_argument(a_, type=int, metavar='P', help='número del paso, desde 1 (el «n» de ver)')
             else:
-                s.add_argument(a_, type=int) if a_ == 'n' else s.add_argument(a_)
+                s.add_argument(a_, type=int) if a_ in ('n', 'm') else s.add_argument(a_)
         return s
 
     orden('lista', o_lista, 'las tareas de la cola')
@@ -2704,6 +2835,13 @@ def analizador() -> argparse.ArgumentParser:
               'con trabajo en varias, no se fusionan: decisión 358)')
     s.add_argument('ids', type=int, nargs='+')
     orden('split', o_split, 'separa pasos en una tarea nueva', 'n', 'pasos')
+    s = orden('espera', o_espera, 'la M espera a la N: su subagente no se lanza hasta que la N se cierre o pase a '
+              'observación (tarea 436)', 'm')
+    s.add_argument('n', type=int, nargs='?')
+    s.add_argument('--quitar', action='store_true', help='deshace la espera de la M')
+    s = orden('foco', o_foco, 'fija el foco en la N (las palabras del propietario); sin número, lo dice (tarea 436)')
+    s.add_argument('n', type=int, nargs='?')
+    s.add_argument('--quitar', action='store_true', help='quita el foco')
     orden('copias', o_copias, 'lista las copias de la cola')
     orden('recuperar', o_recuperar, 'pone una copia como cola', 'copia')
     s = orden('choques', o_choques, 'archivos que comparte con las en curso o en observación (sale con 3 si hay)', 'n')
@@ -2760,6 +2898,10 @@ def main(argv: list | None = None) -> int:
             if a.orden not in SIN_COLA:
                 cola.cargar()
             mensaje, ok = a.f(cola, a), True
+            # Las que han dejado de esperar al guardar, tras lo que diga la orden (tarea 436).
+            if cola.liberadas and not isinstance(mensaje, Consulta):
+                mensaje = ' '.join([mensaje, *dict.fromkeys(cola.liberadas)])
+                cola.extra['liberadas'] = list(dict.fromkeys(cola.liberadas))
         finally:
             cola.desbloquear()
     except Rechazo as r:

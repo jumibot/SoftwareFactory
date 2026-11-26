@@ -1,7 +1,8 @@
 import { atom, read, update } from 'claude-code'
 import type { Evento } from '../types'
-import { leerPeticiones, leerSalidas, raizSesion } from './lectura'
-import type { $ } from './lectura'
+import { focoGuardado, leerPeticiones, leerSalidas, raizSesion } from './lectura'
+import type { $, FocoGuardado } from './lectura'
+import { recordatorioFoco } from './recordatorio'
 import { emergente } from './emergentes'
 
 // ── Avisos del panel (tarea 228) ──
@@ -62,6 +63,11 @@ const FRASES: Record<string, (n: string, d: string) => string> = {
   restaurada: n => `restaurada la ${n}`,
   fusion: (n, d) => (d.startsWith('absorbe ') ? `la ${n} absorbe la ${d.slice(8)}` : `fusionada la ${n}`),
   separada: (n, d) => (d ? `separados de la ${n} los ${d}` : `separados pasos de la ${n}`),
+  // La espera de una tarea (tarea 436): «a la N», «quitada: esperaba a la N» o «liberada: la N cerrada».
+  espera: (n, d) => {
+    const otra = /\d+/.exec(d)?.[0] ?? '?'
+    return d.startsWith('a la ') ? `la ${n}, espera a la ${otra}` : `la ${n} ya no espera a la ${otra}`
+  },
 }
 
 // «añadido 3: texto», «2 hecho: texto», «quitado 3: texto» → «paso añadido: «texto»», «paso 2 hecho», «paso 3 quitado».
@@ -106,6 +112,11 @@ export function avisoPanel(cambios: CambioPanel[], tareas: Tarea[]): string | nu
     const n = String(id)
     aviso += ` Propón al propietario el título nuevo de la ${n}, su descripción revisada y el orden de sus pasos; con su OK, cola.py renombrar ${n}, redescribir ${n} y paso mover ${n} DE A.`
   }
+  // La que esperaba a una que se ha cerrado o ha pasado a observación desde el panel ya no espera (tarea 436).
+  for (const c of cambios.filter(x => x.evento === 'espera' && (x.detalle ?? '').startsWith('liberada'))) {
+    const n = String(c.id)
+    aviso += ` Lanza el subagente de la ${n} si está en curso y marca hecho su paso «Esperar a …», si lo tiene.`
+  }
   const cerradas = [...new Set(cambios.filter(c => c.evento === 'cerrada' || c.evento === 'descartada').map(c => c.id))]
   for (const id of cerradas) {
     const h = tareas.find(t => t.id === id)?.historial ?? []
@@ -122,12 +133,15 @@ export function avisoPanel(cambios: CambioPanel[], tareas: Tarea[]): string | nu
 
 // Lee la cola y historial.jsonl y devuelve el aviso de lo cambiado desde el panel en [desde, hasta). Si no puede
 // leer alguno de los dos (la cola a medio escribir, por ejemplo), falla: el aviso no se da por dado (tarea 285).
-export async function leerAvisoPanel($: $, desde: number, hasta: number): Promise<string | null> {
+// También las tareas de las que avisa y el foco guardado en la cola, para el recordatorio del foco (tarea 436).
+export type AvisoDelPanel = { aviso: string | null; tareas: number[]; foco: FocoGuardado | null }
+export async function leerAvisoPanel($: $, desde: number, hasta: number): Promise<AvisoDelPanel> {
   const raiz = await raizSesion($)
   const cola = await leerPeticiones($, raiz)
   if (cola.error) throw new Error(cola.error)
   const tareas: Tarea[] = [...cola.peticiones, ...(await leerSalidas($, raiz, desde))]
-  return avisoPanel(cambiosDelPanel(tareas, desde, hasta), tareas)
+  const cambios = cambiosDelPanel(tareas, desde, hasta)
+  return { aviso: avisoPanel(cambios, tareas), tareas: cambios.map(c => c.id), foco: focoGuardado(cola.peticiones, cola.foco) }
 }
 
 // Hasta dónde (ms) se ha avisado a Claude de los cambios del panel: el último mensaje que lo llevó (del propietario o
@@ -172,16 +186,16 @@ export async function cargarAvisosPanel($: $, ahora: number, nueva: boolean): Pr
 
 // Toma el aviso de lo cambiado desde el panel desde el último dado, y lo da por dado solo si lo ha podido leer; con
 // devolver, si el mensaje que lo lleva no llega a enviarse, vuelve a quedar pendiente. null sin cambios o sin leer.
-export async function tomarAvisoPanel($: $): Promise<{ aviso: string | null; devolver: () => Promise<void> }> {
+export async function tomarAvisoPanel($: $): Promise<AvisoDelPanel & { devolver: () => Promise<void> }> {
   const hasta = segundo(await $.clock.now())
   // Con el atom a 0, el mod aún no lo ha cargado (el estado se acaba de vaciar al cambiar de plugin): se carga ahora,
   // del $.store de esta sesión o desde ahora; con 0 se avisaría de todo lo hecho desde el panel (tarea 350).
   if ((await read($, avisadoPanel)) === 0) await cargarAvisosPanel($, hasta, false)
   const desde = await read($, avisadoPanel)
-  const aviso = await leerAvisoPanel($, desde, hasta).catch(() => undefined)
-  if (aviso === undefined) return { aviso: null, devolver: async () => undefined }
+  const leido = await leerAvisoPanel($, desde, hasta).catch(() => undefined)
+  if (leido === undefined) return { aviso: null, tareas: [], foco: null, devolver: async () => undefined }
   await fijarAvisado($, v => Math.max(v, hasta))
-  return { aviso, devolver: () => fijarAvisado($, v => (v === hasta ? desde : v)) }
+  return { ...leido, devolver: () => fijarAvisado($, v => (v === hasta ? desde : v)) }
 }
 
 // Un encargo del panel a Claude, como si lo escribiera el propietario (R, T y C fallidas, «?», /sf_paso, TURBO…). El
@@ -192,10 +206,13 @@ export async function tomarAvisoPanel($: $): Promise<{ aviso: string | null; dev
 // mensajes. Entonces el encargo se deja escrito en el prompt (si está vacío), para enviarlo con Intro, y se dice; el
 // aviso del panel queda para el siguiente mensaje (tarea 333: Continuar no hacía nada tras Esc).
 export async function encargarAClaude($: $, text: string): Promise<void> {
-  const { aviso, devolver } = await tomarAvisoPanel($)
+  const { aviso, tareas, foco, devolver } = await tomarAvisoPanel($)
+  // Con foco guardado, el recordatorio si el aviso trae algo de otras tareas (tarea 436).
+  const recordatorio = aviso ? recordatorioFoco(foco, tareas) : null
+  const anadido = [aviso, recordatorio].filter((x): x is string => !!x).join('\n\n')
   let r: Awaited<ReturnType<typeof $.prompt.submit>>
   try {
-    r = await $.prompt.submit({ text: aviso ? `${text}\n\n${aviso}` : text, asUser: true })
+    r = await $.prompt.submit({ text: anadido ? `${text}\n\n${anadido}` : text, asUser: true })
   } catch (err) {
     await devolver()
     throw err

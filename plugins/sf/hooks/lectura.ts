@@ -48,9 +48,25 @@ export function ultimoCambio(historial: unknown): number | null {
   return max
 }
 
-export async function leerPeticiones($: $, raiz: string): Promise<{ peticiones: Peticion[]; error: string | null }> {
+// La tarea a la que espera `p` mientras siga abierta, en cola o en curso (tarea 436); null si no espera a ninguna o la
+// otra ya está cerrada, en observación o fuera de la cola. Mientras, el mod no pide lanzar el subagente de `p`.
+export function esperaAbierta(p: { espera?: number | null }, peticiones: readonly { id: number; estado: string }[]): number | null {
+  if (typeof p.espera !== 'number') return null
+  const otra = peticiones.find(x => x.id === p.espera)
+  return otra && (otra.estado === 'en-cola' || otra.estado === 'en-curso') ? p.espera : null
+}
+
+// El foco guardado en la cola, con su título, para los avisos del mod (tarea 436); null sin foco.
+export type FocoGuardado = { id: number; texto: string }
+export function focoGuardado(peticiones: readonly Peticion[], foco: number | null | undefined): FocoGuardado | null {
+  const p = foco == null ? undefined : peticiones.find(x => x.id === foco)
+  return p ? { id: p.id, texto: p.texto } : null
+}
+
+// foco: la tarea en foco que guarda la cola (tarea 436), si está en ella; null sin foco.
+export async function leerPeticiones($: $, raiz: string): Promise<{ peticiones: Peticion[]; error: string | null; foco: number | null }> {
   const ruta = `${raiz}/${PETICIONES}`
-  if (!(await $.fs.exists(ruta))) return { peticiones: [], error: null }
+  if (!(await $.fs.exists(ruta))) return { peticiones: [], error: null, foco: null }
   try {
     const datos = await leerJson($, ruta)
     const lista = Array.isArray(datos.peticiones) ? (datos.peticiones as unknown[]) : []
@@ -74,16 +90,19 @@ export async function leerPeticiones($: $, raiz: string): Promise<{ peticiones: 
         reabierta: p.reabierta === true,
         commit: texto(p.commit),
         rama: texto(p.rama),
+        ...(typeof p.espera === 'number' ? { espera: p.espera } : {}),
         historial: leerEventos(p.historial),
         cambio: ultimoCambio(p.historial),
       })
     })
+    const foco = typeof datos.foco === 'number' && peticiones.some(p => p.id === datos.foco) ? datos.foco : null
     return {
       peticiones,
       error: rechazadas ? `${rechazadas} petición(es) sin texto o con estado distinto de ${ESTADOS_PETICION.join(', ')}` : null,
+      foco,
     }
   } catch (err) {
-    return { peticiones: [], error: `no se puede leer ${PETICIONES}: ${String(err)}` }
+    return { peticiones: [], error: `no se puede leer ${PETICIONES}: ${String(err)}`, foco: null }
   }
 }
 
@@ -380,6 +399,7 @@ export async function leerEstado($: $, desde = 0): Promise<Estado> {
   base.realimentacion = await leerRealimentacion($, raiz).catch(() => null)
   const cola = await leerPeticiones($, raiz)
   base.peticiones = cola.peticiones
+  if (cola.foco !== null) base.foco = cola.foco
   base.errorPeticiones = cola.error
   Object.assign(base, conAbsorbidas(base, base.peticiones))
   base.salidas = await leerSalidas($, raiz, desde).catch(() => [])

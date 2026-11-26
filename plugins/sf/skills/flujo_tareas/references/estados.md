@@ -37,7 +37,10 @@ Una cola, una copia o un historial con los nombres de antes de la decisión 215 
 - `rama`: con rama, la tarea ya tiene trabajo efectivo; deja de ser eliminable y pasa a descartable (079, 082). La pierde al entrar en `develop`.
 - `pasos`: cada uno `hecho`, `en-curso` o `pendiente` (067).
 - `reabierta: true`: vuelve a la cola por un bug después de haber salido (061, 064).
+- `espera`: el número de la tarea a la que espera (11 bis); se va solo cuando esa deja de estar en cola o en curso (tarea 436).
 - `historial`: cada cambio, con fecha y quién (sección 3).
+
+Y, en la raíz de la cola, `foco`: la tarea en foco (33 bis).
 
 ### Letras de estado
 
@@ -194,6 +197,17 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Panel:** pasos al día; el ● pasa a rojo mientras espera instrucciones y se va al pararlo (162).
 - **CLI:** `cola.py informe 92 --terminado|--interrumpido ["qué necesita"]`; los pasos, con `paso marcar`.
 - **Sale de:** 083, 115 (15), 135, 149, 151.
+
+#### 11 bis · Esperar a otra tarea
+
+- **De → a:** `en-cola` o `en-curso` → la misma, con `espera: N`; la N, en cola o en curso, y sin esperarse en círculo.
+- **Cuándo:** la tarea no puede seguir hasta que otra se cierre (comparten archivos, necesita lo que la otra hace) y no puede volver a la cola. Es un dato, no un paso «Esperar a …» de texto.
+- **Quién:** principal.
+- **Autorización:** la del propietario, como la recomendación de esperar al ver choques (130).
+- **Repositorio:** nada. Mientras la N esté abierta, el mod no pide lanzar el subagente de la M (y uno vivo no trabaja). Al cerrarse la N o pasar a observación, por cola.py o desde el panel, cola.py quita la espera, lo anota (`espera`, «liberada: la N …») y lo dice: lanzar el subagente de la M y marcar hecho su paso «Esperar a …», si lo tiene de antes; desde el panel, lo dice el aviso del mod. Al fusionar, quien esperaba a una absorbida espera a la que queda.
+- **Panel:** « · espera a la N», atenuado, tras el título, mientras la N siga abierta.
+- **CLI:** `cola.py espera 92 87`; `cola.py espera 92 --quitar` la deshace. `ver` (campo `espera`) y `lista` («· espera a la N») la enseñan.
+- **Sale de:** 357 (9), tarea 436.
 
 #### 12 · Commit de guardado
 
@@ -472,7 +486,18 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **CLI:** `cola.py copias` las lista; `cola.py recuperar n` (o el nombre del archivo) pone una.
 - **Sale de:** 113, 115 (12).
 
-Son 34 cambios: 5 de alta y arranque, 7 durante el trabajo, 5 de prueba, 6 de cierre, 6 para deshacer, 3 de juntar y separar y 2 fuera de una tarea.
+#### 33 bis · Fijar el foco
+
+- **De → a:** sin cambio de estado; `foco: N` en la raíz de la cola (N en cola, en curso o en observación).
+- **Cuándo:** el propietario fija el foco con sus palabras o pulsa Activar rama; nada más lo mueve (357, 5).
+- **Quién:** principal, con sus palabras; el panel, con Activar rama (`probar` con `--via panel`). El `probar` del principal no lo fija.
+- **Autorización:** la del propietario.
+- **Repositorio:** nada. Se va solo al salir la tarea de la cola (cerrarla, eliminarla, absorberla, que lo pasa a la que queda) o al descartarla; en observación sigue. Con él, los avisos del mod que traen algo de otras tareas llevan una línea con el foco que recuerda que eso va como off-topic, sin menús de otras tareas (357, 9 y 10).
+- **Panel:** nada; la sugerencia tras 10 minutos sin escribir pregunta por el foco si está en curso.
+- **CLI:** `cola.py foco 92`; `cola.py foco` lo dice; `cola.py foco --quitar` lo quita. `ver` («foco»: true) y `lista` («· foco») lo enseñan.
+- **Sale de:** 357, tarea 436.
+
+Son 36 cambios: 5 de alta y arranque, 8 durante el trabajo, 5 de prueba, 6 de cierre, 6 para deshacer, 3 de juntar y separar y 3 fuera de una tarea.
 
 ## 3. Formato de `.sf/peticiones.json`
 
@@ -482,6 +507,7 @@ Fuera de git. Lo escriben el principal y el panel, con el CLI; nunca un subagent
 
 - `ultimo`: el último número de tarea dado. Quien crea una tarea le da el siguiente y lo sube, porque las cerradas, eliminadas y absorbidas salen y sus números no se reutilizan.
 - `peticiones`: la lista de tareas.
+- `foco`: la tarea en foco, si hay (33 bis).
 
 ### Cada tarea
 
@@ -494,6 +520,7 @@ Fuera de git. Lo escriben el principal y el panel, con el CLI; nunca un subagent
 - `prueba`: qué debe comprobar el propietario.
 - `observando`: `true` mientras el propietario la mira, en observación.
 - `reabierta`: `true` si vuelve a la cola tras haber salido.
+- `espera`: el número de la tarea a la que espera (11 bis).
 - `commit`: hash del squash o versión del cierre; lo pone `a-observacion` (o `reobservar`). La C guarda el commit en el historial y saca la tarea.
 
 El panel ignora los pasos que no entiende y avisa de las tareas sin texto o con otro estado.
@@ -512,7 +539,7 @@ Lista de cambios, el más antiguo primero. La escribe el CLI en cada orden; nadi
 ]
 ```
 
-- `evento`: el nombre del cambio de la sección 2: `creada`, `en-curso`, `en-cola`, `rama`, `paso` (añadido, marcado o quitado), `renombrada`, `subagente`, `informe`, `listo`, `comprobado`, `probar` (Activar rama), `probar-fallido` (choques al integrar `develop`), `observando`, `seguir`, `cerrada` (también la de una en observación, con «en observación»), `cierre-fallido`, `push-fallido`, `recogida` (worktree y auxiliar quitados) o `recogida-con-avisos` (lo que quedó o se perdió), `a-observacion`, `reobservada`, `descartada`, `limpiada`, `revertida`, `reabierta`, `eliminada`, `a-propuesta` (con «P<nn> devuelta» o «P<nn> nueva»), `restaurada`, `absorbida`, `fusion` (en la que queda, con las absorbidas), `separada` (en la de origen) y `nacida` (en la nueva, con la de origen).
+- `evento`: el nombre del cambio de la sección 2: `creada`, `en-curso`, `en-cola`, `rama`, `paso` (añadido, marcado o quitado), `renombrada`, `subagente`, `informe`, `listo`, `comprobado`, `probar` (Activar rama), `probar-fallido` (choques al integrar `develop`), `observando`, `seguir`, `cerrada` (también la de una en observación, con «en observación»), `cierre-fallido`, `push-fallido`, `recogida` (worktree y auxiliar quitados) o `recogida-con-avisos` (lo que quedó o se perdió), `a-observacion`, `reobservada`, `descartada`, `limpiada`, `revertida`, `reabierta`, `eliminada`, `a-propuesta` (con «P<nn> devuelta» o «P<nn> nueva»), `restaurada`, `absorbida`, `fusion` (en la que queda, con las absorbidas), `separada` (en la de origen), `nacida` (en la nueva, con la de origen) y `espera` («a la N», «quitada: esperaba a la N» o «liberada: la N cerrada»).
 - `fecha`: ISO 8601 con zona.
 - `quien`: `propietario` o `principal` (115, 10).
 - `via`: `cli` o `panel`; distingue Cerrar pulsado por el propietario de un cierre del principal.

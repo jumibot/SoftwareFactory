@@ -16,6 +16,7 @@ export type Peticion = {
   pasos: Paso[] // los pasos de la tarea, si tiene varios: no son tareas ni llevan número
   reabierta?: boolean // reabierta por un bug tras salir de la cola (cerrada en otra sesión): vuelve a Cerradas
   rama: string | null // rama de la tarea: con rama ya tiene trabajo efectivo y no se puede eliminar
+  espera?: number | null // la que espera («cola.py espera M N», tarea 436): sin lanzar su subagente mientras siga abierta
   historial: Evento[] // cada cambio, el más antiguo primero; lo escribe cola.py
   cambio?: number | null // último cambio: la fecha más reciente de su historial, en ms; null sin historial
 }
@@ -91,6 +92,7 @@ export type Estado = {
   error: string | null
   aviso: string | null // p. ej., estado aún en docs/sf.json
   peticiones: Peticion[]
+  foco?: number | null // la tarea en foco, guardada en la cola («cola.py foco N», tarea 436)
   errorPeticiones: string | null
   realimentacion: Realimentacion | null
   // Rama activa de la carpeta del proyecto, leída de .git/HEAD; separada: HEAD sin rama, y nombre es el commit corto.

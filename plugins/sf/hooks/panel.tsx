@@ -7,7 +7,7 @@ import { COLOR_MARCA, COLOR_MARCA_CLARO, DESPUES, RELLENO_MARCA, LEMA, LETRA_MAR
 import { ANCHO_LOGO, coloresLogo, logoSvg, logoTexto } from './logo'
 import { modoLogo } from './tema'
 import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, MARCA_SUBAGENTE_PARADO, COLOR_TURBO, COLOR_TAREA, colorTareaDe, COLOR_LISTA, COLOR_ESPERA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, colorLetra, colorLetraApagada, hueco, puntosDe } from './estilo'
-import { atrasada, commitsDe, creadaEn, cuentaPasos, texto, ultimoCierre } from './lectura'
+import { atrasada, commitsDe, creadaEn, cuentaPasos, esperaAbierta, texto, ultimoCierre } from './lectura'
 import { AVISO_PANTALLA, anotarPantalla, sinPantallaCompleta } from './pantalla'
 import { ORDEN_CONTINUAR, borrarIncorporacion, terminada } from './contexto'
 import { COLOR_PRUEBA, cambiarPrueba, desdeCopia, enLaFuente } from './prueba'
@@ -1065,8 +1065,15 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     // El tipo de la tarea, tras su título, entre paréntesis, en minúsculas y en el color de su título, sin atenuar: « (deliberar)» (decisión del
     // propietario, 2026-10-31). Sin tipo, nada.
     const sufijoTipo = (tipo: string | null | undefined) => (tipo ? ` (${tipo})` : '')
-    const conTipo = (texto: string, tipo: string | null | undefined): RenderChildren[] =>
-      tipo ? [texto, <Text>{sufijoTipo(tipo)}</Text>] : [texto]
+    // Detrás, atenuado, « · espera a la N» mientras la que espera siga abierta (tarea 436).
+    const conTipo = (texto: string, tipo: string | null | undefined, p?: Peticion): RenderChildren[] => {
+      const espera = p ? esperaAbierta(p, est.peticiones) : null
+      return [
+        texto,
+        ...(tipo ? [<Text>{sufijoTipo(tipo)}</Text>] : []),
+        ...(espera !== null ? [<Text dimColor>{` · espera a la ${String(espera)}`}</Text>] : []),
+      ]
+    }
     // Con `delante`, un margen de ese ancho antes de la cabeza, fuera de su botón: alinea los números a la derecha.
     // En una superficie gráfica (grafica), la columna del número crece con él (mínimo, su ancho más dos celdas por el
     // relleno del botón nativo) y el título, plegado, se corta con puntos suspensivos; desplegado, se parte.
@@ -1167,7 +1174,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const fila = filaTitulo(
         <Text>{codigo} </Text>,
         columna,
-        <Text color={TEXTO_TAREA} weight="regular">{conTipo(p.texto, p.tipo)}</Text>,
+        <Text color={TEXTO_TAREA} weight="regular">{conTipo(p.texto, p.tipo, p)}</Text>,
         hayMas ? k : null,
         hueco(p.id),
       )
@@ -1683,7 +1690,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
         </Text>,
         columnaTitulo(p.id),
         <Text color={color} weight="regular">
-          {conTipo(abiertaT ? p.texto : titulo, p.tipo)}
+          {conTipo(abiertaT ? p.texto : titulo, p.tipo, p)}
         </Text>,
         hayMas ? k : null,
         hueco(p.id),

@@ -2576,5 +2576,132 @@ class DesdeWorktree(Base):
         self.assertEqual(cola.raiz_por_omision(suelta), suelta)
 
 
+class Esperas(Base):
+    """«espera M N»: la M espera a la N como dato, y deja de esperar sola al cerrarse la N (tarea 436)."""
+    git = True
+
+    def preparar(self):
+        self.orden('crear', 'La esperada', '--en-curso')  # 11
+        self.orden('crear', 'La que espera', '--en-curso')  # 12
+
+    def test_guarda_la_espera_y_la_enseñan_ver_y_lista(self):
+        self.preparar()
+        self.assertIn('La 12 espera a la 11', self.orden('espera', '12', '11'))
+        t = self.tarea(12)
+        self.assertEqual((t['espera'], t['historial'][-1]['evento'], t['historial'][-1]['detalle']), (11, 'espera', 'a la 11'))
+        self.assertEqual(json.loads(self.orden('ver', '12'))['espera'], 11)
+        self.assertIn('· espera a la 11', next(x for x in self.orden('lista').splitlines() if x.startswith('12\t')))
+
+    def test_quitar_la_deshace(self):
+        self.preparar()
+        self.orden('espera', '12', '11')
+        self.assertIn('La 12 ya no espera a la 11. Lanza su subagente', self.orden('espera', '12', '--quitar'))
+        self.assertNotIn('espera', self.tarea(12))
+        self.assertIn('no espera a ninguna', self.orden('espera', '12', '--quitar', ok=False))
+
+    def test_rechazos(self):
+        self.preparar()
+        self.assertIn('a sí misma', self.orden('espera', '12', '12', ok=False))
+        self.assertIn('no está en la cola', self.orden('espera', '12', '99', ok=False))
+        self.assertIn('Di a cuál espera', self.orden('espera', '12', ok=False))
+        self.orden('espera', '12', '11')
+        self.assertIn('se esperarían para siempre', self.orden('espera', '11', '12', ok=False))
+        self.orden('paso', 'marcar', '11', '1', 'hecho')
+        self.orden('a-observacion', '11', '--commit', 'v1')
+        self.orden('crear', 'Otra')
+        self.assertIn('no hay que esperarla', self.orden('espera', '13', '11', ok=False))
+
+    def test_al_cerrar_la_esperada_deja_de_esperar_y_lo_dice(self):
+        self.preparar()
+        self.orden('paso', 'añadir', '12', 'Esperar a que se cierre la esperada (11)')
+        self.orden('espera', '12', '11')
+        self.orden('paso', 'marcar', '11', '1', 'hecho')
+        r = self.respuesta('cerrar', '11')
+        self.assertIn('La 12 ya no espera a la 11 (cerrada): marca hecho su paso 1 («paso marcar 12 1 hecho») y lanza su '
+                      'subagente.', r['mensaje'])
+        self.assertEqual(r['liberadas'], [r['mensaje'][r['mensaje'].index('La 12 ya no'):]])
+        t = self.tarea(12)
+        self.assertNotIn('espera', t)
+        self.assertEqual(t['historial'][-1]['detalle'], 'liberada: la 11 cerrada')
+
+    def test_al_pasar_a_observacion_tambien(self):
+        self.preparar()
+        self.orden('crear', 'En cola, espera', '--quien', 'propietario')  # 13
+        self.orden('espera', '12', '11')
+        self.orden('espera', '13', '11')
+        self.orden('paso', 'marcar', '11', '1', 'hecho')
+        m = self.orden('a-observacion', '11', '--commit', 'v1')
+        self.assertIn('La 12 ya no espera a la 11 (en observación): lanza su subagente.', m)
+        self.assertIn('La 13 ya no espera a la 11 (en observación): ya puede ponerse en curso.', m)
+
+    def test_desde_el_panel_queda_en_el_historial_con_via_panel(self):
+        self.preparar()
+        self.orden('espera', '12', '11')
+        self.orden('paso', 'marcar', '11', '1', 'hecho')
+        self.orden('cerrar', '11', '--quien', 'propietario', '--via', 'panel')
+        e = self.tarea(12)['historial'][-1]
+        self.assertEqual((e['evento'], e['via'], e['detalle']), ('espera', 'panel', 'liberada: la 11 cerrada'))
+
+    def test_otras_ordenes_no_la_liberan_mientras_siga_abierta(self):
+        self.preparar()
+        self.orden('espera', '12', '11')
+        self.orden('paso', 'añadir', '11', 'Algo más')
+        self.orden('en-cola', '11')
+        self.assertEqual(self.tarea(12)['espera'], 11)
+
+    def test_al_fusionar_la_esperada_se_espera_a_la_que_queda(self):
+        self.orden('crear', 'Una', '--quien', 'propietario')  # 11
+        self.orden('crear', 'Otra', '--quien', 'propietario')  # 12
+        self.orden('crear', 'La que espera', '--en-curso')  # 13
+        self.orden('espera', '13', '11')
+        self.orden('fusionar', '11', '12')
+        self.assertEqual(self.tarea(13)['espera'], 12)
+
+
+class Foco(Base):
+    """El foco, guardado en la cola (tarea 436)."""
+    git = True
+
+    def test_fijar_decir_y_quitar(self):
+        self.orden('crear', 'Una', '--en-curso')
+        self.assertEqual(self.orden('foco'), 'Sin foco.')
+        self.assertEqual(self.orden('foco', '11'), 'Foco: la 11, «Una».')
+        self.assertEqual(self.leer()['foco'], 11)
+        self.assertEqual(self.orden('foco'), 'Foco: la 11, «Una».')
+        self.assertTrue(json.loads(self.orden('ver', '11'))['foco'])
+        self.assertIn('· foco', self.orden('lista'))
+        self.assertEqual(self.orden('foco', '--quitar'), 'Sin foco: quitado el de la 11.')
+        self.assertNotIn('foco', self.leer())
+        self.assertIn('no está en la cola', self.orden('foco', '99', ok=False))
+
+    def test_se_quita_al_cerrar_la_tarea(self):
+        self.orden('crear', 'Una', '--en-curso')
+        self.orden('foco', '11')
+        self.orden('cerrar', '11')
+        self.assertNotIn('foco', self.leer())
+
+    def test_sigue_en_observacion(self):
+        self.orden('crear', 'Una', '--en-curso')
+        self.orden('foco', '11')
+        self.orden('a-observacion', '11', '--commit', 'v1')
+        self.assertEqual(self.leer()['foco'], 11)
+
+    def test_activar_rama_del_panel_lo_fija_y_la_de_claude_no(self):
+        self.orden('crear', 'Una', '--en-curso')
+        self.orden('rama', '11', 'una', '--sin-activar')
+        self.orden('probar', '11')
+        self.assertNotIn('foco', self.leer())
+        git(self.raiz, 'switch', '-q', 'develop')
+        self.orden('probar', '11', '--quien', 'propietario', '--via', 'panel')
+        self.assertEqual(self.leer()['foco'], 11)
+
+    def test_al_fusionar_pasa_a_la_que_queda(self):
+        self.orden('crear', 'Una', '--quien', 'propietario')
+        self.orden('crear', 'Otra', '--quien', 'propietario')
+        self.orden('foco', '11')
+        self.orden('fusionar', '11', '12')
+        self.assertEqual(self.leer()['foco'], 12)
+
+
 if __name__ == '__main__':
     unittest.main()

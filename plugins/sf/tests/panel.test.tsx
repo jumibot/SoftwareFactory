@@ -6244,6 +6244,75 @@ test('Avisos de subagentes: el de lanzar va el primero, antes de lo cambiado des
   expect(c[1]).toMatch(/^Desde el panel: /)
 })
 
+// ── Esperas y foco guardados en la cola (tarea 436) ──
+const ESPERA_4: Pet[] = INICIAL.map(p => (p.id === 4 ? { ...p, espera: 1 } : p))
+
+test('Esperas (436): la en curso que espera a otra abierta no pide su subagente; cerrada la otra, sí', async (...m) => {
+  const { contextos, cambiarCola } = await preparar(m, { cola: ESPERA_4, agentes: [] })
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)).toEqual([LANZA([1], true)])
+  // La 1 sale de la cola (cerrada): la 4 ya no espera, aunque quede el campo.
+  await cambiarCola(ESPERA_4.filter(p => p.id !== 1))
+  await escribe(m, 'sigue')
+  expect(contextos.at(-1)).toEqual([LANZA([4])])
+})
+
+test('Esperas (436): en observación, la esperada ya no retiene a la que espera', async (...m) => {
+  const cola = ESPERA_4.map(p => (p.id === 1 ? { ...p, estado: 'en-observacion' } : p))
+  const { contextos } = await preparar(m, { cola, agentes: [] })
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)).toEqual([LANZA([4], true)])
+})
+
+test('Esperas (436): el panel enseña la espera en la línea de la tarea mientras la otra siga abierta', async (...m) => {
+  await preparar(m, { cola: ESPERA_4, agentes: [] })
+  const ui = await m[0].ui.mount({ ...PANEL, surface: 'terminal' })
+  expect(await hay(ui, { type: 'Text', text: ' · espera a la 1' })).toBe(true)
+  await ui.unmount()
+})
+
+test('Esperas (436): cerrada desde el panel la esperada, el aviso dice que la otra ya no espera y que lance su subagente', async (...m) => {
+  const cola: Pet[] = [{ id: 13, texto: 'La que esperaba', estado: 'en-curso', historial: [ev('espera', 'liberada: la 12 cerrada', 4)] }]
+  const salidas: Pet[] = [{ id: 12, texto: 'La esperada', estado: 'cerrada', historial: [ev('cerrada', 'sin rama', 4)] }]
+  const { contextos, reloj } = await preparar(m, { cola, salidas, reloj: true, agentes: [{ description: 'Tarea 13: algo', status: 'running' }] })
+  await reloj!.advance(10_000)
+  await escribe(m, 'hola')
+  expect(contextos.at(-1)).toEqual([
+    'Desde el panel: cerrada la 12; la 13 ya no espera a la 12. Lanza el subagente de la 13 si está en curso y marca hecho su paso «Esperar a …», si lo tiene.',
+  ])
+})
+
+test('Foco (436): con el foco guardado, los avisos de otras tareas llevan una línea de recordatorio; los del foco, no', async (...m) => {
+  const conFoco = (foco: number) => ({ [COLA]: JSON.stringify({ foco, peticiones: INICIAL }) })
+  const a = await preparar(m, { extra: conFoco(1), agentes: [{ description: 'Tarea 1: panel', status: 'running' }] })
+  await escribe(m, 'hola')
+  expect(a.contextos.at(-1)).toEqual([
+    LANZA([4], true),
+    '🅵🅾🅲🆄🆂 `Panel lateral (T❶ )` es el foco: lo que estos avisos traen de la 4, y lo que hagas por ellos, va al final como off-topic, sin menús de otras tareas.',
+  ])
+})
+
+test('Foco (436): con el foco en la tarea del aviso, sin recordatorio', async (...m) => {
+  const a = await preparar(m, { extra: { [COLA]: JSON.stringify({ foco: 4, peticiones: INICIAL }) }, agentes: [{ description: 'Tarea 1: panel', status: 'running' }] })
+  await escribe(m, 'hola')
+  expect(a.contextos.at(-1)).toEqual([LANZA([4], true)])
+})
+
+test('Foco (382): al empezar, tras /clear, al reanudar y tras compactar, SessionStart da la línea del foco guardado; sin foco o en un subagente, no', async (...m) => {
+  await preparar(m, { extra: { [COLA]: JSON.stringify({ foco: 1, peticiones: INICIAL }) } })
+  const linea = 'Foco guardado en la cola: 🅵🅾🅲🆄🆂 `Panel lateral (T❶ )`. Es el foco hasta que el propietario lo cambie (cola.py foco).'
+  for (const source of ['startup', 'clear', 'resume', 'compact'] as const)
+    expect((await m[0].classic.SessionStart({ source })).additionalContext ?? []).toContain(linea)
+  const sub = await m[0].classic.SessionStart({ source: 'startup', agent_id: 'sub', agent_type: 'general-purpose' } as never)
+  expect((sub.additionalContext ?? []).some(c => c.startsWith('Foco guardado'))).toBe(false)
+})
+
+test('Foco (382): sin foco guardado, SessionStart no da línea del foco', async (...m) => {
+  await preparar(m)
+  const r = await m[0].classic.SessionStart({ source: 'startup' })
+  expect((r.additionalContext ?? []).some(c => c.startsWith('Foco guardado'))).toBe(false)
+})
+
 test('Avisos de subagentes: tras Poner en curso del panel, el siguiente mensaje manda lanzar el de esa tarea (373)', async (...m) => {
   const agentes: Agente[] = [{ description: 'Tarea 1: panel', status: 'running' }, { description: 'Tarea 6: algo', status: 'running' }]
   const { contextos, reloj } = await preparar(m, { desplegadas: true, cola: ELIMINABLES, reloj: true, agentes })

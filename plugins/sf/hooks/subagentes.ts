@@ -2,8 +2,10 @@ import { atom, read, update } from 'claude-code'
 import type { AvisosSubagentes, Peticion, SubagenteVisto } from '../types'
 import { PROYECTO } from './constantes'
 import { ordenColaClaude } from './python'
-import { absorbidas, leerJson, leerPeticiones, leerSubagentes, raizSesion, recuperarVistos } from './lectura'
+import { absorbidas, esperaAbierta, focoGuardado, leerJson, leerPeticiones, leerSubagentes, raizSesion, recuperarVistos } from './lectura'
+import type { FocoGuardado } from './lectura'
 import { guardarSesion, recordarSesion } from './memoria'
+import { recordatorioFoco } from './recordatorio'
 import type { $ } from './lectura'
 import { emergente } from './emergentes'
 
@@ -20,7 +22,7 @@ import { emergente } from './emergentes'
 // Las claves ya avisadas, si aún no se ha avisado nada en una sesión nueva y el id de la sesión.
 const avisados = atom({ plugin: 'sf', key: 'avisosSubagentes' } as const, { claves: [], nueva: true } as AvisosSubagentes)
 
-export type AvisoSubagente = { clave: string; texto: string }
+export type AvisoSubagente = { clave: string; texto: string; tarea?: number }
 
 // El último informe anotado de la tarea (ms), o null.
 function ultimoInforme(p: Peticion): number | null {
@@ -30,7 +32,8 @@ function ultimoInforme(p: Peticion): number | null {
 
 // Lo que hay que avisar ahora, por tarea en curso: sin subagente vivo (ni trabajando ni esperando), si se tiene la
 // lista; o con uno que dejó de trabajar después del último informe anotado («cola.py informe» es recogerlo). Los de
-// las tareas que absorbió al fusionarse cuentan como suyos (tarea 426).
+// las tareas que absorbió al fusionarse cuentan como suyos (tarea 426). La que espera a otra aún abierta
+// («cola.py espera M N») no pide su subagente hasta que la otra se cierre o pase a observación (tarea 436).
 export function avisosSubagentes(peticiones: Peticion[], vistos: Record<string, SubagenteVisto>, conLista: boolean): AvisoSubagente[] {
   const avisos: AvisoSubagente[] = []
   const lista = Object.values(vistos)
@@ -42,13 +45,13 @@ export function avisosSubagentes(peticiones: Peticion[], vistos: Record<string, 
     if (suyos.some(v => v.estado === 'trabajando')) continue
     const esperan = suyos.filter(v => v.estado === 'esperando')
     if (!esperan.length) {
-      if (conLista) avisos.push({ clave: `sin:${n}`, texto: `la ${n} («Tarea ${n}: …»)` })
+      if (conLista && esperaAbierta(p, peticiones) === null) avisos.push({ clave: `sin:${n}`, texto: `la ${n} («Tarea ${n}: …»)`, tarea: p.id })
       continue
     }
     const informe = ultimoInforme(p) ?? -Infinity
     // Por segundos enteros, como las fechas de cola.py.
     if (esperan.some(v => v.visto !== undefined && Math.floor(v.visto / 1000) * 1000 > informe))
-      avisos.push({ clave: `fin:${n}`, texto: `el subagente de la ${n} ha terminado: recógelo (revisar el diff, merge --ff-only, \`${ordenColaClaude()} informe ${n}\`, pasos, listo)` })
+      avisos.push({ clave: `fin:${n}`, texto: `el subagente de la ${n} ha terminado: recógelo (revisar el diff, merge --ff-only, \`${ordenColaClaude()} informe ${n}\`, pasos, listo)`, tarea: p.id })
   }
   return avisos
 }
@@ -62,11 +65,13 @@ export function nuevos(avisos: AvisoSubagente[], claves: string[]): { nuevos: Av
 
 // Los textos del aviso: el de lanzar los que faltan, imperativo, y el de recoger los terminados; cada uno, null sin
 // nada que avisar. En una sesión recién abierta, recuerda que los de la anterior ya no viven.
-export type TextosAviso = { lanzar: string | null; recoger: string | null }
+// tareas: las de los avisos; foco: el guardado en la cola, para el recordatorio del foco (tarea 436).
+export type TextosAviso = { lanzar: string | null; recoger: string | null; tareas?: number[]; foco?: FocoGuardado | null }
 export function textoAviso(nuevosAvisos: AvisoSubagente[], nueva: boolean): TextosAviso {
   const sin = nuevosAvisos.filter(a => a.clave.startsWith('sin:'))
   const fin = nuevosAvisos.filter(a => !a.clave.startsWith('sin:'))
   return {
+    tareas: nuevosAvisos.flatMap(a => (a.tarea === undefined ? [] : [a.tarea])),
     lanzar: sin.length
       ? `ANTES DE NADA, en este turno y antes de contestar: lanza el subagente de cada tarea en curso que no lo tiene: ${sin.map(a => a.texto).join(', ')}.` +
         (nueva ? ' Sesión nueva: los de la anterior ya no viven.' : '')
@@ -91,13 +96,13 @@ export const SIN_AVISO: TextosAviso = { lanzar: null, recoger: null }
 export async function leerAvisoSubagentes($: $): Promise<TextosAviso> {
   const raiz = await raizSesion($)
   if (!(await encendidos($, raiz))) return SIN_AVISO
-  const { peticiones } = await leerPeticiones($, raiz)
+  const { peticiones, foco } = await leerPeticiones($, raiz)
   const { vistos, conLista } = await leerSubagentes($)
   const antes = await read($, avisados)
   const r = nuevos(avisosSubagentes(peticiones, vistos, conLista), antes.claves)
   await update($, avisados, a => ({ ...a, claves: r.claves, nueva: false }))
   await guardarSesion($, raiz, { claves: r.claves })
-  return textoAviso(r.nuevos, antes.nueva)
+  return { ...textoAviso(r.nuevos, antes.nueva), foco: focoGuardado(peticiones, foco) }
 }
 
 // Tras un /clear o una compactación, lo pendiente se vuelve a avisar.
@@ -142,6 +147,8 @@ export function textoArranque(t: TextosAviso): string | null {
         ' Prepara sus encargos y lánzalos todos en segundo plano, a la vez en lo posible, sin otro trabajo antes.',
     )
   if (t.recoger) partes.push(t.recoger)
+  const recordatorio = recordatorioFoco(t.foco, t.tareas ?? [])
+  if (recordatorio) partes.push(recordatorio)
   partes.push(
     'Si el propietario escribe mientras, atiéndelo en cuanto lo veas y sigue después con lo que falte. Al acabar, di en una línea qué has lanzado o recogido y espera.',
   )
