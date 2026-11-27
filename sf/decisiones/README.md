@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 396 | 2026-11-27 | [El botón Abrir de una tarea abre su documento como Activar rama, pero sin activar la rama](396-2026-11-27-el-boton-abrir-de-una-tarea-abre-su-documento-como-activar-rama-pero-sin-activar-la-rama.md) |
 | 395 | 2026-11-27 | [En las skills de documentos, el subagente prepara en tanda las preguntas de cada fase y el principal las lleva al propietario](395-2026-11-27-en-las-skills-de-documentos-el-subagente-prepara-en-tanda-las-preguntas-de-cada-fase-y-el-principal-las-lleva-al-propietario.md) |
 | 394 | 2026-11-27 | [Las «Actualizar…» no se quedan atrás: Reflejar nace al entrar la tarea en develop y RELEASE avisa de las pendientes](394-2026-11-27-las-actualizar-no-se-quedan-atras-reflejar-nace-al-entrar-la-tarea-en-develop-y-release-avisa-de-las-pendientes.md) |
 | 393 | 2026-11-27 | [Cada vuelta de un documento la lleva a develop una sola orden, solo con ese documento](393-2026-11-27-cada-vuelta-de-un-documento-la-lleva-a-develop-una-sola-orden-solo-con-ese-documento.md) |
