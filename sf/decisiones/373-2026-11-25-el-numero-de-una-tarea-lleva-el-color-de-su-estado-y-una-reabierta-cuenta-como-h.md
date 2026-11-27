@@ -1,5 +1,7 @@
 # El número de una tarea lleva el color de su estado, y una reabierta cuenta como H
 
+Estado: deprecada el 2026-11-27 por «El número de una tarea va sin letra, y su color dice si está en curso o cerrada» (402); lo demás, por «Números de tarea en tres columnas, apartados con 0 y rojo solo para las reabiertas» (159).
+
 En el panel, el número de una tarea va sin letra detrás: la letra de su estado (A, H, O, C o D) solo le da el color. El número va subrayado cuando la tarea se despliega.
 
 Una tarea reabierta no es nueva: cuenta como H, aunque haya entrado en la sesión.
