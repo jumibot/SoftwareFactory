@@ -4,7 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
-| 416 | 2026-11-27 | [El servidor local del mod escucha cualquier petición de una página generada por la SF, con un token nuevo cada vez que se abre](416-2026-11-27-el-servidor-local-del-mod-escucha-cualquier-peticion-de-una-pagina-generada-por-la-sf-con-un-token-nuevo-cada-vez-que-se-abre.md) |
+| 416 | 2026-11-27 | [El servidor local sf_proxy escucha cualquier petición de una página generada por la SF, con un token por apertura y las peticiones numeradas](416-2026-11-27-el-servidor-local-del-mod-escucha-cualquier-peticion-de-una-pagina-generada-por-la-sf-con-un-token-nuevo-cada-vez-que-se-abre.md) |
 | 415 | 2026-11-27 | [Los diagramas deducen si sus bloques forman un ciclo o una jerarquía, y una línea de los datos puede fijar la forma](415-2026-11-27-los-diagramas-deducen-si-sus-bloques-forman-un-ciclo-o-una-jerarquia-y-una-linea-de-los-datos-puede-fijar-la-forma.md) |
 | 414 | 2026-11-27 | [La cola por dentro: historial, copias, bloqueo, quién y por dónde, reabrir y subagentes](414-2026-11-27-la-cola-por-dentro-historial-copias-bloqueo-quien-y-por-donde-reabrir-y-subagentes.md) |
 | 413 | 2026-11-27 | [El panel no enseña horas, y solo la tarea en curso va en dorado](413-2026-11-27-el-panel-no-ensena-horas-y-solo-la-tarea-en-curso-va-en-dorado.md) |
