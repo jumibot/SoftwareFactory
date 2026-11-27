@@ -6320,6 +6320,35 @@ test('Foco (436): con el foco en la tarea del aviso, sin recordatorio', async (.
   expect(a.contextos.at(-1)).toEqual([LANZA([4], true)])
 })
 
+// Al cerrar o descartar desde el panel la tarea del foco, cola.py quita el foco y el mod avisa de que Claude se queda
+// sin él, con su número y su título; en observación el foco sigue y no se avisa (tarea 462).
+test('Foco (462): cerrada o descartada la tarea del foco desde el panel, el aviso dice que te has quedado sin foco', async (...m) => {
+  const { contextos, reloj, archivos } = await preparar(m, { cola: AVISABLES, extra: { [COLA]: JSON.stringify({ foco: 13, peticiones: AVISABLES }) }, reloj: true })
+  await reloj!.advance(10_000)
+  await escribe(m, 'uno')
+  const cerrada13: Pet = { id: 13, texto: 'En curso desde el panel', estado: 'cerrada', historial: [ev('cerrada', 'develop c0ffee1', 20)] }
+  archivos[COLA] = JSON.stringify({ peticiones: [] })
+  archivos[HISTORIAL_JSONL] = JSON.stringify(cerrada13) + '\n'
+  await reloj!.advance(30_000)
+  await escribe(m, 'dos')
+  expect(contextos.at(-1)).toEqual(['Desde el panel: cerrada la 13. Te has quedado sin foco: era la 13 «En curso desde el panel».'])
+  // Una vez dicho, no se repite.
+  await reloj!.advance(10_000)
+  await escribe(m, 'tres')
+  expect(contextos.at(-1)).toBe(undefined)
+})
+
+test('Foco (462): la tarea del foco pasa a observación desde el panel: el foco sigue, sin aviso de foco', async (...m) => {
+  const { contextos, reloj, archivos } = await preparar(m, { cola: AVISABLES, extra: { [COLA]: JSON.stringify({ foco: 13, peticiones: AVISABLES }) }, reloj: true })
+  await reloj!.advance(10_000)
+  await escribe(m, 'uno')
+  const obs: Pet = { ...AVISABLES[0]!, estado: 'en-observacion', historial: [ev('a-observacion', 'develop c0ffee1', 20)] }
+  archivos[COLA] = JSON.stringify({ foco: 13, peticiones: [obs] })
+  await reloj!.advance(30_000)
+  await escribe(m, 'dos')
+  expect(contextos.at(-1)).toEqual(['Desde el panel: la 13, a observación.'])
+})
+
 test('Foco (382): al empezar, tras /clear, al reanudar y tras compactar, SessionStart da la línea del foco guardado; sin foco o en un subagente, no', async (...m) => {
   await preparar(m, { extra: { [COLA]: JSON.stringify({ foco: 1, peticiones: INICIAL }) } })
   const linea = 'Foco guardado en la cola: 🅵🅾🅲🆄🆂 `PANEL LATERAL (T❶ )`. Es el foco hasta que el propietario lo cambie (cola.py foco).'

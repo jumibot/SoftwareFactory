@@ -17,8 +17,9 @@ La entrega el mod de la SF al empezar la sesión, tras `/clear` y tras compactar
 **El foco manda** (380, 337, 357): con foco, todo lo que no es de su tarea va al final como off-topic, nunca en el cuerpo, lo pida quien lo pida: una regla de esta skill (avisar al lanzar o al poner en curso, llevar lo que pide un subagente, decir qué cambió, cerrar antes que abrir, guiar), el mod, un subagente, Claude Code o el propietario. «Libre» es sin foco.
 
 - **El foco** es una sola tarea, nunca un grupo («Cerrar tareas EN CURSO» no es un foco). Lo fija el propietario con sus palabras («vamos a probar la …», «cambia el foco a la …») o pulsando Activar rama en ella; sin foco, es la tarea sobre la que más escribe. Se guarda en la cola (382): con sus palabras, `cola.py foco N` (Activar rama ya lo guarda); al empezar, tras /clear y tras compactar, el mod da su línea. Sigue en observación. Acaba al cerrarse la tarea (se quita solo) o cuando él la deja: lo dice, o lleva un rato sin hablar de ella (`foco --quitar`). Nada más lo mueve: ni anotar, añadir pasos, poner en curso, cerrar o lanzar otra, ni otro botón del panel, ni que pregunte por otra o la encargue.
+- **Cambiar de tarea** (462): cuando el propietario propone otra («vamos con la N»), antes de nada `cola.py foco N`, y la línea del foco nuevo va desde el primer texto de la respuesta, también la nota breve que escribe antes de las herramientas. Con el aviso del mod «Te has quedado sin foco» (se cerró, pasó a observación o se descartó desde el panel la tarea del foco), la respuesta va sin línea del foco hasta que haya uno nuevo.
 - **Lo de otra tarea** es todo lo que no avanza el foco: una petición o un bug nuevos, también al anotarlos; lo que el propietario pregunta o encarga de otra; lo que traen de otra el panel, el mod o un subagente; las propuestas y preguntas sobre otra.
-- **La respuesta con foco**, en este orden: la línea 🅵🅾🅲🆄🆂 («Cómo escribir»); lo del foco y, si de él no hay nada nuevo, lo que espera del propietario en una línea o nada, que la línea basta (no se cuenta que su subagente sigue trabajando); tras dos líneas en blanco, cada una con un solo espacio duro (U+00A0), el rótulo «OTRAS TAREAS» como código en línea, con dos espacios al final, y en la línea siguiente una raya continua como código («────────────», 12 caracteres), también con dos espacios al final; debajo, una línea por tarea, sin guion ni paréntesis, con cuatro espacios duros (U+00A0, no espacios normales: cuatro normales hacen un bloque de código), «· » y la etiqueta ᴏꜰꜰ-ᴛᴏᴘɪᴄ como código en línea (morado), en versalitas, para que pese menos que el foco; el resto, texto normal, con negritas si hacen falta (dentro del código no se ven); cada línea termina en dos espacios normales para forzar el salto; si un off-topic no cabe en una línea, se parte a mano por un espacio, a unos 90 caracteres, y cada línea de continuación se sangra con seis espacios duros (U+00A0), bajo el texto del «·» (384, variante definitiva); entre dos off-topic va una línea de separación que solo lleva el carácter invisible U+2800 (patrón braille en blanco) seguido de dos espacios normales, y todo el bloque, del rótulo al último off-topic, es un único párrafo, sin líneas vacías (384).
+- **La respuesta con foco**, en este orden: la línea 🅵🅾🅲🆄🆂 («Cómo escribir»); lo del foco y, si no hay nada nuevo, al menos una línea con en qué está (qué hace su subagente o qué espera del propietario): nunca solo la línea 🅵🅾🅲🆄🆂 (462); tras dos líneas en blanco, cada una con un solo espacio duro (U+00A0), el rótulo «OTRAS TAREAS» como código en línea, con dos espacios al final, y en la línea siguiente una raya continua como código («────────────», 12 caracteres), también con dos espacios al final; debajo, una línea por tarea, sin guion ni paréntesis, con cuatro espacios duros (U+00A0, no espacios normales: cuatro normales hacen un bloque de código), «· » y la etiqueta ᴏꜰꜰ-ᴛᴏᴘɪᴄ como código en línea (morado), en versalitas, para que pese menos que el foco; el resto, texto normal, con negritas si hacen falta (dentro del código no se ven); cada línea termina en dos espacios normales para forzar el salto; si un off-topic no cabe en una línea, se parte a mano por un espacio, a unos 90 caracteres, y cada línea de continuación se sangra con seis espacios duros (U+00A0), bajo el texto del «·» (384, variante definitiva); entre dos off-topic va una línea de separación que solo lleva el carácter invisible U+2800 (patrón braille en blanco) seguido de dos espacios normales, y todo el bloque, del rótulo al último off-topic, es un único párrafo, sin líneas vacías (384); si un off-topic lleva viñetas, van un nivel más adentro que su texto: cada una empieza con diez espacios duros y «◦ », su continuación lleva doce espacios duros, siguen en el mismo párrafo, sin líneas vacías, y cada línea termina en dos espacios normales (462).
 - **Una pregunta sin tarea** (una duda general, de Claude Code, de cómo funciona algo): sin la línea del foco; se responde y nada más. Si destapa una petición o un bug, se anota y va como off-topic, con la línea del foco.
 - **Menús** (333): nunca con texto a medio escribir en la caja del prompt (el mod lo bloquea: la pregunta va en una línea al final de la respuesta). Con foco, solo de su tarea; la pregunta sobre otra, en su línea off-topic, también al anotar. Sin foco, libremente.
 - **Tras un rato sin escribir** (332): a los 10 minutos sin prompt desde el último turno, el mod deja en la caja del prompt, sin enviarla, «¿Seguimos con «<título>» (T❸ ❾ ❷ )?», con la tarea de la rama activa o la en curso más reciente. Claude no hace nada para eso.
@@ -29,6 +30,7 @@ Ejemplos (en el chat, la pregunta del foco que espera su decisión va en su bloq
 ```text
 Petición nueva (foco en la 379, sin nada nuevo): se anota, sin menú.
   🅵🅾🅲🆄🆂 `SF COMO UN PROYECTO MÁS (T❸ ❼ ❾ )`
+  Sigue su subagente con ello; no te toca nada.
  
  
 `OTRAS TAREAS`  
@@ -40,6 +42,7 @@ Pregunta sin tarea, «¿por qué unos subagentes no muestran su número?» (foco
 
 El foco espera a su subagente y vuelve el de otra:
   🅵🅾🅲🆄🆂 `BOTONES DEL PANEL MÁS PEQUEÑOS (T❸ ❾ ❼ )`
+  Sigue su subagente con ello; no te toca nada.
  
  
 `OTRAS TAREAS`  
@@ -57,6 +60,7 @@ Aviso «ANTES DE NADA: lanza el subagente de la 426» (foco en la 383): se lanza
 
 «Ponla en curso» (la 431, foco en la 429): el foco no cambia.
   🅵🅾🅲🆄🆂 `SCROLL DEL PANEL EN LA APP (T❹ ❷ ❾ )`
+  Sigue su subagente con ello; no te toca nada.
  
  
 `OTRAS TAREAS`  
@@ -65,6 +69,7 @@ Aviso «ANTES DE NADA: lanza el subagente de la 426» (foco en la 383): se lanza
 
 Off-topic que no cabe en una línea, partido a mano (foco en la 379):
   🅵🅾🅲🆄🆂 `SF COMO UN PROYECTO MÁS (T❸ ❼ ❾ )`
+  Sigue su subagente con ello; no te toca nada.
  
  
 `OTRAS TAREAS`  
@@ -75,6 +80,7 @@ Off-topic que no cabe en una línea, partido a mano (foco en la 379):
 
 Dos off-topic (foco en la 379; la línea entre ambos lleva solo el carácter invisible U+2800 y dos espacios):
   🅵🅾🅲🆄🆂 `SF COMO UN PROYECTO MÁS (T❸ ❶ ❾ )`
+  Sigue su subagente con ello; no te toca nada.
  
  
 `OTRAS TAREAS`  
@@ -82,6 +88,18 @@ Dos off-topic (foco en la 379; la línea entre ambos lleva solo el carácter inv
     · `ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❹ ❸ ❷ : lista para probar ▶️  
 ⠀  
     · `ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❹ ❸ ❻ : subagente lanzado  
+
+Off-topic con viñetas, un nivel más adentro que su texto (foco en la 379; mismo párrafo, sin líneas vacías):
+  🅵🅾🅲🆄🆂 `SF COMO UN PROYECTO MÁS (T❸ ❼ ❾ )`
+  Sigue su subagente con ello; no te toca nada.
+ 
+ 
+`OTRAS TAREAS`  
+`────────────`  
+    · `ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❹ ❸ ❶ : EN CURSO 🟡, su subagente probó dos hipótesis:  
+          ◦ la primera falla: el cierre no llega a quitar el foco, que sigue en la cola y lo  
+            nombra el contexto tras compactar;  
+          ◦ la segunda se confirma.  
 
 El foco espera su OK, con opción recomendada (foco en la 379):
   🅵🅾🅲🆄🆂 `SF COMO UN PROYECTO MÁS (T❸ ❼ ❾ )`

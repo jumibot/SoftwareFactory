@@ -103,7 +103,8 @@ export function recogidaDe(h: Evento[]): Evento | null {
 // El texto del aviso, o null sin cambios. Tras un cierre con Cerrar o un descarte de una tarea que tuvo subagente, pide
 // pararlo: el panel no puede. Su worktree y su rama auxiliar ya los quitó cola.py; si algo quedó, lo dice, y sin
 // recogida anotada (un cola.py anterior) pide quitarlos también.
-export function avisoPanel(cambios: CambioPanel[], tareas: Tarea[]): string | null {
+// perdido: el foco que se ha quedado sin tarea con estos cambios (tarea 462), con su título; null si no.
+export function avisoPanel(cambios: CambioPanel[], tareas: Tarea[], perdido: FocoGuardado | null = null): string | null {
   if (!cambios.length) return null
   let aviso = `Desde el panel: ${cambios.map(frase).join('; ')}.`
   // Tras fusionar, la resultante se retitula, se redescribe y ordena sus pasos (decisión 358): lo propone Claude.
@@ -128,20 +129,41 @@ export function avisoPanel(cambios: CambioPanel[], tareas: Tarea[]): string | nu
     else if (r) aviso += ` Detén el subagente de la ${n}; al recogerlo, cola.py avisó: ${r.detalle ?? '?'}.`
     else aviso += ` Recoge el subagente de la ${n}${sub ? ` (${sub})` : ''}: páralo, quita su worktree y borra su rama auxiliar.`
   }
+  if (perdido) aviso += ` Te has quedado sin foco: era la ${String(perdido.id)} «${perdido.texto}».`
   return aviso
+}
+
+// El foco que la cola ha quitado con estos cambios (tarea 462): el visto en el aviso anterior, si su tarea se ha
+// cerrado, pasado a observación o descartado desde el panel y la cola ya no lo guarda (cola.py lo quita al salir la
+// tarea de la cola o al descartarla; en observación sigue siendo el foco, y no se avisa).
+export function focoPerdido(visto: FocoGuardado | null, actual: FocoGuardado | null, cambios: CambioPanel[]): FocoGuardado | null {
+  if (!visto || actual?.id === visto.id) return null
+  return cambios.some(c => c.id === visto.id && ['cerrada', 'a-observacion', 'descartada'].includes(c.evento)) ? visto : null
 }
 
 // Lee la cola y historial.jsonl y devuelve el aviso de lo cambiado desde el panel en [desde, hasta). Si no puede
 // leer alguno de los dos (la cola a medio escribir, por ejemplo), falla: el aviso no se da por dado (tarea 285).
 // También las tareas de las que avisa y el foco guardado en la cola, para el recordatorio del foco (tarea 436).
 export type AvisoDelPanel = { aviso: string | null; tareas: number[]; foco: FocoGuardado | null }
+// El foco visto en el aviso anterior, en $.store con el id de la sesión (tarea 462): la cola ya no guarda el que quitó
+// el cierre, y el mod es quien recuerda cuál era.
+export const CLAVE_FOCO_VISTO = 'focoVisto'
+async function leerFocoVisto($: $): Promise<FocoGuardado | null> {
+  const g = (await $.store.get(CLAVE_FOCO_VISTO).catch(() => undefined)) as { sesion?: string; id?: number; texto?: string } | undefined
+  return g && g.sesion === (await $.session.id()) && typeof g.id === 'number' && typeof g.texto === 'string' ? { id: g.id, texto: g.texto } : null
+}
+async function fijarFocoVisto($: $, f: FocoGuardado | null): Promise<void> {
+  await $.store.set(CLAVE_FOCO_VISTO, f ? { sesion: await $.session.id(), ...f } : null).catch(() => undefined)
+}
 export async function leerAvisoPanel($: $, desde: number, hasta: number): Promise<AvisoDelPanel> {
   const raiz = await raizSesion($)
   const cola = await leerPeticiones($, raiz)
   if (cola.error) throw new Error(cola.error)
   const tareas: Tarea[] = [...cola.peticiones, ...(await leerSalidas($, raiz, desde))]
   const cambios = cambiosDelPanel(tareas, desde, hasta)
-  return { aviso: avisoPanel(cambios, tareas), tareas: cambios.map(c => c.id), foco: focoGuardado(cola.peticiones, cola.foco) }
+  const foco = focoGuardado(cola.peticiones, cola.foco)
+  const perdido = focoPerdido(await leerFocoVisto($), foco, cambios)
+  return { aviso: avisoPanel(cambios, tareas, perdido), tareas: cambios.map(c => c.id), foco }
 }
 
 // Hasta dónde (ms) se ha avisado a Claude de los cambios del panel: el último mensaje que lo llevó (del propietario o
@@ -194,8 +216,16 @@ export async function tomarAvisoPanel($: $): Promise<AvisoDelPanel & { devolver:
   const desde = await read($, avisadoPanel)
   const leido = await leerAvisoPanel($, desde, hasta).catch(() => undefined)
   if (leido === undefined) return { aviso: null, tareas: [], foco: null, devolver: async () => undefined }
+  const visto = await leerFocoVisto($)
   await fijarAvisado($, v => Math.max(v, hasta))
-  return { ...leido, devolver: () => fijarAvisado($, v => (v === hasta ? desde : v)) }
+  await fijarFocoVisto($, leido.foco)
+  return {
+    ...leido,
+    devolver: async () => {
+      await fijarAvisado($, v => (v === hasta ? desde : v))
+      await fijarFocoVisto($, visto)
+    },
+  }
 }
 
 // Un encargo del panel a Claude, como si lo escribiera el propietario (R, T y C fallidas, «?», /sf_paso, TURBO…). El
