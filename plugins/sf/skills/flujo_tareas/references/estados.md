@@ -140,7 +140,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Autorización:** con un encargo nuevo en el chat, el menú de alta (01) pregunta si se añade como paso a la tarea en la que encaja.
 - **Repositorio:** nada.
 - **Panel:** la cuenta «n/m» crece; una ayuda de prueba no cuenta y se ve con «(opcional)».
-- **CLI:** `cola.py paso añadir 92 "texto"`, `cola.py paso añadir 92 "Abrir el panel y mirar X" --prueba`; rechaza el texto de un paso de cierre (174).
+- **CLI:** `cola.py paso añadir 92 "texto"`, `cola.py paso añadir 92 "Abrir el panel y mirar X" --prueba`; `cola.py paso añadir 92 "Comprobado: 300 pruebas, sin fallos"` lo deja hecho al crearlo (también con «Sin comprobar:»; sin devolver «Activar rama» a pendiente) y `--hecho` lo hace con cualquier texto (incompatible con `--prueba`); rechaza el texto de un paso de cierre (174; 460).
 - **Sale de:** 067, 072, 080; en el historial, 115 (11).
 
 #### 07 · Marcar un paso
@@ -151,7 +151,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 - **Autorización:** ninguna.
 - **Repositorio:** nada.
 - **Panel:** ▸ en curso, ✓ hecho; bajo la tarea de arriba, el paso en curso.
-- **CLI:** `cola.py paso marcar 92 3 en-curso`, `cola.py paso marcar 92 3 hecho --texto "Redactada la tabla"`. El número cuenta desde 1, como el `n` de cada paso en `ver 92`. Un paso de cierre no cambia de texto, ni otro toma el de uno de cierre (174).
+- **CLI:** `cola.py paso marcar 92 3 en-curso`, `cola.py paso marcar 92 3 hecho --texto "Redactada la tabla"`. El número cuenta desde 1, como el `n` de cada paso en `ver 92`. Un paso de cierre no cambia de texto, ni otro toma el de uno de cierre (174). `paso marcar N P hecho` se niega con «Cerrar la tarea»: solo lo marca `cerrar` o `a-observacion` (460).
 - **Sale de:** 067, 081; en el historial, 115 (11).
 
 #### 08 · Quitar un paso pendiente

@@ -129,6 +129,7 @@ El porqué de cada regla de la skill, en el orden de sus secciones y tarjetas (p
 - **Nombres compactos** («Textos compactos: nada que no aporte», 040): el panel recorta cada línea al ancho; los prefijos repetidos se comen el espacio y lo importante se pierde.
 - **Descripción sin origen** (063, 098): arriba.
 - **`quien` y `via`** (115, punto 10): distinguen el Cerrar del propietario en el panel de un cierre del principal.
+- **«Cerrar la tarea» no se marca a mano** (460): el orquestador tomó el total de pasos como índice y lo marcó hecho; el panel dejó de ofrecer Cerrar. Lo marca `cerrar`. Y lo comprobado nace hecho (`Comprobado:`, `Sin comprobar:`, `--hecho`) para que no haga falta añadir y marcar con un número.
 - **El subagente no escribe, aunque el CLI no lo compruebe** (110; 115, punto 14).
 
 ## 4. Copias rotativas

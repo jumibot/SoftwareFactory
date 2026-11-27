@@ -88,6 +88,8 @@ ABIERTAS = ('en-cola', 'en-curso')
 ESTADOS_SALIDA = ('cerrada', 'eliminada', 'absorbida', 'descartada', 'revertida')
 ESTADOS_PASO = ('pendiente', 'en-curso', 'hecho')
 PASOS_CIERRE = ('Activar rama para poder probar', 'Cerrar la tarea')
+# El paso que empieza así se crea hecho: es lo comprobado o lo que no se pudo comprobar (tarea 460).
+PREFIJOS_HECHO = ('comprobado:', 'sin comprobar:')
 # El paso de prueba se llamaba «Probar la tarea»: la cola lo renombra al cargarla (decisión 172).
 PASO_PROBAR, PASO_PROBAR_ANTES = PASOS_CIERRE[0], 'Probar la tarea'
 # El tipo de cada tarea, en infinitivo; el panel lo pinta tras el título, «(DELIBERAR)» (decisión del propietario,
@@ -1175,12 +1177,17 @@ def o_paso_anadir(cola: Cola, a) -> str:
         cola.anotar(t, 'paso', f'ayuda de prueba {sitio + 1}: {nuevo["texto"]}')
         cola.guardar()
         return f'Ayuda de prueba {sitio + 1} de {len(p)} de la {a.n}, sin exigirla para cerrar: «{nuevo["texto"]}».'
+    # Lo comprobado ya está hecho al crearlo, y no devuelve la prueba a pendiente (tarea 460); con --hecho, cualquier texto.
+    comprobado = nuevo['texto'].lower().startswith(PREFIJOS_HECHO)
+    if comprobado or a.hecho:
+        nuevo['estado'] = 'hecho'
     sitio = next((i for i, x in enumerate(p) if es_de_cierre(x.get('texto')) or es_ayuda(x)), len(p))
     p.insert(sitio, nuevo)
     cola.anotar(t, 'paso', f'añadido {sitio + 1}: {nuevo["texto"]}')
-    otra_vez = probar_otra_vez(t)
+    otra_vez = False if comprobado else probar_otra_vez(t)
     cola.guardar()
-    return (f'Paso {sitio + 1} de {len(p)} de la {a.n}: «{nuevo["texto"]}».'
+    return (f'Paso {sitio + 1} de {len(p)} de la {a.n}' + (', hecho' if nuevo['estado'] == 'hecho' else '')
+            + f': «{nuevo["texto"]}».'
             + (f' «{PASO_PROBAR}», otra vez pendiente: hay que probar de nuevo.' if otra_vez else ''))
 
 
@@ -1188,6 +1195,11 @@ def o_paso_marcar(cola: Cola, a) -> str:
     t = cola.tarea(a.n)
     x = paso(t, a.i)
     texto = a.texto.strip() if a.texto else None
+    if a.estado == 'hecho' and str(x.get('texto')).strip() == PASOS_CIERRE[1]:
+        # Un número de paso mal tomado (el último, el total) marcaba hecho el cierre y el panel dejaba de ofrecer Cerrar
+        # (tarea 460): «Cerrar la tarea» solo lo marca `cerrar` o `a-observacion`.
+        raise Rechazo(f'El paso {a.i} de la {a.n} es «{x["texto"]}»: no se marca a mano, lo marca «cerrar». '
+                      f'Los pasos cuentan desde 1; míralos con «ver {a.n}».')
     if texto and texto != x.get('texto'):
         # Un paso de cierre reescrito deja de serlo (tarea 253).
         if es_de_cierre(x.get('texto')):
@@ -2785,9 +2797,12 @@ def analizador() -> argparse.ArgumentParser:
     g.add_argument('--anotar', action='store_true', help='solo la anota: ya existe')
     sp = o.add_parser('paso', help='añadir, marcar, quitar o mover un paso').add_subparsers(dest='accion', required=True, metavar='acción')
     s = orden('añadir', o_paso_anadir, 'paso nuevo, pendiente, antes de los de cierre', 'n', 'texto', padre=sp, aliases=['anadir'])
-    s.add_argument('--prueba', action='store_true',
+    g = s.add_mutually_exclusive_group()
+    g.add_argument('--prueba', action='store_true',
                    help='ayuda de prueba: tras «Activar rama para poder probar», sin exigirla para cerrar (decisión 184)')
-    s = orden('marcar', o_paso_marcar, 'cambia el estado de un paso', 'n', 'i', padre=sp)
+    g.add_argument('--hecho', action='store_true',
+                   help='lo crea hecho (siempre, si empieza por «Comprobado:» o «Sin comprobar:»)')
+    s = orden('marcar', o_paso_marcar, 'cambia el estado de un paso (no marca hecho «Cerrar la tarea»: lo hace cerrar)', 'n', 'i', padre=sp)
     s.add_argument('estado', choices=ESTADOS_PASO)
     s.add_argument('--texto', help='texto nuevo (al hacerse, en participio)')
     orden('quitar', o_paso_quitar, 'quita un paso pendiente (no «Cerrar la tarea»)', 'n', 'i', padre=sp)

@@ -207,6 +207,28 @@ class Pasos(Base):
         self.assertEqual([(p['texto'], p['estado']) for p in self.tarea(11)['pasos']],
                          [('Quitar la negrita', 'hecho'), ('Activar rama para poder probar', 'hecho'), ('Cerrar la tarea', 'pendiente')])
 
+    def test_no_se_marca_a_mano_cerrar_la_tarea(self):  # tarea 460
+        self.orden('paso', 'añadir', '11', 'Quitar la negrita')
+        self.assertIn('«cerrar»', self.orden('paso', 'marcar', '11', '3', 'hecho', ok=False))
+        self.assertEqual(self.tarea(11)['pasos'][2], {'texto': 'Cerrar la tarea', 'estado': 'pendiente'})
+        self.orden('paso', 'marcar', '11', '2', 'hecho')  # «Activar rama…» sigue igual
+        self.assertEqual(self.tarea(11)['pasos'][1]['estado'], 'hecho')
+
+    def test_paso_anadir_hecho(self):  # tarea 460
+        self.orden('paso', 'añadir', '11', 'Quitar la negrita')
+        self.orden('paso', 'marcar', '11', '2', 'hecho')  # prueba hecha
+        self.orden('paso', 'añadir', '11', 'Comprobado: 300 pruebas, sin fallos')
+        self.orden('paso', 'añadir', '11', 'Sin comprobar: el móvil')
+        self.assertEqual([(p['texto'], p['estado']) for p in self.tarea(11)['pasos']], [
+            ('Quitar la negrita', 'pendiente'), ('Comprobado: 300 pruebas, sin fallos', 'hecho'),
+            ('Sin comprobar: el móvil', 'hecho'), ('Activar rama para poder probar', 'hecho'),
+            ('Cerrar la tarea', 'pendiente')])  # lo comprobado no devuelve la prueba a pendiente
+        self.orden('paso', 'añadir', '11', 'Otro hecho', '--hecho')
+        self.assertEqual(self.tarea(11)['pasos'][3], {'texto': 'Otro hecho', 'estado': 'hecho'})
+        self.assertEqual(self.tarea(11)['pasos'][-2]['estado'], 'pendiente')  # --hecho de trabajo sí pide probar otra vez
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):  # incompatibles
+            self.orden('paso', 'añadir', '11', 'Mirar', '--hecho', '--prueba', ok=False)
+
     def test_listo_se_niega_con_pasos_de_trabajo_sin_hacer(self):  # tarea 447
         self.orden('paso', 'añadir', '11', 'Primero')
         self.orden('paso', 'añadir', '11', 'Segundo')
