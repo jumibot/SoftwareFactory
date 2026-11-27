@@ -1,5 +1,7 @@
 # La P no recarga el plugin
 
+Estado: deprecada el 2026-11-27 por «La orden Activar rama pone una tarea en prueba con un clic, sin Claude y sin darla por buena» (407).
+
 - **Origen:** SoftwareFactory, 2026-10-29, tarea 118, al probar la P. El propietario: «no hagas el reload, queda bajo mi responsabilidad. el modo prueba cambia de rama y si es necesario pone la tarea en curso».
 - **Contexto:** en modo prueba, la P lanzaba `/reload-plugins` tras el `git switch`. La recarga solo hace falta si la rama trae otro `plugins/sf`, y solo en la SF.
 - **Decisión:** la P cambia de rama y, si la tarea está en cola, la pasa a en curso. No recarga el plugin: recargar queda a cargo del propietario.
