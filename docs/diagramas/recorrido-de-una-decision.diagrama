@@ -1,0 +1,34 @@
+tipo: arquitectura
+titulo: Recorrido de una decisión
+descripcion: Se registra en develop al tomarse y se aplica en su tarea; solo lo del plugin sale de la SF.
+foco: reg
+nodos:
+  prop: El propietario decide | en el chat, al definir una tarea
+  reg: cola.py decision | sf/decisiones/, índice y commit en develop
+  tarea: Su tarea la aplica | feature/NN-nombre, con su subagente
+  plug: En el plugin sf | metodología, plantillas, skills, código
+  repo: Solo en el repositorio | CLAUDE.md, especificación, «Cómo funciona…»
+  mem: Memoria de Claude | un recordatorio; no se versiona | externo
+  proy: Proyectos | con el plugin instalado
+zonas:
+  dec: DECIDIR Y APLICAR | prop, reg, tarea
+  dest: DÓNDE QUEDA | plug, repo, mem
+  pro: FUERA DE LA SF | proy
+flechas:
+  prop > reg: REGISTRA | principal
+  reg > tarea: SE APLICA
+  tarea > plug
+  tarea > repo
+  tarea > mem: | discontinua
+  plug > proy: AL PUBLICAR | principal
+fichas:
+  prop: El propietario de la Software Factory decide en el chat, normalmente al definir una tarea.
+  reg: El principal la registra en cuanto se toma: número, archivo en sf/decisiones/, índice y commit «Decisión NNN: Título» en develop, sin pasar por la rama de la tarea.
+  tarea: Su subagente la aplica en la rama feature/NN-nombre; entra en develop al cerrar la tarea, con el OK del propietario.
+  plug: Metodología, plantillas de reglas, skills y código del plugin.
+    - Llegan a los proyectos al publicar una versión.
+  repo: El CLAUDE.md de la SF, la especificación y «Cómo funciona…».
+    - No viajan: no cambian nada en los proyectos.
+  mem: Un recordatorio de lo decidido, que no se versiona.
+    - En la SF no lleva nada que viaje en el plugin, y cambiarla pide el OK del propietario.
+  proy: Cada proyecto recibe lo nuevo al actualizar el plugin; nada se copia al proyecto.

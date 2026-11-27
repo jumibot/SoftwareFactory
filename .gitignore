@@ -27,8 +27,8 @@ desktop.ini
 .sf/peticiones.lock
 .sf/peticiones.json.tmp
 
-# El índice de las decisiones en html: lo genera el panel al abrirlo (decisión 163)
-sf/decisiones/README.html
+# El índice de las decisiones en html, su entrada y sus dos catálogos: no se versiona (decisión 163)
+sf/decisiones/*.html
 
 # Lo que Claude Code genera en el plugin al pasar sus pruebas (claude plugin test): no es del plugin ni se publica (tarea 346)
 plugins/sf/tsconfig.json

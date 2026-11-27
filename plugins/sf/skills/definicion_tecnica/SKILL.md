@@ -1,7 +1,7 @@
 ---
 name: definicion_tecnica
 user-invocable: false
-description: Elabora la definición técnica y la arquitectura global de un proyecto de la Software Factory — contexto tecnológico, perfil técnico favorito con sus excepciones justificadas, paradigma, decisiones de arquitectura que evitan que las partes diverjan, convenciones, stack con versiones verificadas, estructura semilla, persistencia, capacidades opcionales (agente de IA, brain, KB, API), lo que se aplaza y registro de decisiones en formato MADR. Úsala cuando pidan definir la técnica, la arquitectura, el stack o la solución de un proyecto, o registrar una decisión técnica, después de la especificación funcional y la interfaz.
+description: Elabora la definición técnica y la arquitectura global de un proyecto de la Software Factory — contexto tecnológico, perfil técnico favorito con sus excepciones justificadas, paradigma, decisiones de arquitectura que evitan que las partes diverjan, convenciones, stack con versiones verificadas, estructura semilla, persistencia, capacidades opcionales (agente de IA, brain, KB, API), lo que se aplaza y registro de decisiones con su porqué, en el formato de la SF. Úsala cuando pidan definir la técnica, la arquitectura, el stack o la solución de un proyecto, o registrar una decisión técnica, después de la especificación funcional y la interfaz.
 ---
 
 # Definición técnica
@@ -13,7 +13,7 @@ No contiene nada de ningún proyecto. Las preferencias y los perfiles técnicos 
 ## Qué produce
 
 - `docs/specs/tecnica/definicion-tecnica.md`, con la forma de `assets/plantilla-definicion-tecnica.md`.
-- Un archivo por decisión no obvia en `sf/decisiones/`, `NNN-AAAA-MM-DD-titulo.md`, con la forma de `assets/plantilla-decision.md`. La carpeta reúne todas las decisiones del proyecto; se crea si no existe. Se registra con `cola.py decision "Título" --archivo RUTA` (`tools/` del plugin), que da el número y el nombre, rehace el índice, `README.md`, y hace el commit en `develop` sin cambiar la rama activa; `--numero NNN` reescribe una. Al juntar ramas, el índice se regenera con `tools/indice_decisiones.py docs/decisiones`.
+- Un archivo por decisión no obvia en `sf/decisiones/`, `NNN-AAAA-MM-DD-titulo.md`, con la forma de `assets/plantilla-decision.md`. La carpeta reúne todas las decisiones del proyecto; se crea si no existe. Se registra con `cola.py decision "Título" --archivo RUTA` (`tools/` del plugin), que da el número y el nombre, rehace el índice (`README.md`, la entrada, y sus dos catálogos, `vigentes.md` y `deprecadas.md`) y hace el commit en `develop` sin cambiar la rama activa; `--numero NNN` reescribe una. Al juntar ramas, el índice se regenera con `tools/indice_decisiones.py sf/decisiones`.
 - Si hace falta, una actualización mínima del `CLAUDE.md` del proyecto.
 
 El documento técnico dice **la regla**; cada decisión en `sf/decisiones/` guarda **el porqué**. Cuando ya exista código, la estructura y el stack los manda el código; las reglas siguen en el documento.
@@ -62,7 +62,7 @@ Si no las cumple, va a convenciones, al stack o a **Aplazado**, con el motivo po
    - **Instalación y operación**: el paso único de instalación, entornos y despliegue.
    - **Mapa funcionalidad → componente**: dónde vive cada funcionalidad y qué la gobierna.
    - **Aplazado**, con el motivo de cada punto.
-6. **Decisiones.** Por cada decisión no obvia, un archivo en `sf/decisiones/` con nombre descriptivo, fecha, contexto y problema, opciones consideradas, decisión con su porqué y consecuencias. Si cambia una decisión anterior, lo dice y marca la antigua como sustituida. Después se regenera el índice. El documento técnico enlaza el archivo.
+6. **Decisiones.** Por cada decisión no obvia, un archivo en `sf/decisiones/` con la forma de la plantilla: el título dice la regla; debajo, lo decidido, «Opciones:» con las alternativas reales que se valoraron, «Porqué:» y «Aplicada en:». Si cambia una decisión anterior, lo dice («Sustituye a…» o «Recoge lo que sigue valiendo de…») y depreca la antigua entera, con la línea «Estado: deprecada el AAAA-MM-DD por «…» (NNN)» bajo su título, sin reescribir el resto. Después se regenera el índice. El documento técnico enlaza el archivo.
 7. **`CLAUDE.md` del proyecto.** Si hace falta, un bloque mínimo con comandos, políticas que el código no expresa, divergencias respecto a lo habitual y versiones. Sin resumen de arquitectura (está en el documento técnico). Cada revisión lo deja igual o más corto.
 8. **Revisión.** Recorrer la lista de comprobación. Para un proyecto grande o crítico, ofrecer una revisión independiente con un subagente que solo lea el documento y busque dos partes que puedan chocar.
 9. **Entrega.** Resumir decisiones, excepciones, lo aplazado y las preguntas abiertas. Pedir la aprobación del propietario.

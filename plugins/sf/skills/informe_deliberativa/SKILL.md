@@ -49,7 +49,7 @@ Cada pregunta es una tarjeta de `::: preguntas`, el recurso «pregunta con opcio
 
 ### 1 · Cómo se cumple «solo su documento» {recomendada=A} {: #p1}
 
-Hoy nada lo vigila: cualquier paso entra en la tarea.
+Una tarea de documentos solo debería cambiar su documento. Hoy nada lo vigila: un paso de esa tarea puede tocar cualquier archivo, y entra en `develop` al cerrarla sin que nadie lo vea.
 
 Opción A
 :   La tarea declara su documento con una orden, y `cerrar` se niega si la rama toca otros archivos.
@@ -64,8 +64,10 @@ Recomendación
 ```
 
 - **Una decisión por pregunta**, con un título que la nombra y un número por importancia (1 la más importante). El número y el ancla `{: #pN}` no cambian aunque la pregunta se decida o se separe: los pasos de las tareas la citan por ellos («Decidir … (pregunta 5) (informe «Tipos de tarea», tarea 274)»).
-- **Contexto en una o dos frases**, solo si hace falta para elegir: qué pasa hoy o por qué hay que decidir.
-- **Dos o tres opciones**, `Opción A`, `Opción B`…, cada una con lo que implica en una o dos frases. «Como hoy» es una opción cuando lo es de verdad.
+- **Se entiende sola.** El propietario lleva muchas tareas a la vez: la pregunta no da por sabido nada de la tarea, de otras preguntas ni de otras decisiones. Primero, de qué va, en palabras llanas: qué regla de la SF toca y cómo lo vive el propietario (el panel, la cola, un botón, un documento). Después, qué cambia y por qué hay que elegir. Dos o tres frases cortas.
+- **Parte de lo que se ve hoy, comprobado.** La pregunta dice si lo que toca funciona hoy, dónde y cuándo lo ve el propietario (o que no lo ve, porque solo lo lee Claude), comprobado en el código, no supuesto. Separa lo que cambia o se depreca (la decisión antigua y por qué) de lo que sigue funcionando, y se adelanta a la duda obvia: «¿esto existe todavía?».
+- **Sin números como sujeto.** Una decisión, una tarea o una propuesta se nombra por lo que dice, y su número va solo entre paréntesis detrás: «Las letras A y H del bloque de tareas del panel (053)», no «la 053». Igual en el título, las opciones y las tablas del informe.
+- **Dos o tres opciones**, `Opción A`, `Opción B`…, cada una con lo que pasará si se elige, en una o dos frases. «Como hoy» es una opción cuando lo es de verdad.
 - **Recomendación** con su porqué en una frase, y `recomendada=A` en el título para que se destaque. Toda pregunta abierta lleva recomendación; el generador avisa si falta.
 - **Estado**, al día con cada respuesta:
   - `estado=abierta` (por defecto): se espera la respuesta;
@@ -95,6 +97,7 @@ Cada respuesta del propietario, o cada avance del análisis que cambie el inform
 La de `crear_documentos` («Comprobación») y, además:
 
 - cada pregunta abierta tiene al menos dos opciones y una recomendada; ninguna decidida sin `elegida` ni separada sin `destino`;
+- cada pregunta se entiende leída sola, sin nada de antes, y ningún número de decisión o de tarea hace de sujeto;
 - las cuentas del resumen (preguntas abiertas, separaciones, tareas) coinciden con las secciones;
 - cada enlace a una pregunta (`#pN`) o a una separación (`#a-…`) existe;
 - la tabla de «Decidido» solo trae decisiones ya registradas.

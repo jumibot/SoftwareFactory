@@ -10,7 +10,7 @@ No se copia ningún archivo de estos proyectos: se toman estructuras, secciones 
 | --- | --- | --- | --- | --- |
 | [BMAD Method](https://github.com/bmad-code-org/BMAD-METHOD), commit `61e01f8` | MIT | Copyright (c) 2025 BMad Code, LLC | `definicion_tecnica`, `diseno_interfaz` | De `bmad-architecture`: el documento corto de arquitectura, la forma de las decisiones, convenciones, stack y estructura semilla, y la lista del revisor. De `bmad-ux`: las secciones del documento de experiencia, los bocetos de pantallas clave y la lista de cobertura. |
 | [Spec Kit](https://github.com/github/spec-kit), commit `67e0f72` | MIT | Copyright GitHub, Inc. | `definicion_tecnica`, `diseno_interfaz` | Los campos del contexto técnico, la marca «NECESITA ACLARACIÓN», la tabla de complejidad y los escenarios «Dado / Cuando / Entonces». |
-| [MADR](https://github.com/adr/madr) 4.0.0 | MIT o CC0-1.0, a elección; se usa bajo MIT | Copyright (c) 2017-2022 Oliver Kopp, Olaf Zimmermann | `definicion_tecnica` | Las secciones del registro de una decisión. |
+| [MADR](https://github.com/adr/madr) 4.0.0 | MIT o CC0-1.0, a elección; se usa bajo MIT | Copyright (c) 2017-2022 Oliver Kopp, Olaf Zimmermann | `definicion_tecnica` | El origen de la plantilla de una decisión, que hoy sigue el formato propio de la SF. |
 | [Superpowers](https://github.com/obra/superpowers) | MIT | Copyright (c) 2025 Jesse Vincent | `diseno_interfaz` | Una pregunta cada vez, con propuesta. |
 
 BMad™, BMad Method™ y BMad Core™ son marcas de BMad Code, LLC. Su mención aquí solo indica la procedencia y no implica respaldo.

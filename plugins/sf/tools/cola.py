@@ -1840,7 +1840,13 @@ def o_reabrir(cola: Cola, a) -> str:
         if ev == 'eliminada':
             raise Rechazo(f'La {a.n} se eliminó: se recupera con «restaurar {a.n}».')
         if ev == 'absorbida':
-            raise Rechazo(f'La {a.n} se fusionó en otra: deshacer la fusión es /desfusionar (tarea 135).')
+            # Una fusión no se deshace: lo absorbido se saca a una tarea nueva con /sf_split (tarea 439, regla de la 115).
+            det = next((e.get('detalle') or '' for e in reversed(t.get('historial', [])) if e.get('evento') == 'absorbida'), '')
+            m = re.match(r'en (\d+)', det)
+            donde = f'en la {m.group(1)}' if m else 'en otra'
+            split = f'/sf_split {m.group(1)} PASOS' if m else '/sf_split N PASOS'
+            raise Rechazo(f'La {a.n} se fusionó {donde}, y una fusión no se deshace: sus pasos se sacan a una tarea '
+                          f'nueva con «Separar pasos» ({split}).')
     vieja = t.get('rama') or next((e.get('detalle') for e in reversed(t.get('historial', []))
                                    if e.get('evento') == 'rama'), None)
     estado = 'en-cola' if a.en_cola else 'en-curso'
@@ -2204,8 +2210,8 @@ def leer_decisiones(repo: Path) -> tuple[dict, str | None, str, str]:
         return textos, readme, 'otra', rel
     if con_git:
         r = git(repo, 'status', '--porcelain', '--', rel)
-        # README.html no se versiona (decisión 163): si no está en .gitignore, no cuenta como cambio.
-        if r.returncode != 0 or [x for x in r.stdout.splitlines() if not x.endswith('/README.html')]:
+        # Los .html del índice no se versionan (decisión 163): si no están en .gitignore, no cuentan como cambio.
+        if r.returncode != 0 or [x for x in r.stdout.splitlines() if not x.endswith('.html')]:
             raise Rechazo(f'{rel} tiene cambios sin commit en develop: haz commit antes.')
     textos = {f.name: f.read_bytes().decode('utf-8', 'replace') for f in carpeta.iterdir()
               if f.is_file() and f.suffix == '.md'} if carpeta.is_dir() else {}
@@ -2288,9 +2294,10 @@ def o_decision(cola: Cola, a) -> str:
     # Los fines de línea, los del índice que ya hay.
     nl = '\r\n' if readme and '\r\n' in readme else '\n'
     decisiones[nombre] = texto + '\n'
-    indice, _ = idx.indice(readme, decisiones.items())
-    cambios = {f'{carpeta}/{nombre}': (texto + '\n').replace('\n', nl).encode('utf-8'),
-               f'{carpeta}/README.md': indice.replace('\n', nl).encode('utf-8')}
+    # El índice: README.md, la entrada, y los dos catálogos, vigentes.md y deprecadas.md (decisión 389).
+    cambios = {f'{carpeta}/{nombre}': (texto + '\n').replace('\n', nl).encode('utf-8')}
+    cambios.update({f'{carpeta}/{x}': t.replace('\n', nl).encode('utf-8')
+                    for x, t in idx.catalogos(readme, decisiones.items()).items()})
     que = 'modificada' if a.numero is not None else 'registrada'
     cola.extra.update({'numero': numero, 'archivo': f'{carpeta}/{nombre}'})
     if donde == 'archivo':
@@ -2303,9 +2310,9 @@ def o_decision(cola: Cola, a) -> str:
     _, hash_ = commit_en_develop(repo, donde, cambios, mensaje + (f'\n\n{coautor}' if coautor else ''))
     cola.extra['hash'] = hash_
     respuesta = f'Decisión {numero:03d} {que} en develop ({hash_}): {carpeta}/{nombre}.'
-    if donde == 'develop':  # README.html no se versiona (decisión 163): se rehace en la copia de trabajo, que es develop
+    if donde == 'develop':  # los .html no se versionan (decisión 163): se rehacen en la copia de trabajo, que es develop
         html = idx.generar_html(repo / carpeta)
-        if html.startswith('sin README.html'):
+        if html.startswith(idx.SIN_HTML):
             respuesta += f' {html}.'
     return respuesta + (push_develop(repo) if a.push else '')
 

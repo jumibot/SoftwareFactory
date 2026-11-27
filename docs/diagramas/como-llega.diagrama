@@ -1,0 +1,36 @@
+tipo: arquitectura
+titulo: Cómo llega una mejora a los proyectos
+descripcion: La tarea entra en develop por squash; al publicar, develop pasa a main con su tag; el plugin actualizado lo lleva a cada sesión de cada proyecto.
+foco: main
+nodos:
+  feat: feature/NN-nombre | la tarea, probada
+  dev: develop | probado, sin publicar
+  main: main · vX.Y.Z | lo que instalan
+  solo: Solo en la SF | no viaja: especificación, decisiones, propuestas | externo
+  plug: Plugin sf | instalado en el equipo
+  ses: Metodología, skills, mod | al momento
+  reg: Reglas y orquestación | al empezar, /clear, compactar
+zonas:
+  repo: REPOSITORIO DE LA SF | feat, dev, main, solo
+  equipo: EQUIPO | plug
+  sesion: SESIONES | ses, reg
+flechas:
+  feat > dev: SQUASH | principal
+  dev > main: PUBLICAR | principal
+  main > plug: ACTUALIZAR
+  plug > ses: CARGA
+  plug > reg: ENTREGA EL MOD
+fichas:
+  feat: La rama de la tarea, desde develop.
+    - SQUASH: con el OK del propietario de la Software Factory, un commit en develop
+  dev: Lo probado, aún sin publicar.
+    - PUBLICAR: sube la version de plugin.json, pasa develop a main y pone el tag vX.Y.Z
+  main: Lo publicado: lo que instalan los proyectos. Los tags son el histórico.
+  solo: Especificación, decisiones, propuestas, «Cómo funciona…» y el CLAUDE.md de la SF.
+    - Llegan a main con la siguiente publicación, pero no cambian nada en los proyectos.
+  plug: La copia instalada, en la caché de Claude Code; no se edita nunca.
+    - ACTUALIZAR: instala la versión publicada
+  ses: Lo nuevo del plugin, en todas las sesiones de todos los proyectos.
+  reg: Las plantillas claude-sf.md y, con la metodología, claude-sf-metodologia.md, más sf:orquestacion.
+    - Las entrega el mod al empezar la sesión, tras /clear y tras compactar; también en la SF.
+    - Nada se copia al proyecto.

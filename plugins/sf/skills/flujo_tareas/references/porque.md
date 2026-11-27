@@ -4,7 +4,7 @@ El porqué de cada regla de la skill, en el orden de sus secciones y tarjetas (p
 
 ## Cómo se cambia la cola
 
-- **Toda escritura, por el CLI, con historial y copias** («Flujo de tareas: un CLI común, historial por tarea y copias de la cola», 113): las reglas de los cambios de estado estaban repartidas entre varios documentos y el código del panel, y el panel deducía lo ocurrido comparando lecturas de la cola, con errores (una H en lugar de una A, reabiertas falsas). Un solo CLI aplica cada regla una vez, para Claude y para el panel; el historial de cada tarea dice qué pasó sin deducirlo, y las copias permiten volver atrás.
+- **Toda escritura, por el CLI, con historial y copias** («Flujo de tareas: un CLI común, historial por tarea y copias de la cola», 113): las reglas de los cambios de estado estaban repartidas entre varios documentos y el código del panel, y el panel deducía lo ocurrido comparando lecturas de la cola, con errores (una tarea vieja tomada por nueva, reabiertas falsas). Un solo CLI aplica cada regla una vez, para Claude y para el panel; el historial de cada tarea dice qué pasó sin deducirlo, y las copias permiten volver atrás.
 - **Los detalles del CLI** («Flujo de tareas: respuestas a la revisión de la tabla de estados», 115): la tabla de estados dejó 23 huecos e incoherencias entre las reglas escritas y el código del panel. Esta decisión los responde uno a uno; `estados.md` cita su punto entre paréntesis, como «115 (9)».
 - **La orden de Python, la que diga el mod** («La orden de Python sale del intérprete que se detecta, no de `python` fijo», 236): en macOS y Linux `python` no suele existir y es `python3`. Con el intérprete detectado (3.9 o posterior), la SF funciona igual en Windows, macOS y Linux sin preparar nada.
 - **El panel lanza una copia de cola.py hecha al cargar** («El panel ejecuta una copia de cola.py hecha al cargar», 136): el panel queda en memoria tal como se cargó, pero lanzaba `cola.py` desde el disco, y cerrar o activar una rama cambia la carpeta de rama (en la SF, el plugin es la propia copia de trabajo). Con la copia, panel y CLI van siempre a juego.
@@ -41,20 +41,18 @@ El porqué de cada regla de la skill, en el orden de sus secciones y tarjetas (p
 - **Descartada, hasta limpiar** («Descartar y revertir una tarea», 078; «Botón D para descartar una tarea», 088): cada acción según el rastro que deja la tarea: se elimina lo que no deja rastro, se descarta lo empezado que no ha entrado en `develop` y se revierte lo que ya entró. La descartada se ve en Cerradas hasta limpiarla, sin pedir motivo.
 - **«La miro ahora»** («La tarea que se está … en curso», 060): mientras el propietario la mira, el panel la trata como en curso, para que se vea en qué está.
 - **Lo que sale de la cola, a `historial.jsonl`** (115, puntos 2 y 3): una eliminada «sin rastro» sale de la vista, pero su historial queda para recuperarla.
-- **Cerrada** (050; «Pasos de cierre: probar y cerrar la tarea», 090; «Botón C para cerrar una tarea», 101): la prueba depende del propietario y el cierre, de su OK: por eso son dos pasos. La C cierra sin pasar por Claude.
+- **Cerrada** (050; «Pasos de cierre: probar y cerrar la tarea», 090; «Botón C para cerrar una tarea», 101): la prueba depende del propietario y el cierre, de su OK: por eso son dos pasos. Cerrar cierra sin pasar por Claude.
 - **Eliminada** («Eliminar una tarea», 079; 115; 134): se elimina sin rastro solo lo que no ha cambiado ningún activo (lo escrito y versionado en el repositorio); lo que ya tiene trabajo se descarta o se revierte.
 - **Absorbida** («/fusionar junta tareas en una», 099): el mod fusiona sin Claude, también a mitad de turno; queda una sola tarea.
-- **Revertida, solo las antiguas** («Botón R para revertir una tarea», 107; 134): el revert deshace en `develop` el squash de la tarea. Desde la 134, una revertida ya no queda en Cerradas con R.
+- **Revertida, solo las antiguas** («Botón R para revertir una tarea», 107; 134): el revert deshace en `develop` el squash de la tarea. Desde la 134, una revertida ya no queda en Cerradas como revertida.
 - **Nombres de antes, convertidos al cargar, sin alias** (««En observación», sin alias ni rastros», 215): mantener alias o valores viejos deja dos nombres para lo mismo.
 - **La rama marca el trabajo efectivo** («Eliminar una tarea», 079; «Una rama de feature por tarea», 082): la rama se crea antes de tocar el primer activo, así que tener rama es tener trabajo: deja de poder eliminarse y pasa a descartarse.
 - **Pasos con estado** («Pasos de una tarea», 067): un paso no es una tarea ni lleva número; solo es tarea nueva lo que cambia el alcance. El panel muestra la cuenta.
 - **Reabierta** («Un bug en una tarea cerrada la reabre con su número», 061; «Cerradas: todo cambio en el cierre de una tarea», 064): el fallo queda unido a la tarea que lo causó, en lugar de abrir otra.
-- **La letra es el estado** (054; «Código de tarea: número y estado, «57-A»», 058): la A y la H solo decían de dónde venía la tarea; con la letra del estado se ve en qué está en todos los sitios.
-- **Una H no pasa a A** («Bloque TAREAS con A y H», 053; «Una tarea reabierta lleva H», 069): la cola pasa de una sesión a otra; una reabierta no es nueva aunque entre en la sesión.
-- **D en Cerradas** («Letras E, D y R en los botones de las tareas», 089): la D es también la letra de la descartada.
-- **La tarea en curso, en amarillo** («La tarea en curso, en amarillo», 039; «El código de la tarea en curso, en amarillo también en las secciones», 084): el color del proyecto se leía mal sobre el fondo oscuro del panel; el amarillo la distingue en todos los proyectos.
+- **El número, sin letra; su color, el estado** («El número de una tarea va sin letra, y su color dice si está en curso o cerrada», 402): las letras pesaban a la vista, y la A y la H dejaron de distinguirse. Queda el color: dorado en curso, verde cerrada y, de fondo, rojo la reabierta, que no es nueva aunque entre en la sesión.
+- **La tarea en curso, en dorado** («La tarea en curso, en amarillo», 039; «El código de la tarea en curso, en amarillo también en las secciones», 084; «Las tareas en curso del panel vuelven a un color cálido: el dorado, no el azul», 355): el color del proyecto se leía mal sobre el fondo oscuro del panel; un color cálido la distingue en todos los proyectos.
 - **Verde con «●» si tiene commit** («Hecho en esta sesión: peticiones cerradas», 044): el panel guarda texto y commit al cerrarse cada tarea, porque después salen de la cola.
-- **El panel lee el historial, no compara colas** (113): deducir lo ocurrido comparando lecturas daba letras falsas. La tarea 145 pasó el panel a leer el historial.
+- **El panel lee el historial, no compara colas** (113): deducir lo ocurrido comparando lecturas daba estados falsos. La tarea 145 pasó el panel a leer el historial.
 
 ## 2. Cambios de estado
 
@@ -95,9 +93,9 @@ El porqué de cada regla de la skill, en el orden de sus secciones y tarjetas (p
 
 ### Cierre
 
-- **Cerrar con squash** (082; 090; 101; 115, puntos 5, 18, 19 y 20; 121): el hash del squash entra en el historial para poder revertir; un push que falla no impide el cierre y queda anotado; una propuesta que toca un activo lleva rama y squash.
+- **Cerrar con squash** (082; 090; 101; 115, puntos 5, 18, 19 y 20; 121): el hash del squash entra en el historial para poder revertir; un push que falla no impide el cierre y queda anotado.
 - **Se niega con trabajo del subagente sin traer** («Cerrar se niega si el subagente tiene trabajo sin traer», 200): el squash lo perdería. El propietario se lo pide a Claude, que lo trae, lo revisa y, si hace falta, lo prueba antes de cerrar.
-- **El prefijo del commit sale del tipo** («El título del commit en formato conventional sale del tipo de tarea», 233; «El número de la tarea en el commit, según el formato del proyecto», 207): la C cierra sin pedir nada, así que el título tiene que salir solo. El número va como «(N)» o, si el proyecto tiene un formato estricto, en el trailer `SF-Tarea: N`, para no romper su formato.
+- **El prefijo del commit sale del tipo** («El título del commit en formato conventional sale del tipo de tarea», 233; «El número de la tarea en el commit, según el formato del proyecto», 207): Cerrar cierra sin pedir nada, así que el título tiene que salir solo. El número va como «(N)» o, si el proyecto tiene un formato estricto, en el trailer `SF-Tarea: N`, para no romper su formato.
 - **Cierre que falla** («Un cierre que falla pasa a Claude», 111): el panel lo deshace y le pasa a Claude la tarea, la rama y los archivos en conflicto; el propietario ya no tiene que contarlo.
 - **Cerrar sin rama** (048; «Cierre de tareas: propuestas sin … y Cerradas a 0», 063; 090; 115, punto 20; 121; 188; 278): una tarea que no tocó ningún activo no tiene nada que observar en `develop`; una deliberativa siempre se cierra así.
 - **Cerrar y dejar en observación** (050; 054; 074; 115, punto 4; 121; 154; 188): lo que solo se ve funcionando tras el cierre se cierra y se observa. En observación ya no se descarta, se revierte: ya entró en `develop`.
@@ -105,7 +103,7 @@ El porqué de cada regla de la skill, en el orden de sus secciones y tarjetas (p
 
 ### Deshacer
 
-- **Descartar** (078; 088; 089; 092; 115, punto 4): la D descarta lo empezado que no ha entrado en `develop`, sin motivo.
+- **Descartar** (078; 088; 089; 092; 115, punto 4): Descartar descarta lo empezado que no ha entrado en `develop`, sin motivo.
 - **Limpiar Cerradas** («Cerradas: botón para quitar …», 057; «El botón de Cerradas se llama «limpiar»», 087; 088): un botón en la fila del título, sin gastar una fila.
 - **Limpiar al empezar sesión** (078, 088): las descartadas no se arrastran de una sesión a otra.
 - **Revertir** (078; 107; 115, puntos 4 y 18; 134): lo que ya entró en `develop` no se descarta, se revierte; el commit sale del historial.
@@ -117,7 +115,7 @@ El porqué de cada regla de la skill, en el orden de sus secciones y tarjetas (p
 - **Fusionar** (098; 099; «El orquestador sugiere fusiones y splits», 100; «Tras una fusión, redescribir la tarea resultante», 141; 142): la tarea resultante se leía como dos textos pegados; por eso, tras fusionar, se propone redescribirla. El «(227)» es una tarea.
 - **Queda la que tiene el trabajo, y la resultante se retitula y se ordena** («Al fusionar queda la tarea que tiene el trabajo, y la resultante se retitula y se ordena», 358): quedarse siempre con la de número mayor podía dejar fuera la tarea con la rama, los commits y el subagente, y obligaba a mover el trabajo. Juntar dos con trabajo mezclaría ramas y subagentes, así que se niega. Sin retitular, la resultante conserva títulos y pasos que ya no dicen lo que es.
 - **Separar** («/split separa pasos en una tarea nueva», 097; 098; 100): una tarea que junta partes separables se parte sin Claude, también a mitad de turno. La 097 está sustituida en parte por la 098: la nueva ya no lleva «Separada de la 89».
-- **Deshacer una fusión o una eliminación** (115, punto 8; 134).
+- **Restaurar una eliminada; una fusión no se deshace** (115, punto 8; 134; tarea 439): la orden para deshacer una fusión se prometió y nunca se hizo; «Separar pasos» ya saca a una tarea nueva lo que se juntó.
 
 ### Fuera de una tarea
 

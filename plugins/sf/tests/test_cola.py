@@ -510,6 +510,11 @@ class SinGit(Base):
         t = self.tarea(13)
         self.assertEqual((t['texto'], t['estado'], t['descripcion']), ('Tres', 'en-cola', 'C.\n\nA.'))
         self.assertEqual([p['texto'] for p in t['pasos']], ['Tres', 'Una'])
+        # Una fusión no se deshace: reabrir la absorbida remite a «Separar pasos» en la que queda (tarea 439).
+        mensaje = self.orden('reabrir', '11', 'vuelve', ok=False)
+        self.assertIn('La 11 se fusionó en la 13, y una fusión no se deshace', mensaje)
+        self.assertIn('(/sf_split 13 PASOS)', mensaje)
+        self.assertNotIn('desfusionar', mensaje)
 
     def test_fusionar_con_trabajo_en_varias_no(self):
         # En curso la 11 y con subagente anotado la 12: no se fusionan, y lo dice con cuáles (decisión 358).
@@ -852,11 +857,18 @@ class Decisiones(Base):
         self.assertEqual(self.en_develop(nombre), '# Las decisiones, en develop\n\n- **Decisión:** sí, «ahora».\n')
         self.assertEqual(git(self.raiz, 'log', '-1', '--format=%B'),
                          'Decisión 008: Las decisiones, en develop\n\nCo-Authored-By: Prueba <p@example.com>')
-        indice = self.en_develop('README.md')
-        self.assertTrue(indice.startswith('# Decisiones\n\nIntro propia.\n\n## Índice\n'))
+        # El índice, en dos catálogos con su entrada en README.md (decisión 389), que conserva su cabecera.
+        entrada = self.en_develop('README.md')
+        self.assertTrue(entrada.startswith('# Decisiones\n\nIntro propia.\n\n## Índice\n'))
+        self.assertIn('[Vigentes](vigentes.md)', entrada)
+        self.assertIn('[Deprecadas](deprecadas.md)', entrada)
+        self.assertNotIn('viejo', entrada)
+        indice = self.en_develop('vigentes.md')
         self.assertLess(indice.index(f'| 8 | {self.HOY} | [Las decisiones, en develop]({nombre}) |'),
                         indice.index('| 7 | 2026-01-02 | [Primera](007-2026-01-02-primera.md) |'))
-        self.assertEqual((self.carpeta / 'README.md').read_text(encoding='utf-8'), indice)
+        self.assertIn('Ninguna todavía.', self.en_develop('deprecadas.md'))
+        for x in ('README.md', 'vigentes.md'):
+            self.assertEqual((self.carpeta / x).read_text(encoding='utf-8'), self.en_develop(x))
         self.assertEqual(self.archivo.read_text(encoding='utf-8'), '{roto')
         # La siguiente, también con develop activa (con o sin README.html sin versionar).
         self.assertEqual(self.respuesta('decision', 'Otra más', '--texto', 'Texto.')['numero'], 9)
@@ -879,9 +891,9 @@ class Decisiones(Base):
         self.assertEqual(r['hash'], git(self.raiz, 'rev-parse', '--short', 'develop'))
         self.assertEqual(git(self.raiz, 'log', '-1', '--format=%s', 'develop'), 'Decisión 008: Otra rama')
         self.assertEqual(git(self.raiz, 'show', '--name-only', '--format=', 'develop').splitlines(),
-                         [f'{self.RUTA}/{nombre}', f'{self.RUTA}/README.md'])
+                         [f'{self.RUTA}/{x}' for x in (nombre, 'README.md', 'deprecadas.md', 'vigentes.md')])
         self.assertEqual(self.en_develop(nombre), '# Otra rama\n\nTexto.\n')
-        self.assertIn(f'[Otra rama]({nombre})', self.en_develop('README.md'))
+        self.assertIn(f'[Otra rama]({nombre})', self.en_develop('vigentes.md'))
         self.assertIn('Intro propia.', self.en_develop('README.md'))
         self.assertEqual(git(self.raiz, 'show', 'develop:a.txt'), 'uno')
         # La siguiente, sobre la de develop: la 9.
@@ -890,13 +902,16 @@ class Decisiones(Base):
     def test_reescribir_por_numero(self):
         git(self.raiz, 'switch', '-q', '-c', 'feature/9-otra')
         texto = self.raiz / 'texto.md'
-        texto.write_text('# Primera, mejor\n\n**Sustituida** el 2026-02-01 por «Otra».\n', encoding='utf-8')
+        self.assertEqual(self.respuesta('decision', 'Otra', '--texto', 'Texto.')['numero'], 8)
+        # Deprecarla: la línea de estado bajo el título la pasa al catálogo de deprecadas (decisiones 360 y 389).
+        texto.write_text('# Primera, mejor\n\nEstado: deprecada el 2026-02-01 por «Otra» (8).\n', encoding='utf-8')
         r = self.respuesta('decision', 'Primera, mejor', '--archivo', str(texto), '--numero', '7')
         self.assertEqual((r['numero'], r['archivo']), (7, f'{self.RUTA}/007-2026-01-02-primera.md'))
         self.assertEqual(git(self.raiz, 'log', '-1', '--format=%s', 'develop'), 'Decisión 007: Primera, mejor (modificada)')
         self.assertEqual(self.en_develop('007-2026-01-02-primera.md'), texto.read_text(encoding='utf-8'))
-        self.assertIn('| 7 | 2026-01-02 | [Primera, mejor](007-2026-01-02-primera.md) (sustituida) |',
-                      self.en_develop('README.md'))
+        self.assertIn(f'| 7 | 2026-01-02 | [Primera, mejor](007-2026-01-02-primera.md) | [Otra](008-{self.HOY}-otra.md) |',
+                      self.en_develop('deprecadas.md'))
+        self.assertNotIn('007-2026-01-02-primera.md', self.en_develop('vigentes.md'))
         self.assertIn('ya dice eso', self.orden('decision', 'Primera, mejor', '--archivo', str(texto), '--numero', '7',
                                                 ok=False))
         self.assertIn('No hay decisión 005', self.orden('decision', 'X', '--texto', 'Y', '--numero', '5', ok=False))
@@ -933,7 +948,7 @@ class Decisiones(Base):
         r = self.respuesta('decision', 'Sin git', '--texto', 'Texto.')
         self.assertIn('sin commit: no hay git con develop', r['mensaje'])
         self.assertTrue((self.carpeta / f'008-{self.HOY}-sin-git.md').is_file())
-        self.assertIn('[Sin git]', (self.carpeta / 'README.md').read_text(encoding='utf-8'))
+        self.assertIn('[Sin git]', (self.carpeta / 'vigentes.md').read_text(encoding='utf-8'))
 
 
 class DecisionesAntes(Decisiones):

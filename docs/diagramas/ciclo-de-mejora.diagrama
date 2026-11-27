@@ -1,0 +1,32 @@
+tipo: proceso
+titulo: El ciclo de mejora
+descripcion: Cada vuelta empieza en el uso y termina en una versión publicada, que se vuelve a usar.
+foco: dec
+nodos:
+  usar: Usar la SF | en la SF o en otro proyecto
+  anot: Anotar sin parar | bug a la cola; lo que hay que pensar, a propuestas
+  dec: Decidir | el propietario; se registra al momento en develop
+  apl: Aplicar en una tarea | rama feature/NN-nombre, con su subagente
+  pro: Probar y cerrar | Activar rama; con su OK, squash en develop
+  pub: Publicar | develop a main, con el tag vX.Y.Z
+flechas:
+  inicio > usar
+  usar > anot
+  anot > dec
+  dec > apl
+  apl > pro
+  pro > pub
+  pub > usar: OTRA VUELTA | vuelta
+fichas:
+  usar: El uso, en la propia SF o en cualquier proyecto, es lo que hace ver qué mejorar.
+  anot: Se anota en cuanto aparece, sin parar el trabajo.
+    - Un error, como bug en la cola de tareas.
+    - Lo que hay que pensar antes de decidir, en sf/propuestas.md.
+    - Si es de la SF y sale en otro proyecto, Claude lo dice en una línea y el propietario lo lleva a una sesión de la SF.
+  dec: Decide el propietario de la Software Factory.
+    - El principal la registra al tomarse con cola.py decision: su archivo en sf/decisiones/ y el commit en develop.
+  apl: Su tarea la lleva a la metodología, las skills, el código o los documentos, en su rama y con su subagente.
+  pro: El propietario la prueba en la rama de la tarea.
+    - Activar rama: la activa desde el panel para probarla
+    - Con su OK, la tarea entra en develop por squash.
+  pub: Publicar sube la versión, pasa develop a main y pone el tag vX.Y.Z; los proyectos la reciben al actualizar el plugin.

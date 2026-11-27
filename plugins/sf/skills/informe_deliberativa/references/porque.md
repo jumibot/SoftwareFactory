@@ -15,6 +15,11 @@ El porqué de cada regla de la skill, en el orden de sus secciones. Cada entrada
 - **En `sf/informes/`** («Los documentos de la SF van en la carpeta sf/», 203): en `docs/` chocaban con los documentos del proyecto, y en `.sf/` quedaban escondidos (las búsquedas de Claude se saltan las carpetas con punto, Obsidian no las ve y en macOS y Linux no se ven en el explorador).
 - **También en la propia SF** («Todos los informes de las tareas de la SF se mudan a sf/informes/», 346): así todos los informes quedan en un solo sitio, como en los demás proyectos.
 
+## Las preguntas
+
+- **Cada pregunta se entiende sola, y sin números como sujeto** («Cada pregunta al propietario se entiende sola, sin números como sujeto», 397): en la tarea «Poner al día las decisiones: un solo formato y las antiguas, deprecadas» (439), las preguntas de su informe decían «la 115», «la 117» o «la 053 con la 054» sin explicar de qué iban. El propietario: «¿qué es la 115 o la 117? Me haces preguntas con cero contexto. Estoy trabajando con muchas tareas a la vez y no cambio de contexto igual que un ordenador». Por eso cada pregunta empieza por de qué va, en palabras llanas, y nombra cada decisión por lo que dice, con su número solo entre paréntesis.
+- **Parte de lo que se ve hoy, comprobado** (397, en la misma tarea 439): aun con contexto, el propietario no entendió la pregunta sobre la caja del estado del proyecto y preguntó si estaba deprecada y si la caja seguía activa. En el chat la entendió en cuanto se le dijo, comprobado en el panel, que la caja sí funciona, cuándo sale y que lo deprecado era solo la decisión que la creó. La pregunta escrita lleva eso mismo: qué ve hoy, si funciona y qué es lo que cambia.
+
 ## Cada vuelta
 
 - **Respaldar antes de sustituir** («Antes de sustituir un documento, se respalda en _respaldo/», 217): cada vuelta sustituye al informe en `develop`, y volver a una versión anterior exigía buscarla en el historial de git. Con la copia, volver atrás es copiarla de vuelta.
