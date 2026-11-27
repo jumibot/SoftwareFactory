@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 399 | 2026-11-27 | [Los documentos de la SF van en la carpeta sf/ y su máquina en .sf/](399-2026-11-27-los-documentos-de-la-sf-van-en-la-carpeta-sf-y-su-maquina-en-sf.md) |
 | 398 | 2026-11-27 | [Una decisión por archivo, con su número de orden total, y el índice lo genera un comando](398-2026-11-27-una-decision-por-archivo-con-su-numero-de-orden-total-y-el-indice-lo-genera-un-comando.md) |
 | 397 | 2026-11-27 | [Cada pregunta al propietario se entiende sola, sin números como sujeto](397-2026-11-27-cada-pregunta-al-propietario-se-entiende-sola-sin-numeros-como-sujeto.md) |
 | 396 | 2026-11-27 | [El botón Abrir de una tarea abre su documento como Activar rama, pero sin activar la rama](396-2026-11-27-el-boton-abrir-de-una-tarea-abre-su-documento-como-activar-rama-pero-sin-activar-la-rama.md) |
