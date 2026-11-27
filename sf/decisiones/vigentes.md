@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 420 | 2026-11-27 | [En los diagramas, una acción sobre varias cajas apunta a la carpeta que las agrupa, sin corchetes](420-2026-11-27-en-los-diagramas-una-accion-sobre-varias-cajas-apunta-a-la-carpeta-que-las-agrupa-sin-corchetes.md) |
 | 419 | 2026-11-27 | [Un front envía todo junto al pulsar Enviar y se pone al día en su sitio sin cambiar solo de versión](419-2026-11-27-un-front-envia-todo-junto-al-pulsar-enviar-y-se-pone-al-dia-en-su-sitio-sin-cambiar-solo-de-version.md) |
 | 418 | 2026-11-27 | [Los enlaces del estilo de la SF, en un dorado apenas más oscuro para leerse sobre el gris de las fichas](418-2026-11-27-los-enlaces-del-estilo-de-la-sf-en-un-dorado-apenas-mas-oscuro-para-leerse-sobre-el-gris-de-las-fichas.md) |
 | 417 | 2026-11-27 | [Las respuestas de una página llegan al chat y Claude las registra, y cada documento con preguntas es un front hecho a su medida](417-2026-11-27-las-respuestas-de-una-pagina-llegan-al-chat-y-claude-las-registra-y-cada-documento-con-preguntas-es-un-front-hecho-a-su-medida.md) |
