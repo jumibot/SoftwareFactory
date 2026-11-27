@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 386 | 2026-11-27 | [Abrir el catálogo de emojis al decidir qué emoji poner](386-2026-11-27-abrir-el-catalogo-de-emojis-al-decidir-que-emoji-poner.md) |
 | 385 | 2026-11-27 | [Antes de una representación gráfica, decidir los puntos clave que transmite](385-2026-11-27-antes-de-una-representacion-grafica-decidir-los-puntos-clave-que-transmite.md) |
 | 384 | 2026-11-27 | [Los off-topic, sangrados bajo «Otras tareas» y sin paréntesis](384-2026-11-27-los-off-topic-sangrados-bajo-otras-tareas-y-sin-parentesis.md) |
 | 383 | 2026-11-27 | [Como mucho seis tareas en curso a la vez](383-2026-11-27-como-mucho-seis-tareas-en-curso-a-la-vez.md) |
