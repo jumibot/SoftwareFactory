@@ -367,7 +367,7 @@ Por decisión del propietario, todo se hace en esta tarea (475), que pasa a ser 
 | Front de los informes deliberativos: elegir, matizar, Enviar y el estado de cada ficha | implementar | Primer front, con el envío que decida la pregunta 7. El generador común y `respuestas.js` del kit: la numeración de cada petición, las fichas que se eligen, la barra de Enviar o Copiar, el estado de cada ficha y lo guardado en el navegador; y el texto de `sf:crear_documentos` y `sf:informe_deliberativa`. Depende de la anterior. |
 | Abrir las páginas interactivas por el servidor, con su token nuevo | implementar | Cambiar el botón Abrir (decisión 396) y la orden de cada vuelta (decisión 393): registrar la página, abrir la dirección con su token y, si el servidor no está, el archivo. |
 | Qué hace el principal con un mensaje de respuestas, y la lista de lo que define un front | implementar | La regla en `sf:orquestacion` (texto en el anexo). |
-| Actualizar «Cómo funciona la Software Factory» y Actualizar «Cómo funciona el panel» | documentar | Al final, con el texto del anexo y en su tarea «Actualizar <documento>». |
+| Actualizar «Cómo funciona la Software Factory» y Actualizar «Cómo funciona el panel» | documentar | Al final, con el texto del anexo y en su tarea «Actualizar un documento». |
 
 ## Anexo: texto propuesto para otros documentos | Para los pasos que los cambian | Anexo {#anexo}
 
