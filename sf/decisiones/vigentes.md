@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 423 | 2026-11-27 | [Un diagrama recibe un glosario de sus elementos importantes y sus rótulos se apoyan en él](423-2026-11-27-un-diagrama-recibe-un-glosario-de-sus-elementos-importantes-y-sus-rotulos-se-apoyan-en-el.md) |
 | 422 | 2026-11-27 | [Los rótulos de un diagrama dicen quién hace qué con las palabras del lector, y una lectura en frío lo comprueba](422-2026-11-27-los-rotulos-de-un-diagrama-dicen-quien-hace-que-con-las-palabras-del-lector-y-una-lectura-en-frio-lo-comprueba.md) |
 | 421 | 2026-11-27 | [En un proyecto de desarrollo se usa la jerga técnica de siempre; lo que se evita son los términos internos inventados](421-2026-11-27-en-un-proyecto-de-desarrollo-se-usa-la-jerga-tecnica-de-siempre-lo-que-se-evita-son-los-terminos-internos-inventados.md) |
 | 420 | 2026-11-27 | [En los diagramas, una acción sobre varias cajas apunta a la carpeta que las agrupa, sin corchetes](420-2026-11-27-en-los-diagramas-una-accion-sobre-varias-cajas-apunta-a-la-carpeta-que-las-agrupa-sin-corchetes.md) |
