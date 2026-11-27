@@ -1,23 +1,23 @@
 tipo: proceso
 titulo: Una sola orden por vuelta
 descripcion: El subagente la lanza una vez; ella elige, salta lo ya pasado, lanza a la vez y le devuelve pocas líneas.
-pie: SF · PROBAR | PROPUESTA
+pie: SF · PROBAR | CON LA ORDEN
 foco: resumen
 nodos:
-  diff: Qué cambió | git diff contra develop
-  elegir: Elegir | reglas del proyecto
-  huella: Huella | ¿ya pasó así? | dec
-  lanzar: Lanzar a la vez | pruebas en trozos
-  resumen: Resumen | pocas líneas · solo lo que falla
-  registro: Registro | la salida entera | externo
+  diff: Ver qué cambió | frente a develop
+  elegir: Elegir qué pruebas lanzar | según las reglas del proyecto
+  marca: ¿Ya pasó igual? | compara con la marca | dec
+  lanzar: Lanzar todo a la vez | pruebas en partes
+  resumen: Contar lo que pasó | pocas líneas, solo lo que falla
+  registro: Guardar el texto completo | en un archivo | externo
 flechas:
   inicio > diff
   diff > elegir: ARCHIVOS
-  elegir > huella: COMPROBACIONES
-  huella > lanzar: CAMBIÓ
-  huella > resumen: IGUAL | verde
+  elegir > marca: QUÉ LANZAR
+  marca > lanzar: CAMBIÓ
+  marca > resumen: IGUAL | verde
   lanzar > resumen: RESULTADOS
-  lanzar > registro: SALIDAS ENTERAS | discontinua
+  lanzar > registro: TEXTO ENTERO | discontinua
 fichas:
   diff: Lo que cambió en la rama de la tarea frente a develop, más lo que aún no tiene commit.
     - sin rama (una deliberativa): los archivos que se le nombren
@@ -26,12 +26,12 @@ fichas:
     - un .ts o .tsx del mod: claude plugin test
     - un .md con su .html: generarlo y comprobar_documento
     - un archivo sin regla: todas las pruebas
-  huella: Un resumen de los archivos de los que depende cada comprobación.
+  marca: Una marca hecha con los archivos de los que depende cada comprobación.
     - igual que la última vez que pasó: no se repite
-  lanzar: Todo a la vez, en procesos aparte.
-    - las pruebas de la cola, en diez trozos: de 148 s a 28 s
+  lanzar: Todo a la vez, cada cosa por su lado.
+    - las pruebas de la cola, en diez partes: de 148 s a 28 s
     - los navegadores, pocos a la vez
   resumen: Lo que el subagente lee: una línea por comprobación.
     - lo que falla: el nombre de la prueba y su error
     - la línea «Comprobado: …» lista para los pasos
-  registro: La salida entera de cada orden, para depurar un fallo.
+  registro: Todo lo que escribió cada orden, en un archivo, para mirar un fallo.
