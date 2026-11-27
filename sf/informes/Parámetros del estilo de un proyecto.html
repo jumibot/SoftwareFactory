@@ -4,18 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parámetros del estilo de un proyecto: qué lleva, dónde vive y cómo evoluciona · Informe de diseño</title>
-  <meta name="theme-color" content="#124571">
+  <meta name="theme-color" content="#25283a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
   <style>
-    :root { --primario: #1d6fb6; --oscuro: #124571; --primario-vivo: #5693c8; --fondo: #f1f5f9; --borde: #e2e8f0; --linea: #e2e8f0; --fondo-medio: #e2e8f0; --fondo-suave: #f8fafc; --tenue: #99bede; --pagina: #f8fafc; --texto: #1f2937; --texto-suave: #4b5563; --texto-tenue: #9ca3af; --acento: #be185d; --acento-fondo: #fbf1f5; --acento-borde: #edbed2; --segundo: #2f5597; --primario-rgb: 29, 111, 182; --fuente-texto: 'DM Sans', Arial, sans-serif; --fuente-titulos: 'Outfit', 'DM Sans', sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; }
+    :root { --primario: #f5c400; --oscuro: #25283a; --primario-vivo: #f8d340; --fondo: #fefcf2; --borde: #b9bcc4; --linea: #d8d8da; --fondo-medio: #ebeae7; --fondo-suave: #f5f5f4; --tenue: #fae48c; --pagina: #fbfbfa; --texto: #25283a; --texto-suave: #4f5871; --texto-tenue: #666e83; --acento: #876c00; --acento-fondo: #f8f6f0; --acento-borde: #ddd6b8; --segundo: #2f5597; --sobre-primario: #1a1a1a; --primario-texto: #876c00; --tinta-oscura: #25283a; --superficie: #ffffff; --cabecera: #af8f13; --sobre-cabecera: #25283a; --primario-linea: #ac8900; --borde-campo: #8d909b; --primario-rgb: 245, 196, 0; --fuente-texto: 'DM Sans', system-ui, sans-serif; --fuente-titulos: 'Bricolage Grotesque', 'DM Sans', sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; }
+    @media screen {
+    :root[data-theme="dark"] { --primario: #f5c400; --oscuro: #383a4c; --primario-vivo: #f8d340; --fondo: #3e3825; --borde: #575d75; --linea: #3c3e50; --fondo-medio: #2f3349; --fondo-suave: #23263a; --tenue: #77631a; --pagina: #1b1d2c; --texto: #f2f2f0; --texto-suave: #b8bdc9; --texto-tenue: #9aa1b2; --acento: #f5c400; --acento-fondo: #3e3825; --acento-borde: #937914; --segundo: #8fb0f0; --sobre-primario: #1b1d2c; --primario-texto: #f5c400; --tinta-oscura: #f2f2f0; --superficie: #23263a; --cabecera: #67571d; --sobre-cabecera: #f2f2f0; --primario-linea: #f5c400; --borde-campo: #6c7186; --primario-rgb: 245, 196, 0; --sx-cadena: #57a062; --sx-numero: #be8059; --sx-funcion: #579b9b; --sx-atributo: #be8059; --error: #d07772; color-scheme: dark; }
+    :root[data-theme="dark"] .lector { --primario: #f5c400; --oscuro: #25283a; --primario-vivo: #f8d340; --fondo: #fefcf2; --borde: #b9bcc4; --linea: #d8d8da; --fondo-medio: #ebeae7; --fondo-suave: #f5f5f4; --tenue: #fae48c; --pagina: #fbfbfa; --texto: #25283a; --texto-suave: #4f5871; --texto-tenue: #666e83; --acento: #876c00; --acento-fondo: #f8f6f0; --acento-borde: #ddd6b8; --segundo: #2f5597; --sobre-primario: #1a1a1a; --primario-texto: #876c00; --tinta-oscura: #25283a; --superficie: #ffffff; --cabecera: #af8f13; --sobre-cabecera: #25283a; --primario-linea: #ac8900; --borde-campo: #8d909b; --primario-rgb: 245, 196, 0; color-scheme: light; }
+    }
   </style>
   <style data-kit="skills/crear_documentos/assets/estilo_documento.css">
 /* Maqueta editorial del documento fundacional (skill documento_fundacional).
  * Portada (clara u oscura, con cifras), menú fijo, secciones numeradas «01 / ETIQUETA», entradilla,
  * recuadros (aviso, decisión), tarjetas, columnas, fichas con buscador, fuentes y referencias.
- * Colores y tipografías: variables del tema del proyecto (var(--primario), var(--fuente-titulos)…).
+ * Colores y tipografías: variables del estilo o del tema del proyecto (var(--primario), var(--fuente-titulos)…).
+ * El primario usado como texto es var(--primario-texto) y el texto sobre el primario, var(--sobre-primario) (decisión 319).
  * Apta para imprimir o guardar como PDF en A4. */
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -26,7 +31,7 @@ body { margin: 0; background: var(--pagina); color: var(--texto); font-family: v
 /* Letra de lectura en pantalla: 17 px, y 18 px en pantallas grandes. La impresión va a 10 pt. */
 @media screen { body { font-size: 1.0625rem; } }
 @media screen and (min-width: 1600px) { body { font-size: 1.125rem; } }
-a { color: var(--primario); text-underline-offset: 3px; }
+a { color: var(--primario-texto, var(--primario)); text-underline-offset: 3px; }
 a:hover { text-decoration-thickness: 2px; }
 a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; }
 h1, h2, h3, h4 { text-wrap: balance; }
@@ -44,45 +49,63 @@ strong { font-weight: 650; }
 @media (min-width: 1025px) { .hoja, .portada-dentro, .menu-dentro { width: min(1240px, 100% - 64px); } }
 
 /* Portada */
-.portada { background: #fff; border-bottom: 1px solid var(--linea); padding: clamp(1.4rem, 3vw, 2.2rem) 0 1.5rem; }
+.portada { background: var(--superficie); border-bottom: 1px solid var(--linea); padding: clamp(1.4rem, 3vw, 2.2rem) 0 1.5rem; }
 .portada.oscura { background: var(--oscuro); color: #fff; border-bottom: 0; }
-.marca { font-size: .8125rem; font-weight: 750; letter-spacing: .2em; text-transform: uppercase; color: var(--primario);
+.marca { font-size: .8125rem; font-weight: 750; letter-spacing: .2em; text-transform: uppercase; color: var(--primario-texto, var(--primario));
          margin: 0 0 .8rem; display: flex; align-items: center; gap: .8rem; }
 .marca img { height: 40px; width: auto; }
+/* Portada clara con logo para fondo oscuro (o en placa): cada uno en su modo de «Lectura». */
+.marca img.logo-oscuro { display: none; }
+/* En la portada oscura, el logo para fondo oscuro si lo hay (en papel, la portada vuelve a clara). */
+@media screen { .portada.oscura .marca img.logo-claro:has(+ img.logo-oscuro) { display: none; }
+                .portada.oscura .marca img.logo-oscuro { display: inline; } }
 .oscura .marca { color: var(--tenue); }
+@media screen { .oscura .tipo-doc { color: var(--tenue); } }  /* como la marca: el primario no se lee sobre el oscuro */
+.portada.oscura a { color: #fff; text-decoration-color: var(--tenue); }  /* el primario no se lee sobre el oscuro */
+.enlace-proyecto { margin: -.8rem 0 1.2rem; font-size: .9375rem; overflow-wrap: anywhere; }
+.marca img.placa { background: #fff; border-radius: 6px; padding: 4px; box-sizing: content-box; }
 .titular { font-family: var(--fuente-titulos); font-size: clamp(1.9rem, 3.6vw, 2.5rem); line-height: 1.08; font-weight: 650;
            margin: 0 0 .9rem; letter-spacing: -.015em; }
 .titular .lema { display: block; font-size: .5em; font-weight: 400; line-height: 1.35; margin-top: .35rem; letter-spacing: 0; }
-.tipo-doc { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario); margin: 0 0 .8rem; }
+.tipo-doc { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin: 0 0 .8rem; }
 .subtitulo { font-size: clamp(1.08rem, 2.4vw, 1.3rem); line-height: 1.45; color: var(--texto-suave); margin: 0 0 1.6rem; }
 .oscura .subtitulo { color: rgba(255,255,255,.82); }
 .portada-linea { height: 3px; background: var(--primario); border: 0; margin: 0 0 1rem; max-width: 36em; }
 .idea h3 { font-family: var(--fuente-titulos); font-size: 1.15rem; margin: 0 0 .5rem; }
 .idea p { margin: 0 0 .5rem; font-size: 1.05rem; max-width: 80ch; }
-.oscura .idea p { color: rgba(255,255,255,.86); }
+.oscura .idea > p { color: rgba(255,255,255,.86); }
+/* El código en línea sobre la portada oscura: el fondo suave del tema es claro y el texto, blanco (1,08:1); aquí, una
+ * banda translúcida sobre el fondo de la portada y el color de su texto. En papel, la portada vuelve a clara. */
+.portada.oscura code { background: rgba(255,255,255,.14); color: inherit; }
+/* «portada: compacta»: título, raya pegada, versión en gris y la entrada con menos aire */
+.portada.compacta { padding: clamp(1rem, 2.4vw, 1.5rem) 0 1rem; }
+.compacta .titular { margin: 0 0 .45rem; }
+.compacta .portada-linea { margin: 0 0 .4rem; }
+.portada-datos { font-size: .8125rem; color: var(--texto-suave); margin: 0 0 .55rem; }
+.compacta .idea p { margin: 0 0 .3rem; }
 .datos-version { margin: 1.4rem 0 0; font-size: .875rem; color: var(--texto-suave); }
 .datos-version span { display: block; color: var(--texto-tenue); font-size: .8125rem; margin-top: .15rem; }
 .oscura .datos-version, .oscura .datos-version span { color: rgba(255,255,255,.72); }
 .cifras { display: flex; flex-wrap: wrap; gap: 1rem 2.6rem; border-top: 1px solid var(--linea); padding-top: 1.2rem; margin-top: 1.8rem; }
 .oscura .cifras { border-color: rgba(255,255,255,.22); }
-.cifras strong { display: block; font-family: var(--fuente-titulos); font-size: 1.75rem; line-height: 1.2; color: var(--primario);
+.cifras strong { display: block; font-family: var(--fuente-titulos); font-size: 1.75rem; line-height: 1.2; color: var(--primario-texto, var(--primario));
                  font-variant-numeric: tabular-nums; }
 .oscura .cifras strong { color: var(--tenue); }
 .cifras span { font-size: .875rem; color: var(--texto-suave); }
 .oscura .cifras span { color: rgba(255,255,255,.85); }
 
 /* Menú fijo */
-.menu { position: sticky; top: 0; z-index: 10; background: #fff; border-bottom: 1px solid var(--linea); }
+.menu { position: sticky; top: 0; z-index: 10; background: var(--superficie); border-bottom: 1px solid var(--linea); }
 .menu-dentro { display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; align-items: center; padding: .7rem 0; }
 .menu a { display: inline-block; padding: .25rem 0; font-size: .8125rem; font-weight: 700; text-decoration: none; }
 .menu a:hover { text-decoration: underline; }
 button { font: inherit; font-size: .82rem; font-weight: 700; border: 1px solid var(--primario); border-radius: var(--esquinas, 6px);
-         background: var(--primario); color: #fff; padding: .5rem .8rem; cursor: pointer;
+         background: var(--primario); color: var(--sobre-primario, #fff); padding: .5rem .8rem; cursor: pointer;
          touch-action: manipulation; transition: background-color .15s, border-color .15s; }
-button:hover { background: var(--oscuro); border-color: var(--oscuro); }
+button:hover { background: var(--oscuro); border-color: var(--oscuro); color: #fff; }
 .menu-botones { margin-left: auto; display: flex; gap: .5rem; }
-.plegar { background: #fff; color: var(--primario); }
-.plegar:hover { background: var(--fondo); color: var(--oscuro); border-color: var(--oscuro); }
+.plegar { background: var(--superficie); color: var(--primario-texto, var(--primario)); }
+.plegar:hover { background: var(--fondo); color: var(--tinta-oscura); border-color: var(--tinta-oscura); }
 html:not(.js) .plegar { display: none; }
 
 /* Figuras: SVG en el .md dentro de <figure class="vertical"> (560 de ancho), que caben en el móvil sin desplazamiento */
@@ -91,12 +114,22 @@ figure svg { width: 100%; height: auto; max-width: 1100px; margin: 0 auto; }
 figure.vertical svg { max-width: 560px; }
 figcaption { font-size: .875rem; font-style: italic; color: var(--texto-suave); text-align: center; margin-top: .6rem; }
 @media print { figure { break-inside: avoid; } }
-/* En modo oscuro, los esquemas (colores del tema, sin fondo) se invierten con la página, como el texto. */
-html[data-modo="oscuro"] figure.vertical svg { filter: none; }
+/* Infografía técnica incrustada («::: infografia»): un marco a lo ancho de la columna, su pie y «Abrir aparte».
+   Al imprimir, la imagen fija de la vista principal y la dirección de la página en lugar del marco. */
+.infografia-marco { height: min(var(--infografia-alto, 640px), 85vh); border-radius: var(--esquinas, 6px); overflow: hidden;
+  border: 1px solid var(--borde); background: var(--oscuro); }
+.infografia-marco iframe { display: block; width: 100%; height: 100%; border: 0; }
+.infografia-fija, .infografia-direccion { display: none; }
+.infografia-abrir { white-space: nowrap; font-style: normal; }
+@media print {
+  .infografia-marco, .infografia-abrir { display: none; }
+  .infografia-fija { display: block; width: 100%; height: auto; border-radius: var(--esquinas, 6px); }
+  .infografia-direccion { display: inline; font-style: normal; }
+}
 
 /* Secciones */
 .seccion { padding: 2.8rem 0 .4rem; }
-.etiqueta { display: block; font-size: .8125rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; color: var(--primario); margin: 0 0 .4rem; }
+.etiqueta { display: block; font-size: .8125rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin: 0 0 .4rem; }
 .seccion h2 { font-family: var(--fuente-titulos); font-size: clamp(1.55rem, 3.4vw, 2.2rem); line-height: 1.18; font-weight: 650;
               margin: 0 0 1.1rem; letter-spacing: -.01em; }
 .seccion h3 { font-family: var(--fuente-titulos); font-size: 1.22rem; line-height: 1.3; font-weight: 650; margin: 1.8rem 0 .5rem; }
@@ -109,7 +142,7 @@ html[data-modo="oscuro"] figure.vertical svg { filter: none; }
            background: var(--oscuro); color: #fff; border-radius: var(--esquinas, 8px); overflow-wrap: anywhere; }
 .seccion ul { padding-left: 1.2rem; margin: .6rem 0 1.2rem; }
 .seccion ul > li { margin: 0 0 .45rem; }
-.seccion ul > li::marker { color: var(--primario); }
+.seccion ul > li::marker { color: var(--primario-texto, var(--primario)); }
 
 button:disabled { opacity: .45; cursor: default; }
 .avisos-globales > .recuadro:first-child { margin-top: 2rem; }
@@ -126,22 +159,28 @@ button:disabled { opacity: .45; cursor: default; }
                          transform: rotate(-45deg); transition: transform .2s; }
 /* Una sola convención, como en las herramientas: ▸ plegado, ▾ abierto. */
 .seccion[open] > .seccion-titulo::after { transform: rotate(45deg); }
-.seccion-titulo:hover h2 { color: var(--primario); }
+/* Sin etiqueta («numero-titulo» y «titulo», o una sección sin etiqueta): el título va en la primera fila. */
+.seccion-titulo.sin-etiqueta::after { grid-row: 1; margin-top: .95rem; }
+.seccion-numero { color: var(--primario-texto, var(--primario)); font-variant-numeric: tabular-nums; margin-right: .45em; }
+.seccion-titulo:hover h2 { color: var(--primario-texto, var(--primario)); }
 .seccion-titulo:focus-visible { outline: 3px solid var(--acento); outline-offset: 4px; }
 .seccion:not([open]) { padding-bottom: 0; }
 .seccion:not([open]) > .seccion-titulo h2 { margin-bottom: 0; }
 @media (prefers-reduced-motion: reduce) { .seccion-titulo::after { transition: none; } }
 
 /* Listas numeradas «01 Título. texto» */
-.seccion ol { list-style: none; counter-reset: punto; padding: 0; margin: 1rem 0 1.4rem; }
-.seccion ol > li { counter-increment: punto; position: relative; padding-left: 2.6rem; margin: 0 0 .9rem; }
-.seccion ol > li::before { content: counter(punto, decimal-leading-zero); position: absolute; left: 0; top: -.05rem;
-                           font-family: var(--fuente-titulos); font-weight: 650; font-size: 1.05rem; color: var(--primario); }
+.seccion ol:not(.nt-lista) { list-style: none; counter-reset: punto; padding: 0; margin: 1rem 0 1.4rem; }
+/* La sangría reserva el ancho del número más largo: --cifras lo pone el generador en cada lista (dos por defecto). */
+.seccion ol:not(.nt-lista) > li { counter-increment: punto; position: relative; margin: 0 0 .9rem;
+                                  padding-left: calc(var(--cifras, 2) * .7rem + 1.2rem); }
+.seccion ol:not(.nt-lista) > li::before { content: counter(punto, decimal-leading-zero); position: absolute; left: 0; top: -.05rem;
+                           font-variant-numeric: tabular-nums; white-space: nowrap;
+                           font-family: var(--fuente-titulos); font-weight: 650; font-size: 1.05rem; color: var(--primario-texto, var(--primario)); }
 
 /* Recuadros: > **Etiqueta** · > [!aviso] · > [!decision] */
 .recuadro { background: var(--fondo); border-left: 4px solid var(--primario); padding: 1rem 1.3rem .3rem; margin: 1.5rem 0;
             border-radius: 0 var(--esquinas, 8px) var(--esquinas, 8px) 0; break-inside: avoid; }
-.recuadro-etiqueta { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario); margin: 0 0 .35rem !important; }
+.recuadro-etiqueta { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin: 0 0 .35rem !important; }
 .recuadro p { margin: 0 0 .75rem; }
 .recuadro h3 { margin-top: 0; }
 .recuadro.aviso { background: var(--acento-fondo); border-color: var(--acento); }
@@ -150,23 +189,23 @@ button:disabled { opacity: .45; cursor: default; }
 .recuadro.decision .recuadro-etiqueta, .recuadro.decision h3 { color: var(--tenue); }
 .recuadro.decision a { color: #fff; }
 .destacado { margin: 2rem 0; padding: 0 0 0 1.2rem; border-left: 3px solid var(--tenue); font-family: var(--fuente-titulos);
-             font-size: clamp(1.12rem, 2.6vw, 1.3rem); line-height: 1.45; color: var(--oscuro); break-inside: avoid; }
+             font-size: clamp(1.12rem, 2.6vw, 1.3rem); line-height: 1.45; color: var(--tinta-oscura); break-inside: avoid; }
 .destacado p { margin: 0; }
 
 /* Tarjetas, fichas y columnas */
 .tarjetas { display: grid; gap: 1.1rem; margin: 1.2rem 0 1.6rem; }
 .cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.tarjeta { display: flex; flex-direction: column; background: #fff; border: 1px solid var(--linea); border-radius: var(--esquinas, 12px);
+.tarjeta { display: flex; flex-direction: column; background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--esquinas, 12px);
            padding: 1.3rem 1.4rem .4rem; min-width: 0; }
 .tarjeta > :first-child { margin-top: 0; }
 .tarjeta h3 { margin: 0 0 .5rem; font-size: 1.18rem; }
 .tarjeta h4 { margin: 0 0 .4rem; }
 .tarjeta p { margin: 0 0 .75rem; }
 .etiqueta-tarjeta { order: -1; font-size: .8125rem !important; font-weight: 750; letter-spacing: .08em; text-transform: uppercase;
-                    color: var(--primario); margin: 0 0 .45rem !important; }
+                    color: var(--primario-texto, var(--primario)); margin: 0 0 .45rem !important; }
 .metrica { font-size: .875rem !important; color: var(--texto-suave); }
-.metrica strong { display: block; font-family: var(--fuente-titulos); font-size: 2rem; line-height: 1.15; color: var(--primario);
+.metrica strong { display: block; font-family: var(--fuente-titulos); font-size: 2rem; line-height: 1.15; color: var(--primario-texto, var(--primario));
                   font-variant-numeric: tabular-nums; }
 .columnas { display: grid; gap: 1rem; margin: .6rem 0 .8rem; }
 .columnas.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -181,7 +220,7 @@ button:disabled { opacity: .45; cursor: default; }
 details.tarjeta { display: block; }
 .tarjeta.con-cabecera { padding: 0; overflow: hidden; }
 .tarjeta-cabecera { display: flex; align-items: center; gap: .65rem; padding: .85rem 1.2rem; margin: 0;
-                    background: var(--fondo-medio); color: var(--oscuro); list-style: none; }
+                    background: var(--fondo-medio); color: var(--tinta-oscura); list-style: none; }
 .con-color > .tarjeta-cabecera { background: var(--c); color: #fff; }
 .tarjeta-cabecera .tarjeta-titulo { margin: 0; color: inherit; font-size: 1.18rem; line-height: 1.25; }
 .tarjeta-icono { flex: none; }
@@ -205,7 +244,7 @@ summary.tarjeta-cabecera:focus-visible { outline: 3px solid var(--c-oscuro, var(
  * filete encima, y el texto del campo empieza sin negrita. */
 .seccion dl { margin: 0 0 .9rem; }
 .seccion dl > dt:first-child { margin-top: .2rem; }
-.seccion dt { font-size: .8125rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 750; color: var(--primario);
+.seccion dt { font-size: .8125rem; letter-spacing: .08em; text-transform: uppercase; font-weight: 750; color: var(--primario-texto, var(--primario));
               margin: .8rem 0 .25rem; padding-top: .7rem; border-top: 1px solid var(--linea); }
 .seccion dd { margin: 0; }
 .seccion dd p { margin: .3rem 0; }
@@ -213,8 +252,8 @@ summary.tarjeta-cabecera:focus-visible { outline: 3px solid var(--c-oscuro, var(
 
 /* Botón «Plegar las tarjetas» delante de un bloque de tarjetas plegables (assets/plegado.js). No se imprime. */
 .plegar-tarjetas { display: block; margin: .8rem 0 -.4rem auto; min-height: 28px; padding: .2rem .7rem; border: 1px solid var(--borde);
-                   border-radius: 6px; background: #fff; color: var(--oscuro); font: inherit; font-size: .875rem; font-weight: 650; cursor: pointer; }
-.plegar-tarjetas:hover { background: var(--fondo); }
+                   border-radius: 6px; background: var(--superficie); color: var(--tinta-oscura); font: inherit; font-size: .875rem; font-weight: 650; cursor: pointer; }
+.plegar-tarjetas:hover { background: var(--fondo); color: var(--tinta-oscura); }
 .plegar-tarjetas:focus-visible { outline: 3px solid var(--primario); outline-offset: 2px; }
 
 /* Preguntas con opciones («::: preguntas»): tarjetas con cabecera y la marca de su estado (abierta, decidida,
@@ -226,36 +265,36 @@ summary.tarjeta-cabecera:focus-visible { outline: 3px solid var(--c-oscuro, var(
 .pregunta > summary.tarjeta-cabecera::after { position: absolute; right: 1.2rem; top: 1.3rem; margin: 0; }
 .estado-pregunta { margin-left: auto; flex: none; padding: .12rem .6rem; border-radius: 999px; font-size: .8125rem; font-weight: 700;
                    letter-spacing: .04em; line-height: 1.5; white-space: nowrap; }
-.estado-pregunta.abierta { background: #fff; color: var(--acento); border: 1.5px solid var(--acento); }
-.estado-pregunta.decidida { background: var(--primario); color: #fff; border: 1.5px solid var(--primario); }
-.estado-pregunta.separada { background: #fff; color: var(--texto-suave); border: 1.5px dashed var(--texto-tenue); }
+.estado-pregunta.abierta { background: var(--superficie); color: var(--acento); border: 1.5px solid var(--acento); }
+.estado-pregunta.decidida { background: var(--primario); color: var(--sobre-primario, #fff); border: 1.5px solid var(--primario); }
+.estado-pregunta.separada { background: var(--superficie); color: var(--texto-suave); border: 1.5px dashed var(--texto-tenue); }
 .pregunta dt.opcion { display: flex; flex-wrap: wrap; align-items: center; gap: .45rem; }
 .pregunta dt.opcion.recomendada, .pregunta dd.opcion.recomendada,
 .pregunta dt.opcion.elegida, .pregunta dd.opcion.elegida { border-left: 3px solid var(--primario); padding-left: .75rem; }
-.pregunta dt.opcion.elegida, .pregunta dd.opcion.elegida { border-left-color: var(--oscuro); }
+.pregunta dt.opcion.elegida, .pregunta dd.opcion.elegida { border-left-color: var(--tinta-oscura); }
 .pregunta dd.opcion.descartada { color: var(--texto-suave); }
-.marca-opcion { padding: .05rem .5rem; border-radius: 4px; font-size: .8125rem; letter-spacing: .06em; font-weight: 750; color: #fff;
+.marca-opcion { padding: .05rem .5rem; border-radius: 4px; font-size: .8125rem; letter-spacing: .06em; font-weight: 750; color: var(--sobre-primario, #fff);
                 background: var(--primario); }
-.marca-opcion.elegida { background: var(--oscuro); }
+.marca-opcion.elegida { background: var(--oscuro); color: #fff; }
 .pregunta dt.recomendacion, .pregunta dt.decision { margin-bottom: 0; padding: .6rem .85rem 0; border-top: 0;
                                                      background: var(--fondo); border-radius: 8px 8px 0 0; }
 .pregunta dd.recomendacion, .pregunta dd.decision { padding: .25rem .85rem .7rem; background: var(--fondo); border-radius: 0 0 8px 8px; }
 .pregunta dt.decision, .pregunta dd.decision { background: var(--fondo-medio); }
-.pregunta dt.decision { color: var(--oscuro); }
+.pregunta dt.decision { color: var(--tinta-oscura); }
 
 /* Insignias, referencias y saltos */
 a.insignia { display: inline-block; padding: .22rem .5rem; margin: .1rem .1rem .1rem 0; border-radius: 5px; background: var(--fondo-medio);
-             color: var(--oscuro); font-size: .8125rem; font-weight: 750; text-decoration: none; }
+             color: var(--tinta-oscura); font-size: .8125rem; font-weight: 750; text-decoration: none; }
 a.insignia:hover { background: var(--borde); }
 a.ref:hover { text-decoration: underline; }
 a.ref { font-size: .8125rem; font-weight: 750; text-decoration: none; white-space: nowrap; }
 a.salto { font-size: .875rem; }
 
 /* Buscador de fichas (assets/fichas.js) */
-.buscador { display: flex; align-items: end; flex-wrap: wrap; gap: .8rem; background: #fff; border: 1px solid var(--linea);
+.buscador { display: flex; align-items: end; flex-wrap: wrap; gap: .8rem; background: var(--superficie); border: 1px solid var(--linea);
             padding: 1rem; border-radius: var(--esquinas, 10px); margin: 1.4rem 0 1rem; }
 .buscador label { display: grid; gap: .3rem; font-size: .8125rem; font-weight: 700; flex: 1 1 220px; }
-.buscador input, .buscador select { font: inherit; color: inherit; border: 1px solid var(--borde); border-radius: 6px; background: #fff;
+.buscador input, .buscador select { font: inherit; color: inherit; border: 1px solid var(--borde-campo, var(--borde)); border-radius: 6px; background: var(--superficie);
                                     padding: .55rem; width: 100%; min-width: 0; }
 .cuenta { font-size: .875rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
 .sin-resultados { display: none; padding: 1.2rem; color: var(--texto-suave); }
@@ -267,16 +306,87 @@ a.salto { font-size: .875rem; }
 .fuentes :target { background: var(--fondo); }
 
 /* Tablas */
-.seccion table { width: 100%; border-collapse: collapse; margin: 1.2rem 0 1.6rem; font-size: .9rem; background: #fff; }
+.seccion table { width: 100%; border-collapse: collapse; margin: 1.2rem 0 1.6rem; font-size: .9rem; background: var(--superficie); }
 .seccion th { background: var(--oscuro); color: #fff; text-align: left; font-size: .8125rem; letter-spacing: .06em;
               text-transform: uppercase; padding: .5rem .7rem; }
 .seccion td { border-bottom: 1px solid var(--linea); padding: .55rem .7rem; vertical-align: top; }
-.seccion td:first-child { font-weight: 650; color: var(--oscuro); width: 28%; }
+.seccion td:first-child { font-weight: 650; color: var(--tinta-oscura); width: 28%; }
 .seccion tr:nth-child(even) td { background: var(--fondo-suave); }
 
 .pie { margin-top: 3rem; border-top: 1px solid var(--linea); padding: 1rem 0 2.5rem; font-size: .875rem; color: var(--texto-suave); }
 .pie p { margin: 0 0 .4rem; }
-code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; border-radius: 3px; }
+code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; border-radius: 3px; overflow-wrap: anywhere; }
+/* Bloques de código: fondo suave y las esquinas de las demás cajas (pagina.codigo: bloque, el de por defecto; «linea» los
+ * deja entre dos líneas). */
+pre { background: var(--fondo-suave); padding: .9rem 1.1rem; margin: 1rem 0 1.4rem; border-radius: var(--esquinas, 8px);
+      overflow-x: auto; line-height: 1.5; font-size: .9rem; scrollbar-width: thin; scrollbar-color: var(--borde) transparent; }
+pre code { background: none; padding: 0; border-radius: 0; font-size: inherit; font-variant-ligatures: none; }
+/* La caja de cada bloque (scripts/resaltar_codigo.py): la barra con el lenguaje, que pliega y despliega el bloque, y
+ * «Copiar» (assets/codigo.js); el código se desplaza en horizontal dentro de la caja sin ensanchar la página. */
+.codigo { background: var(--fondo-suave); margin: 1rem 0 1.4rem; min-width: 0; max-width: 100%;
+          border-radius: var(--esquinas, 8px); }
+.codigo > pre { background: none; border: 0; border-radius: 0; margin: 0; max-width: 100%; }
+.codigo-barra { display: flex; align-items: center; gap: .6rem; min-height: 1.9rem; padding: .35rem .6rem 0 1.1rem;
+                font-family: var(--fuente-texto); font-size: .78rem; color: var(--texto-suave); }
+.codigo-barra + pre { padding-top: .45rem; }
+.codigo.plegado > .codigo-barra { padding-bottom: .35rem; }
+.codigo-lenguaje { font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+.codigo-plegar { flex: 1; display: flex; align-items: center; gap: .55rem; min-width: 0; margin: 0 0 0 -.3rem; padding: .2rem .3rem;
+                 font: inherit; color: inherit; text-align: left; background: none; border: 0; border-radius: 4px; cursor: pointer; }
+.codigo-plegar::before { content: ""; flex: none; width: .42em; height: .42em; margin: 0 .1rem 0 .15rem;
+                         border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+                         transform: translateY(-.1em) rotate(45deg); transition: transform .15s; }
+.codigo-plegar[aria-expanded="false"]::before { transform: rotate(-45deg); }
+.codigo-plegar:hover { color: var(--texto); background: none; }
+.codigo-lineas { display: none; font-weight: 400; }
+.codigo.plegado .codigo-lineas { display: inline; }
+.codigo-copiar { flex: none; font: inherit; font-weight: 650; color: var(--texto-suave); background: var(--superficie);
+                 border: 1px solid var(--borde-campo, var(--borde)); border-radius: 4px; padding: .2rem .6rem; line-height: 1.3;
+                 cursor: pointer; }
+.codigo-copiar:hover { color: var(--texto); background: var(--superficie); border-color: var(--texto-suave); }
+:is(.codigo-copiar, .codigo-plegar):focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+/* Ámbitos plegables (resaltar_codigo.py y codigo.js): la flecha, en el margen izquierdo de la línea que abre el ámbito;
+ * plegado, «…» al final de esa línea. Sin JS no hay flechas ni margen. */
+.codigo > pre.con-ambitos { padding-left: 1.6rem; }
+pre .amb-flecha { position: relative; display: inline-block; box-sizing: border-box; width: 1.15rem; height: 1.25em;
+                  margin: 0 .35rem 0 -1.5rem; padding: 0; vertical-align: -.3em; font: inherit; line-height: 1; color: var(--texto-suave);
+                  background: none; border: 0; border-radius: 3px; cursor: pointer; opacity: .7; }
+pre .amb-flecha::before { content: ""; position: absolute; left: 50%; top: 50%; width: .4em; height: .4em;
+                          border-right: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor;
+                          transform: translate(-50%, -70%) rotate(45deg); transition: transform .15s; }
+pre .amb-flecha[aria-expanded="false"]::before { transform: translate(-70%, -50%) rotate(-45deg); }
+pre .amb-flecha:hover, pre .amb-flecha:focus-visible, pre .amb-flecha[aria-expanded="false"] { opacity: 1; color: var(--texto); }
+pre .amb-flecha:hover { background: var(--fondo-medio); }
+pre .amb-flecha:focus-visible { outline: 2px solid var(--acento); outline-offset: 0; }
+.amb.plegado > .amb-cabeza > .amb-marca::after { content: "…"; margin-left: .4em; padding: 0 .4em; border-radius: 3px;
+                                                  background: var(--fondo-medio); color: var(--texto); }
+@media (prefers-reduced-motion: reduce) { .codigo-plegar::before, pre .amb-flecha::before { transition: none; } }
+:is(.tarjeta, .columna, .tarjeta-cuerpo) { min-width: 0; }  /* un código largo no ensancha su columna */
+/* Coloreado de los bloques de código (scripts/resaltar_codigo.py): colores con significado fijo, variables --sx-…. */
+:root { --sx-clave: var(--primario-texto, var(--primario)); --sx-cadena: #1f812d; --sx-numero: #a6501a; --sx-palabra: var(--acento);
+        --sx-funcion: #1f7a7a; --sx-atributo: #a6501a; --sx-comentario: var(--texto-suave); }
+pre code .sx-p { color: var(--sx-clave); }
+pre code .sx-s { color: var(--sx-cadena); }
+pre code .sx-n { color: var(--sx-numero); }
+pre code .sx-k { color: var(--sx-palabra); font-weight: 600; }
+pre code .sx-f, pre code .sx-t { color: var(--sx-funcion); }
+pre code .sx-a { color: var(--sx-atributo); }
+pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
+
+/* Modo oscuro de «Lectura» (decisión 347): la paleta oscura la ponen las variables con data-theme="dark". Aquí, lo que
+ * cambia de rol: sobre las superficies oscuras, el primario aclarado en lugar del tenue; en las tarjetas con color,
+ * los campos y los chips con el color aclarado (350); y el logo de la portada clara. */
+@media screen {
+  :where(:root[data-theme="dark"]) :is(.oscura .marca, .oscura .tipo-doc, .oscura .cifras strong, .recuadro.decision .recuadro-etiqueta,
+                                       .recuadro.decision h3) { color: var(--primario); }
+  :root[data-theme="dark"] .portada.oscura a { text-decoration-color: var(--primario); }
+  :root[data-theme="dark"] .tarjeta.con-color dt { color: var(--c-oscuro-o, var(--c-oscuro)); border-top-color: var(--c-borde-o, var(--c-borde)); }
+  :root[data-theme="dark"] .con-color dd > ul > li { color: var(--c-oscuro-o, var(--c-oscuro)); border-color: var(--c-borde-o, var(--c-borde));
+                                                     background: var(--c-suave-o, var(--c-suave)); }
+  :root[data-theme="dark"] summary.tarjeta-cabecera:focus-visible { outline-color: var(--c-oscuro-o, var(--primario)); }
+  :root[data-theme="dark"] .marca img.logo-claro { display: none; }
+  :root[data-theme="dark"] .marca img.logo-oscuro { display: inline; }
+}
 
 @media (max-width: 860px) {
   .cols-3 { grid-template-columns: 1fr; }
@@ -294,18 +404,19 @@ code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; bo
   .seccion td { border: 0; padding: .25rem .6rem; }
   .seccion td:first-child { width: 100%; }
   .seccion td::before { content: attr(data-label); display: block; font-size: .8125rem; letter-spacing: .08em;
-                        text-transform: uppercase; color: var(--texto-tenue); }
+                        text-transform: uppercase; color: var(--texto-suave); }
   .seccion tr:nth-child(even) td { background: none; }
 }
 
 @media print {
   @page { size: A4; margin: 15mm 15mm 17mm; }
   html { scroll-behavior: auto; }
-  body { background: #fff; font-size: 10pt; }
+  body { background: var(--superficie); font-size: 10pt; }
   .hoja, .portada-dentro { width: 100%; }
-  .portada, .portada.oscura { background: #fff; color: var(--texto); padding: 0 0 1rem; break-after: page; border: 0; }
-  .oscura .marca, .oscura .cifras strong { color: var(--primario); }
+  .portada, .portada.oscura { background: var(--superficie); color: var(--texto); padding: 0 0 1rem; break-after: page; border: 0; }
+  .oscura .marca, .oscura .cifras strong { color: var(--primario-texto, var(--primario)); }
   .oscura .subtitulo, .oscura .idea p, .oscura .datos-version, .oscura .datos-version span, .oscura .cifras span { color: var(--texto); }
+  .portada.oscura code { background: var(--fondo-suave); }
   .menu, .buscador, .sin-resultados, .imprimir, .saltar, .plegar-tarjetas { display: none !important; }
   .seccion-titulo::after { display: none; }
   details.seccion::details-content { content-visibility: visible; display: block; } /* abiertas aunque no haya JS */
@@ -320,17 +431,155 @@ code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; bo
   .seccion ol > li, .seccion tr, .fuentes p { break-inside: avoid; }
   .fuentes { display: block; }
   .recuadro.decision { background: var(--fondo); color: var(--texto); }
-  .recuadro.decision .recuadro-etiqueta, .recuadro.decision h3 { color: var(--primario); }
+  .recuadro.decision .recuadro-etiqueta, .recuadro.decision h3 { color: var(--primario-texto, var(--primario)); }
   a { color: inherit; text-decoration: none; }
+  /* Código: las líneas largas se parten en la hoja en vez de cortarse; sin «Copiar» */
+  .codigo-copiar, .codigo-lineas, .codigo-plegar::before, .codigo-barra:not(:has(.codigo-lenguaje:not(.codigo-generico))) {
+    display: none !important; }
+  .codigo > pre[hidden] { display: block !important; }  /* plegado en pantalla, desplegado en la hoja */
+  .amb-flecha, .amb-marca { display: none !important; }
+  .amb-cuerpo[hidden] { display: inline !important; }
+  .codigo > pre.con-ambitos { padding-left: 1.1rem; }
+  pre, .codigo > pre { white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; font-size: 8.5pt; }
+  .codigo-barra, .codigo.plegado > .codigo-barra { min-height: 0; padding-bottom: 0; font-size: 7.5pt; }
+  .codigo, pre { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
+  </style>
+  <style data-kit="skills/crear_documentos/assets/narrativa.css">
+/* Recursos que vienen de la maqueta de la visión, en el catálogo común (decisión 308): los narrativos (escena con sus
+ * turnos, caso conductor, expediente, aviso de ficción) y los generales (ficha con <dl> y su estado acordado,
+ * comparativa de versiones, preguntas frecuentes, ejemplo narrado), las subsecciones plegables (### abiertas, ####
+ * plegadas) y los gráficos anchos que se desplazan en el móvil. El generador lo añade solo si el documento los usa.
+ * Colores y tipografías: variables del estilo o del tema del proyecto. */
+
+/* Tres niveles de lectura: la narración, en la letra de texto; las escenas dialogadas, en la letra de escena, con
+ * etiqueta, margen lateral y fondo suave; los datos del caso, fuentes y evidencias, compactos y con cifras tabulares. */
+.escena { font-family: var(--fuente-escena); background: var(--fondo-suave); border-left: 3px solid var(--tenue);
+          border-radius: 0 var(--esquinas, 12px) var(--esquinas, 12px) 0; padding: 1rem 1.4rem .9rem; margin: 1.8rem 0; }
+.escena p { margin: 0; }
+.escena-etiqueta { font-family: var(--fuente-texto); font-size: .8125rem; font-weight: 700; letter-spacing: .09em;
+                   text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin-bottom: .35rem !important; }
+.escena-contexto { font-size: .95rem; color: var(--texto-suave); line-height: 1.5; margin-bottom: .6rem !important; }
+.turno { display: grid; grid-template-columns: 9.5rem 1fr; gap: .15rem 1.1rem; padding: .6rem 0; border-top: 1px solid var(--linea); }
+.ponente { font-family: var(--fuente-texto); font-size: .8125rem; font-weight: 700; color: var(--tinta-oscura); line-height: 1.35; padding-top: .2rem; }
+.ponente small { display: block; font-weight: 400; color: var(--texto-suave); font-size: .8125rem; }
+.turno > p:last-child { font-size: 1.04rem; line-height: 1.6; color: var(--texto); }
+.turno.sistema .ponente { color: var(--texto-suave); }
+.turno.sistema > p:last-child { font-family: var(--fuente-texto); font-size: .9rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
+.escena-pie { font-family: var(--fuente-texto); font-size: .8125rem; color: var(--texto-suave); border-top: 1px solid var(--linea);
+              padding-top: .5rem; margin-top: .1rem !important; }
+
+/* Hilo conductor: la narración del caso, en cursiva, en un recuadro claro con la etiqueta «El caso». */
+.caso, .expediente { background: var(--fondo-suave); border: 1px solid var(--linea); border-radius: var(--esquinas, 10px);
+                     padding: .9rem 1.3rem 1rem; margin: 1.4rem 0 1.6rem; }
+.caso-etiqueta, .expediente b:first-child { display: block; font-size: .8125rem; font-weight: 700; letter-spacing: .09em;
+                                            text-transform: uppercase; color: var(--tinta-oscura); margin: 0 0 .35rem; font-style: normal; }
+.caso p { margin: 0; }
+.caso p + p { margin-top: .6rem; }
+.caso > p:not(.caso-etiqueta) { font-size: 1.08rem; line-height: 1.65; color: var(--texto); font-style: italic; }
+.expediente { font-size: .92rem; font-variant-numeric: tabular-nums; color: var(--texto); padding: .6rem 1.3rem .7rem; }
+
+/* Aviso de ficción: al principio del documento, antes del prólogo. */
+.aviso-ficcion { border-left: 4px solid #b91c1c; background: color-mix(in srgb, #b91c1c 7%, var(--pagina));
+                 border-radius: 0 var(--esquinas, 8px) var(--esquinas, 8px) 0; padding: .7rem 1.1rem; margin: .4rem 0 1.4rem;
+                 font-size: .92rem; line-height: 1.55; color: var(--texto); }
+.aviso-ficcion p { margin: 0; }
+.aviso-ficcion p + p { margin-top: .4rem; }
+
+/* Ficha de datos: <div class="ficha"> con una lista <dl>; dt.acordado marca el estado final y dt.evidencia la solidez
+ * de la evidencia. No es la tarjeta de «::: fichas» (.tarjeta.ficha). */
+div.ficha:not(.tarjeta) { border: 1px solid var(--borde); border-radius: var(--esquinas, 12px); padding: .9rem 1.2rem; margin: 1.6rem 0; font-size: .92rem; }
+.ficha-titulo { font-family: var(--fuente-titulos); font-weight: 600; color: var(--tinta-oscura); font-size: 1.02rem; margin: 0 0 .5rem; }
+div.ficha:not(.tarjeta) dl { display: grid; grid-template-columns: 11rem 1fr; margin: 0; }
+div.ficha:not(.tarjeta) dt, div.ficha:not(.tarjeta) dd { margin: 0; padding: .42rem 0; border-top: 1px solid var(--linea); }
+div.ficha:not(.tarjeta) dt { font-size: .8125rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--texto-suave); padding-top: .55rem; }
+div.ficha:not(.tarjeta) dt.acordado, div.ficha:not(.tarjeta) dd.acordado { border-top: 2px solid var(--primario); }
+div.ficha:not(.tarjeta) dt.acordado { color: var(--primario-texto, var(--primario)); }
+div.ficha:not(.tarjeta) dt.evidencia { color: var(--acento); }
+
+/* Comparativa de versiones en tarjetas: una por idea y, dentro, una subtarjeta por versión (data-version) con el texto
+ * y el comentario de lo que cambió. 4 columnas (o --cols) en escritorio, 2 en tableta y 1 en móvil. */
+.comparativa { margin: 1.6rem 0 1.4rem; font-size: .9rem; }
+.cmp-cab { display: none; }
+.cmp-fila { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: .7rem; background: var(--pagina);
+            border: 1px solid var(--linea); border-radius: var(--esquinas, 12px); padding: 1rem 1.05rem 1.05rem; margin-bottom: 1rem; }
+.cmp-idea { grid-column: 1 / -1; margin: 0 0 .1rem; font-family: var(--fuente-titulos); font-size: .8125rem; font-weight: 700;
+            letter-spacing: .07em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); }
+.cmp-celda { background: var(--fondo); border-radius: 8px; padding: .7rem .8rem .75rem; min-width: 0; }
+.cmp-celda[data-version^="Original"] { background: transparent; border: 1px dashed var(--tenue); }
+.cmp-celda::before { content: attr(data-version); display: block; font-size: .8125rem; font-weight: 700; color: var(--tinta-oscura);
+                     margin-bottom: .35rem; letter-spacing: .02em; }
+.cmp-celda p { margin: 0; }
+.cmp-texto { font-size: .9rem; line-height: 1.5; color: var(--texto); }
+.cmp-texto + .cmp-texto { margin-top: .2rem !important; }
+.cmp-nota { margin-top: .6rem !important; padding-top: .5rem; border-top: 1px solid var(--linea); font-size: .8125rem;
+            line-height: 1.45; color: var(--texto-suave); }
+.cmp-vacia .cmp-texto { color: var(--texto-suave); font-style: italic; }
+.cmp-pie { background: var(--fondo); }
+.cmp-pie .cmp-celda { background: var(--pagina); }
+.cmp-pie .cmp-texto { font-variant-numeric: tabular-nums; font-weight: 700; font-size: .95rem; }
+@media (max-width: 1000px) { .cmp-fila { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .cmp-fila { grid-template-columns: 1fr; } }
+
+/* Preguntas frecuentes: <dl class="faq">, pregunta en <dt> y respuesta en <dd>, sin cabecera ni franjas. */
+dl.faq { margin: .6rem 0 1.2rem; }
+dl.faq dt { font-weight: 600; color: var(--tinta-oscura); margin: 1rem 0 .15rem; }
+dl.faq dt:first-child { margin-top: 0; }
+dl.faq dd { margin: 0; color: var(--texto); }
+
+/* Ejemplo narrado: un caso real contado en prosa, en un recuadro como el del código. */
+.ejemplo { background: var(--fondo-suave); border: 1px solid var(--linea); border-radius: var(--esquinas, 6px);
+           padding: 1rem 1.2rem; margin: 1rem 0 1.4rem; }
+.ejemplo p { margin: 0 0 .6rem; }
+.ejemplo p:last-child { margin-bottom: 0; }
+
+/* Subsecciones plegables (perfil con «subsecciones»: «plegables»): cada ### abierta y cada #### plegada, con la misma
+ * convención que las herramientas: ▸ plegado, ▾ abierto. */
+.subseccion { margin: 1.4rem 0 0; }
+.subsubseccion { margin: .55rem 0 0; }
+.subseccion-summary, .subsubseccion-summary { display: flex; align-items: center; gap: .45rem; cursor: pointer; list-style: none;
+                                              user-select: none; text-wrap: balance; min-height: 44px; }
+.subseccion-summary { font-family: var(--fuente-titulos); font-size: 1.22rem; line-height: 1.3; font-weight: 650;
+                      color: var(--tinta-oscura); margin: .4rem 0 .3rem; }
+.subsubseccion-summary { font-size: 1rem; font-weight: 650; color: var(--tinta-oscura); margin: .2rem 0 .1rem; }
+.subseccion-summary::-webkit-details-marker, .subsubseccion-summary::-webkit-details-marker { display: none; }
+.subseccion-summary::marker, .subsubseccion-summary::marker { content: ''; }
+.subseccion-summary::after, .subsubseccion-summary::after {
+  content: ""; flex: none; margin-left: auto; width: .5rem; height: .5rem; border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .2s; opacity: .7; }
+.subseccion[open] > .subseccion-summary::after, .subsubseccion[open] > .subsubseccion-summary::after { transform: translateY(-2px) rotate(45deg); }
+.subseccion-summary:hover, .subsubseccion-summary:hover { color: var(--primario-texto, var(--primario)); }
+.subseccion-summary:focus-visible, .subsubseccion-summary:focus-visible { outline: 3px solid var(--primario); outline-offset: 3px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { .subseccion-summary::after, .subsubseccion-summary::after { transition: none; } }
+
+@media (max-width: 720px) {
+  .escena { padding: .9rem 1rem .8rem; }
+  .turno { grid-template-columns: 1fr; }
+  div.ficha:not(.tarjeta) dl { grid-template-columns: 1fr; }
+  div.ficha:not(.tarjeta) dd { border-top: none; padding-top: 0; }
+  /* Un gráfico ancho conserva un tamaño legible y se desplaza en horizontal, con su aviso; los verticales y las infografías caben. */
+  figure:not(.vertical):not(.diagrama):not(.infografia) { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  figure:not(.vertical):not(.diagrama):not(.infografia) > svg { min-width: 680px; }
+  figure:not(.vertical):not(.diagrama):not(.infografia)::before { content: 'Desliza para ver el gráfico completo →'; display: block;
+    font-size: .8125rem; color: var(--texto-suave); text-align: right; margin-bottom: .3rem; }
+  figure:not(.vertical):not(.diagrama):not(.infografia) figcaption { position: sticky; left: 0; max-width: calc(100vw - 2rem); text-align: left; }
+}
+@media print {
+  .subseccion-summary::after, .subsubseccion-summary::after { display: none; }
+  .escena, .caso, div.ficha:not(.tarjeta), .cmp-fila { break-inside: avoid; }
+  figure:not(.vertical):not(.diagrama):not(.infografia)::before { content: none; }
+}
+</style>
+  <style data-estilo="v4">
+    code, pre, kbd, .formula { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; } .seccion-titulo::after { display: none; } :root { --esquinas: 6px; } .portada, .menu { border-bottom: 0; } .pie { border-top: 0; } .recuadro:not(.decision) { border-left: 0; border-radius: var(--esquinas, 8px); }
   </style>
   <style data-kit="tools/kit_documentos/herramientas.css">
 /* Columna de herramientas del documento (assets/herramientas.js): la usan documento_vision y documento_fundacional.
  * Solo usa las variables del tema (--primario, --oscuro, --fondo, --linea, --borde, --texto, --texto-suave,
  * --acento, --acento-fondo, --fondo-suave) y no depende de la hoja de estilos de cada documento. */
 .herramienta button, .abrir-herramienta { font: inherit; font-size: .82rem; font-weight: 700; line-height: 1.2; cursor: pointer;
-  border: 1px solid var(--primario); border-radius: var(--esquinas, 6px); background: var(--primario); color: #fff; padding: .45rem .8rem; }
+  border: 1px solid var(--primario); border-radius: var(--esquinas, 6px); background: var(--primario); color: var(--sobre-primario, #fff); padding: .45rem .8rem; }
 .herramienta button:disabled { opacity: .45; cursor: default; }
 .herramienta button:focus-visible, .herramienta input:focus-visible, .herramienta textarea:focus-visible, .abrir-herramienta:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
 .herramienta ol, .herramienta p { margin: 0; padding: 0; }
@@ -342,18 +591,18 @@ code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; bo
 .columna-herramientas { display: none; }
 html.con-columna body { padding-right: var(--ancho-columna, 360px); }
 html.con-columna .columna-herramientas { display: block; position: fixed; z-index: 30; top: 0; right: 0; bottom: 0;
-  width: var(--ancho-columna, 360px); padding: 1rem 1rem 1rem 1.15rem; background: #fff; border-left: 1px solid var(--linea);
+  width: var(--ancho-columna, 360px); padding: 1rem 1rem 1rem 1.15rem; background: var(--superficie); border-left: 1px solid var(--linea);
   overflow-y: auto; overscroll-behavior: contain; }
 .redim { position: absolute; top: 0; bottom: 0; left: -3px; width: 7px; cursor: col-resize; touch-action: none; }
 .redim:hover, .redim.activo { background: var(--primario); opacity: .35; }
-.herramienta { display: flex; flex-direction: column; gap: .7rem; color: var(--texto); background: #fff; }
+.herramienta { display: flex; flex-direction: column; gap: .7rem; color: var(--texto); background: var(--superficie); }
 .herramienta[data-modo="oculto"] { display: none; }
 .herr-cabecera { display: flex; align-items: center; justify-content: space-between; gap: .5rem; user-select: none; }
-.herr-titulo { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario); }
+.herr-titulo { font-size: .8125rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); }
 .herr-acciones { display: flex; gap: .3rem; }
-.herr-acciones button { background: #fff; color: var(--oscuro); border-color: var(--borde); line-height: 1;
+.herr-acciones button { background: var(--superficie); color: var(--tinta-oscura); border-color: var(--borde); line-height: 1;
   min-width: 2rem; min-height: 2rem; padding: .25rem .45rem; display: inline-grid; place-items: center; font-size: 1.05rem; }
-.herr-acciones button:hover { background: var(--fondo); border-color: var(--oscuro); }
+.herr-acciones button:hover { background: var(--fondo); border-color: var(--tinta-oscura); color: var(--tinta-oscura); }
 .herr-plegar::before { content: ""; width: .5rem; height: .5rem; border: solid currentColor; border-width: 0 2px 2px 0;
   transform: translateY(-2px) rotate(45deg); transition: transform .15s; }
 .herramienta.plegada .herr-plegar::before { transform: rotate(-45deg); }
@@ -373,13 +622,13 @@ html:not(.herr-estrecho) .herramienta[data-modo="flotante"] .herr-cabecera { cur
 html.herr-estrecho .herramienta[data-modo="flotante"] { top: auto; left: 0 !important; right: 0; bottom: 0; width: auto;
   max-height: 70vh; border-radius: var(--esquinas, 10px) var(--esquinas, 10px) 0 0; border-width: 1px 0 0; }
 html.herr-estrecho .dc-anclar { display: none !important; }
-.abrir-herramienta { display: none; background: #fff; color: var(--primario); }
+.abrir-herramienta { display: none; background: var(--superficie); color: var(--primario-texto, var(--primario)); }
 html.herr-estrecho .abrir-herramienta { display: inline-block; }
-.abrir-herramienta:hover { background: var(--fondo); color: var(--oscuro); border-color: var(--oscuro); }
+.abrir-herramienta:hover { background: var(--fondo); color: var(--tinta-oscura); border-color: var(--tinta-oscura); }
 .botones-herramientas { display: none; }
 html.herr-estrecho .botones-herramientas { display: flex; gap: .5rem; position: fixed; right: 16px; bottom: 16px; z-index: 31; }
 .botones-herramientas .abrir-herramienta { box-shadow: 0 4px 14px rgba(0, 0, 0, .18); }
-.bd-campo input { font: inherit; width: 100%; padding: .6rem .7rem; border: 1px solid var(--borde); border-radius: 6px; background: #fff; color: inherit; }
+.bd-campo input { font: inherit; width: 100%; padding: .6rem .7rem; border: 1px solid var(--borde-campo, var(--borde)); border-radius: 6px; background: var(--superficie); color: inherit; }
 .bd-oculto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .bd-navegar { display: flex; align-items: center; gap: .4rem; }
 .bd-cuenta { flex: 1; font-size: .875rem; color: var(--texto-suave); font-variant-numeric: tabular-nums; }
@@ -388,8 +637,8 @@ html.herr-estrecho .botones-herramientas { display: flex; gap: .5rem; position: 
 .bd-resultados { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
 .bd-resultados button { width: 100%; text-align: left; display: grid; gap: .25rem; padding: .6rem .7rem; font-weight: 400;
   background: var(--fondo-suave); color: var(--texto); border: 1px solid var(--linea); }
-.bd-resultados button:hover { background: var(--fondo); border-color: var(--primario); }
-.bd-seccion { font-size: .8125rem; font-weight: 750; color: var(--primario); }
+.bd-resultados button:hover { background: var(--fondo); border-color: var(--primario); color: var(--texto); }
+.bd-seccion { font-size: .8125rem; font-weight: 750; color: var(--primario-texto, var(--primario)); }
 .bd-fragmento { font-size: .875rem; line-height: 1.45; }
 .bd-fragmento b { background: var(--acento-fondo); }
 mark.bd-hit { background: var(--acento-fondo); color: inherit; border-radius: 2px; box-shadow: 0 0 0 1px var(--acento); }
@@ -397,7 +646,7 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 /* Barra del documento: versión (sube al guardar), estado de las notas, versión de las herramientas y «Guardar». */
 .barra-doc { display: inline-flex; align-items: center; flex-wrap: wrap; gap: .35rem .8rem; font-size: .8125rem; color: var(--texto-suave); }
 .report-header .barra-doc { display: flex; margin-top: .45rem; }
-.dc-ver b { color: var(--oscuro); font-family: ui-monospace, Consolas, monospace; font-weight: 700; }
+.dc-ver b { color: var(--tinta-oscura); font-family: ui-monospace, Consolas, monospace; font-weight: 700; }
 .dc-kit { font-family: ui-monospace, Consolas, monospace; font-size: .75rem; color: var(--texto-suave); cursor: help; margin-left: .7rem; }
 /* Cambios sin guardar: led rojo en el botón; el texto de estado se oculta a la vista, no a los lectores de pantalla */
 .barra-doc.sucio .dc-estado { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -405,12 +654,12 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 .barra-doc.sucio .dc-guardar::after { content: ""; position: absolute; top: 4px; right: 4px; width: 8px; height: 8px; border-radius: 50%;
   background: #ff3b30; box-shadow: 0 0 0 1.5px rgba(255, 255, 255, .85), 0 0 6px 1px rgba(255, 59, 48, .8); }
 .dc-guardar { font: inherit; font-size: .8125rem; font-weight: 700; cursor: pointer; border: 1px solid var(--primario); border-radius: var(--esquinas, 6px);
-  background: var(--primario); color: #fff; padding: .3rem .75rem; min-height: 24px; }
-.dc-guardar:hover { background: var(--oscuro); border-color: var(--oscuro); }
+  background: var(--primario); color: var(--sobre-primario, #fff); padding: .3rem .75rem; min-height: 24px; }
+.dc-guardar:hover { background: var(--oscuro); border-color: var(--oscuro); color: #fff; }
 /* En la columna, la barra es su primera tarjeta: versión y herramientas, estado y «Guardar». */
 .columna-herramientas > .barra-doc { display: flex; flex-wrap: nowrap; min-width: 0; box-sizing: border-box; justify-content: space-between; align-items: center; gap: .7rem;
   padding: .45rem .45rem .45rem .8rem; font-size: .78rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px);
-  background: linear-gradient(180deg, var(--fondo) 0, #fff 100%); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
+  background: linear-gradient(180deg, var(--fondo) 0, var(--superficie) 100%); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
 .columna-herramientas > .barra-doc .dc-ver { white-space: nowrap; line-height: 1.35; }
 .columna-herramientas > .barra-doc .dc-kit { display: block; margin: 0; font-size: .7rem; }
 .columna-herramientas > .barra-doc .dc-estado { flex: 1 1 0; min-width: 0; line-height: 1.35; }
@@ -418,7 +667,7 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 /* Notas personales */
 .nt-campo { display: grid; gap: .25rem; font-size: .8125rem; font-weight: 700; color: var(--texto-suave); }
 .nt-campo input, .nt-nota textarea { font: inherit; font-size: .9rem; font-weight: 400; color: inherit; width: 100%; padding: .5rem .6rem;
-  border: 1px solid var(--borde); border-radius: 6px; background: #fff; }
+  border: 1px solid var(--borde-campo, var(--borde)); border-radius: 6px; background: var(--superficie); }
 .nt-nota textarea { resize: vertical; min-height: 4.2em; line-height: 1.45; }
 .nt-ayuda, .nt-vacio { font-size: .8125rem; color: var(--texto-suave); }
 .nt-lista { list-style: none; display: grid; gap: .6rem; }
@@ -426,12 +675,12 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
  * tarjeta, con el aspecto de una herramienta; en la ventana flotante y en el móvil van dentro del panel «Notas». */
 .nt-general-zona, .nt-foco { display: grid; gap: .8rem; }
 .nt-general-zona:empty, .nt-foco:empty { display: none; }
-.nt-tarjeta { position: relative; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); background: #fff; }
+.nt-tarjeta { position: relative; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); background: var(--superficie); }
 .nt-tarjeta::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: var(--esquinas, 10px) var(--esquinas, 10px) 0 0; background: var(--primario); }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-tarjeta-cab { width: 100%; display: flex; justify-content: space-between; gap: .6rem; align-items: center; text-align: left;
   background: none; border: 0; border-radius: 0; padding: .8rem .9rem .6rem; color: inherit; }
 .nt-tarjeta-cab .herr-titulo { line-height: 1.35; }
-.nt-flecha { flex: 0 0 auto; width: .5rem; height: .5rem; border: solid var(--oscuro); border-width: 0 2px 2px 0; transform: translateY(-2px) rotate(45deg); transition: transform .15s; }
+.nt-flecha { flex: 0 0 auto; width: .5rem; height: .5rem; border: solid var(--tinta-oscura); border-width: 0 2px 2px 0; transform: translateY(-2px) rotate(45deg); transition: transform .15s; }
 .nt-tarjeta.plegada .nt-flecha { transform: rotate(-45deg); }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-tarjeta-cuerpo { display: grid; gap: .6rem; padding: 0 .9rem .9rem; }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-tarjeta.plegada > .nt-tarjeta-cuerpo { display: none; }
@@ -440,37 +689,37 @@ mark.bd-hit.actual { background: var(--oscuro); color: #fff; box-shadow: none; }
 .nt-nota textarea.nt-amplia { min-height: 9em; }
 .nt-pie:has(> span:first-child:empty) { justify-content: flex-end; }
 .nt-acciones { display: inline-flex; gap: .35rem; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-convertir { background: #fff; color: var(--primario); border-color: var(--borde); font-size: .75rem; padding: .3rem .6rem; }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-convertir { background: var(--superficie); color: var(--primario-texto, var(--primario)); border-color: var(--borde); font-size: .75rem; padding: .3rem .6rem; }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-convertir:not(:disabled):hover { border-color: var(--primario); }
 .nt-cuantas { color: var(--texto-suave); letter-spacing: 0; }
 .nt-resumen { list-style: none; display: grid; gap: .25rem; }
 .nt-resumen:empty { display: none; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-ir { width: 100%; text-align: left; background: #fff; color: var(--texto); border-color: var(--linea); font-weight: 400; font-size: .8125rem; line-height: 1.4; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-ir:hover { border-color: var(--primario); color: var(--oscuro); }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-ir { width: 100%; text-align: left; background: var(--superficie); color: var(--texto); border-color: var(--linea); font-weight: 400; font-size: .8125rem; line-height: 1.4; }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-ir:hover { border-color: var(--primario); color: var(--tinta-oscura); }
 /* En la columna, el panel «Notas» se vuelve transparente y las tarjetas toman el aspecto de herramienta. */
 .herr-notas.por-seccion[data-modo="columna"] { padding: 0; border: 0; background: none; box-shadow: none; }
 .herr-notas.por-seccion[data-modo="columna"]::before { display: none; }
 .herr-notas.por-seccion[data-modo="columna"] > .herr-cabecera { display: none; }
 .herr-notas.por-seccion[data-modo="columna"] > .herr-cuerpo { display: flex !important; gap: 1rem; }
-.herr-notas.por-seccion[data-modo="columna"] .nt-tarjeta { background: linear-gradient(180deg, var(--fondo) 0, #fff 3.2rem); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
-.herr-notas.por-seccion[data-modo="columna"] .nt-vacio { padding: .8rem .9rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); background: #fff; }
+.herr-notas.por-seccion[data-modo="columna"] .nt-tarjeta { background: linear-gradient(180deg, var(--fondo) 0, var(--superficie) 3.2rem); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
+.herr-notas.por-seccion[data-modo="columna"] .nt-vacio { padding: .8rem .9rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); background: var(--superficie); }
 /* La nota de la sección, en su sitio y solo para leer: se escribe en la columna. */
 .nota-espejo { margin: 1rem 0 .5rem; padding: .5rem .85rem .65rem; border: 1px dashed var(--borde, #b9c4c9); border-radius: 8px; background: var(--fondo-suave); cursor: pointer; }
-.nota-espejo-t { font-size: .75rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; color: var(--primario); margin-bottom: .2rem; }
+.nota-espejo-t { font-size: .75rem; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; color: var(--primario-texto, var(--primario)); margin-bottom: .2rem; }
 .nota-espejo-x { white-space: pre-wrap; font-size: .95rem; }
 @media print { .nota-espejo { display: none; } }
-.nt-grupo { font-size: .8125rem; font-weight: 750; color: var(--primario); margin-top: .4rem; }
+.nt-grupo { font-size: .8125rem; font-weight: 750; color: var(--primario-texto, var(--primario)); margin-top: .4rem; }
 .nt-nota { display: grid; gap: .4rem; padding: .6rem .65rem; background: var(--fondo-suave); border: 1px solid var(--linea); border-radius: 8px; }
 .nt-nota.actual { border-color: var(--primario); box-shadow: 0 0 0 2px var(--fondo); }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-cita { background: none; color: var(--texto); border: 0; border-left: 3px solid var(--acento); border-radius: 0; padding: .1rem 0 .1rem .55rem;
   font-weight: 400; font-style: italic; font-size: .875rem; line-height: 1.45; text-align: left; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-cita:hover { color: var(--oscuro); background: var(--acento-fondo); }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-cita:hover { color: var(--tinta-oscura); background: var(--acento-fondo); }
 :is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-cita.perdida { border-left-color: var(--texto-suave); color: var(--texto-suave); text-decoration: line-through; }
 .nt-pie { display: flex; align-items: center; justify-content: space-between; gap: .5rem; font-size: .75rem; color: var(--texto-suave); }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-borrar { background: #fff; color: var(--texto-suave); border-color: var(--borde); font-size: .75rem; padding: .2rem .55rem; }
-:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-borrar:hover { color: #b3261e; border-color: #b3261e; }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-borrar { background: var(--superficie); color: var(--texto-suave); border-color: var(--borde); font-size: .75rem; padding: .2rem .55rem; }
+:is(.herramienta, .nt-sitio, .nt-sitio-inicio) .nt-borrar:hover { color: var(--error, #b3261e); border-color: var(--error, #b3261e); }
 mark.nota-cita { background: var(--acento-fondo); color: inherit; border-bottom: 2px solid var(--acento); cursor: pointer; padding: 0; }
-mark.nota-cita.destello { background: var(--acento); color: #fff; transition: background .3s; }
+mark.nota-cita.destello { background: var(--acento); color: var(--pagina); transition: background .3s; }
 .boton-anotar { position: absolute; z-index: 45; font: inherit; font-size: .8125rem; font-weight: 700; cursor: pointer; border: 0; border-radius: var(--esquinas, 6px);
   background: var(--oscuro); color: #fff; padding: .4rem .8rem; min-height: 32px; box-shadow: 0 6px 18px rgba(0, 0, 0, .25); }
 .boton-anotar[hidden] { display: none; }
@@ -478,7 +727,7 @@ mark.nota-cita.destello { background: var(--acento); color: #fff; transition: ba
 /* Aspecto de tarjeta: franja de color arriba, fondo tintado y sombra del color del tema. */
 html.con-columna .columna-herramientas { background: var(--fondo-suave); box-shadow: -6px 0 18px rgba(var(--primario-rgb, 0, 0, 0), .08); }
 .herramienta { position: relative; padding: .9rem 1rem 1rem; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px);
-  background: linear-gradient(180deg, var(--fondo) 0, #fff 3.2rem); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
+  background: linear-gradient(180deg, var(--fondo) 0, var(--superficie) 3.2rem); box-shadow: 0 4px 14px rgba(var(--primario-rgb, 0, 0, 0), .10); }
 .herramienta::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: var(--esquinas, 10px) var(--esquinas, 10px) 0 0;
   background: var(--primario); }
 html.con-columna .columna-herramientas { display: flex; flex-direction: column; gap: 1rem; }
@@ -495,7 +744,7 @@ html:not(.herr-estrecho) .herramienta[data-modo="flotante"] .herr-asa { display:
 .redim:hover::after, .redim.activo::after { background: var(--primario); }
 html.redimensionando, html.redimensionando * { cursor: col-resize !important; user-select: none; }
 /* Buscador: sin resultados en rojo; el grupo del resultado actual, marcado. */
-.bd-cuenta.vacia { color: #b3261e; font-weight: 700; }
+.bd-cuenta.vacia { color: var(--error, #b3261e); font-weight: 700; }
 .bd-resultados button.activo { border-color: var(--primario); box-shadow: inset 4px 0 0 var(--primario); background: var(--fondo); }
 /* Destello de la sección a la que se salta (buscador, notas o enlace). */
 .destello-seccion > summary { animation: destello-seccion 1.2s ease-out; border-radius: 6px; }
@@ -507,7 +756,7 @@ a.externo::after { content: " ↗"; font-size: .85em; }
 /* ── Lectura (lectura.js) ── */
 .herr-lectura .lc-fila { display: flex; align-items: center; gap: .5rem; margin: .45rem 0; font-size: .875rem; cursor: pointer; }
 .herr-lectura .lc-modo { justify-content: space-between; }
-.herr-lectura select { font: inherit; padding: .2rem .4rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo-suave); color: inherit; }
+.herr-lectura select { font: inherit; padding: .2rem .4rem; border: 1px solid var(--borde-campo, var(--borde)); border-radius: 6px; background: var(--fondo-suave); color: inherit; }
 .herr-lectura input[type="checkbox"] { width: 1rem; height: 1rem; accent-color: var(--primario); }
 .herr-lectura .lc-tablas { margin-top: .4rem; font: inherit; font-size: .8125rem; padding: .3rem .6rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo-suave); color: var(--texto); cursor: pointer; }
 /* «Lectura» como modal: lo abre el engranaje junto a «Guardar». */
@@ -516,7 +765,7 @@ a.externo::after { content: " ↗"; font-size: .85em; }
 .dc-iconos { display: inline-flex; align-items: center; gap: .1rem; flex: 0 0 auto; margin-left: auto; margin-right: -.3rem; }
 .barra-doc .dc-icono { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; width: 30px; height: 30px; min-height: 0; padding: 0;
   cursor: pointer; border: 0; border-radius: 50%; background: none; color: var(--texto-suave); }
-.barra-doc .dc-icono:hover { color: var(--oscuro); background: none; }
+.barra-doc .dc-icono:hover { color: var(--tinta-oscura); background: none; }
 .barra-doc .dc-icono:focus-visible { outline: 2px solid var(--primario); outline-offset: 2px; }
 .dc-atajo { display: none !important; }
 html.con-columna .dc-atajo { display: inline-flex !important; }
@@ -527,24 +776,24 @@ nav.menu.menu-vacio { display: none; }
 .dc-config:focus-visible, .ml-cerrar:focus-visible { outline: 2px solid var(--primario); outline-offset: 2px; }
 .modal-lectura { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 0, 0, .35); }
 .modal-lectura[hidden] { display: none; }
-html[data-modo="oscuro"] .modal-lectura { background: rgba(255, 255, 255, .45); }  /* invertido, oscurece el fondo */
+html[data-modo="oscuro"] .modal-lectura { background: rgba(0, 0, 0, .55); }
 .ml-caja { position: relative; width: min(26rem, 100%); max-height: calc(100vh - 32px); overflow: auto; box-sizing: border-box; padding: 1rem 1.2rem 1.1rem;
-  color: var(--texto); background: #fff; border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); box-shadow: 0 12px 40px rgba(0, 0, 0, .25); }
+  color: var(--texto); background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--esquinas, 10px); box-shadow: 0 12px 40px rgba(0, 0, 0, .25); }
 .ml-caja::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; border-radius: var(--esquinas, 10px) var(--esquinas, 10px) 0 0; background: var(--primario); }
 .ml-cab { display: flex; align-items: center; justify-content: space-between; gap: .7rem; margin-bottom: .9rem; }
 .ml-caja:focus { outline: none; }  /* al abrir, el foco va a la caja, no al primer control */
 .ml-caja .lc-modo { gap: 1rem; margin-bottom: .7rem; }
 .ml-caja select { padding: .35rem .6rem; min-height: 32px; }
 .ml-caja select:focus-visible, .ml-caja input:focus-visible { outline: 2px solid var(--primario); outline-offset: 1px; }
-.ml-cerrar { width: 30px; height: 30px; padding: 0; cursor: pointer; font: inherit; font-size: .9rem; line-height: 1; color: var(--oscuro);
-  border: 1px solid var(--borde); border-radius: 6px; background: #fff; }
-.ml-cerrar:hover { background: var(--fondo); border-color: var(--oscuro); }
+.ml-cerrar { width: 30px; height: 30px; padding: 0; cursor: pointer; font: inherit; font-size: .9rem; line-height: 1; color: var(--tinta-oscura);
+  border: 1px solid var(--borde); border-radius: 6px; background: var(--superficie); }
+.ml-cerrar:hover { background: var(--fondo); border-color: var(--tinta-oscura); color: var(--tinta-oscura); }
 .herr-lectura .lc-ayuda { font-size: .75rem; color: var(--texto-suave); margin: .6rem 0 0; }
 /* Versión del documento y del kit, al pie del modal de configuración */
 .ml-caja .lc-version { display: flex; flex-wrap: wrap; align-items: baseline; gap: .3rem .9rem; margin: .8rem 0 0; padding-top: .7rem; border-top: 1px solid var(--linea); font-size: .75rem; color: var(--texto-suave); }
 .ml-caja .lc-version .dc-kit { margin-left: .7rem; }
 /* Chincheta de toda la barra de herramientas, a la derecha del engranaje: ancladas, en el primario; despegadas, inclinada */
-.dc-anclar[aria-pressed="true"] { color: var(--primario) !important; }
+.dc-anclar[aria-pressed="true"] { color: var(--primario-texto, var(--primario)) !important; }
 .dc-anclar[aria-pressed="false"] svg { transform: rotate(45deg); }
 .botones-herramientas > .dc-anclar, .menu-botones > .dc-anclar { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px;
   padding: 0; border: 0; border-radius: 50%; background: none; color: var(--texto-suave); cursor: pointer; }
@@ -553,19 +802,15 @@ html[data-modo="oscuro"] .modal-lectura { background: rgba(255, 255, 255, .45); 
 /* En el menú, la barra ocupa el hueco libre: el engranaje a la izquierda y los iconos y «Guardar» junto a los botones */
 .menu-dentro > .barra-doc { flex: 1 1 auto; }
 
-/* Modo oscuro: se invierte la página y se devuelven a su color las imágenes y los gráficos, para que valga con
-   cualquier tema sin un juego de colores aparte. */
-html[data-modo="oscuro"] { background: #fff; filter: invert(.92) hue-rotate(180deg); }
-html[data-modo="oscuro"] img, html[data-modo="oscuro"] svg, html[data-modo="oscuro"] video, html[data-modo="oscuro"] picture,
-html[data-modo="oscuro"] canvas, html[data-modo="oscuro"] iframe { filter: invert(1) hue-rotate(180deg); }
-html[data-modo="oscuro"] .herramienta svg, html[data-modo="oscuro"] button svg { filter: none; }
+/* Modo oscuro: lectura.js pone data-theme="dark" en <html> y el documento toma la paleta oscura del estilo (decisión
+   347), sin invertir la página: las imágenes, las infografías y los gráficos se ven con sus colores. */
 
 /* Título de la sección abierta fijo arriba (se desplaza con transform). */
 summary.titulo-fijo { position: relative; z-index: 6; box-shadow: 0 8px 12px -10px rgba(0, 0, 0, .35); }
 
 /* Fuentes: bocadillo y frase resaltada. */
 .bocadillo-fuente { position: absolute; z-index: 60; width: min(420px, calc(100vw - 16px)); padding: .75rem .9rem; font-size: .875rem; line-height: 1.45;
-  background: #fff; color: var(--texto); border: 1px solid var(--borde); border-top: 3px solid var(--primario); border-radius: var(--esquinas, 10px);
+  background: var(--superficie); color: var(--texto); border: 1px solid var(--borde); border-top: 3px solid var(--primario); border-radius: var(--esquinas, 10px);
   box-shadow: 0 10px 28px rgba(var(--primario-rgb, 0, 0, 0), .18); }
 .bocadillo-fuente[hidden] { display: none; }
 .bocadillo-fuente > :first-child { margin: 0; }
@@ -575,7 +820,7 @@ mark.resalta-fuente { background: var(--acento-fondo); color: inherit; border-ra
 /* Subapartados de detalle en bocadillo (visión). */
 html.sub-en-bocadillo details.subsubseccion { position: relative; }
 html.sub-en-bocadillo details.subsubseccion[open] > .sub-cuerpo { position: absolute; left: 0; right: 0; top: 100%; z-index: 40; max-height: 60vh; overflow: auto;
-  padding: .9rem 1.1rem; background: #fff; border: 1px solid var(--borde); border-top: 3px solid var(--primario); border-radius: var(--esquinas, 10px);
+  padding: .9rem 1.1rem; background: var(--superficie); border: 1px solid var(--borde); border-top: 3px solid var(--primario); border-radius: var(--esquinas, 10px);
   box-shadow: 0 12px 30px rgba(var(--primario-rgb, 0, 0, 0), .2); }
 
 /* Tablas con ancho de columna ajustable. */
@@ -590,7 +835,7 @@ table.anchos-propios th, table.anchos-propios td { overflow-wrap: anywhere; }
 .leyenda-doc { margin: 0 0 1.4rem; padding: .7rem 1rem; border: 1px solid var(--borde); border-radius: var(--esquinas, 10px); background: var(--fondo-suave); }
 .leyenda-doc > summary { cursor: pointer; font-weight: 700; font-size: .9375rem; list-style: none; }
 .leyenda-doc > summary::-webkit-details-marker { display: none; }
-.leyenda-doc > summary::before { content: "▸ "; color: var(--primario); }
+.leyenda-doc > summary::before { content: "▸ "; color: var(--primario-texto, var(--primario)); }
 .leyenda-doc[open] > summary::before { content: "▾ "; }
 .leyenda-doc > summary:focus-visible { outline: 3px solid var(--acento); outline-offset: 3px; border-radius: 4px; }
 .leyenda-doc dl { display: grid; grid-template-columns: minmax(0, 14rem) 1fr; gap: .55rem 1.1rem; margin: .8rem 0 .2rem; align-items: start; }
@@ -608,19 +853,19 @@ p.editable:hover .btn-editar, .btn-editar:focus-visible { opacity: 1; border-col
 @media (hover: none) { .btn-editar { opacity: .6; } }
 .ed-meta { margin-left: .4rem; }
 .ed-traza { display: inline-block; padding: 0 .4rem; font-size: .72rem; line-height: 1.5; border-radius: 999px; background: var(--acento-fondo); color: var(--texto); vertical-align: .1em; cursor: help; }
-.btn-retirar { padding: 0 .45rem; font-size: .72rem; line-height: 1.5; border: 1px solid var(--borde); border-radius: 999px; background: #fff; color: #b3261e; cursor: pointer; }
+.btn-retirar { padding: 0 .45rem; font-size: .72rem; line-height: 1.5; border: 1px solid var(--borde); border-radius: 999px; background: var(--superficie); color: var(--error, #b3261e); cursor: pointer; }
 p.parrafo-anadido { border-left: 3px solid var(--acento-borde, var(--borde)); padding-left: .7rem; }
 p.editando { outline: 2px solid var(--primario); outline-offset: 4px; border-radius: 3px; }
 .ed-texto { outline: none; }
 .ed-barra { position: sticky; bottom: 8px; z-index: 30; display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem .8rem; margin: .5rem 0 1rem;
-  padding: .45rem .6rem; background: #fff; border: 1px solid var(--borde); border-radius: var(--esquinas, 10px); box-shadow: 0 6px 18px rgba(var(--primario-rgb, 0, 0, 0), .15); }
+  padding: .45rem .6rem; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--esquinas, 10px); box-shadow: 0 6px 18px rgba(var(--primario-rgb, 0, 0, 0), .15); }
 .ed-grupo { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; }
 .ed-btn { min-width: 28px; min-height: 28px; padding: .15rem .5rem; font: inherit; font-size: .8125rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo-suave); color: var(--texto); cursor: pointer; }
 .ed-btn:hover { border-color: var(--primario); }
-.ed-btn[aria-pressed="true"] { background: var(--primario); color: #fff; border-color: var(--primario); }
+.ed-btn[aria-pressed="true"] { background: var(--primario); color: var(--sobre-primario, #fff); border-color: var(--primario); }
 .ed-fmt[data-cmd="bold"] { font-weight: 700; } .ed-fmt[data-cmd="italic"] { font-style: italic; }
 .ed-fmt[data-cmd="underline"] { text-decoration: underline; } .ed-fmt[data-cmd="strikeThrough"] { text-decoration: line-through; }
-.ed-aplicar { background: var(--primario); color: #fff; border-color: var(--primario); font-weight: 700; }
+.ed-aplicar { background: var(--primario); color: var(--sobre-primario, #fff); border-color: var(--primario); font-weight: 700; }
 .ed-pista { font-size: .75rem; color: var(--texto-suave); }
 .nt-convertir { font: inherit; font-size: .75rem; padding: .1rem .45rem; border: 1px solid var(--borde); border-radius: 6px; background: var(--fondo-suave); color: var(--texto); cursor: pointer; }
 
@@ -640,6 +885,11 @@ p.editando { outline: 2px solid var(--primario); outline-offset: 4px; border-rad
 
 /* Pie con la procedencia del documento (la ponen los generadores). */
 .procedencia { font-size: .75rem; color: var(--texto-suave); margin-top: .35rem; font-variant-numeric: tabular-nums; }
+/* La maqueta anterior al generador único (309) tiene el pie oscuro (.site-footer) y el código sin cortar: con el kit
+ * puesto al día (actualizar_copia.py), el pie y su procedencia se leen a 4,5:1 y una ruta larga no desborda el móvil.
+ * Regenerar el documento lo pasa a la maqueta actual, que ya lo hace. */
+.site-footer, .site-footer .procedencia { color: rgba(255,255,255,.78); }
+:where(code) { overflow-wrap: anywhere; }
 
 /* Tamaño de las notas en la columna: el panel ocupa lo que dejan las demás herramientas y cada
  * nota abierta se reparte ese alto con las otras, entre 12em y el 60 % de la pantalla; su texto llena la tarjeta. */
@@ -657,23 +907,23 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
    rótulo pequeño, el campo de texto abierto y «Convertir en párrafo» a la derecha, sin caja ni plegado. La nota general
    y «Tus notas» van al principio del documento. */
 :is(.nt-sitio, .nt-sitio-inicio) button { font: inherit; font-size: .8rem; font-weight: 600; line-height: 1.2; cursor: pointer;
-  border: 1px solid var(--linea); border-radius: var(--esquinas, 6px); background: #fff; color: var(--primario); padding: .4rem .8rem; }
+  border: 1px solid var(--linea); border-radius: var(--esquinas, 6px); background: var(--superficie); color: var(--primario-texto, var(--primario)); padding: .4rem .8rem; }
 :is(.nt-sitio, .nt-sitio-inicio) button:not(:disabled):hover { border-color: var(--primario); }
 :is(.nt-sitio, .nt-sitio-inicio) button:disabled { opacity: .5; cursor: default; }
 :is(.nt-sitio, .nt-sitio-inicio) :is(ol, p) { margin: 0; padding: 0; }
 .nt-sitio { margin: 1.4rem 0 .4rem; }
 .nt-sitio-inicio { display: grid; gap: 1rem; margin: 0 0 1.6rem; }
-.nt-sitio-t { font-size: .75rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; color: var(--oscuro); margin: 0 0 .45rem; }
+.nt-sitio-t { font-size: .75rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; color: var(--tinta-oscura); margin: 0 0 .45rem; }
 :is(.nt-sitio, .nt-sitio-inicio) .nt-nota { background: none; border: 0; padding: 0; gap: .5rem; }
 :is(.nt-sitio, .nt-sitio-inicio) .nt-nota + .nt-nota { margin-top: .6rem; }
 :is(.nt-sitio, .nt-sitio-inicio) .nt-nota textarea, :is(.nt-sitio, .nt-sitio-inicio) .nt-nota textarea.nt-amplia {
-  min-height: 4.5em; background: #fff; border: 1px solid var(--borde); border-radius: var(--esquinas, 8px); }
+  min-height: 4.5em; background: var(--superficie); border: 1px solid var(--borde-campo, var(--borde)); border-radius: var(--esquinas, 8px); }
 :is(.nt-sitio, .nt-sitio-inicio) .nt-pie { justify-content: flex-end; }
 /* «Tus notas», al principio: plegable, pero sin caja */
 .nt-sitio-inicio .nt-tarjeta { border: 0; background: none; }
 .nt-sitio-inicio .nt-tarjeta::before { display: none; }
 .nt-sitio-inicio .nt-tarjeta-cab { width: auto; justify-content: flex-start; padding: 0; border: 0; background: none; color: inherit; }
-.nt-sitio-inicio .nt-tarjeta-cab .herr-titulo { font-size: .75rem; color: var(--oscuro); }
+.nt-sitio-inicio .nt-tarjeta-cab .herr-titulo { font-size: .75rem; color: var(--tinta-oscura); }
 .nt-sitio-inicio .nt-tarjeta-cuerpo { padding: .6rem 0 0; }
 .nt-sitio-inicio .nt-ir { width: 100%; text-align: left; font-weight: 400; color: var(--texto); }
 @media print { .nt-sitio, .nt-sitio-inicio { display: none; } }
@@ -683,7 +933,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .dg-ajustes { display: flex; flex-direction: column; gap: .35rem; }
 .dg-acciones { position: sticky; top: 0; z-index: 1; display: flex; gap: .5rem; flex-wrap: wrap; padding: .2rem 0 .5rem;
   background: inherit; border-bottom: 1px solid var(--linea); }
-.herramienta.herr-diagramas .dg-acciones { background: #fff; }
+.herramienta.herr-diagramas .dg-acciones { background: var(--superficie); }
 .dg-acciones .lc-tablas { margin: 0; }
 .dg-grupo { border-bottom: 1px solid var(--linea); padding: .1rem 0 .35rem; }
 .dg-grupo > summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: .45rem; min-height: 2rem;
@@ -727,12 +977,12 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 /* Nodos que se pulsan y resaltado del recorrido */
 .diagrama [data-nodo][tabindex] { cursor: pointer; outline: none; }
 .diagrama [data-nodo] .d-caja { pointer-events: all; }   /* el interior se pulsa aunque la caja no tenga relleno */
-.diagrama [data-nodo][tabindex]:focus-visible .d-caja { stroke: var(--primario, #00726b); stroke-width: 3; }
+.diagrama [data-nodo][tabindex]:focus-visible .d-caja { stroke: var(--primario-linea, var(--primario, #00726b)); stroke-width: 3; }
 .diagrama.d-resaltando [data-nodo], .diagrama.d-resaltando [data-de] { opacity: .28; }
 .diagrama.d-resaltando .d-on, .diagrama.d-resaltando .d-vecino { opacity: 1; }
-.diagrama .d-on .d-caja { stroke: var(--primario, #00726b); stroke-width: 2.4; }
-.diagrama :is(path, line, polyline)[data-de].d-on { stroke: var(--primario, #00726b); stroke-width: calc(var(--d-fl) + 1); }
-.diagrama text[data-de].d-on { fill: var(--oscuro, #004d47); }
+.diagrama .d-on .d-caja { stroke: var(--primario-linea, var(--primario, #00726b)); stroke-width: 2.4; }
+.diagrama :is(path, line, polyline)[data-de].d-on { stroke: var(--primario-linea, var(--primario, #00726b)); stroke-width: calc(var(--d-fl) + 1); }
+.diagrama text[data-de].d-on { fill: var(--tinta-oscura, var(--oscuro, #004d47)); }
 @media (prefers-reduced-motion: no-preference) {
   .diagrama [data-nodo], .diagrama [data-de] { transition: opacity .15s, stroke .15s; }
 }
@@ -746,13 +996,13 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
          border-radius: var(--esquinas, 6px); padding: .7rem .9rem .5rem; font-size: .95rem; line-height: 1.45; }
 .d-hud[hidden] { display: none; }
 @container (max-width: 799px) { .d-hud { width: calc(100% - 16px); } }
-.d-hud h4 { margin: .1rem 3rem .4rem 0; font-size: 1.05rem; color: var(--oscuro, #004d47); }
+.d-hud h4 { margin: .1rem 3rem .4rem 0; font-size: 1.05rem; color: var(--tinta-oscura, var(--oscuro, #004d47)); }
 .d-hud p, .d-hud ul { margin: 0 0 .5rem; }
 .d-hud ul { padding-left: 1.1rem; }
 .d-hud .d-cerrar { position: absolute; top: 4px; right: 4px; width: 44px; height: 44px; padding: 0; font-size: 1.1rem; line-height: 1;
-                   background: transparent; color: var(--oscuro, #004d47); border: 1px solid transparent; border-radius: var(--esquinas, 6px); cursor: pointer; }
-.d-hud .d-cerrar:hover { background: var(--fondo, #e0f4f3); }
-.d-hud .d-cerrar:focus-visible { outline: 3px solid var(--primario, #00726b); outline-offset: -3px; }
+                   background: transparent; color: var(--tinta-oscura, var(--oscuro, #004d47)); border: 1px solid transparent; border-radius: var(--esquinas, 6px); cursor: pointer; }
+.d-hud .d-cerrar:hover { background: var(--fondo, #e0f4f3); color: var(--tinta-oscura, var(--oscuro, #004d47)); }
+.d-hud .d-cerrar:focus-visible { outline: 3px solid var(--primario-linea, var(--primario, #00726b)); outline-offset: -3px; }
 
 @media print {
   .d-hud { display: none !important; }
@@ -771,39 +1021,40 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .d-gen .d-pie { border-top: 1px solid var(--borde, #bbb); }
 .d-gen .d-caja { fill: var(--d-papel); stroke: var(--texto-suave, #555); stroke-width: 1; }   /* el de diagram-design */
 .d-gen .d-caja.d-toque, .d-gen .d-hito .d-caja { fill: transparent; stroke: none; }
-.d-gen .d-on .d-caja.d-toque, .d-gen .d-hito.d-on .d-caja { stroke: var(--primario, #00726b); stroke-width: 1.2; }
-.d-gen .foco > .d-caja:not(.d-toque) { fill: var(--fondo, #eee); stroke: var(--primario, #00726b); stroke-width: 1.4; }
-.d-gen .foco .d-nn { fill: var(--oscuro, #000); }
+.d-gen .d-on .d-caja.d-toque, .d-gen .d-hito.d-on .d-caja { stroke: var(--primario-linea, var(--primario, #00726b)); stroke-width: 1.2; }
+.d-gen .foco > .d-caja:not(.d-toque) { fill: var(--fondo, #eee); stroke: var(--primario-linea, var(--primario, #00726b)); stroke-width: 1.4; }
+.d-gen .foco .d-nn { fill: var(--tinta-oscura, var(--oscuro, #000)); }
 .d-gen .salida > .d-caja, .d-gen .externo > .d-caja { stroke: var(--texto-tenue, #666); }
 .d-gen .salida > .d-caja { fill: var(--fondo-medio, #ebeae7); }
 .d-gen .externo > .d-caja { stroke-dasharray: 5 4; }
 .d-gen .d-nn { font-weight: 650; fill: var(--texto, #1a1a1a); }
 .d-gen .d-sb { fill: var(--texto-suave, #555); }
+.d-gen :is(.foco, .salida) .d-sb { fill: color-mix(in srgb, var(--texto-suave, #555) 55%, var(--texto, #1a1a1a)); }  /* sobre el fondo tintado del foco y de la salida, el gris suave no llega a 4,5:1 */
 .d-gen .d-cl { font-family: var(--fuente-escena, Georgia, serif); font-style: italic; fill: var(--texto-suave, #555); }
 .d-gen text.d-etiqueta { fill: var(--texto-suave, #555); }
 .d-gen .d-b-verde, .d-gen text.d-b-verde { fill: var(--b-verde, #15803d); color: var(--b-verde, #15803d); }
 .d-gen .d-b-rojo, .d-gen text.d-b-rojo { fill: var(--b-rojo, #c81e1e); color: var(--b-rojo, #c81e1e); }
 .d-gen .d-b-morado, .d-gen text.d-b-morado { fill: var(--b-morado, #9333ea); color: var(--b-morado, #9333ea); }
-.d-gen text.d-b-acento { fill: var(--primario, #00726b); }
+.d-gen text.d-b-acento { fill: var(--primario-texto, var(--primario, #00726b)); }
 .d-gen text.d-b-segundo { fill: var(--segundo, #2f5597); }
 .d-gen text.d-b-gris { fill: var(--d-rotulo); }
 /* Color de la línea que dan los datos (linea=X); la punta toma el de su línea. */
-.d-gen .d-fl.d-l-acento { stroke: var(--primario, #00726b); }
+.d-gen .d-fl.d-l-acento { stroke: var(--primario-linea, var(--primario, #00726b)); }
 .d-gen .d-fl.d-l-segundo { stroke: var(--segundo, #2f5597); }
 .d-gen .d-fl.d-l-gris { stroke: var(--texto-tenue, #666); }
 .d-gen .d-fl.d-l-verde { stroke: var(--b-verde, #15803d); }
 .d-gen .d-fl.d-l-rojo { stroke: var(--b-rojo, #c81e1e); }
 .d-gen .d-fl.d-l-morado { stroke: var(--b-morado, #9333ea); }
 .d-gen .d-fl { stroke: var(--texto-suave, #555); stroke-width: var(--d-fl); }
-.d-gen .d-fl.d-principal { stroke: var(--primario, #00726b); }
+.d-gen .d-fl.d-principal { stroke: var(--primario-linea, var(--primario, #00726b)); }
 .d-gen .d-discontinua { stroke-dasharray: 6 5; }
 .d-gen .d-punta { fill: var(--texto-suave, #555); fill: context-stroke; }
-.d-gen .d-punta-on { fill: var(--primario, #00726b); }
+.d-gen .d-punta-on { fill: var(--primario-linea, var(--primario, #00726b)); }
 .d-gen .d-ini, .d-gen .d-fin, .d-gen .d-punto { fill: var(--texto-suave, #555); }
-.d-gen .foco .d-punto { fill: var(--primario, #00726b); }
+.d-gen .foco .d-punto { fill: var(--primario-linea, var(--primario, #00726b)); }
 .d-gen .d-fin-a { fill: none; stroke: var(--texto-suave, #555); stroke-width: 1.2; }
 .d-gen .d-nota-c { fill: var(--fondo-medio, #ebeae7); stroke: none; }
-.d-gen .d-nota-b { fill: var(--primario, #00726b); display: none; }
+.d-gen .d-nota-b { fill: var(--primario-linea, var(--primario, #00726b)); display: none; }
 .d-gen text.d-nota-t { fill: var(--texto-suave, #555); text-transform: uppercase; }
 .d-gen .d-nota-x { fill: var(--texto, #1a1a1a); }
 .d-gen .d-zona { fill: none; stroke: var(--texto-tenue, #666); stroke-width: 1.2; stroke-dasharray: 4 4; }
@@ -815,7 +1066,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .d-gen .d-estado rect { fill: var(--fondo-suave, #f5f5f5); stroke: var(--borde, #bbb); stroke-width: 1; }
 .d-hud .d-bt { font: .85em ui-monospace, Consolas, monospace; letter-spacing: .04em; }
 .d-hud .d-li-claude { font-family: var(--fuente-escena, Georgia, serif); font-style: italic; }
-:root[data-theme="dark"] .d-gen { color-scheme: dark; }
+:root[data-theme="dark"] .d-gen { color-scheme: dark; --b-verde: #4ade80; --b-rojo: #f87171; --b-morado: #c084fc; }  /* los de BOTONES en oscuro, también dentro de un documento */
 
 /* Ajustes de la figura (decisión 302). Casillas: d-no-<ajuste> en la figura si está apagada; selectores: data-d-<ajuste>.
  * Los pone el generador y los cambia, en todas las figuras a la vez, la herramienta «diagramas» del documento. */
@@ -862,7 +1113,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .d-gen .d-plegar-p { fill: none; stroke: var(--texto-tenue, #666); stroke-width: 1.4; }
 .d-gen .d-plegar[aria-expanded="true"] .d-plegar-p { fill: var(--texto-tenue, #666); }
 .d-gen .d-plegar:hover .d-plegar-p { stroke: var(--texto, #1a1a1a); }
-.d-gen .d-plegar:focus-visible .d-plegar-t { stroke: var(--primario, #00726b); stroke-width: 2; }
+.d-gen .d-plegar:focus-visible .d-plegar-t { stroke: var(--primario-linea, var(--primario, #00726b)); stroke-width: 2; }
 .d-gen.d-resaltando .d-plegar { opacity: .28; }
 /* Cajas: borde y fondo de las cajas de proceso (no los hitos ni las notas). La resaltada (foco) y las salidas
    guardan su distinción: sin borde, el foco se marca con su fondo de acento; con fondo tintado, las salidas, un tono más.
@@ -936,7 +1187,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .d-gen[data-d-recorrido="segundo"] .d-punta-on { fill: var(--segundo, #2f5597); }
 .d-gen[data-d-recorrido="grueso"] :is(path, line, polyline)[data-de].d-on { stroke: var(--texto-suave, #555); stroke-width: calc(var(--d-fl) * 2 + .6); }
 .d-gen[data-d-recorrido="grueso"] .d-on > .d-caja { stroke: var(--texto-suave, #555); stroke-width: 2.6; }
-.d-gen[data-d-recorrido="grueso"] .foco.d-on > .d-caja { stroke: var(--primario, #00726b); }
+.d-gen[data-d-recorrido="grueso"] .foco.d-on > .d-caja { stroke: var(--primario-linea, var(--primario, #00726b)); }
 .d-gen[data-d-recorrido="grueso"] .d-punta-on { fill: var(--texto-suave, #555); }
 .d-gen:is([data-d-ayuda="debajo"], [data-d-ayuda="discreta"]) > .d-ayuda { order: 1; margin: .6rem 0 0; }
 .d-gen[data-d-ayuda="discreta"] > .d-ayuda { font-size: .78rem; color: var(--d-rotulo); text-align: center; }
@@ -952,20 +1203,27 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .d-gen.d-no-regla .d-pie { border-top: 0; }
 /* En el modo oscuro de «Lectura», que invierte la página, el dibujo se invierte con ella (no se devuelve a sus colores
    como las imágenes): así casa con el fondo de su figura y con el resto del documento. */
-html[data-modo="oscuro"] .diagrama svg { filter: none; }
 </style>
   <style data-diagramas-temas>
-.diagrama[data-d-tema="colorido"] { --primario: #1d6fb6; --acento: #be185d; --texto: #1f2937; --texto-suave: #4b5563; --texto-tenue: #9ca3af; --pagina: #f8fafc; --fondo: #f1f5f9; --borde: #e2e8f0; --linea: #e2e8f0; --fondo-medio: #e2e8f0; --fondo-suave: #f8fafc; --segundo: #0f766e; --oscuro: #124571; --primario-vivo: #5693c8; --tenue: #99bede; --acento-fondo: #fbf1f5; --acento-borde: #edbed2; --fuente-texto: 'DM Sans', Arial, sans-serif; --fuente-titulos: 'Outfit', 'DM Sans', sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
-.diagrama[data-d-tema="morado"] { --primario: #7b2cbf; --oscuro: #4c1d80; --primario-vivo: #9d5ce0; --fondo: #f8f5ff; --borde: #e4d7f5; --linea: #ece4f7; --fondo-medio: #e6dcf4; --fondo-suave: #fbf9fe; --tenue: #c4b5d9; --pagina: #faf8fd; --texto: #2b2b2f; --texto-suave: #6b7280; --texto-tenue: #9ca3af; --acento: #b45309; --acento-fondo: #fff7ed; --acento-borde: #fcd9b6; --segundo: #1d4ed8; --fuente-texto: 'DM Sans', Arial, sans-serif; --fuente-titulos: 'Space Grotesk', 'DM Sans', sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
-.diagrama[data-d-tema="pool"] { --primario: #08786f; --oscuro: #112f40; --primario-vivo: #1f9a8d; --fondo: #e3f2ec; --borde: #d5e1e3; --linea: #e6eeef; --fondo-medio: #ddf0e9; --fondo-suave: #edf6f2; --tenue: #a5bfb9; --pagina: #f3f6f5; --texto: #203743; --texto-suave: #526b78; --texto-tenue: #8a9fa9; --acento: #b36e1d; --acento-fondo: #fff2df; --acento-borde: #efd2a6; --segundo: #1d4ed8; --fuente-texto: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; --fuente-titulos: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; --fuente-escena: Georgia, 'Times New Roman', serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
-.diagrama[data-d-tema="rojo"] { --primario: #c62a1f; --oscuro: #1d1d1b; --primario-vivo: #e04a3a; --fondo: #fdf1ef; --borde: #f4d3cd; --linea: #f1e4e1; --fondo-medio: #f2dcd8; --fondo-suave: #fdf8f7; --tenue: #e8b4ab; --pagina: #fbf9f8; --texto: #1d1d1b; --texto-suave: #5f5f5c; --texto-tenue: #9a9a96; --acento: #b45309; --acento-fondo: #fff7ed; --acento-borde: #fcd9b6; --segundo: #1d4ed8; --fuente-texto: 'Source Sans 3', Arial, sans-serif; --fuente-titulos: 'Source Serif 4', Georgia, serif; --fuente-escena: 'Source Serif 4', Georgia, serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
-.diagrama[data-d-tema="teal"] { --primario: #00726b; --oscuro: #004d47; --primario-vivo: #009690; --fondo: #e0f4f3; --borde: #b2deda; --linea: #e0eceb; --fondo-medio: #d4ecea; --fondo-suave: #f0faf9; --tenue: #7dffd9; --pagina: #f2f4f4; --texto: #1a1a1a; --texto-suave: #555555; --texto-tenue: #888888; --acento: #6d28d9; --acento-fondo: #ede9fe; --acento-borde: #c4b5fd; --segundo: #1d4ed8; --fuente-texto: 'Assistant', Arial, sans-serif; --fuente-titulos: 'Assistant', Arial, sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
-.diagrama[data-d-tema="tinta"] { --primario: #b8431c; --oscuro: #25283a; --primario-vivo: #ca7255; --fondo: #f9f0ed; --borde: #b9bcc4; --linea: #d8d8da; --fondo-medio: #ebeae7; --fondo-suave: #f5f5f4; --tenue: #dfaa99; --pagina: #fbfbfa; --texto: #25283a; --texto-suave: #4f5871; --texto-tenue: #666e83; --acento: #b8431c; --acento-fondo: #fbf4f1; --acento-borde: #ebcabf; --segundo: #2f5597; --fuente-texto: 'Geist', system-ui, sans-serif; --fuente-titulos: 'Instrument Serif', Georgia, serif; --fuente-escena: 'Instrument Serif', Georgia, serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
+.diagrama[data-d-tema="colorido"] { --primario: #1d6fb6; --acento: #be185d; --texto: #1f2937; --texto-suave: #4b5563; --texto-tenue: #8d9199; --pagina: #f8fafc; --fondo: #f1f5f9; --borde: #e2e8f0; --linea: #e2e8f0; --fondo-medio: #e2e8f0; --fondo-suave: #f8fafc; --segundo: #0f766e; --oscuro: #124571; --primario-vivo: #5693c8; --tenue: #99bede; --acento-fondo: #fbf1f5; --acento-borde: #edbed2; --sobre-primario: #ffffff; --primario-texto: #1d6fb6; --tinta-oscura: #124571; --superficie: #ffffff; --cabecera: #1d68a9; --sobre-cabecera: #ffffff; --borde-campo: #8a929d; --primario-linea: #1d6fb6; --fuente-texto: 'DM Sans', Arial, sans-serif; --fuente-titulos: 'Outfit', 'DM Sans', sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
+.diagrama[data-d-tema="morado"] { --primario: #7b2cbf; --oscuro: #4c1d80; --primario-vivo: #9d5ce0; --fondo: #f8f5ff; --borde: #e4d7f5; --linea: #ece4f7; --fondo-medio: #e6dcf4; --fondo-suave: #fbf9fe; --tenue: #c4b5d9; --pagina: #faf8fd; --texto: #2b2b2f; --texto-suave: #6b7280; --texto-tenue: #8c9097; --acento: #b45309; --acento-fondo: #fff7ed; --acento-borde: #fcd9b6; --segundo: #1d4ed8; --sobre-primario: #ffffff; --primario-texto: #7b2cbf; --tinta-oscura: #4c1d80; --superficie: #ffffff; --cabecera: #732cb1; --sobre-cabecera: #ffffff; --borde-campo: #918a9c; --primario-linea: #7b2cbf; --fuente-texto: 'DM Sans', Arial, sans-serif; --fuente-titulos: 'Space Grotesk', 'DM Sans', sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
+.diagrama[data-d-tema="pool"] { --primario: #08786f; --oscuro: #112f40; --primario-vivo: #1f9a8d; --fondo: #e3f2ec; --borde: #d5e1e3; --linea: #e6eeef; --fondo-medio: #ddf0e9; --fondo-suave: #edf6f2; --tenue: #a5bfb9; --pagina: #f3f6f5; --texto: #203743; --texto-suave: #526b78; --texto-tenue: #819197; --acento: #9b621d; --acento-fondo: #fff2df; --acento-borde: #efd2a6; --segundo: #1d4ed8; --sobre-primario: #ffffff; --primario-texto: #08786f; --tinta-oscura: #112f40; --superficie: #ffffff; --cabecera: #0a726b; --sobre-cabecera: #ffffff; --borde-campo: #7f9097; --primario-linea: #08786f; --fuente-texto: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; --fuente-titulos: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; --fuente-escena: Georgia, 'Times New Roman', serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
+.diagrama[data-d-tema="rojo"] { --primario: #c62a1f; --oscuro: #1d1d1b; --primario-vivo: #e04a3a; --fondo: #fdf1ef; --borde: #f4d3cd; --linea: #f1e4e1; --fondo-medio: #f2dcd8; --fondo-suave: #fdf8f7; --tenue: #e8b4ab; --pagina: #fbf9f8; --texto: #1d1d1b; --texto-suave: #5f5f5c; --texto-tenue: #91918f; --acento: #b45309; --acento-fondo: #fff7ed; --acento-borde: #fcd9b6; --segundo: #1d4ed8; --sobre-primario: #ffffff; --primario-texto: #c62a1f; --tinta-oscura: #1d1d1b; --superficie: #ffffff; --cabecera: #b5291f; --sobre-cabecera: #ffffff; --borde-campo: #9e8a86; --primario-linea: #c62a1f; --fuente-texto: 'Source Sans 3', Arial, sans-serif; --fuente-titulos: 'Source Serif 4', Georgia, serif; --fuente-escena: 'Source Serif 4', Georgia, serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
+.diagrama[data-d-tema="teal"] { --primario: #00726b; --oscuro: #004d47; --primario-vivo: #009690; --fondo: #e0f4f3; --borde: #b2deda; --linea: #e0eceb; --fondo-medio: #d4ecea; --fondo-suave: #f0faf9; --tenue: #7dffd9; --pagina: #f2f4f4; --texto: #1a1a1a; --texto-suave: #555555; --texto-tenue: #888888; --acento: #6d28d9; --acento-fondo: #ede9fe; --acento-borde: #c4b5fd; --segundo: #1d4ed8; --sobre-primario: #ffffff; --primario-texto: #00726b; --tinta-oscura: #004d47; --superficie: #ffffff; --cabecera: #036963; --sobre-cabecera: #ffffff; --borde-campo: #75908d; --primario-linea: #00726b; --fuente-texto: 'Assistant', Arial, sans-serif; --fuente-titulos: 'Assistant', Arial, sans-serif; --fuente-escena: 'Source Serif 4', Georgia, serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
+.diagrama[data-d-tema="tinta"] { --primario: #b8431c; --oscuro: #25283a; --primario-vivo: #ca7255; --fondo: #f9f0ed; --borde: #b9bcc4; --linea: #d8d8da; --fondo-medio: #ebeae7; --fondo-suave: #f5f5f4; --tenue: #dfaa99; --pagina: #fbfbfa; --texto: #25283a; --texto-suave: #4f5871; --texto-tenue: #666e83; --acento: #b8431c; --acento-fondo: #fbf4f1; --acento-borde: #ebcabf; --segundo: #2f5597; --sobre-primario: #ffffff; --primario-texto: #b8431c; --tinta-oscura: #25283a; --superficie: #ffffff; --cabecera: #a9401f; --sobre-cabecera: #ffffff; --borde-campo: #8d909b; --primario-linea: #b8431c; --fuente-texto: 'Geist', system-ui, sans-serif; --fuente-titulos: 'Instrument Serif', Georgia, serif; --fuente-escena: 'Instrument Serif', Georgia, serif; --diagrama-papel: var(--pagina); background: var(--pagina); color: var(--texto); padding: 14px clamp(0px, (100% - 400px) / 2, 16px); border-radius: var(--esquinas, 8px); }
+@media screen {
+:root[data-theme="dark"] .diagrama[data-d-tema="colorido"] { --primario: #669ece; --oscuro: #0d3252; --primario-vivo: #8cb6da; --fondo: #233241; --borde: #6a6f74; --linea: #373d44; --fondo-medio: #2b313a; --fondo-suave: #1e252e; --tenue: #38536d; --pagina: #161d26; --texto: #eef0f2; --texto-suave: #adb1b5; --texto-tenue: #8d9196; --acento: #da7aa2; --acento-fondo: #352c3a; --acento-borde: #82506a; --segundo: #4b9892; --sobre-primario: #161d26; --primario-texto: #669ece; --tinta-oscura: #eef0f2; --superficie: #1e252e; --cabecera: #324a61; --sobre-cabecera: #eef0f2; --primario-linea: #669ece; --borde-campo: #6a6f74; --primario-rgb: 102, 158, 206; }
+:root[data-theme="dark"] .diagrama[data-d-tema="morado"] { --primario: #b68bdc; --oscuro: #461b76; --primario-vivo: #c8a8e5; --fondo: #362f3f; --borde: #6f6f71; --linea: #3e3e40; --fondo-medio: #323235; --fondo-suave: #262629; --tenue: #5e4c70; --pagina: #1e1e21; --texto: #f0eef3; --texto-suave: #b1b0b4; --texto-tenue: #929094; --acento: #cc8b59; --acento-fondo: #3a2f2a; --acento-borde: #7e5a40; --segundo: #6c8ce6; --sobre-primario: #1e1e21; --primario-texto: #b68bdc; --tinta-oscura: #f0eef3; --superficie: #262629; --cabecera: #534462; --sobre-cabecera: #f0eef3; --primario-linea: #b68bdc; --borde-campo: #6f6f71; --primario-rgb: 182, 139, 220; }
+:root[data-theme="dark"] .diagrama[data-d-tema="pool"] { --primario: #6baea9; --oscuro: #1f3b4c; --primario-vivo: #90c2be; --fondo: #243c43; --borde: #6f797e; --linea: #37444c; --fondo-medio: #2b3a42; --fondo-suave: #1e2e36; --tenue: #3a5f62; --pagina: #16262f; --texto: #e9eceb; --texto-suave: #aab1b3; --texto-tenue: #8a9396; --acento: #be996c; --acento-fondo: #313839; --acento-borde: #726551; --segundo: #7290e7; --sobre-primario: #16262f; --primario-texto: #6baea9; --tinta-oscura: #e9eceb; --superficie: #1e2e36; --cabecera: #34565a; --sobre-cabecera: #e9eceb; --primario-linea: #6baea9; --borde-campo: #6f797e; --primario-rgb: 107, 174, 169; }
+:root[data-theme="dark"] .diagrama[data-d-tema="rojo"] { --primario: #d96f68; --oscuro: #242422; --primario-vivo: #e2938e; --fondo: #342321; --borde: #696969; --linea: #353534; --fondo-medio: #292928; --fondo-suave: #1c1c1b; --tenue: #673a37; --pagina: #141413; --texto: #f1efee; --texto-suave: #afadac; --texto-tenue: #8e8c8b; --acento: #c77e46; --acento-fondo: #31251b; --acento-borde: #764e2f; --segundo: #5b7fe3; --sobre-primario: #141413; --primario-texto: #d96f68; --tinta-oscura: #f1efee; --superficie: #1c1c1b; --cabecera: #593431; --sobre-cabecera: #f1efee; --primario-linea: #d96f68; --borde-campo: #696969; --primario-rgb: 217, 111, 104; }
+:root[data-theme="dark"] .diagrama[data-d-tema="teal"] { --primario: #469994; --oscuro: #002a27; --primario-vivo: #74b2af; --fondo: #1a2827; --borde: #686868; --linea: #333333; --fondo-medio: #272727; --fondo-suave: #1a1a1a; --tenue: #284b49; --pagina: #121212; --texto: #e8eaea; --texto-suave: #a8a9a9; --texto-tenue: #888989; --acento: #a479e7; --acento-fondo: #292234; --acento-borde: #624b87; --segundo: #5b7fe3; --sobre-primario: #121212; --primario-texto: #469994; --tinta-oscura: #e8eaea; --superficie: #1a1a1a; --cabecera: #244140; --sobre-cabecera: #e8eaea; --primario-linea: #469994; --borde-campo: #686868; --primario-rgb: 70, 153, 148; }
+:root[data-theme="dark"] .diagrama[data-d-tema="tinta"] { --primario: #f08a59; --oscuro: #383a4c; --primario-vivo: #f4a57f; --fondo: #3c323e; --borde: #575d75; --linea: #3c3e50; --fondo-medio: #2f3349; --fondo-suave: #23263a; --tenue: #754e46; --pagina: #1b1d2c; --texto: #f2f2f0; --texto-suave: #b8bdc9; --texto-tenue: #9aa1b2; --acento: #f08a59; --acento-fondo: #3c323e; --acento-borde: #945d4b; --segundo: #8fb0f0; --sobre-primario: #1b1d2c; --primario-texto: #f08a59; --tinta-oscura: #f2f2f0; --superficie: #23263a; --cabecera: #66433c; --sobre-cabecera: #f2f2f0; --primario-linea: #f08a59; --borde-campo: #6c7186; --primario-rgb: 240, 138, 89; }
+}
   </style>
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
-<header class="portada oscura"><div class="portada-dentro"><p class="marca">Software Factory · Informe de diseño · Noviembre 2026</p><h1 class="titular">Parámetros del estilo de un proyecto: qué lleva, dónde vive y cómo evoluciona<span class="lema">Un archivo de estilo por proyecto;<br>lo que falta es lo de hoy, lo nuevo es un parámetro.</span></h1><p class="subtitulo">Qué parámetros forman el estilo de un proyecto, con sus valores, su valor por defecto y su efecto; dónde se guardan y cómo los lee el generador; cómo se registra cada afinado y cómo entra un parámetro nuevo.</p></div></header>
+<header class="portada oscura"><div class="portada-dentro"><p class="marca"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2YyZjJmMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjJmMmYwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPC9zdmc+Cg==" alt="" width="72" height="40">Software Factory · Informe de diseño · Noviembre 2026</p><h1 class="titular">Parámetros del estilo de un proyecto: qué lleva, dónde vive y cómo evoluciona<span class="lema">Un archivo de estilo por proyecto;<br>lo que falta es lo de hoy, lo nuevo es un parámetro.</span></h1><p class="subtitulo">Qué parámetros forman el estilo de un proyecto, con sus valores, su valor por defecto y su efecto; dónde se guardan y cómo los lee el generador; cómo se registra cada afinado y cómo entra un parámetro nuevo.</p></div></header>
 <nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><a href="#resumen">Resumen</a><a href="#donde">Dónde vive</a><a href="#afinado">Afinado</a><a href="#decidido">Decidido</a><a href="#por-decidir">Preguntas</a><a href="#tareas">Tareas</a><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
 <div class="hoja">
   <main id="contenido" tabindex="-1"><details class="seccion" id="resumen" open><summary class="seccion-titulo"><span class="etiqueta">01 / Resumen</span><h2>Un archivo, nueve grupos, lo de hoy por defecto</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El estilo de un proyecto va en <strong><code>docs/identidad/estilo.json</code></strong>: nueve grupos de parámetros con todos los valores resueltos, la referencia a los archivos del logo, una versión y un historial. Lo escribe solo la skill de estilo y lo leen el generador, la infografía, la web y la sesión. <strong>El valor por defecto de cada parámetro es lo que el generador hace hoy</strong>: sin el parámetro, nada cambia. Pulsa cada grupo para ver sus parámetros.</p>
@@ -1043,23 +1301,23 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
 <p>El amarillo de la web (<code>oklch(0.83 0.155 86)</code>) no da 4,5:1 ni con texto blanco encima ni como texto sobre papel: la web ya lo separa en <code>--accent</code>, <code>--on-accent</code> y <code>--accent-ink</code>. Hoy el generador usa <code>primario</code> para las tres cosas. Por eso el grupo Colores añade <strong><code>sobre-primario</code></strong> y <strong><code>primario-texto</code></strong> (<a href="#p4">pregunta 4</a>); el color de sesión sale del <code>primario</code>, el de marca.</p></div></details><details class="seccion" id="afinado"><summary class="seccion-titulo"><span class="etiqueta">03 / Afinado</span><h2>Cómo cambia el estilo y cómo entra un parámetro</h2></summary><div class="seccion-cuerpo"><figure class="diagrama d-gen d-no-carriles d-no-chips d-no-recuento d-no-letra" id="estilo-afinado" data-diagrama data-d-cajas="desplegadas" data-d-forma="redondeada" data-d-borde="fino" data-d-fondo="papel" data-d-orientacion="auto" data-d-antetitulo="oculto" data-d-titulo="sans" data-d-desc="linea" data-d-pie="dos" data-d-ayuda="encima" data-d-recorrido="segundo" data-d-lienzo="papel" data-d-grosor="fino" data-d-punta="llena" data-d-esquinas="redondeadas" data-d-recuadro="sin" data-d-fondo-nota="tintado" data-d-tamano-nota="normal" data-d-lugar-nota="hueco" data-d-cabecera-nota="mono" data-d-detalle="sans" data-marca-on="auto"><div class="d-cabecera"><p class="d-antetitulo">PROCESO</p><p class="d-titulo">Una vuelta de afinado y un parámetro nuevo</p><p class="d-desc"><span class="d-desc-1">Lo que el generador sabe hacer se prueba con muestras y se acepta subiendo la versión del estilo; lo que no sabe, sale como parámetro nuevo, con sus pruebas, y nunca como excepción.</span></p></div><p class="d-ayuda">Pulsa un elemento para ver su ficha; pasa el ratón o llega con el tabulador para resaltar su recorrido. Escape la cierra.</p><div class="d-fila"><svg data-cajas="desplegadas" data-forma="redondeada" class="ancho solo-ancho" viewBox="0 0 960 308" style="--d-fe:8.0px" role="img" aria-labelledby="estilo-afinado-h-t estilo-afinado-h-d"><title id="estilo-afinado-h-t">Una vuelta de afinado y un parámetro nuevo</title><desc id="estilo-afinado-h-d">Lo que el generador sabe hacer se prueba con muestras y se acepta subiendo la versión del estilo; lo que no sabe, sale como parámetro nuevo, con sus pruebas, y nunca como excepción.</desc><defs><marker id="estilo-afinado-h-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta d-pa"/></marker><marker id="estilo-afinado-h-m-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta-on d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta-on d-pa"/></marker></defs><circle class="d-ini" cx="40" cy="74" r="6"/><path class="d-fl" d="M40,80 L40,102" fill="none" marker-end="url(#estilo-afinado-h-m)"/><path class="d-fl" data-de="pide" data-a="dec" d="M166.8,132 L201.9,132" fill="none" marker-end="url(#estilo-afinado-h-m)"/><path class="d-fl" data-de="dec" data-a="prueba" d="M354.7,132 L395.4,132" fill="none" marker-end="url(#estilo-afinado-h-m)"/><path class="d-fl" data-de="dec" data-a="nuevo" d="M279.3,160 L279.3,230" fill="none" marker-end="url(#estilo-afinado-h-m)"/><path class="d-fl" data-de="prueba" data-a="muestras" d="M548.2,132 L583.3,132" fill="none" marker-end="url(#estilo-afinado-h-m)"/><path class="d-fl" data-de="muestras" data-a="acepta" d="M736.1,132 L791.2,132" fill="none" marker-end="url(#estilo-afinado-h-m)"/><path class="d-fl d-discontinua" data-de="muestras" data-a="prueba" d="M660.7,104 L660.7,68 Q660.7,60 652.7,60 L480.8,60 Q472.8,60 472.8,68 L472.8,102" data-da="M660.7,104 L660.7,60 L472.8,60 L472.8,102" fill="none" marker-end="url(#estilo-afinado-h-m)"/><g class="d-et" data-de="dec" data-a="prueba"><rect class="d-mascara" x="366.25" y="108" width="17.6" height="16" rx="2"/><text class="d-etiqueta" x="370.25" y="118.9" font-size="8.0">SÍ</text></g><g class="d-et" data-de="muestras" data-a="acepta"><rect class="d-mascara" x="747.65" y="108" width="32" height="16" rx="2"/><text class="d-etiqueta" x="751.65" y="118.9" font-size="8.0">ELIGE</text></g><g class="d-et" data-de="dec" data-a="nuevo"><rect class="d-mascara" x="287.3" y="187" width="17.6" height="16" rx="2"/><text class="d-etiqueta d-b-acento" x="291.3" y="197.9" font-size="8.0">NO</text></g><g class="d-et" data-de="muestras" data-a="prueba"><rect class="d-mascara" x="536.35" y="36" width="60.8" height="16" rx="2"/><text class="d-etiqueta" x="540.35" y="46.9" font-size="8.0">OTRA VUELTA</text></g><g data-nodo="pide" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="16" y="104" width="150.8" height="56" rx="6"/><text class="d-nn" x="91.4" y="128.1" font-size="12.0" text-anchor="middle">Petición</text><text class="d-sb" x="91.4" y="143.1" font-size="9.0" text-anchor="middle">el desarrollador</text></g><g data-nodo="dec" class="d-nodo dec"><polygon class="d-caja" points="203.9,132 221.9,104 336.7,104 354.7,132 336.7,160 221.9,160"/><text class="d-nn" x="279.3" y="135.6" font-size="12.0" text-anchor="middle">¿Lo sabe hacer?</text></g><g data-nodo="prueba" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="397.4" y="104" width="150.8" height="56" rx="6"/><text class="d-nn" x="472.8" y="128.1" font-size="12.0" text-anchor="middle">Valores en prueba</text><text class="d-sb" x="472.8" y="143.1" font-size="9.0" text-anchor="middle">sin tocar estilo.json</text></g><g data-nodo="muestras" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="585.3" y="104" width="150.8" height="56" rx="6"/><text class="d-nn" x="660.7" y="128.1" font-size="12.0" text-anchor="middle">Muestras</text><text class="d-sb" x="660.7" y="143.1" font-size="9.0" text-anchor="middle">mismo contenido</text></g><g data-nodo="acepta" class="d-nodo foco"><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="793.2" y="104" width="150.8" height="56" rx="6"/><text class="d-nn" x="868.6" y="128.1" font-size="12.0" text-anchor="middle">Aceptar</text><text class="d-sb" x="868.6" y="143.1" font-size="9.0" text-anchor="middle">versión +1 · historial</text></g><g data-nodo="nuevo" class="d-nodo salida"><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="214.7" y="232" width="129.2" height="56" rx="6"/><text class="d-nn" x="279.3" y="256.1" font-size="12.0" text-anchor="middle">Parámetro</text><text class="d-sb" x="279.3" y="271.1" font-size="9.0" text-anchor="middle">nuevo, con pruebas</text></g><g class="d-plegar" data-plegar="pide"><circle class="d-plegar-t" cx="27" cy="115" r="15"/><circle class="d-plegar-p" cx="27" cy="115" r="3.5"/></g><g class="d-plegar" data-plegar="prueba"><circle class="d-plegar-t" cx="408.4" cy="115" r="15"/><circle class="d-plegar-p" cx="408.4" cy="115" r="3.5"/></g><g class="d-plegar" data-plegar="muestras"><circle class="d-plegar-t" cx="596.3" cy="115" r="15"/><circle class="d-plegar-p" cx="596.3" cy="115" r="3.5"/></g><g class="d-plegar" data-plegar="acepta"><circle class="d-plegar-t" cx="804.2" cy="115" r="15"/><circle class="d-plegar-p" cx="804.2" cy="115" r="3.5"/></g><g class="d-plegar" data-plegar="nuevo"><circle class="d-plegar-t" cx="225.7" cy="243" r="15"/><circle class="d-plegar-p" cx="225.7" cy="243" r="3.5"/></g></svg><svg data-cajas="desplegadas" data-forma="croqueta" class="ancho solo-ancho" viewBox="0 0 960 308" style="--d-fe:8.0px" role="img" aria-labelledby="estilo-afinado-h-c-t estilo-afinado-h-c-d"><title id="estilo-afinado-h-c-t">Una vuelta de afinado y un parámetro nuevo</title><desc id="estilo-afinado-h-c-d">Lo que el generador sabe hacer se prueba con muestras y se acepta subiendo la versión del estilo; lo que no sabe, sale como parámetro nuevo, con sus pruebas, y nunca como excepción.</desc><defs><marker id="estilo-afinado-h-c-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta d-pa"/></marker><marker id="estilo-afinado-h-c-m-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta-on d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta-on d-pa"/></marker></defs><circle class="d-ini" cx="40" cy="74" r="6"/><path class="d-fl" d="M40,80 L40,102.287" fill="none" marker-end="url(#estilo-afinado-h-c-m)"/><path class="d-fl" data-de="pide" data-a="dec" d="M146.4,132 L187.77,132" fill="none" marker-end="url(#estilo-afinado-h-c-m)"/><path class="d-fl" data-de="dec" data-a="prueba" d="M338.17,132 L385.14,132" fill="none" marker-end="url(#estilo-afinado-h-c-m)"/><path class="d-fl" data-de="dec" data-a="nuevo" d="M263.97,160 L263.97,230" fill="none" marker-end="url(#estilo-afinado-h-c-m)"/><path class="d-fl" data-de="prueba" data-a="muestras" d="M549.46,132 L590.83,132" fill="none" marker-end="url(#estilo-afinado-h-c-m)"/><path class="d-fl" data-de="muestras" data-a="acepta" d="M717.83,132 L779.2,132" fill="none" marker-end="url(#estilo-afinado-h-c-m)"/><path class="d-fl d-discontinua" data-de="muestras" data-a="prueba" d="M655.33,104 L655.33,68 Q655.33,60 647.33,60 L476.3,60 Q468.3,60 468.3,68 L468.3,102" data-da="M655.33,104 L655.33,60 L468.3,60 L468.3,102" fill="none" marker-end="url(#estilo-afinado-h-c-m)"/><g class="d-et" data-de="dec" data-a="prueba"><rect class="d-mascara" x="352.855" y="108" width="17.6" height="16" rx="2"/><text class="d-etiqueta" x="356.855" y="118.9" font-size="8.0">SÍ</text></g><g class="d-et" data-de="muestras" data-a="acepta"><rect class="d-mascara" x="732.515" y="108" width="32" height="16" rx="2"/><text class="d-etiqueta" x="736.515" y="118.9" font-size="8.0">ELIGE</text></g><g class="d-et" data-de="dec" data-a="nuevo"><rect class="d-mascara" x="271.97" y="187" width="17.6" height="16" rx="2"/><text class="d-etiqueta d-b-acento" x="275.97" y="197.9" font-size="8.0">NO</text></g><g class="d-et" data-de="muestras" data-a="prueba"><rect class="d-mascara" x="531.415" y="36" width="60.8" height="16" rx="2"/><text class="d-etiqueta" x="535.415" y="46.9" font-size="8.0">OTRA VUELTA</text></g><g data-nodo="pide" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="16" y="104" width="130.4" height="56" rx="28"/><text class="d-nn" x="81.2" y="128.1" font-size="12.0" text-anchor="middle">Petición</text><text class="d-sb" x="81.2" y="143.1" font-size="9.0" text-anchor="middle">el desarrollador</text></g><g data-nodo="dec" class="d-nodo dec"><polygon class="d-caja" points="189.77,132 207.77,104 320.17,104 338.17,132 320.17,160 207.77,160"/><text class="d-nn" x="263.97" y="135.6" font-size="12.0" text-anchor="middle">¿Lo sabe hacer?</text></g><g data-nodo="prueba" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="387.14" y="104" width="162.32" height="56" rx="28"/><text class="d-nn" x="468.3" y="128.1" font-size="12.0" text-anchor="middle">Valores en prueba</text><text class="d-sb" x="468.3" y="143.1" font-size="9.0" text-anchor="middle">sin tocar estilo.json</text></g><g data-nodo="muestras" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="592.83" y="104" width="125" height="56" rx="28"/><text class="d-nn" x="655.33" y="128.1" font-size="12.0" text-anchor="middle">Muestras</text><text class="d-sb" x="655.33" y="143.1" font-size="9.0" text-anchor="middle">mismo contenido</text></g><g data-nodo="acepta" class="d-nodo foco"><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="781.2" y="104" width="162.8" height="56" rx="28"/><text class="d-nn" x="862.6" y="128.1" font-size="12.0" text-anchor="middle">Aceptar</text><text class="d-sb" x="862.6" y="143.1" font-size="9.0" text-anchor="middle">versión +1 · historial</text></g><g data-nodo="nuevo" class="d-nodo salida"><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="193.37" y="232" width="141.2" height="56" rx="28"/><text class="d-nn" x="263.97" y="256.1" font-size="12.0" text-anchor="middle">Parámetro</text><text class="d-sb" x="263.97" y="271.1" font-size="9.0" text-anchor="middle">nuevo, con pruebas</text></g><g class="d-plegar" data-plegar="pide"><circle class="d-plegar-t" cx="31.4" cy="119.4" r="15"/><circle class="d-plegar-p" cx="31.4" cy="119.4" r="3.5"/></g><g class="d-plegar" data-plegar="prueba"><circle class="d-plegar-t" cx="402.54" cy="119.4" r="15"/><circle class="d-plegar-p" cx="402.54" cy="119.4" r="3.5"/></g><g class="d-plegar" data-plegar="muestras"><circle class="d-plegar-t" cx="608.23" cy="119.4" r="15"/><circle class="d-plegar-p" cx="608.23" cy="119.4" r="3.5"/></g><g class="d-plegar" data-plegar="acepta"><circle class="d-plegar-t" cx="796.6" cy="119.4" r="15"/><circle class="d-plegar-p" cx="796.6" cy="119.4" r="3.5"/></g><g class="d-plegar" data-plegar="nuevo"><circle class="d-plegar-t" cx="208.77" cy="247.4" r="15"/><circle class="d-plegar-p" cx="208.77" cy="247.4" r="3.5"/></g></svg><svg data-cajas="plegadas" data-forma="redondeada" class="ancho solo-ancho" viewBox="0 0 960 292" style="--d-fe:8.0px" role="img" aria-labelledby="estilo-afinado-h-p-t estilo-afinado-h-p-d"><title id="estilo-afinado-h-p-t">Una vuelta de afinado y un parámetro nuevo</title><desc id="estilo-afinado-h-p-d">Lo que el generador sabe hacer se prueba con muestras y se acepta subiendo la versión del estilo; lo que no sabe, sale como parámetro nuevo, con sus pruebas, y nunca como excepción.</desc><defs><marker id="estilo-afinado-h-p-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta d-pa"/></marker><marker id="estilo-afinado-h-p-m-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta-on d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta-on d-pa"/></marker></defs><circle class="d-ini" cx="40" cy="74" r="6"/><path class="d-fl" d="M40,80 L40,102" fill="none" marker-end="url(#estilo-afinado-h-p-m)"/><path class="d-fl" data-de="pide" data-a="dec" d="M166.8,128 L201.9,128" fill="none" marker-end="url(#estilo-afinado-h-p-m)"/><path class="d-fl" data-de="dec" data-a="prueba" d="M354.7,128 L395.4,128" fill="none" marker-end="url(#estilo-afinado-h-p-m)"/><path class="d-fl" data-de="dec" data-a="nuevo" d="M279.3,152 L279.3,222" fill="none" marker-end="url(#estilo-afinado-h-p-m)"/><path class="d-fl" data-de="prueba" data-a="muestras" d="M548.2,128 L583.3,128" fill="none" marker-end="url(#estilo-afinado-h-p-m)"/><path class="d-fl" data-de="muestras" data-a="acepta" d="M736.1,128 L791.2,128" fill="none" marker-end="url(#estilo-afinado-h-p-m)"/><path class="d-fl d-discontinua" data-de="muestras" data-a="prueba" d="M660.7,104 L660.7,68 Q660.7,60 652.7,60 L480.8,60 Q472.8,60 472.8,68 L472.8,102" data-da="M660.7,104 L660.7,60 L472.8,60 L472.8,102" fill="none" marker-end="url(#estilo-afinado-h-p-m)"/><g class="d-et" data-de="dec" data-a="prueba"><rect class="d-mascara" x="366.25" y="104" width="17.6" height="16" rx="2"/><text class="d-etiqueta" x="370.25" y="114.9" font-size="8.0">SÍ</text></g><g class="d-et" data-de="muestras" data-a="acepta"><rect class="d-mascara" x="747.65" y="104" width="32" height="16" rx="2"/><text class="d-etiqueta" x="751.65" y="114.9" font-size="8.0">ELIGE</text></g><g class="d-et" data-de="dec" data-a="nuevo"><rect class="d-mascara" x="287.3" y="179" width="17.6" height="16" rx="2"/><text class="d-etiqueta d-b-acento" x="291.3" y="189.9" font-size="8.0">NO</text></g><g class="d-et" data-de="muestras" data-a="prueba"><rect class="d-mascara" x="536.35" y="36" width="60.8" height="16" rx="2"/><text class="d-etiqueta" x="540.35" y="46.9" font-size="8.0">OTRA VUELTA</text></g><g data-nodo="pide" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="16" y="104" width="150.8" height="48" rx="6"/><text class="d-nn" x="91.4" y="131.6" font-size="12.0" text-anchor="middle">Petición</text><text class="d-sb d-plegado" x="91.4" y="146.6" font-size="9.0" text-anchor="middle">el desarrollador</text></g><g data-nodo="dec" class="d-nodo dec"><polygon class="d-caja" points="203.9,128 221.9,104 336.7,104 354.7,128 336.7,152 221.9,152"/><text class="d-nn" x="279.3" y="131.6" font-size="12.0" text-anchor="middle">¿Lo sabe hacer?</text></g><g data-nodo="prueba" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="397.4" y="104" width="150.8" height="48" rx="6"/><text class="d-nn" x="472.8" y="131.6" font-size="12.0" text-anchor="middle">Valores en prueba</text><text class="d-sb d-plegado" x="472.8" y="146.6" font-size="9.0" text-anchor="middle">sin tocar estilo.json</text></g><g data-nodo="muestras" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="585.3" y="104" width="150.8" height="48" rx="6"/><text class="d-nn" x="660.7" y="131.6" font-size="12.0" text-anchor="middle">Muestras</text><text class="d-sb d-plegado" x="660.7" y="146.6" font-size="9.0" text-anchor="middle">mismo contenido</text></g><g data-nodo="acepta" class="d-nodo foco"><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="793.2" y="104" width="150.8" height="48" rx="6"/><text class="d-nn" x="868.6" y="131.6" font-size="12.0" text-anchor="middle">Aceptar</text><text class="d-sb d-plegado" x="868.6" y="146.6" font-size="9.0" text-anchor="middle">versión +1 · historial</text></g><g data-nodo="nuevo" class="d-nodo salida"><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="214.7" y="224" width="129.2" height="48" rx="6"/><text class="d-nn" x="279.3" y="251.6" font-size="12.0" text-anchor="middle">Parámetro</text><text class="d-sb d-plegado" x="279.3" y="266.6" font-size="9.0" text-anchor="middle">nuevo, con pruebas</text></g><g class="d-plegar" data-plegar="pide"><circle class="d-plegar-t" cx="27" cy="115" r="15"/><circle class="d-plegar-p" cx="27" cy="115" r="3.5"/></g><g class="d-plegar" data-plegar="prueba"><circle class="d-plegar-t" cx="408.4" cy="115" r="15"/><circle class="d-plegar-p" cx="408.4" cy="115" r="3.5"/></g><g class="d-plegar" data-plegar="muestras"><circle class="d-plegar-t" cx="596.3" cy="115" r="15"/><circle class="d-plegar-p" cx="596.3" cy="115" r="3.5"/></g><g class="d-plegar" data-plegar="acepta"><circle class="d-plegar-t" cx="804.2" cy="115" r="15"/><circle class="d-plegar-p" cx="804.2" cy="115" r="3.5"/></g><g class="d-plegar" data-plegar="nuevo"><circle class="d-plegar-t" cx="225.7" cy="235" r="15"/><circle class="d-plegar-p" cx="225.7" cy="235" r="3.5"/></g></svg><svg data-cajas="plegadas" data-forma="croqueta" class="ancho solo-ancho" viewBox="0 0 960 292" style="--d-fe:8.0px" role="img" aria-labelledby="estilo-afinado-h-p-c-t estilo-afinado-h-p-c-d"><title id="estilo-afinado-h-p-c-t">Una vuelta de afinado y un parámetro nuevo</title><desc id="estilo-afinado-h-p-c-d">Lo que el generador sabe hacer se prueba con muestras y se acepta subiendo la versión del estilo; lo que no sabe, sale como parámetro nuevo, con sus pruebas, y nunca como excepción.</desc><defs><marker id="estilo-afinado-h-p-c-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta d-pa"/></marker><marker id="estilo-afinado-h-p-c-m-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta-on d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta-on d-pa"/></marker></defs><circle class="d-ini" cx="40" cy="74" r="6"/><path class="d-fl" d="M40,80 L40,102" fill="none" marker-end="url(#estilo-afinado-h-p-c-m)"/><path class="d-fl" data-de="pide" data-a="dec" d="M146.4,128 L187.77,128" fill="none" marker-end="url(#estilo-afinado-h-p-c-m)"/><path class="d-fl" data-de="dec" data-a="prueba" d="M338.17,128 L385.14,128" fill="none" marker-end="url(#estilo-afinado-h-p-c-m)"/><path class="d-fl" data-de="dec" data-a="nuevo" d="M263.97,152 L263.97,222" fill="none" marker-end="url(#estilo-afinado-h-p-c-m)"/><path class="d-fl" data-de="prueba" data-a="muestras" d="M549.46,128 L590.83,128" fill="none" marker-end="url(#estilo-afinado-h-p-c-m)"/><path class="d-fl" data-de="muestras" data-a="acepta" d="M717.83,128 L779.2,128" fill="none" marker-end="url(#estilo-afinado-h-p-c-m)"/><path class="d-fl d-discontinua" data-de="muestras" data-a="prueba" d="M655.33,104 L655.33,68 Q655.33,60 647.33,60 L476.3,60 Q468.3,60 468.3,68 L468.3,102" data-da="M655.33,104 L655.33,60 L468.3,60 L468.3,102" fill="none" marker-end="url(#estilo-afinado-h-p-c-m)"/><g class="d-et" data-de="dec" data-a="prueba"><rect class="d-mascara" x="352.855" y="104" width="17.6" height="16" rx="2"/><text class="d-etiqueta" x="356.855" y="114.9" font-size="8.0">SÍ</text></g><g class="d-et" data-de="muestras" data-a="acepta"><rect class="d-mascara" x="732.515" y="104" width="32" height="16" rx="2"/><text class="d-etiqueta" x="736.515" y="114.9" font-size="8.0">ELIGE</text></g><g class="d-et" data-de="dec" data-a="nuevo"><rect class="d-mascara" x="271.97" y="179" width="17.6" height="16" rx="2"/><text class="d-etiqueta d-b-acento" x="275.97" y="189.9" font-size="8.0">NO</text></g><g class="d-et" data-de="muestras" data-a="prueba"><rect class="d-mascara" x="531.415" y="36" width="60.8" height="16" rx="2"/><text class="d-etiqueta" x="535.415" y="46.9" font-size="8.0">OTRA VUELTA</text></g><g data-nodo="pide" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="16" y="104" width="130.4" height="48" rx="24"/><text class="d-nn" x="81.2" y="131.6" font-size="12.0" text-anchor="middle">Petición</text><text class="d-sb d-plegado" x="81.2" y="146.6" font-size="9.0" text-anchor="middle">el desarrollador</text></g><g data-nodo="dec" class="d-nodo dec"><polygon class="d-caja" points="189.77,128 207.77,104 320.17,104 338.17,128 320.17,152 207.77,152"/><text class="d-nn" x="263.97" y="131.6" font-size="12.0" text-anchor="middle">¿Lo sabe hacer?</text></g><g data-nodo="prueba" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="387.14" y="104" width="162.32" height="48" rx="24"/><text class="d-nn" x="468.3" y="131.6" font-size="12.0" text-anchor="middle">Valores en prueba</text><text class="d-sb d-plegado" x="468.3" y="146.6" font-size="9.0" text-anchor="middle">sin tocar estilo.json</text></g><g data-nodo="muestras" class="d-nodo "><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="592.83" y="104" width="125" height="48" rx="24"/><text class="d-nn" x="655.33" y="131.6" font-size="12.0" text-anchor="middle">Muestras</text><text class="d-sb d-plegado" x="655.33" y="146.6" font-size="9.0" text-anchor="middle">mismo contenido</text></g><g data-nodo="acepta" class="d-nodo foco"><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="781.2" y="104" width="162.8" height="48" rx="24"/><text class="d-nn" x="862.6" y="131.6" font-size="12.0" text-anchor="middle">Aceptar</text><text class="d-sb d-plegado" x="862.6" y="146.6" font-size="9.0" text-anchor="middle">versión +1 · historial</text></g><g data-nodo="nuevo" class="d-nodo salida"><rect class="d-caja" data-hd="56" data-hp="48" data-pn="15" data-ps="13" x="193.37" y="224" width="141.2" height="48" rx="24"/><text class="d-nn" x="263.97" y="251.6" font-size="12.0" text-anchor="middle">Parámetro</text><text class="d-sb d-plegado" x="263.97" y="266.6" font-size="9.0" text-anchor="middle">nuevo, con pruebas</text></g><g class="d-plegar" data-plegar="pide"><circle class="d-plegar-t" cx="30.6" cy="118.6" r="15"/><circle class="d-plegar-p" cx="30.6" cy="118.6" r="3.5"/></g><g class="d-plegar" data-plegar="prueba"><circle class="d-plegar-t" cx="401.74" cy="118.6" r="15"/><circle class="d-plegar-p" cx="401.74" cy="118.6" r="3.5"/></g><g class="d-plegar" data-plegar="muestras"><circle class="d-plegar-t" cx="607.43" cy="118.6" r="15"/><circle class="d-plegar-p" cx="607.43" cy="118.6" r="3.5"/></g><g class="d-plegar" data-plegar="acepta"><circle class="d-plegar-t" cx="795.8" cy="118.6" r="15"/><circle class="d-plegar-p" cx="795.8" cy="118.6" r="3.5"/></g><g class="d-plegar" data-plegar="nuevo"><circle class="d-plegar-t" cx="207.97" cy="238.6" r="15"/><circle class="d-plegar-p" cx="207.97" cy="238.6" r="3.5"/></g></svg></div><svg data-cajas="desplegadas" data-forma="redondeada" class="vertical solo-estrecho" viewBox="0 0 400 693" style="--d-fe:9.5px" role="img" aria-labelledby="estilo-afinado-v-t estilo-afinado-v-d"><title id="estilo-afinado-v-t">Una vuelta de afinado y un parámetro nuevo</title><desc id="estilo-afinado-v-d">Lo que el generador sabe hacer se prueba con muestras y se acepta subiendo la versión del estilo; lo que no sabe, sale como parámetro nuevo, con sus pruebas, y nunca como excepción.</desc><defs><marker id="estilo-afinado-v-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta d-pa"/></marker><marker id="estilo-afinado-v-m-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta-on d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta-on d-pa"/></marker></defs><circle class="d-ini" cx="101.3" cy="22" r="6"/><path class="d-fl" d="M101.3,28 L101.3,58" fill="none" marker-end="url(#estilo-afinado-v-m)"/><path class="d-fl" data-de="pide" data-a="dec" d="M101.3,125 L101.3,183" fill="none" marker-end="url(#estilo-afinado-v-m)"/><path class="d-fl" data-de="dec" data-a="prueba" d="M101.3,250 L101.3,308" fill="none" marker-end="url(#estilo-afinado-v-m)"/><path class="d-fl" data-de="dec" data-a="nuevo" d="M186.6,199 L352,199 Q360,199 360,207 L360,235" data-da="M186.6,199 L360,199 L360,235" fill="none" marker-end="url(#estilo-afinado-v-m)"/><path class="d-fl" data-de="prueba" data-a="muestras" d="M40,375 L40,477" fill="none" marker-end="url(#estilo-afinado-v-m)"/><path class="d-fl" data-de="muestras" data-a="acepta" d="M101.3,544 L101.3,602" fill="none" marker-end="url(#estilo-afinado-v-m)"/><path class="d-fl d-discontinua" data-de="muestras" data-a="prueba" d="M162.6,479 L162.6,377" fill="none" marker-end="url(#estilo-afinado-v-m)"/><g class="d-et" data-de="dec" data-a="prueba"><rect class="d-mascara" x="109.3" y="270.25" width="19.4" height="17.5" rx="2"/><text class="d-etiqueta" x="113.3" y="282.4" font-size="9.5">SÍ</text></g><g class="d-et" data-de="muestras" data-a="acepta"><rect class="d-mascara" x="109.3" y="564.25" width="36.5" height="17.5" rx="2"/><text class="d-etiqueta" x="113.3" y="576.4" font-size="9.5">ELIGE</text></g><g class="d-et" data-de="muestras" data-a="prueba"><rect class="d-mascara" x="170.6" y="419.25" width="70.7" height="17.5" rx="2"/><text class="d-etiqueta" x="174.6" y="431.4" font-size="9.5">OTRA VUELTA</text></g><g class="d-et" data-de="dec" data-a="nuevo"><rect class="d-mascara" x="263.6" y="173.5" width="19.4" height="17.5" rx="2"/><text class="d-etiqueta d-b-acento" x="267.6" y="185.7" font-size="9.5">NO</text></g><g data-nodo="pide" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="60" width="170.6" height="65" rx="6"/><text class="d-nn" x="101.3" y="87.7" font-size="14.0" text-anchor="middle">Petición</text><text class="d-sb" x="101.3" y="105.7" font-size="10.5" text-anchor="middle">el desarrollador</text></g><g data-nodo="dec" class="d-nodo dec"><polygon class="d-caja" points="16,217.5 34,185 168.6,185 186.6,217.5 168.6,250 34,250"/><text class="d-nn" x="101.3" y="221.7" font-size="14.0" text-anchor="middle">¿Lo sabe hacer?</text></g><g data-nodo="prueba" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="310" width="170.6" height="65" rx="6"/><text class="d-nn" x="101.3" y="337.7" font-size="14.0" text-anchor="middle">Valores en prueba</text><text class="d-sb" x="101.3" y="355.7" font-size="10.5" text-anchor="middle">sin tocar estilo.json</text></g><g data-nodo="muestras" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="479" width="170.6" height="65" rx="6"/><text class="d-nn" x="101.3" y="506.7" font-size="14.0" text-anchor="middle">Muestras</text><text class="d-sb" x="101.3" y="524.7" font-size="10.5" text-anchor="middle">mismo contenido</text></g><g data-nodo="acepta" class="d-nodo foco"><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="604" width="170.6" height="65" rx="6"/><text class="d-nn" x="101.3" y="631.7" font-size="14.0" text-anchor="middle">Aceptar</text><text class="d-sb" x="101.3" y="649.7" font-size="10.5" text-anchor="middle">versión +1 · historial</text></g><g data-nodo="nuevo" class="d-nodo salida"><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="218.6" y="237" width="165.4" height="65" rx="6"/><text class="d-nn" x="301.3" y="264.7" font-size="14.0" text-anchor="middle">Parámetro</text><text class="d-sb" x="301.3" y="282.7" font-size="10.5" text-anchor="middle">nuevo, con pruebas</text></g><g class="d-plegar" data-plegar="pide"><circle class="d-plegar-t" cx="27" cy="71" r="15"/><circle class="d-plegar-p" cx="27" cy="71" r="3.5"/></g><g class="d-plegar" data-plegar="prueba"><circle class="d-plegar-t" cx="27" cy="321" r="15"/><circle class="d-plegar-p" cx="27" cy="321" r="3.5"/></g><g class="d-plegar" data-plegar="muestras"><circle class="d-plegar-t" cx="27" cy="490" r="15"/><circle class="d-plegar-p" cx="27" cy="490" r="3.5"/></g><g class="d-plegar" data-plegar="acepta"><circle class="d-plegar-t" cx="27" cy="615" r="15"/><circle class="d-plegar-p" cx="27" cy="615" r="3.5"/></g><g class="d-plegar" data-plegar="nuevo"><circle class="d-plegar-t" cx="229.6" cy="248" r="15"/><circle class="d-plegar-p" cx="229.6" cy="248" r="3.5"/></g></svg><svg data-cajas="desplegadas" data-forma="croqueta" class="vertical solo-estrecho" viewBox="0 0 400 693" style="--d-fe:9.5px" role="img" aria-labelledby="estilo-afinado-v-c-t estilo-afinado-v-c-d"><title id="estilo-afinado-v-c-t">Una vuelta de afinado y un parámetro nuevo</title><desc id="estilo-afinado-v-c-d">Lo que el generador sabe hacer se prueba con muestras y se acepta subiendo la versión del estilo; lo que no sabe, sale como parámetro nuevo, con sus pruebas, y nunca como excepción.</desc><defs><marker id="estilo-afinado-v-c-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta d-pa"/></marker><marker id="estilo-afinado-v-c-m-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta-on d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta-on d-pa"/></marker></defs><circle class="d-ini" cx="107.3" cy="22" r="6"/><path class="d-fl" d="M107.3,28 L107.3,58" fill="none" marker-end="url(#estilo-afinado-v-c-m)"/><path class="d-fl" data-de="pide" data-a="dec" d="M107.3,125 L107.3,183" fill="none" marker-end="url(#estilo-afinado-v-c-m)"/><path class="d-fl" data-de="dec" data-a="prueba" d="M107.3,250 L107.3,308" fill="none" marker-end="url(#estilo-afinado-v-c-m)"/><path class="d-fl" data-de="dec" data-a="nuevo" d="M198.6,199 L352,199 Q360,199 360,207 L360,236.131" data-da="M198.6,199 L360,199 L360,236.131" fill="none" marker-end="url(#estilo-afinado-v-c-m)"/><path class="d-fl" data-de="prueba" data-a="muestras" d="M40,373.869 L40,478.131" fill="none" marker-end="url(#estilo-afinado-v-c-m)"/><path class="d-fl" data-de="muestras" data-a="acepta" d="M107.3,544 L107.3,602" fill="none" marker-end="url(#estilo-afinado-v-c-m)"/><path class="d-fl d-discontinua" data-de="muestras" data-a="prueba" d="M174.6,480.131 L174.6,375.869" fill="none" marker-end="url(#estilo-afinado-v-c-m)"/><g class="d-et" data-de="dec" data-a="prueba"><rect class="d-mascara" x="115.3" y="270.25" width="19.4" height="17.5" rx="2"/><text class="d-etiqueta" x="119.3" y="282.4" font-size="9.5">SÍ</text></g><g class="d-et" data-de="muestras" data-a="acepta"><rect class="d-mascara" x="115.3" y="564.25" width="36.5" height="17.5" rx="2"/><text class="d-etiqueta" x="119.3" y="576.4" font-size="9.5">ELIGE</text></g><g class="d-et" data-de="muestras" data-a="prueba"><rect class="d-mascara" x="182.6" y="419.25" width="70.7" height="17.5" rx="2"/><text class="d-etiqueta" x="186.6" y="431.4" font-size="9.5">OTRA VUELTA</text></g><g class="d-et" data-de="dec" data-a="nuevo"><rect class="d-mascara" x="269.6" y="173.5" width="19.4" height="17.5" rx="2"/><text class="d-etiqueta d-b-acento" x="273.6" y="185.7" font-size="9.5">NO</text></g><g data-nodo="pide" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="60" width="182.6" height="65" rx="32.5"/><text class="d-nn" x="107.3" y="87.7" font-size="14.0" text-anchor="middle">Petición</text><text class="d-sb" x="107.3" y="105.7" font-size="10.5" text-anchor="middle">el desarrollador</text></g><g data-nodo="dec" class="d-nodo dec"><polygon class="d-caja" points="16,217.5 34,185 180.6,185 198.6,217.5 180.6,250 34,250"/><text class="d-nn" x="107.3" y="221.7" font-size="14.0" text-anchor="middle">¿Lo sabe hacer?</text></g><g data-nodo="prueba" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="310" width="182.6" height="65" rx="32.5"/><text class="d-nn" x="107.3" y="337.7" font-size="14.0" text-anchor="middle">Valores en prueba</text><text class="d-sb" x="107.3" y="355.7" font-size="10.5" text-anchor="middle">sin tocar estilo.json</text></g><g data-nodo="muestras" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="479" width="182.6" height="65" rx="32.5"/><text class="d-nn" x="107.3" y="506.7" font-size="14.0" text-anchor="middle">Muestras</text><text class="d-sb" x="107.3" y="524.7" font-size="10.5" text-anchor="middle">mismo contenido</text></g><g data-nodo="acepta" class="d-nodo foco"><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="604" width="182.6" height="65" rx="32.5"/><text class="d-nn" x="107.3" y="631.7" font-size="14.0" text-anchor="middle">Aceptar</text><text class="d-sb" x="107.3" y="649.7" font-size="10.5" text-anchor="middle">versión +1 · historial</text></g><g data-nodo="nuevo" class="d-nodo salida"><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="230.6" y="237" width="153.4" height="65" rx="32.5"/><text class="d-nn" x="307.3" y="264.7" font-size="14.0" text-anchor="middle">Parámetro</text><text class="d-sb" x="307.3" y="282.7" font-size="10.5" text-anchor="middle">nuevo, con pruebas</text></g><g class="d-plegar" data-plegar="pide"><circle class="d-plegar-t" cx="32.3" cy="76.3" r="15"/><circle class="d-plegar-p" cx="32.3" cy="76.3" r="3.5"/></g><g class="d-plegar" data-plegar="prueba"><circle class="d-plegar-t" cx="32.3" cy="326.3" r="15"/><circle class="d-plegar-p" cx="32.3" cy="326.3" r="3.5"/></g><g class="d-plegar" data-plegar="muestras"><circle class="d-plegar-t" cx="32.3" cy="495.3" r="15"/><circle class="d-plegar-p" cx="32.3" cy="495.3" r="3.5"/></g><g class="d-plegar" data-plegar="acepta"><circle class="d-plegar-t" cx="32.3" cy="620.3" r="15"/><circle class="d-plegar-p" cx="32.3" cy="620.3" r="3.5"/></g><g class="d-plegar" data-plegar="nuevo"><circle class="d-plegar-t" cx="246.9" cy="253.3" r="15"/><circle class="d-plegar-p" cx="246.9" cy="253.3" r="3.5"/></g></svg><svg data-cajas="plegadas" data-forma="redondeada" class="vertical solo-estrecho" viewBox="0 0 400 648" style="--d-fe:9.5px" role="img" aria-labelledby="estilo-afinado-v-p-t estilo-afinado-v-p-d"><title id="estilo-afinado-v-p-t">Una vuelta de afinado y un parámetro nuevo</title><desc id="estilo-afinado-v-p-d">Lo que el generador sabe hacer se prueba con muestras y se acepta subiendo la versión del estilo; lo que no sabe, sale como parámetro nuevo, con sus pruebas, y nunca como excepción.</desc><defs><marker id="estilo-afinado-v-p-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta d-pa"/></marker><marker id="estilo-afinado-v-p-m-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta-on d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta-on d-pa"/></marker></defs><circle class="d-ini" cx="101.3" cy="22" r="6"/><path class="d-fl" d="M101.3,28 L101.3,58" fill="none" marker-end="url(#estilo-afinado-v-p-m)"/><path class="d-fl" data-de="pide" data-a="dec" d="M101.3,116 L101.3,174" fill="none" marker-end="url(#estilo-afinado-v-p-m)"/><path class="d-fl" data-de="dec" data-a="prueba" d="M101.3,232 L101.3,290" fill="none" marker-end="url(#estilo-afinado-v-p-m)"/><path class="d-fl" data-de="dec" data-a="nuevo" d="M186.6,190 L352,190 Q360,190 360,198 L360,226" data-da="M186.6,190 L360,190 L360,226" fill="none" marker-end="url(#estilo-afinado-v-p-m)"/><path class="d-fl" data-de="prueba" data-a="muestras" d="M40,348 L40,450" fill="none" marker-end="url(#estilo-afinado-v-p-m)"/><path class="d-fl" data-de="muestras" data-a="acepta" d="M101.3,508 L101.3,566" fill="none" marker-end="url(#estilo-afinado-v-p-m)"/><path class="d-fl d-discontinua" data-de="muestras" data-a="prueba" d="M162.6,452 L162.6,350" fill="none" marker-end="url(#estilo-afinado-v-p-m)"/><g class="d-et" data-de="dec" data-a="prueba"><rect class="d-mascara" x="109.3" y="252.25" width="19.4" height="17.5" rx="2"/><text class="d-etiqueta" x="113.3" y="264.4" font-size="9.5">SÍ</text></g><g class="d-et" data-de="muestras" data-a="acepta"><rect class="d-mascara" x="109.3" y="528.25" width="36.5" height="17.5" rx="2"/><text class="d-etiqueta" x="113.3" y="540.4" font-size="9.5">ELIGE</text></g><g class="d-et" data-de="muestras" data-a="prueba"><rect class="d-mascara" x="170.6" y="392.25" width="70.7" height="17.5" rx="2"/><text class="d-etiqueta" x="174.6" y="404.4" font-size="9.5">OTRA VUELTA</text></g><g class="d-et" data-de="dec" data-a="nuevo"><rect class="d-mascara" x="263.6" y="164.5" width="19.4" height="17.5" rx="2"/><text class="d-etiqueta d-b-acento" x="267.6" y="176.7" font-size="9.5">NO</text></g><g data-nodo="pide" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="60" width="170.6" height="56" rx="6"/><text class="d-nn" x="101.3" y="92.2" font-size="14.0" text-anchor="middle">Petición</text><text class="d-sb d-plegado" x="101.3" y="110.2" font-size="10.5" text-anchor="middle">el desarrollador</text></g><g data-nodo="dec" class="d-nodo dec"><polygon class="d-caja" points="16,204 34,176 168.6,176 186.6,204 168.6,232 34,232"/><text class="d-nn" x="101.3" y="208.2" font-size="14.0" text-anchor="middle">¿Lo sabe hacer?</text></g><g data-nodo="prueba" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="292" width="170.6" height="56" rx="6"/><text class="d-nn" x="101.3" y="324.2" font-size="14.0" text-anchor="middle">Valores en prueba</text><text class="d-sb d-plegado" x="101.3" y="342.2" font-size="10.5" text-anchor="middle">sin tocar estilo.json</text></g><g data-nodo="muestras" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="452" width="170.6" height="56" rx="6"/><text class="d-nn" x="101.3" y="484.2" font-size="14.0" text-anchor="middle">Muestras</text><text class="d-sb d-plegado" x="101.3" y="502.2" font-size="10.5" text-anchor="middle">mismo contenido</text></g><g data-nodo="acepta" class="d-nodo foco"><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="568" width="170.6" height="56" rx="6"/><text class="d-nn" x="101.3" y="600.2" font-size="14.0" text-anchor="middle">Aceptar</text><text class="d-sb d-plegado" x="101.3" y="618.2" font-size="10.5" text-anchor="middle">versión +1 · historial</text></g><g data-nodo="nuevo" class="d-nodo salida"><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="218.6" y="228" width="165.4" height="56" rx="6"/><text class="d-nn" x="301.3" y="260.2" font-size="14.0" text-anchor="middle">Parámetro</text><text class="d-sb d-plegado" x="301.3" y="278.2" font-size="10.5" text-anchor="middle">nuevo, con pruebas</text></g><g class="d-plegar" data-plegar="pide"><circle class="d-plegar-t" cx="27" cy="71" r="15"/><circle class="d-plegar-p" cx="27" cy="71" r="3.5"/></g><g class="d-plegar" data-plegar="prueba"><circle class="d-plegar-t" cx="27" cy="303" r="15"/><circle class="d-plegar-p" cx="27" cy="303" r="3.5"/></g><g class="d-plegar" data-plegar="muestras"><circle class="d-plegar-t" cx="27" cy="463" r="15"/><circle class="d-plegar-p" cx="27" cy="463" r="3.5"/></g><g class="d-plegar" data-plegar="acepta"><circle class="d-plegar-t" cx="27" cy="579" r="15"/><circle class="d-plegar-p" cx="27" cy="579" r="3.5"/></g><g class="d-plegar" data-plegar="nuevo"><circle class="d-plegar-t" cx="229.6" cy="239" r="15"/><circle class="d-plegar-p" cx="229.6" cy="239" r="3.5"/></g></svg><svg data-cajas="plegadas" data-forma="croqueta" class="vertical solo-estrecho" viewBox="0 0 400 648" style="--d-fe:9.5px" role="img" aria-labelledby="estilo-afinado-v-p-c-t estilo-afinado-v-p-c-d"><title id="estilo-afinado-v-p-c-t">Una vuelta de afinado y un parámetro nuevo</title><desc id="estilo-afinado-v-p-c-d">Lo que el generador sabe hacer se prueba con muestras y se acepta subiendo la versión del estilo; lo que no sabe, sale como parámetro nuevo, con sus pruebas, y nunca como excepción.</desc><defs><marker id="estilo-afinado-v-p-c-m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta d-pa"/></marker><marker id="estilo-afinado-v-p-c-m-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8.4" markerHeight="8.4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,1 L10,5 L0,9 z" class="d-punta-on d-pl"/><path d="M0,0.5 L10,5 L0,9.5 L0,7.6 L6.2,5 L0,2.4 z" class="d-punta-on d-pa"/></marker></defs><circle class="d-ini" cx="107.3" cy="22" r="6"/><path class="d-fl" d="M107.3,28 L107.3,58" fill="none" marker-end="url(#estilo-afinado-v-p-c-m)"/><path class="d-fl" data-de="pide" data-a="dec" d="M107.3,116 L107.3,174" fill="none" marker-end="url(#estilo-afinado-v-p-c-m)"/><path class="d-fl" data-de="dec" data-a="prueba" d="M107.3,232 L107.3,290" fill="none" marker-end="url(#estilo-afinado-v-p-c-m)"/><path class="d-fl" data-de="dec" data-a="nuevo" d="M198.6,190 L352,190 Q360,190 360,198 L360,226.287" data-da="M198.6,190 L360,190 L360,226.287" fill="none" marker-end="url(#estilo-afinado-v-p-c-m)"/><path class="d-fl" data-de="prueba" data-a="muestras" d="M40,347.713 L40,450.287" fill="none" marker-end="url(#estilo-afinado-v-p-c-m)"/><path class="d-fl" data-de="muestras" data-a="acepta" d="M107.3,508 L107.3,566" fill="none" marker-end="url(#estilo-afinado-v-p-c-m)"/><path class="d-fl d-discontinua" data-de="muestras" data-a="prueba" d="M174.6,452.287 L174.6,349.713" fill="none" marker-end="url(#estilo-afinado-v-p-c-m)"/><g class="d-et" data-de="dec" data-a="prueba"><rect class="d-mascara" x="115.3" y="252.25" width="19.4" height="17.5" rx="2"/><text class="d-etiqueta" x="119.3" y="264.4" font-size="9.5">SÍ</text></g><g class="d-et" data-de="muestras" data-a="acepta"><rect class="d-mascara" x="115.3" y="528.25" width="36.5" height="17.5" rx="2"/><text class="d-etiqueta" x="119.3" y="540.4" font-size="9.5">ELIGE</text></g><g class="d-et" data-de="muestras" data-a="prueba"><rect class="d-mascara" x="182.6" y="392.25" width="70.7" height="17.5" rx="2"/><text class="d-etiqueta" x="186.6" y="404.4" font-size="9.5">OTRA VUELTA</text></g><g class="d-et" data-de="dec" data-a="nuevo"><rect class="d-mascara" x="269.6" y="164.5" width="19.4" height="17.5" rx="2"/><text class="d-etiqueta d-b-acento" x="273.6" y="176.7" font-size="9.5">NO</text></g><g data-nodo="pide" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="60" width="182.6" height="56" rx="28"/><text class="d-nn" x="107.3" y="92.2" font-size="14.0" text-anchor="middle">Petición</text><text class="d-sb d-plegado" x="107.3" y="110.2" font-size="10.5" text-anchor="middle">el desarrollador</text></g><g data-nodo="dec" class="d-nodo dec"><polygon class="d-caja" points="16,204 34,176 180.6,176 198.6,204 180.6,232 34,232"/><text class="d-nn" x="107.3" y="208.2" font-size="14.0" text-anchor="middle">¿Lo sabe hacer?</text></g><g data-nodo="prueba" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="292" width="182.6" height="56" rx="28"/><text class="d-nn" x="107.3" y="324.2" font-size="14.0" text-anchor="middle">Valores en prueba</text><text class="d-sb d-plegado" x="107.3" y="342.2" font-size="10.5" text-anchor="middle">sin tocar estilo.json</text></g><g data-nodo="muestras" class="d-nodo "><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="452" width="182.6" height="56" rx="28"/><text class="d-nn" x="107.3" y="484.2" font-size="14.0" text-anchor="middle">Muestras</text><text class="d-sb d-plegado" x="107.3" y="502.2" font-size="10.5" text-anchor="middle">mismo contenido</text></g><g data-nodo="acepta" class="d-nodo foco"><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="16" y="568" width="182.6" height="56" rx="28"/><text class="d-nn" x="107.3" y="600.2" font-size="14.0" text-anchor="middle">Aceptar</text><text class="d-sb d-plegado" x="107.3" y="618.2" font-size="10.5" text-anchor="middle">versión +1 · historial</text></g><g data-nodo="nuevo" class="d-nodo salida"><rect class="d-caja" data-hd="65" data-hp="56" data-pn="18" data-ps="15" x="230.6" y="228" width="153.4" height="56" rx="28"/><text class="d-nn" x="307.3" y="260.2" font-size="14.0" text-anchor="middle">Parámetro</text><text class="d-sb d-plegado" x="307.3" y="278.2" font-size="10.5" text-anchor="middle">nuevo, con pruebas</text></g><g class="d-plegar" data-plegar="pide"><circle class="d-plegar-t" cx="31.4" cy="75.4" r="15"/><circle class="d-plegar-p" cx="31.4" cy="75.4" r="3.5"/></g><g class="d-plegar" data-plegar="prueba"><circle class="d-plegar-t" cx="31.4" cy="307.4" r="15"/><circle class="d-plegar-p" cx="31.4" cy="307.4" r="3.5"/></g><g class="d-plegar" data-plegar="muestras"><circle class="d-plegar-t" cx="31.4" cy="467.4" r="15"/><circle class="d-plegar-p" cx="31.4" cy="467.4" r="3.5"/></g><g class="d-plegar" data-plegar="acepta"><circle class="d-plegar-t" cx="31.4" cy="583.4" r="15"/><circle class="d-plegar-p" cx="31.4" cy="583.4" r="3.5"/></g><g class="d-plegar" data-plegar="nuevo"><circle class="d-plegar-t" cx="246" cy="243.4" r="15"/><circle class="d-plegar-p" cx="246" cy="243.4" r="3.5"/></g></svg><div class="d-pie"><span>SF · ESTILO</span><span>TAREA 387 <span class="d-recuento">· 6 NODOS · 7 FLECHAS</span></span></div><div class="d-fichas" hidden><div data-ficha="pide" data-nombre="Petición"><p>Al fijar el estilo por primera vez o al usarlo después.</p><ul><li>ejemplo: «los bloques de código, con filete», «el enlace del repo, legible»</li></ul></div><div data-ficha="dec" data-nombre="¿Lo sabe hacer?"><p>La skill mira el catálogo de parámetros del generador.</p><ul><li>arreglo: si es un fallo del generador (un contraste), se arregla, sin parámetro</li><li>parámetro: si es una preferencia de aspecto</li></ul></div><div data-ficha="prueba" data-nombre="Valores en prueba"><p>Un estilo.json provisional en la carpeta de muestras; el del proyecto no cambia hasta aceptar.</p></div><div data-ficha="muestras" data-nombre="Muestras"><p>El generador con los valores en prueba sobre un documento de muestra fijo.</p><ul><li>comprobación: escritorio, móvil, A4 y contraste, como cualquier documento</li></ul></div><div data-ficha="acepta" data-nombre="Aceptar"><p>El desarrollador elige; la skill respalda estilo.json, sube su versión y anota el historial.</p><ul><li>historial: versión, fecha, qué cambia y por qué, en una línea</li><li>documentos: cambian al regenerarlos (309)</li></ul></div><div data-ficha="nuevo" data-nombre="Parámetro"><p>Tarea de implementar «Añadir al generador el parámetro …».</p><ul><li>en la SF: va a su cola, bajo Mejorar la Software Factory</li><li>en otro proyecto: es de la SF; Claude lo dice en una línea y ofrece abrir una issue en GitHub de la SF; no se anota en el estilo</li><li>pruebas, en plugins/sf/tests/: con cada valor genera la muestra y comprueba lo que cambia</li><li>pruebas, por defecto: la muestra sale idéntica a la copia de referencia</li><li>catálogo: su línea en la referencia y en las notas de la versión</li></ul></div></div></figure>
 
 <p>El historial va dentro de <code>estilo.json</code>, una línea por versión, y la versión anterior a <code>_respaldo/</code> (<a href="#p7">pregunta 7</a>), y el pie de cada documento cita la versión del estilo con que se generó. Como el generador es determinista, las muestras no se guardan: se rehacen con la versión y el documento de muestra.</p>
-<p><code>json
-{
-  "version": 3,
-  "origen": "colorido",
-  "historial": [
-    {"version": 1, "fecha": "2026-11-10", "cambio": "estilo de partida", "motivo": "muestra B"},
-    {"version": 2, "fecha": "2026-11-12", "cambio": "secciones.etiqueta: solida, opacidad 0.4", "motivo": "títulos más visibles"},
-    {"version": 3, "fecha": "2026-11-20", "cambio": "pagina.codigo: bloque", "motivo": "código más legible"}
-  ],
-  "identidad": {"producto": "SoftwareFactory", "logo": "logo.svg", "logo-oscuro": "logo-oscuro.svg"},
-  "colores": {"primario": "#…", "sobre-primario": "#…", "primario-texto": "#…"},
-  "letra": {"titulos": "'Outfit', 'DM Sans', sans-serif", "tamano": 17},
-  "portada": {"forma": "oscura"},
-  "secciones": {"cabecera": "numero-etiqueta", "etiqueta": "solida", "opacidad": 0.4, "marcador": "ninguno"},
-  "pagina": {"esquinas": 16},
-  "lectura": {"destino": "proyecto", "menu": "secciones"}
-}</code></p>
+<div class="codigo" data-lenguaje="json"><div class="codigo-barra"><span class="codigo-lenguaje">JSON</span></div><pre><code class="language-json"><span class="amb"><span class="amb-cabeza">{<span class="amb-marca"></span>
+</span><span class="amb-cuerpo">  <span class="sx-p">"version"</span>: <span class="sx-n">3</span>,
+  <span class="sx-p">"origen"</span>: <span class="sx-s">"colorido"</span>,
+<span class="amb"><span class="amb-cabeza">  <span class="sx-p">"historial"</span>: [<span class="amb-marca"></span>
+</span><span class="amb-cuerpo">    {<span class="sx-p">"version"</span>: <span class="sx-n">1</span>, <span class="sx-p">"fecha"</span>: <span class="sx-s">"2026-11-10"</span>, <span class="sx-p">"cambio"</span>: <span class="sx-s">"estilo de partida"</span>, <span class="sx-p">"motivo"</span>: <span class="sx-s">"muestra B"</span>},
+    {<span class="sx-p">"version"</span>: <span class="sx-n">2</span>, <span class="sx-p">"fecha"</span>: <span class="sx-s">"2026-11-12"</span>, <span class="sx-p">"cambio"</span>: <span class="sx-s">"secciones.etiqueta: solida, opacidad 0.4"</span>, <span class="sx-p">"motivo"</span>: <span class="sx-s">"títulos más visibles"</span>},
+    {<span class="sx-p">"version"</span>: <span class="sx-n">3</span>, <span class="sx-p">"fecha"</span>: <span class="sx-s">"2026-11-20"</span>, <span class="sx-p">"cambio"</span>: <span class="sx-s">"pagina.codigo: bloque"</span>, <span class="sx-p">"motivo"</span>: <span class="sx-s">"código más legible"</span>}
+</span></span>  ],
+  <span class="sx-p">"identidad"</span>: {<span class="sx-p">"producto"</span>: <span class="sx-s">"SoftwareFactory"</span>, <span class="sx-p">"logo"</span>: <span class="sx-s">"logo.svg"</span>, <span class="sx-p">"logo-oscuro"</span>: <span class="sx-s">"logo-oscuro.svg"</span>},
+  <span class="sx-p">"colores"</span>: {<span class="sx-p">"primario"</span>: <span class="sx-s">"#…"</span>, <span class="sx-p">"sobre-primario"</span>: <span class="sx-s">"#…"</span>, <span class="sx-p">"primario-texto"</span>: <span class="sx-s">"#…"</span>},
+  <span class="sx-p">"letra"</span>: {<span class="sx-p">"titulos"</span>: <span class="sx-s">"'Outfit', 'DM Sans', sans-serif"</span>, <span class="sx-p">"tamano"</span>: <span class="sx-n">17</span>},
+  <span class="sx-p">"portada"</span>: {<span class="sx-p">"forma"</span>: <span class="sx-s">"oscura"</span>},
+  <span class="sx-p">"secciones"</span>: {<span class="sx-p">"cabecera"</span>: <span class="sx-s">"numero-etiqueta"</span>, <span class="sx-p">"etiqueta"</span>: <span class="sx-s">"solida"</span>, <span class="sx-p">"opacidad"</span>: <span class="sx-n">0.4</span>, <span class="sx-p">"marcador"</span>: <span class="sx-s">"ninguno"</span>},
+  <span class="sx-p">"pagina"</span>: {<span class="sx-p">"esquinas"</span>: <span class="sx-n">16</span>},
+  <span class="sx-p">"lectura"</span>: {<span class="sx-p">"destino"</span>: <span class="sx-s">"proyecto"</span>, <span class="sx-p">"menu"</span>: <span class="sx-s">"secciones"</span>}
+</span></span>}
+</code></pre></div>
 <p>El ejemplo es la forma, no el estilo de la SF: sus valores los fija «Diseñar con el propietario las muestras de estilo…» (388).</p>
 <p>Un parámetro que pide otro proyecto no se anota en su estilo: Claude dice en una línea que es de la SF y ofrece abrir una issue en el repositorio de GitHub de la SF con lo que se pide (<a href="#p9">pregunta 9</a>). Los desarrolladores de otros proyectos solo tienen el plugin: una anotación en su historial no llegaría a nadie; la issue, sí.</p></div></details><details class="seccion" id="decidido"><summary class="seccion-titulo"><span class="etiqueta">04 / Decidido</span><h2>Lo que ya fija el diseño</h2></summary><div class="seccion-cuerpo"><table>
 <thead>
@@ -1427,7 +1685,7 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
 </tbody>
 </table>
 <p>En los proyectos, en una sesión abierta en cada uno: SpriteAnimation quita <code>modo-claro.js</code>, y <code>codigo.css</code> y <code>cabecera.css</code> cuando su generador tenga <code>pagina.codigo</code> y el arreglo de la portada.</p></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Informe de diseño · Versión 1.1 · 06/11/2026 · Decidido · Tarea 387</p><p>Informe de la tarea «Diseñar los parámetros del estilo de un proyecto y dónde se guardan» (387), que sale del informe «Un estilo de documentos por proyecto» (385, decisiones 305 a 315). Parte de tema_identidad.py, documento_a_html.py, los temas de crear_documentos, los identidad.json de la SF, SpriteAnimation, SmartColdBox, LecturaFàcil, MedRol y SocratIX, y la web de la SF, leídos sin cambiarlos. Lo decidió el propietario de la Software Factory (decisiones 316 a 324).</p><p class="procedencia">Generado el 06/11/2026 16:04 · fuente Parámetros del estilo de un proyecto.md · huella 29543dea84da · commit c26620d (con cambios sin commit)</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Informe de diseño · Versión 1.1 · 06/11/2026 · Decidido · Tarea 387</p><p>Informe de la tarea «Diseñar los parámetros del estilo de un proyecto y dónde se guardan» (387), que sale del informe «Un estilo de documentos por proyecto» (385, decisiones 305 a 315). Parte de tema_identidad.py, documento_a_html.py, los temas de crear_documentos, los identidad.json de la SF, SpriteAnimation, SmartColdBox, LecturaFàcil, MedRol y SocratIX, y la web de la SF, leídos sin cambiarlos. Lo decidió el propietario de la Software Factory (decisiones 316 a 324).</p><p class="procedencia">Generado el 27/11/2026 13:05 · fuente Parámetros del estilo de un proyecto.md · huella 29543dea84da · commit 3976d6a · estilo v4</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
@@ -1516,10 +1774,10 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
  *   #notas-documento) y sube la versión. Esa copia se puede pasar al autor: tools/kit_documentos/extraer_notas.py las lista.
  * Sin JavaScript no aparece nada; no se imprime. */
 (function () {
-  const VERSION = '1.10.0';
+  const VERSION = '1.10.1';
   const main = document.querySelector('main, .report-body');
   if (!main) return;
-  const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title';
+  const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title, .seccion-titulo h2';
   const raiz = document.documentElement;
   const grande = matchMedia('(min-width: 1400px)');
   const suave = matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth';
@@ -2474,7 +2732,11 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
 
   // ── Modo claro / oscuro / sistema ──
   const sistema = matchMedia('(prefers-color-scheme: dark)');
-  function aplicarModo() { raiz.dataset.modo = pref.modo === 'sistema' ? (sistema.matches ? 'oscuro' : 'claro') : pref.modo; }
+  // El oscuro aplica la paleta oscura del estilo (decisión 347): data-theme="dark" en <html>, como los diagramas.
+  function aplicarModo() {
+    raiz.dataset.modo = pref.modo === 'sistema' ? (sistema.matches ? 'oscuro' : 'claro') : pref.modo;
+    if (raiz.dataset.modo === 'oscuro') raiz.dataset.theme = 'dark'; else delete raiz.dataset.theme;
+  }
   sistema.addEventListener('change', aplicarModo);
   aplicarModo();
 
@@ -2512,6 +2774,7 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
     return getComputedStyle(raiz).getPropertyValue('--pagina').trim() || '#fff';
   };
   const titulos = secciones.map(d => d.querySelector(':scope > summary')).filter(Boolean);
+  let cambioDeTema = false;
   function seguir() {
     const activo = pref.cabecera && innerWidth >= 700 && innerHeight >= 500;
     const tope = activo ? altoMenu() : 0;
@@ -2522,13 +2785,15 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
       const r = d.getBoundingClientRect(), s = sm.getBoundingClientRect();
       const y = Math.max(0, Math.min(tope - s.top, r.bottom - s.bottom - 8));
       if (y > 0) {
-        if (!sm.classList.contains('titulo-fijo')) sm.style.backgroundColor = fondoDe(d);
+        if (!sm.classList.contains('titulo-fijo') || cambioDeTema) sm.style.backgroundColor = fondoDe(d);
         sm.classList.add('titulo-fijo'); sm.style.transform = 'translateY(' + y + 'px)';
       } else { sm.classList.remove('titulo-fijo'); sm.style.backgroundColor = ''; }
     }
   }
   let raf = 0;
   const pedir = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(seguir); };
+  // Al cambiar de tema con el título fijo, su fondo se recalcula: si no, se queda con el del tema anterior.
+  new MutationObserver(() => { cambioDeTema = true; seguir(); cambioDeTema = false; }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   addEventListener('scroll', seguir, { passive: true });
   addEventListener('resize', pedir);
   document.addEventListener('toggle', pedir, true);
@@ -2796,7 +3061,7 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
     const bt = lec.q('.lc-tablas');
     if (bt) bt.addEventListener('click', () => { anchos = {}; escribir(CLAVE_T, anchos); tablas.forEach(t => ponerAnchos(t, null)); });
   }
-  alCopiar.push(c => { delete c.dataset.modo; });
+  alCopiar.push(c => { delete c.dataset.modo; delete c.dataset.theme; });
   seguir();
 })();
 </script>
@@ -2986,6 +3251,130 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
     c.querySelectorAll('.ed-barra, .ed-meta, .btn-editar').forEach(x => x.remove());
     c.querySelectorAll('.editable').forEach(p => { p.classList.remove('editable'); if (!p.className) p.removeAttribute('class'); });
     c.querySelectorAll('[contenteditable]').forEach(x => x.removeAttribute('contenteditable'));
+  });
+})();
+</script>
+<script data-kit="skills/crear_documentos/assets/codigo.js">
+/* Plegado y botón «Copiar» de los bloques de código (skill crear_documentos, recurso «Bloques de código»).
+ * Cada caja .codigo (scripts/resaltar_codigo.py) recibe en su barra:
+ *  - el botón de plegar, que es la propia barra: el nombre del lenguaje con su flecha (aria-expanded, aria-controls);
+ *    desplegado al cargar, y plegado deja a la vista la barra con el número de líneas;
+ *  - el botón «Copiar», que copia el código tal cual, sin el coloreado y entero, aunque haya ámbitos plegados;
+ *  - en el margen, una flecha en cada línea que abre un ámbito (.amb, de resaltar_codigo.py), que pliega su cuerpo.
+ * Un bloque sin lenguaje recibe una barra mínima con el rótulo «Código», para plegarse igual que los demás.
+ * Sin JavaScript, el bloque se ve entero, con su lenguaje y sin botones. Al imprimir, todo desplegado, sin botones ni la
+ * barra mínima (estilo_documento.css). */
+(function () {
+  // En la copia que guardan las herramientas del documento, el bloque como lo deja el generador: este script vuelve a
+  // poner los botones al abrirla.
+  (window.alCopiarDocumento = window.alCopiarDocumento || []).push(c => {
+    c.querySelectorAll('.codigo-copiar, .codigo-lineas, .codigo-generico, .amb-flecha').forEach(x => x.remove());
+    c.querySelectorAll('.amb-cuerpo').forEach(x => { x.hidden = false; x.removeAttribute('id'); });
+    c.querySelectorAll('.amb.plegado').forEach(x => x.classList.remove('plegado'));
+    c.querySelectorAll('pre.con-ambitos').forEach(x => x.classList.remove('con-ambitos'));
+    c.querySelectorAll('.codigo-plegar').forEach(b => {
+      const nombre = b.querySelector('.codigo-lenguaje');
+      nombre ? b.replaceWith(nombre) : b.remove();
+    });
+    c.querySelectorAll('.codigo-barra:empty').forEach(x => x.remove());
+    c.querySelectorAll('.codigo > pre').forEach(p => { p.hidden = false; if (/^codigo-bloque-/.test(p.id)) p.removeAttribute('id'); });
+    c.querySelectorAll('.codigo.plegado').forEach(x => x.classList.remove('plegado'));
+  });
+  const copiar = texto => {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(texto);
+    return new Promise((bien, mal) => {  // file:// en algunos navegadores, o sin permiso del portapapeles
+      const area = document.createElement('textarea');
+      area.value = texto;
+      area.setAttribute('readonly', '');
+      area.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
+      document.body.appendChild(area);
+      area.select();
+      let hecho = false;
+      try { hecho = document.execCommand('copy'); } catch (_) { hecho = false; }
+      area.remove();
+      hecho ? bien() : mal(new Error('sin portapapeles'));
+    });
+  };
+  let n = 0;
+  document.querySelectorAll('.codigo').forEach(caja => {
+    const pre = caja.querySelector(':scope > pre');
+    const codigo = pre && pre.querySelector(':scope > code');
+    if (!codigo || caja.querySelector('.codigo-plegar')) return;
+    const texto = () => codigo.textContent.replace(/\n$/, '');
+    let barra = caja.querySelector(':scope > .codigo-barra');
+    if (!barra) {
+      barra = document.createElement('div');
+      barra.className = 'codigo-barra';
+      caja.insertBefore(barra, caja.firstChild);
+    }
+    let nombre = barra.querySelector('.codigo-lenguaje');
+    if (!nombre) {  // sin lenguaje: la barra mínima, con un rótulo genérico
+      nombre = document.createElement('span');
+      nombre.className = 'codigo-lenguaje codigo-generico';
+      nombre.textContent = 'Código';
+    }
+    do { n += 1; } while (document.getElementById('codigo-bloque-' + n));
+    if (!pre.id) pre.id = 'codigo-bloque-' + n;
+    // Plegar y desplegar: la barra entera es el botón, salvo «Copiar».
+    const plegar = document.createElement('button');
+    plegar.type = 'button';
+    plegar.className = 'codigo-plegar';
+    plegar.setAttribute('aria-expanded', 'true');
+    plegar.setAttribute('aria-controls', pre.id);
+    plegar.title = 'Plegar o desplegar el código';
+    const lineas = document.createElement('span');
+    lineas.className = 'codigo-lineas';
+    const cuantas = texto().split('\n').length;
+    lineas.textContent = cuantas === 1 ? '1 línea' : cuantas + ' líneas';
+    plegar.append(nombre, lineas);
+    barra.insertBefore(plegar, barra.firstChild);
+    plegar.addEventListener('click', () => {
+      const abierto = plegar.getAttribute('aria-expanded') === 'true';
+      plegar.setAttribute('aria-expanded', String(!abierto));
+      pre.hidden = abierto;
+      caja.classList.toggle('plegado', abierto);
+    });
+    // Copiar
+    const boton = document.createElement('button');
+    boton.type = 'button';
+    boton.className = 'codigo-copiar';
+    boton.textContent = 'Copiar';
+    boton.title = 'Copiar el código';
+    boton.setAttribute('aria-live', 'polite');  // «Copiado» se anuncia al lector de pantalla
+    let reloj = 0;
+    const avisar = t => {
+      boton.textContent = t;
+      clearTimeout(reloj);
+      reloj = setTimeout(() => { boton.textContent = 'Copiar'; }, 1800);
+    };
+    boton.addEventListener('click', () => {
+      copiar(texto()).then(() => avisar('Copiado'), () => avisar('No se pudo copiar'));
+    });
+    barra.appendChild(boton);
+    // Ámbitos (scripts/resaltar_codigo.py): una flecha en el margen de cada línea que abre uno pliega su cuerpo; plegado,
+    // la línea de apertura lleva «…» (estilo_documento.css) y sigue a la vista la de cierre. Las flechas no tienen
+    // texto: «Copiar» copia siempre el código entero, también lo plegado.
+    const ambitos = codigo.querySelectorAll('.amb');
+    if (ambitos.length) pre.classList.add('con-ambitos');
+    ambitos.forEach((amb, k) => {
+      const cabeza = amb.querySelector(':scope > .amb-cabeza');
+      const cuerpo = amb.querySelector(':scope > .amb-cuerpo');
+      if (!cabeza || !cuerpo) return;
+      cuerpo.id = pre.id + '-ambito-' + (k + 1);
+      const flecha = document.createElement('button');
+      flecha.type = 'button';
+      flecha.className = 'amb-flecha';
+      flecha.setAttribute('aria-expanded', 'true');
+      flecha.setAttribute('aria-controls', cuerpo.id);
+      flecha.setAttribute('aria-label', 'Plegar o desplegar: ' + cabeza.textContent.trim().slice(0, 60));
+      flecha.addEventListener('click', () => {
+        const abierto = flecha.getAttribute('aria-expanded') === 'true';
+        flecha.setAttribute('aria-expanded', String(!abierto));
+        cuerpo.hidden = abierto;
+        amb.classList.toggle('plegado', abierto);
+      });
+      cabeza.insertBefore(flecha, cabeza.firstChild);
+    });
   });
 })();
 </script>
@@ -3207,6 +3596,8 @@ html[data-modo="oscuro"] .diagrama svg { filter: none; }
     const ids = [...new Set([...fig.querySelectorAll('[data-plegar]')].map(t => t.dataset.plegar))];
     if (!ids.length) return;
     fig.classList.add('d-js');
+    // Con cajas que se pliegan (se pulsan), el <svg role="img"> esconde sus hijos al lector de pantalla: pasa a grupo.
+    fig.querySelectorAll('svg[role="img"]').forEach(s => { if (s.querySelector('[data-plegar]')) s.setAttribute('role', 'group'); });
     let abiertas = new Set();
     const pinta = () => fig.querySelectorAll('svg').forEach(s => ids.forEach(id => ponerCaja(s, id, abiertas.has(id))));
     const modo = () => {

@@ -446,8 +446,11 @@ def css_parametros(estilo: dict | None) -> str:
     if "esquinas" in pagina:
         css.append(f":root {{ --esquinas: {float(pagina['esquinas']):g}px; }}")
     if pagina.get("codigo") == "linea":  # «bloque», el de por defecto, está en estilo_documento.css
-        css.append("pre { background: none; border-left: 0; border-radius: 0; border-top: 1px solid var(--borde);"
-                   " border-bottom: 1px solid var(--borde); padding: .8rem 0; }")
+        css.append("pre, .codigo { background: none; border-left: 0; border-radius: 0; border-top: 1px solid var(--borde);"
+                   " border-bottom: 1px solid var(--borde); padding: .8rem 0; }"
+                   " .codigo { padding: 0; } .codigo > pre { border: 0; padding: .8rem 0; }"
+                   " .codigo > .codigo-barra + pre { padding-top: .45rem; } .codigo-barra { padding-left: 0; padding-right: 0; }"
+                   " @media print { .codigo > pre.con-ambitos { padding-left: 0; } }")  # en pantalla, el margen de las flechas
     if pagina.get("filetes") in ("no", False):  # sin los filetes que separan la portada clara, el menú y el pie
         css.append(".portada, .menu { border-bottom: 0; } .pie { border-top: 0; }")
     if estilo.get("recuadros", {}).get("filete") in ("no", False):  # recuadros sin la barra izquierda

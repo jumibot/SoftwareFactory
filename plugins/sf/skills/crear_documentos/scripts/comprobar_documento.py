@@ -41,7 +41,7 @@ MM = 96 / 25.4
 A4_ANCHO = round((210 - 30) * MM)   # 680
 A4_ALTO = round((297 - 32) * MM)    # 1002
 # Lo que la hoja de impresión oculta (estilo_documento.css y herramientas.css).
-NO_SE_IMPRIME = ('.menu', '.buscador', '.imprimir', '.saltar', '.plegar-tarjetas', '.barra-doc', '.boton-anotar',
+NO_SE_IMPRIME = ('.menu', '.buscador', '.imprimir', '.saltar', '.plegar-tarjetas', '.barra-doc', '.boton-anotar', '.codigo-copiar',
                  '.modal-lectura', '.columna-herramientas', '.herramienta', '.abrir-herramienta')
 TOPE = 12   # cuántos de cada clase se listan en el informe (el JSON los lleva todos)
 

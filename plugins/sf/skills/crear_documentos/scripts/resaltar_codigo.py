@@ -1,8 +1,11 @@
-"""Coloreado de sintaxis de los bloques de código, sin dependencias.
+"""Bloques de código de los documentos: coloreado de sintaxis propio, sin dependencias, y su caja.
 
-Lo usa documento_a_html.py sobre el HTML que deja markdown (<pre><code class="language-x">). Cada fragmento
-reconocido va en un <span class="sx-…">; los colores están en assets/estilo_documento.css (variables --sx-…).
-Un bloque sin lenguaje se colorea como JSON si lo es; el resto (text, árboles de carpetas…) se deja igual.
+Lo usa documento_a_html.py sobre el HTML que deja markdown (<pre><code class="language-x">). Cada bloque va en una caja
+<div class="codigo" data-lenguaje="x"> con una barra con el nombre del lenguaje (si lo tiene); el plegado y el botón «Copiar» los
+ponen assets/codigo.js. Cada fragmento reconocido va en un <span class="sx-…">; los colores y la caja están en
+assets/estilo_documento.css (variables --sx-…; pagina.codigo del estilo elige la forma de la caja). Un bloque sin
+lenguaje se colorea como JSON si lo es; el resto (text, árboles de carpetas, un lenguaje sin coloreado) sale igual,
+en su caja.
 
 Clases: sx-c comentario, sx-s cadena, sx-n número o literal, sx-k palabra clave, sx-p clave o propiedad,
 sx-f orden o función, sx-t etiqueta, sx-a atributo u opción.
@@ -101,19 +104,141 @@ def _regex(lenguaje):
     return _COMPILADOS[lenguaje]
 
 
-def colorear(codigo: str, lenguaje: str) -> str:
-    """Código en texto plano → HTML escapado con <span class="sx-…">."""
+def _fichas(codigo: str, lenguaje: str) -> list:
+    """Código en texto plano → [(clase o None, texto)], con las reglas del lenguaje (sin reglas, todo sin clase)."""
+    if lenguaje not in _LENGUAJES:
+        return [(None, codigo)]
     clases = [c for c, _ in _LENGUAJES[lenguaje]]
-    salida, pos = [], 0
+    fichas, pos = [], 0
     for m in _regex(lenguaje).finditer(codigo):
         if m.start() == m.end():
             continue
-        salida.append(_html.escape(codigo[pos:m.start()], quote=False))
-        clase = clases[int(m.lastgroup[1:])]
-        salida.append(f'<span class="{clase}">' + _html.escape(m.group(0), quote=False) + '</span>')
+        if m.start() > pos:
+            fichas.append((None, codigo[pos:m.start()]))
+        fichas.append((clases[int(m.lastgroup[1:])], m.group(0)))
         pos = m.end()
-    salida.append(_html.escape(codigo[pos:], quote=False))
-    return ''.join(salida)
+    if pos < len(codigo):
+        fichas.append((None, codigo[pos:]))
+    return fichas
+
+
+def _html_ficha(clase, texto: str) -> str:
+    t = _html.escape(texto, quote=False)
+    return f'<span class="{clase}">{t}</span>' if clase else t
+
+
+def colorear(codigo: str, lenguaje: str) -> str:
+    """Código en texto plano → HTML escapado con <span class="sx-…">."""
+    return ''.join(_html_ficha(c, t) for c, t in _fichas(codigo, lenguaje))
+
+
+def _lineas(fichas: list) -> list:
+    """Las fichas partidas por líneas: [[(clase, texto), …], …]. Una ficha de varias líneas (un comentario, una cadena
+    larga) se parte en una por línea, con su clase en cada trozo, para que cada línea sea HTML cerrado."""
+    lineas = [[]]
+    for clase, texto in fichas:
+        for i, trozo in enumerate(texto.split('\n')):
+            if i:
+                lineas.append([])
+            if trozo:
+                lineas[-1].append((clase, trozo))
+    return lineas
+
+
+# --- Ámbitos plegables ------------------------------------------------------------------------------------------------
+# Cada línea que abre un ámbito de dos líneas o más lleva su flecha (la pone assets/codigo.js): por llaves y corchetes
+# en los lenguajes de llaves; por sangría en los demás y sin lenguaje. Un ámbito es (línea de apertura, última línea de
+# su cuerpo): plegado, se ve la de apertura con «…» y la siguiente al cuerpo (la de cierre, en los de llaves).
+POR_LLAVES = {'json', 'jsonc', 'json5', 'javascript', 'js', 'mjs', 'ts', 'typescript', 'tsx', 'jsx', 'css', 'scss',
+              'less', 'powershell', 'ps1', 'pwsh', 'rust', 'rs', 'c', 'cpp', 'h', 'hpp', 'cs', 'csharp', 'java', 'kotlin',
+              'kt', 'go', 'swift', 'php', 'dart', 'scala', 'groovy', 'hcl', 'tf'}
+# Para buscar las llaves de un lenguaje sin coloreado: las cadenas y los comentarios no cuentan.
+_GENERICO = re.compile(r'//[^\n]*|/\*[\s\S]*?\*/|' + _CAD)
+
+
+def _fichas_genericas(codigo: str) -> list:
+    fichas, pos = [], 0
+    for m in _GENERICO.finditer(codigo):
+        fichas += [(None, codigo[pos:m.start()]), ('sx-c' if m.group(0)[0] == '/' else 'sx-s', m.group(0))]
+        pos = m.end()
+    return fichas + [(None, codigo[pos:])]
+
+
+def _ambitos_llaves(fichas: list) -> list:
+    """Ámbitos entre {} y [] fuera de cadenas y comentarios, con al menos una línea entre la apertura y el cierre."""
+    pila, ambitos, n = [], [], 0
+    for clase, texto in fichas:
+        if clase in ('sx-s', 'sx-c'):
+            n += texto.count('\n')
+            continue
+        for ch in texto:
+            if ch == '\n':
+                n += 1
+            elif ch in '{[':
+                pila.append((ch, n))
+            elif ch in '}]':
+                if pila and pila[-1][0] == {'}': '{', ']': '['}[ch]:
+                    inicio = pila.pop()[1]
+                    if n - inicio >= 2:
+                        ambitos.append((inicio, n - 1))
+                else:
+                    pila.clear()  # descompensadas: no se adivina
+    return ambitos
+
+
+def _ambitos_sangria(lineas: list) -> list:
+    """Ámbitos por sangría: una línea seguida de otras más sangradas (las líneas en blanco del medio van dentro; las
+    del final, fuera)."""
+    sangria = [len(l) - len(l.lstrip(' \t')) if l.strip() else None for l in lineas]
+    ambitos = []
+    for i, s in enumerate(sangria):
+        if s is None:
+            continue
+        fin = None
+        for j in range(i + 1, len(sangria)):
+            if sangria[j] is not None:
+                if sangria[j] <= s:
+                    break
+                fin = j
+        if fin is not None:
+            ambitos.append((i, fin))
+    return ambitos
+
+
+def ambitos(codigo: str, escrito: str, lenguaje: str) -> list:
+    """Los ámbitos plegables de un bloque: [(apertura, última línea del cuerpo)], uno por línea de apertura (el
+    mayor). «escrito», el lenguaje como lo puso el autor; «lenguaje», el del coloreado. Por llaves, los lenguajes de
+    llaves y uno sin coloreado que las tenga; por sangría, los demás y el bloque sin lenguaje."""
+    sin_coloreado = escrito not in _SIN_NOMBRE and lenguaje not in _LENGUAJES
+    encontrados = []
+    if escrito in POR_LLAVES or sin_coloreado:
+        fichas = _fichas(codigo, lenguaje) if lenguaje in _LENGUAJES else _fichas_genericas(codigo)
+        encontrados = _ambitos_llaves(fichas)
+    if not encontrados and escrito not in POR_LLAVES:
+        encontrados = _ambitos_sangria(codigo.split('\n'))
+    mayor = {}
+    for inicio, fin in encontrados:
+        mayor[inicio] = max(fin, mayor.get(inicio, -1))
+    return sorted(mayor.items())
+
+
+def con_ambitos(lineas: list, ambs: list) -> str:
+    """Las líneas (HTML) con sus ámbitos: <span class="amb"><span class="amb-cabeza">apertura<span class="amb-marca">
+    </span>⏎</span><span class="amb-cuerpo">…</span></span>. El texto no cambia: cada línea, con su salto."""
+    por_inicio = dict(ambs)
+    salida, abiertos = [], []
+    for i, linea in enumerate(lineas):
+        salto = '\n' if i < len(lineas) - 1 else ''
+        if i in por_inicio:
+            salida.append(f'<span class="amb"><span class="amb-cabeza">{linea}<span class="amb-marca"></span>{salto}'
+                          '</span><span class="amb-cuerpo">')
+            abiertos.append(por_inicio[i])
+        else:
+            salida.append(linea + salto)
+        while abiertos and abiertos[-1] == i:
+            abiertos.pop()
+            salida.append('</span></span>')
+    return ''.join(salida) + '</span></span>' * len(abiertos)
 
 
 def _es_json(texto: str) -> bool:
@@ -127,15 +252,37 @@ def _es_json(texto: str) -> bool:
         return False
 
 
+# El nombre que se ve en la barra del bloque; un lenguaje que no está aquí sale tal cual lo escribió el autor.
+_NOMBRES = {'json': 'JSON', 'jsonc': 'JSON', 'javascript': 'JavaScript', 'js': 'JavaScript', 'mjs': 'JavaScript',
+            'ts': 'TypeScript', 'typescript': 'TypeScript', 'tsx': 'TSX', 'jsx': 'JSX', 'python': 'Python', 'py': 'Python',
+            'bash': 'Bash', 'sh': 'Shell', 'shell': 'Shell', 'zsh': 'Zsh', 'console': 'Consola', 'powershell': 'PowerShell',
+            'ps1': 'PowerShell', 'pwsh': 'PowerShell', 'css': 'CSS', 'scss': 'SCSS', 'html': 'HTML', 'xml': 'XML',
+            'svg': 'SVG', 'sql': 'SQL', 'yaml': 'YAML', 'yml': 'YAML'}
+_SIN_NOMBRE = {'', 'text', 'txt', 'plain', 'plaintext', 'texto'}
+
+
+def caja(cuerpo_html: str, escrito: str, lenguaje: str) -> str:
+    """El bloque en su caja: «escrito», el lenguaje como lo puso el autor (el nombre de la barra); «lenguaje», el del
+    coloreado (vacío si no se colorea)."""
+    nombre = '' if escrito in _SIN_NOMBRE else _NOMBRES.get(escrito, escrito)
+    datos = f' data-lenguaje="{_html.escape(escrito)}"' if escrito else ''
+    barra = (f'<div class="codigo-barra"><span class="codigo-lenguaje">{_html.escape(nombre)}</span></div>'
+             if nombre else '')
+    clase = f' class="language-{lenguaje or escrito}"' if (lenguaje or escrito) else ''
+    return f'<div class="codigo"{datos}>{barra}<pre><code{clase}>{cuerpo_html}</code></pre></div>'
+
+
 def resaltar(html: str) -> str:
-    """Colorea los <pre><code> de un HTML generado por markdown."""
+    """Pone en su caja, colorea y marca los ámbitos plegables de los <pre><code> de un HTML generado por markdown."""
     def uno(m):
-        lenguaje, cuerpo = (m.group(1) or '').lower(), m.group(2)
+        escrito, cuerpo = (m.group(1) or '').lower(), m.group(2)
         codigo = _html.unescape(cuerpo)
-        lenguaje = _ALIAS.get(lenguaje, lenguaje)
+        lenguaje = _ALIAS.get(escrito, escrito)
         if not lenguaje and _es_json(codigo):
             lenguaje = 'json'
-        if lenguaje not in _LENGUAJES:
-            return m.group(0)
-        return f'<pre><code class="language-{lenguaje}">' + colorear(codigo, lenguaje) + '</code></pre>'
+        final = '\n' if codigo.endswith('\n') else ''
+        codigo = codigo[:len(codigo) - len(final)]
+        lineas = [''.join(_html_ficha(c, t) for c, t in linea) for linea in _lineas(_fichas(codigo, lenguaje))]
+        cuerpo_html = con_ambitos(lineas, ambitos(codigo, escrito, lenguaje)) + final
+        return caja(cuerpo_html, escrito, lenguaje if lenguaje in _LENGUAJES else '')
     return re.sub(r'<pre><code(?: class="language-([\w+-]+)")?>([\s\S]*?)</code></pre>', uno, html)

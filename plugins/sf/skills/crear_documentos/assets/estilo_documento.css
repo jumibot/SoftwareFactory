@@ -298,10 +298,52 @@ a.salto { font-size: .875rem; }
 .pie { margin-top: 3rem; border-top: 1px solid var(--linea); padding: 1rem 0 2.5rem; font-size: .875rem; color: var(--texto-suave); }
 .pie p { margin: 0 0 .4rem; }
 code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; border-radius: 3px; overflow-wrap: anywhere; }
-/* Bloques de código: fondo suave y filete (pagina.codigo: bloque, el de por defecto; «linea» los deja entre dos líneas). */
-pre { background: var(--fondo-suave); border-left: 3px solid var(--primario); padding: .9rem 1.1rem; margin: 1rem 0 1.4rem;
-      border-radius: 0 var(--esquinas, 6px) var(--esquinas, 6px) 0; overflow-x: auto; line-height: 1.5; font-size: .9rem; }
-pre code { background: none; padding: 0; border-radius: 0; font-size: inherit; }
+/* Bloques de código: fondo suave y las esquinas de las demás cajas (pagina.codigo: bloque, el de por defecto; «linea» los
+ * deja entre dos líneas). */
+pre { background: var(--fondo-suave); padding: .9rem 1.1rem; margin: 1rem 0 1.4rem; border-radius: var(--esquinas, 8px);
+      overflow-x: auto; line-height: 1.5; font-size: .9rem; scrollbar-width: thin; scrollbar-color: var(--borde) transparent; }
+pre code { background: none; padding: 0; border-radius: 0; font-size: inherit; font-variant-ligatures: none; }
+/* La caja de cada bloque (scripts/resaltar_codigo.py): la barra con el lenguaje, que pliega y despliega el bloque, y
+ * «Copiar» (assets/codigo.js); el código se desplaza en horizontal dentro de la caja sin ensanchar la página. */
+.codigo { background: var(--fondo-suave); margin: 1rem 0 1.4rem; min-width: 0; max-width: 100%;
+          border-radius: var(--esquinas, 8px); }
+.codigo > pre { background: none; border: 0; border-radius: 0; margin: 0; max-width: 100%; }
+.codigo-barra { display: flex; align-items: center; gap: .6rem; min-height: 1.9rem; padding: .35rem .6rem 0 1.1rem;
+                font-family: var(--fuente-texto); font-size: .78rem; color: var(--texto-suave); }
+.codigo-barra + pre { padding-top: .45rem; }
+.codigo.plegado > .codigo-barra { padding-bottom: .35rem; }
+.codigo-lenguaje { font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+.codigo-plegar { flex: 1; display: flex; align-items: center; gap: .55rem; min-width: 0; margin: 0 0 0 -.3rem; padding: .2rem .3rem;
+                 font: inherit; color: inherit; text-align: left; background: none; border: 0; border-radius: 4px; cursor: pointer; }
+.codigo-plegar::before { content: ""; flex: none; width: .42em; height: .42em; margin: 0 .1rem 0 .15rem;
+                         border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+                         transform: translateY(-.1em) rotate(45deg); transition: transform .15s; }
+.codigo-plegar[aria-expanded="false"]::before { transform: rotate(-45deg); }
+.codigo-plegar:hover { color: var(--texto); background: none; }
+.codigo-lineas { display: none; font-weight: 400; }
+.codigo.plegado .codigo-lineas { display: inline; }
+.codigo-copiar { flex: none; font: inherit; font-weight: 650; color: var(--texto-suave); background: var(--superficie);
+                 border: 1px solid var(--borde-campo, var(--borde)); border-radius: 4px; padding: .2rem .6rem; line-height: 1.3;
+                 cursor: pointer; }
+.codigo-copiar:hover { color: var(--texto); background: var(--superficie); border-color: var(--texto-suave); }
+:is(.codigo-copiar, .codigo-plegar):focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+/* Ámbitos plegables (resaltar_codigo.py y codigo.js): la flecha, en el margen izquierdo de la línea que abre el ámbito;
+ * plegado, «…» al final de esa línea. Sin JS no hay flechas ni margen. */
+.codigo > pre.con-ambitos { padding-left: 1.6rem; }
+pre .amb-flecha { position: relative; display: inline-block; box-sizing: border-box; width: 1.15rem; height: 1.25em;
+                  margin: 0 .35rem 0 -1.5rem; padding: 0; vertical-align: -.3em; font: inherit; line-height: 1; color: var(--texto-suave);
+                  background: none; border: 0; border-radius: 3px; cursor: pointer; opacity: .7; }
+pre .amb-flecha::before { content: ""; position: absolute; left: 50%; top: 50%; width: .4em; height: .4em;
+                          border-right: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor;
+                          transform: translate(-50%, -70%) rotate(45deg); transition: transform .15s; }
+pre .amb-flecha[aria-expanded="false"]::before { transform: translate(-70%, -50%) rotate(-45deg); }
+pre .amb-flecha:hover, pre .amb-flecha:focus-visible, pre .amb-flecha[aria-expanded="false"] { opacity: 1; color: var(--texto); }
+pre .amb-flecha:hover { background: var(--fondo-medio); }
+pre .amb-flecha:focus-visible { outline: 2px solid var(--acento); outline-offset: 0; }
+.amb.plegado > .amb-cabeza > .amb-marca::after { content: "…"; margin-left: .4em; padding: 0 .4em; border-radius: 3px;
+                                                  background: var(--fondo-medio); color: var(--texto); }
+@media (prefers-reduced-motion: reduce) { .codigo-plegar::before, pre .amb-flecha::before { transition: none; } }
+:is(.tarjeta, .columna, .tarjeta-cuerpo) { min-width: 0; }  /* un código largo no ensancha su columna */
 /* Coloreado de los bloques de código (scripts/resaltar_codigo.py): colores con significado fijo, variables --sx-…. */
 :root { --sx-clave: var(--primario-texto, var(--primario)); --sx-cadena: #1f812d; --sx-numero: #a6501a; --sx-palabra: var(--acento);
         --sx-funcion: #1f7a7a; --sx-atributo: #a6501a; --sx-comentario: var(--texto-suave); }
@@ -373,4 +415,14 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
   .recuadro.decision { background: var(--fondo); color: var(--texto); }
   .recuadro.decision .recuadro-etiqueta, .recuadro.decision h3 { color: var(--primario-texto, var(--primario)); }
   a { color: inherit; text-decoration: none; }
+  /* Código: las líneas largas se parten en la hoja en vez de cortarse; sin «Copiar» */
+  .codigo-copiar, .codigo-lineas, .codigo-plegar::before, .codigo-barra:not(:has(.codigo-lenguaje:not(.codigo-generico))) {
+    display: none !important; }
+  .codigo > pre[hidden] { display: block !important; }  /* plegado en pantalla, desplegado en la hoja */
+  .amb-flecha, .amb-marca { display: none !important; }
+  .amb-cuerpo[hidden] { display: inline !important; }
+  .codigo > pre.con-ambitos { padding-left: 1.1rem; }
+  pre, .codigo > pre { white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; font-size: 8.5pt; }
+  .codigo-barra, .codigo.plegado > .codigo-barra { min-height: 0; padding-bottom: 0; font-size: 7.5pt; }
+  .codigo, pre { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }

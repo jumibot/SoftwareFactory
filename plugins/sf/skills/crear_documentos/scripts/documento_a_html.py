@@ -866,6 +866,7 @@ def main():
     css_narrativa = "\n  " + bloque_kit(NARRATIVA_CSS) if USA_NARRATIVA.search(portada_y_cuerpo) else ""
     js = "\n" + bloque_kit("skills/crear_documentos/assets/plegado.js") + kit_scripts() if secciones else ""
     js += "\n" + bloque_kit("skills/crear_documentos/assets/fichas.js") if 'class="fichas' in cuerpo else ""
+    js += "\n" + bloque_kit("skills/crear_documentos/assets/codigo.js") if 'class="codigo"' in cuerpo else ""
     # Lo propio del tipo de documento (perfil.json): después de lo común, antes de lo del proyecto.
     css_tipo = "".join("\n  " + bloque_propio(perfil["_carpeta"] / x) for x in perfil.get("css", []))
     js += "".join("\n" + bloque_propio(perfil["_carpeta"] / x) for x in perfil.get("js", []))

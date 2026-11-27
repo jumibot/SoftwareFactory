@@ -376,7 +376,7 @@ class Arreglos(Base):
     def test_codigo_en_bloque_y_coloreado(self):
         h = self.generar()
         self.assertIn('<pre><code class="language-json">{<span class="sx-p">"clave"</span>', h)
-        self.assertIn('pre { background: var(--fondo-suave); border-left: 3px solid var(--primario);', h)
+        self.assertIn('.codigo { background: var(--fondo-suave); margin: 1rem 0 1.4rem;', h)
 
 
 TEMAS_DEL_CATALOGO = ('colorido', 'morado', 'pool', 'rojo', 'teal', 'tinta')
