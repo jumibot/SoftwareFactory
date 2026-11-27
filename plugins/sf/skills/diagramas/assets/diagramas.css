@@ -101,7 +101,7 @@
 .d-gen .d-fin-a { fill: none; stroke: var(--texto-suave, #555); stroke-width: 1.2; }
 .d-gen .d-nota-c { fill: var(--fondo-medio, #ebeae7); stroke: none; }
 .d-gen .d-nota-b { fill: var(--primario-linea, var(--primario, #00726b)); display: none; }
-.d-gen text.d-nota-t { fill: var(--texto-suave, #555); text-transform: uppercase; }
+.d-gen text.d-nota-t { fill: color-mix(in oklab, var(--texto-suave, #555) 45%, var(--texto, #1a1a1a));  /* la cabecera de la nota sobre su fondo-medio: el texto-suave solo da 3,66:1 en el morado */ text-transform: uppercase; }
 .d-gen .d-nota-x { fill: var(--texto, #1a1a1a); }
 .d-gen .d-zona { fill: none; stroke: var(--texto-tenue, #666); stroke-width: 1.2; stroke-dasharray: 4 4; }
 .d-gen text.d-carril, .d-gen text.d-num { fill: var(--d-rotulo); }   /* nombres de zona y carriles */

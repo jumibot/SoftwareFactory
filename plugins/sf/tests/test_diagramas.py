@@ -4,6 +4,7 @@ y que una página mala da cada error.
 python -I -X utf8 -m unittest discover -s plugins/sf/tests -p "test_diagramas.py"
 """
 import importlib.util
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -337,6 +338,25 @@ class EnNavegador(unittest.TestCase):
                 p.click('#herr-diagramas [data-dg-poner="orig"]')
                 self.assertEqual(p.evaluate("document.querySelector('figure.diagrama').dataset.dTema"), 'tinta')
                 b.close()
+
+    def test_los_diagramas_pasan_con_cada_tema_del_catalogo(self):
+        """Los seis diagramas del documento de ejemplo, con cada tema, en claro y en oscuro: contraste incluido
+        (con el morado, la cabecera de las notas daba 3,66:1)."""
+        import subprocess
+        import sys
+        temas = sorted(p.stem for p in (SKILL.parent / 'crear_documentos' / 'assets' / 'temas').glob('*.json'))
+        self.assertIn('morado', temas)
+        with tempfile.TemporaryDirectory() as d:
+            shutil.copytree(SKILL / 'assets' / 'ejemplos', Path(d) / 'ejemplos')
+            for tema in temas:
+                with self.subTest(tema):
+                    md = Path(d) / f'doc-{tema}.md'
+                    shutil.copy(SKILL / 'assets' / 'ejemplo-documento.md', md)
+                    r = subprocess.run([sys.executable, '-X', 'utf8', str(DOCUMENTO), str(md), '--identidad', 'ninguna', '--logo', 'ninguno', '--tema', tema],
+                                       capture_output=True, text=True, encoding='utf-8')
+                    self.assertEqual(r.returncode, 0, r.stderr + r.stdout)
+                    for m in cd.comprobar(md.with_suffix('.html'), [1440], 6.5, ('claro', 'oscuro')):
+                        self.assertEqual([e for f in m['figuras'] for e in f['errores']], [], (tema, m['modo']))
 
     def test_el_documento_de_ejemplo_pasa_y_su_herramienta_cambia_todas(self):
         ruta = SKILL / 'assets' / 'ejemplo-documento.html'
