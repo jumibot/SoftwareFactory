@@ -2,19 +2,19 @@
 antetitulo: Software Factory · Informe de diseño · Noviembre 2026
 lema: Un servidor local para las páginas de la SF; // tus respuestas llegan al chat como un mensaje tuyo.
 subtitulo: Cómo puede una página generada por la SF hablar con la sesión de Claude Code, con las respuestas de un informe como primer uso, qué ofrece hoy el mod, qué diseño se recomienda y qué protege.
-version: Versión 2.0 · 27/11/2026
+version: Versión 2.1 · 27/11/2026
 estado: Propuesta · Tarea 475
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
 menu: secciones
 tipo: Informe de diseño
-pie: Informe de la tarea «Contestar las preguntas de un informe desde la página y que las respuestas lleguen a Claude» (475). Parte del código del mod de la SF (register.tsx, avisos.ts, cola.ts, lectura.ts, python.ts), de la API de mods de esta versión de Claude Code (claude-code.d.ts y reference.md de la skill plugin-authoring), del kit de documentos (herramientas.js, codigo.js) y de la decisión «El servidor local del mod escucha cualquier petición de una página generada por la SF, con un token nuevo cada vez que se abre» (416). Espera la decisión del propietario de la Software Factory sobre las preguntas abiertas.
+pie: Informe de la tarea «Contestar las preguntas de un informe desde la página y que las respuestas lleguen a Claude» (475). Parte del código del mod de la SF (register.tsx, avisos.ts, cola.ts, lectura.ts, python.ts), de la API de mods de esta versión de Claude Code (claude-code.d.ts y reference.md de la skill plugin-authoring), del kit de documentos (herramientas.js, codigo.js) y de la decisión «El servidor local sf_proxy escucha cualquier petición de una página generada por la SF, con un token por apertura y las peticiones numeradas» (416). Espera la decisión del propietario de la Software Factory sobre las preguntas abiertas.
 ---
 # Responder a un informe desde la página
 
-## Resumen | Un servidor local genérico, con un token nuevo en cada apertura | Resumen {#resumen}
+## Resumen | sf_proxy: un servidor local genérico, con un token por apertura y peticiones numeradas | Resumen {#resumen}
 
-Por decisión del propietario (416), **el mod de la SF levanta en el propio ordenador un servidor genérico**, solo en `127.0.0.1` (la dirección que no sale de la máquina). No recoge solo respuestas de informes: **atiende cualquier petición de una página que haya generado la SF**, para poder montar interfaces externas con él. Lo que lo protege es doble: la página la ha generado Claude y la sirve el propio servidor, y **cada vez que se abre una página interactiva lleva un token nuevo**; sin ese token, el servidor no atiende. El propietario lo usará de momento solo en su ordenador y no pidió limitar las peticiones a tipos declarados.
+Por decisión del propietario (416), **el mod de la SF levanta en el propio ordenador un servidor genérico, `sf_proxy`**, solo en `127.0.0.1` (la dirección que no sale de la máquina). Cada `sf_proxy` vale solo para **una sesión concreta de Claude**: lo que le llega va a esa sesión y muere con ella. No recoge solo respuestas de informes: **atiende cualquier petición de una página que haya generado la SF**, para poder montar interfaces externas con él. Lo que lo protege es doble: la página la ha generado Claude y la sirve el propio servidor, **cada vez que se abre una página interactiva lleva un token nuevo**, y **cada petición va numerada**: el servidor rechaza un número repetido o anterior, así que ninguna petición vale dos veces. Sin token válido, no atiende. El propietario lo usará de momento solo en su ordenador y no pidió limitar las peticiones a tipos declarados.
 
 **La respuesta de un informe es el primer uso.** En las fichas de preguntas se elige y se pulsa «Enviar»; la página manda una petición con las elecciones, y el mod la pone en el chat como un mensaje del propietario, con el título del informe y cada pregunta con su elección y su matiz. El principal las registra en el informe y en las decisiones, como hace hoy con las que se escriben a mano. Cualquier otra interfaz futura usa el mismo camino: su petición llega al chat, o a quien la atienda.
 
@@ -25,13 +25,13 @@ De las cinco preguntas del informe anterior, la primera ya está decidida por 41
 [Ver las cinco preguntas abiertas](#por-decidir){: .salto}
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 470" width="100%" role="img" aria-label="El recorrido de una petición: la página generada por la SF, servida desde 127.0.0.1 con su token, manda una petición al servidor local; el servidor, hijo del mod, comprueba el token y se la pasa al mod; el mod la pone en el chat como mensaje del propietario o la entrega a quien la atiende; el principal actúa, por ejemplo registra las respuestas en el informe y en las decisiones" style="font-family:var(--fuente-texto);display:block">
+<svg viewBox="0 0 560 470" width="100%" role="img" aria-label="El recorrido de una petición: la página generada por la SF, servida desde 127.0.0.1 con su token, manda una petición numerada a sf_proxy; sf_proxy, hijo del mod y de una sola sesión, comprueba el token y el número y se la pasa al mod; el mod la pone en el chat como mensaje del propietario o la entrega a quien la atiende; el principal actúa, por ejemplo registra las respuestas en el informe y en las decisiones" style="font-family:var(--fuente-texto);display:block">
 <rect x="10" y="10" width="440" height="70" rx="10" fill="none" style="stroke:var(--primario-linea)" stroke-width="1.5"/>
 <text x="26" y="40" font-size="18" font-weight="700" style="fill:var(--oscuro)">La página generada por la SF</text>
-<text x="26" y="64" font-size="15" style="fill:var(--texto-suave)">lleva su token; manda una petición</text>
+<text x="26" y="64" font-size="15" style="fill:var(--texto-suave)">token por apertura; petición numerada</text>
 <rect x="10" y="105" width="440" height="70" rx="10" fill="none" style="stroke:var(--primario-linea)" stroke-width="1.5"/>
-<text x="26" y="135" font-size="18" font-weight="700" style="fill:var(--oscuro)">El servidor local, en 127.0.0.1</text>
-<text x="26" y="159" font-size="15" style="fill:var(--texto-suave)">hijo del mod; sin token válido, no atiende</text>
+<text x="26" y="135" font-size="18" font-weight="700" style="fill:var(--oscuro)">sf_proxy, en 127.0.0.1</text>
+<text x="26" y="159" font-size="15" style="fill:var(--texto-suave)">de una sesión; token y número, o no atiende</text>
 <rect x="10" y="200" width="440" height="70" rx="10" fill="none" style="stroke:var(--primario)" stroke-width="2.5"/>
 <text x="26" y="230" font-size="18" font-weight="700" style="fill:var(--oscuro)">El mod de la SF</text>
 <text x="26" y="254" font-size="15" style="fill:var(--texto-suave)">lee la petición y la encamina</text>
@@ -87,11 +87,12 @@ El motor conoce los mensajes que llegan por un **canal** de un servidor MCP (ori
 
 ### El servidor genérico y la página que lo usa {#diseno-servidor}
 
-- **Quién lo levanta.** El mod, solo en la sesión que tiene la SF activa en el proyecto (decisión «Una sola sesión con la SF por proyecto», 193). Lanza `tools/servidor_local.py` del plugin con `$.process.spawn` y el Python detectado, y le pasa por la entrada estándar, al arrancar, la carpeta del proyecto, el puerto preferido y el secreto de la sesión. Con `/sf_forzar_inactiva` o al cerrar la sesión, el mod lo para; con `/reload-plugins` muere el hijo y el siguiente arranque lo levanta de nuevo. Cuándo se enciende es la pregunta [Cuándo está encendido el servidor (2)](#p2).
+- **Quién lo levanta, y para quién.** El mod, solo en la sesión que tiene la SF activa en el proyecto (decisión «Una sola sesión con la SF por proyecto», 193). Cada `sf_proxy` es de **una sesión concreta**: lo que le llega va a esa sesión, nunca a otra, y muere con ella (no sobrevive a `/clear` de la sesión ni a su cierre). Lanza `tools/sf_proxy.py` del plugin con `$.process.spawn` y el Python detectado, y le pasa por la entrada estándar, al arrancar, la carpeta del proyecto, el puerto preferido y el secreto de la sesión. Con `/sf_forzar_inactiva` o al cerrar la sesión, el mod lo para; con `/reload-plugins` muere el hijo y el siguiente arranque lo levanta de nuevo. Cuándo se enciende es la pregunta [Cuándo está encendido el servidor (2)](#p2).
 - **El puerto.** La primera vez lo elige el sistema y el mod lo guarda por proyecto en `$.store`; las siguientes veces se pide el mismo y, si está ocupado, otro. El hijo escribe el puerto en su primera línea.
 - **La página es de la SF.** Una página interactiva la genera Claude con el generador de documentos (o con una skill que lo haga) y solo se abre por la SF: Abrir en el panel o la orden de cada vuelta de un documento (decisiones «El botón Abrir de una tarea abre su documento», 396, y «Cada vuelta de un documento la lleva a develop una sola orden», 393). Al abrirla, la orden pide al servidor que la **registre**, y el servidor solo sirve páginas registradas: una web cualquiera, o un archivo que no abrió la SF, no es una página suya.
 - **El token, nuevo en cada apertura.** Al registrar la página, el servidor genera un token aleatorio (nuevo cada vez, no derivado del anterior) y abre `http://127.0.0.1:<puerto>/<ruta>?t=<token>`. Al servirla, pone el token dentro de la página (`window.SF`). El HTML del repositorio no cambia ni lleva ningún token. Abrir de nuevo la página da otro token y deja de valer el anterior de esa página; con una sesión nueva, valen solo los nuevos.
-- **Cualquier petición.** El servidor atiende cualquier petición de una página con token válido (ruta, método y cuerpo libres, hasta el tamaño máximo). No hay lista de tipos declarados: así se pueden montar interfaces nuevas sin tocar el servidor. Lo que la petición **hace** lo decide quien la atiende (ver más abajo).
+- **Cada petición, numerada.** La página lleva un contador y manda un número creciente en cada petición; `sf_proxy` guarda el último aceptado por página y rechaza un número repetido o anterior. Así una petición copiada o repetida no vale dos veces. Se descartó renovar el token en cada llamada: en local aporta poco (quien roba el token ya lee la página) y es frágil, porque la página consulta cada pocos segundos y con dos pestañas o una respuesta perdida quedaría bloqueada.
+- **Cualquier petición.** `sf_proxy` atiende cualquier petición de una página con token válido y número nuevo (ruta, método y cuerpo libres, hasta el tamaño máximo). No hay lista de tipos declarados: así se pueden montar interfaces nuevas sin tocar el servidor. Lo que la petición **hace** lo decide quien la atiende (ver más abajo).
 - **Abierta desde el disco**, con doble clic o desde otra carpeta, la página no tiene puerto ni token: no es una página abierta por la SF. Las fichas de preguntas se pueden elegir igual y su botón es «Copiar las respuestas»; la página dice cómo abrirla conectada: con Abrir, desde el panel.
 
 ### La seguridad, ajustada a esto {#diseno-seguridad}
@@ -104,7 +105,9 @@ La decisión (416) fija la protección: página generada por la SF y token nuevo
 
 - Escucha solo en `127.0.0.1`, nunca en todas las interfaces: nada de fuera de la máquina llega al puerto.
 - Solo sirve páginas registradas por la SF al abrirlas; sin token válido, no atiende ninguna petición.
-- El token es aleatorio, nuevo en cada apertura y solo vive mientras dura la sesión; no se guarda en git.
+- El token es aleatorio, nuevo en cada apertura (invalida el anterior de esa página) y solo vive mientras dura la sesión; no se guarda en git.
+- Cada petición va numerada y se rechaza un número repetido o anterior.
+- Cada `sf_proxy` es de una sola sesión: lo que le llega va a ella y muere con ella.
 - No hay lista de tipos de petición: el servidor las atiende todas.
 
 |||
@@ -157,6 +160,12 @@ Si la sesión no está abierta, la petición falla. La página deja las elegidas
 
 ::: tarjetas 2 plegables
 
+### Renovar el token en cada llamada {color=aviso icono=aviso}
+
+**Pros:** cada token valdría una sola vez.
+
+**Contras:** descartada por el propietario (416). En local aporta poco, porque quien roba el token ya lee la página, y es frágil: la página consulta cada pocos segundos y con dos pestañas o una respuesta perdida quedaría bloqueada. La numeración de las peticiones da lo mismo sin ese riesgo.
+
 ### Un servidor solo para las respuestas de informe {color=aviso icono=rama}
 
 **Pros:** superficie mínima; solo atiende una ruta y un formato conocidos.
@@ -205,7 +214,7 @@ Si la sesión no está abierta, la petición falla. La página deja las elegidas
 
 | Nº | Decisión | Qué fija aquí |
 | --- | --- | --- |
-| 416 | El servidor local del mod escucha cualquier petición de una página generada por la SF, con un token nuevo cada vez que se abre | El servidor es genérico, en `127.0.0.1`, con la página servida por él y un token nuevo en cada apertura. Resuelve [Cómo encuentra la página la sesión de Claude (1)](#p1) y marca el límite de la seguridad. |
+| 416 | El servidor local sf_proxy escucha cualquier petición de una página generada por la SF, con un token por apertura y las peticiones numeradas | `sf_proxy` es genérico, en `127.0.0.1`, de una sola sesión, con la página servida por él, un token nuevo en cada apertura y cada petición numerada. Resuelve [Cómo encuentra la página la sesión de Claude (1)](#p1) y marca el límite de la seguridad. |
 
 ## Por decidir | Lo que tiene que elegir el propietario | Por decidir {#por-decidir}
 
@@ -228,7 +237,7 @@ Recomendación
 
 ### Cuándo está encendido el servidor (2) {recomendada=A} {: #p2}
 
-El servidor solo hace falta mientras hay una página interactiva abierta. Encendido de más es un puerto abierto en tu ordenador sin usar, aunque solo se llegue a él desde la propia máquina.
+`sf_proxy` solo hace falta mientras hay una página interactiva abierta. Encendido de más es un puerto abierto en tu ordenador sin usar, aunque solo se llegue a él desde la propia máquina.
 
 Opción A
 :   Se enciende al abrir la primera página interactiva por la SF y sigue hasta cerrar la sesión, o hasta `/sf_forzar_inactiva`.
@@ -295,7 +304,7 @@ Recomendación
 :   **A.** Es la única que no depende de un permiso del navegador y que permite poner un token nuevo en la página al servirla.
 
 Decisión
-:   **A, y genérico:** el servidor escucha cualquier petición de una página generada por la SF, con un token nuevo en cada apertura (decisión 416).
+:   **A, y genérico:** el servidor escucha cualquier petición de una página generada por la SF, con un token por apertura y las peticiones numeradas (decisión 416).
 
 :::
 
@@ -305,8 +314,8 @@ Con el servidor genérico de la decisión 416 y la respuesta de informe como pri
 
 | Tarea | Tipo | Qué hace |
 | --- | --- | --- |
-| Servir las páginas de la SF y atender sus peticiones desde un servidor local del mod | implementar | `tools/servidor_local.py` y el mod: levantarlo con el puerto guardado y el secreto de la sesión; registrar cada página al abrirla y darle un token nuevo; servirla con el token dentro; las comprobaciones de seguridad; el encaminado de cada petición al chat con `encargarAClaude` y los acuses. Primero, probar en Chrome y Edge que `$.http.fetch` llega a `127.0.0.1`. |
-| Contestar las preguntas en la página: elegir, matizar, Enviar y el estado de cada ficha | implementar | El generador común y `respuestas.js` del kit: las fichas que se eligen, la barra de Enviar o Copiar, el estado de cada ficha y lo guardado en el navegador; y el texto de `sf:crear_documentos` y `sf:informe_deliberativa`. Depende de la anterior. |
+| Servir las páginas de la SF y atender sus peticiones con sf_proxy, el servidor local del mod | implementar | `tools/sf_proxy.py` y el mod: levantarlo para una sesión concreta, con el puerto guardado y el secreto de la sesión, y pararlo con ella; registrar cada página al abrirla y darle un token nuevo; servirla con el token dentro; rechazar un número de petición repetido o anterior; las demás comprobaciones de seguridad; el encaminado de cada petición al chat con `encargarAClaude` y los acuses. Primero, probar en Chrome y Edge que `$.http.fetch` llega a `127.0.0.1`. |
+| Contestar las preguntas en la página: elegir, matizar, Enviar y el estado de cada ficha | implementar | El generador común y `respuestas.js` del kit: la numeración de cada petición, las fichas que se eligen, la barra de Enviar o Copiar, el estado de cada ficha y lo guardado en el navegador; y el texto de `sf:crear_documentos` y `sf:informe_deliberativa`. Depende de la anterior. |
 | Abrir las páginas interactivas por el servidor, con su token nuevo | paso | En la tarea del botón Abrir (decisión 396) y en la de la orden de cada vuelta (decisión 393): registrar la página, abrir la dirección con su token y, si el servidor no está, el archivo. |
 | Qué hace el principal con un mensaje de respuestas | paso | En la primera tarea: la regla en `sf:orquestacion` (texto en el anexo). |
 | Actualizar «Cómo funciona la Software Factory» y Actualizar «Cómo funciona el panel» | documentar | Al cerrarse la primera tarea, con el texto del anexo. |
@@ -315,11 +324,11 @@ Con el servidor genérico de la decisión 416 y la respuesta de informe como pri
 
 **«Cómo funciona la Software Factory»**, al final de «El mod de estado»:
 
-> El mod también levanta en el propio ordenador un servidor local (`127.0.0.1`, que no sale de la máquina) que sirve las páginas interactivas que genera la SF y atiende sus peticiones. Cada vez que se abre una página interactiva lleva un token nuevo, y sin él el servidor no atiende. Lo primero que hace con él es recoger las respuestas a las preguntas de los documentos: se elige y se pulsa «Enviar», y llegan al chat como un mensaje del propietario. Sin la sesión abierta, las respuestas se quedan en la página para enviarlas o copiarlas después.
+> El mod también levanta en el propio ordenador `sf_proxy`, un servidor local (`127.0.0.1`, que no sale de la máquina) para una sesión concreta de Claude, que muere con ella, y que sirve las páginas interactivas que genera la SF y atiende sus peticiones. Cada vez que se abre una página interactiva lleva un token nuevo, cada petición va numerada y no vale una repetida, y sin token válido el servidor no atiende. Lo primero que hace con él es recoger las respuestas a las preguntas de los documentos: se elige y se pulsa «Enviar», y llegan al chat como un mensaje del propietario. Sin la sesión abierta, las respuestas se quedan en la página para enviarlas o copiarlas después.
 
 **«Cómo funciona el panel»**, en «Actuar desde el panel», un apartado nuevo «Las respuestas de los documentos»:
 
-> Abrir y la orden de cada vuelta abren el documento por el servidor local del mod si está encendido (`http://127.0.0.1:<puerto>/…`), con un token nuevo en cada apertura. En la página, cada pregunta abierta se contesta eligiendo una opción y, si hace falta, un matiz. «Enviar a Claude» las manda, y cada ficha dice si está elegida, enviada, en el chat o guardada en la página. El mod pone en el chat un mensaje tuyo con el título del documento y cada pregunta con su elección. Si Claude está trabajando, el mensaje espera a que acabe; tras un Esc, se queda escrito en el prompt para enviarlo con Intro. Abierto desde el disco, el documento solo permite copiar las respuestas.
+> Abrir y la orden de cada vuelta abren el documento por `sf_proxy`, el servidor local del mod, si está encendido (`http://127.0.0.1:<puerto>/…`), con un token nuevo en cada apertura. En la página, cada pregunta abierta se contesta eligiendo una opción y, si hace falta, un matiz. «Enviar a Claude» las manda, y cada ficha dice si está elegida, enviada, en el chat o guardada en la página. El mod pone en el chat un mensaje tuyo con el título del documento y cada pregunta con su elección. Si Claude está trabajando, el mensaje espera a que acabe; tras un Esc, se queda escrito en el prompt para enviarlo con Intro. Abierto desde el disco, el documento solo permite copiar las respuestas.
 
 **`sf:orquestacion`**, en lo que hace el principal con cada mensaje del propietario:
 
