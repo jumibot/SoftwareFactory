@@ -5,33 +5,33 @@ pie: SF · PROBAR | CON LA ORDEN
 foco: resumen
 nodos:
   diff: Ver qué cambió | solo lo de la rama
-  elegir: Elegir qué pruebas lanzar | según el proyecto
-  marca: ¿Ya pasó igual? | si sí, no se repite | dec
-  lanzar: Lanzar a la vez | todas las pruebas
+  elegir: Elegir qué tests lanzar | según el proyecto
+  marca: ¿Ya pasó igual? | si sí, caché | dec
+  lanzar: Lanzar a la vez | todos los tests
   resumen: Contar lo que pasó | 4 o 5 líneas
-  registro: Guardar el texto completo | sin leerlo | externo
+  registro: Guardar la salida | en un log | externo
 flechas:
   inicio > diff
   diff > elegir: ARCHIVOS
-  elegir > marca: QUÉ LANZAR
+  elegir > marca: QUÉ TESTS
   marca > lanzar: CAMBIÓ
   marca > resumen: IGUAL | verde
   lanzar > resumen: RESULTADOS
-  lanzar > registro: TEXTO ENTERO | discontinua
+  lanzar > registro: SALIDA ENTERA | discontinua
 fichas:
   diff: Lo que cambió en la rama de la tarea frente a develop, más lo que aún no tiene commit.
     - sin rama (una deliberativa): los archivos que se le nombren
   elegir: Cada regla dice qué archivos mira y qué orden lanza.
-    - tools/cola.py: las pruebas de la cola
+    - tools/cola.py: los tests de la cola
     - un .ts o .tsx del mod: claude plugin test
     - un .md con su .html: generarlo y comprobar_documento
-    - un archivo sin regla: todas las pruebas
-  marca: Una marca hecha con los archivos de los que depende cada comprobación.
+    - un archivo sin regla: todos los tests
+  marca: Un hash de los archivos de los que depende cada comprobación.
     - igual que la última vez que pasó: no se repite
-  lanzar: Todo a la vez, cada cosa por su lado.
-    - las pruebas de la cola, en diez partes: de 148 s a 28 s
+  lanzar: Todo a la vez, en procesos aparte.
+    - los tests de la cola, en diez shards: de 148 s a 28 s
     - los navegadores, pocos a la vez
   resumen: Lo que el subagente lee: una línea por comprobación.
-    - lo que falla: el nombre de la prueba y su error
+    - lo que falla: el nombre del test y su error
     - la línea «Comprobado: …» lista para los pasos
-  registro: Todo lo que escribió cada orden, en un archivo, para mirar un fallo.
+  registro: La salida entera de cada orden, para depurar un fallo.

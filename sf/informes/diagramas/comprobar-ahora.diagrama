@@ -1,14 +1,14 @@
 tipo: proceso
-titulo: Cómo comprueba hoy un subagente
-descripcion: Una orden tras otra; repite lo ya pasado y lee textos enteros.
+titulo: Cómo se testea hoy
+descripcion: Una orden tras otra; repite lo ya pasado y lee salidas enteras.
 pie: SF · PROBAR | HOY
 foco: pruebas
 nodos:
   vuelta: Acabar la vuelta | cambió archivos
-  pruebas: Lanzar a mano | una ronda por prueba
+  pruebas: Lanzar a mano | una ronda por test
   repetir: ¿Falló o cambió? | vuelve a lanzar | dec
-  espera: Esperar a las lentas | 6 min, corren aparte
-  leer: Leer lo que escriben | hasta 536 líneas
+  espera: Esperar a las lentas | 6 min en segundo plano
+  leer: Leer la salida | hasta 536 líneas
   captura: Mirar capturas | 8 imágenes | externo
 flechas:
   inicio > vuelta
@@ -16,19 +16,19 @@ flechas:
   pruebas > repetir: RESULTADO
   repetir > pruebas: REPITE | rojo, vuelta
   pruebas > espera: LENTA
-  pruebas > leer: TEXTO ENTERO
+  pruebas > leer: SALIDA ENTERA
   leer > captura: SI HAY DUDA | discontinua
 fichas:
-  vuelta: El subagente termina un cambio y quiere comprobarlo.
-  pruebas: Una orden por comprobación, cada una en su paso; en cada paso relee todo lo que lleva, unos 137.000 tokens.
-    - la mediana son 6 órdenes de prueba por subagente; el 10 % que más, 22 o más
+  vuelta: El subagente termina un cambio y quiere testearlo.
+  pruebas: Una orden por comprobación, cada una en su turno; en cada turno relee todo lo que lleva, unos 137.000 tokens.
+    - la mediana son 6 llamadas de test por subagente; el 10 % que más, 22 o más
     - cada una la escribe a mano, a su manera
   repetir: Tras un fallo o un cambio, lanza otra vez lo que ya había pasado.
     - comprobar un documento, 3 o 4 veces; generarlo, 4 (25 en el 10 % que más)
-  espera: Las pruebas de Python seguidas tardan 6 minutos y no caben en el plazo de una orden.
-    - se dejan corriendo aparte y el subagente las vigila con más pasos
+  espera: La suite de Python seguida tarda 6 minutos y no cabe en el plazo de una orden.
+    - pasa a segundo plano y el subagente la vigila con más turnos
     - 188 veces en el mes
-  leer: Lo que escribe cada orden entra entero en lo que el subagente lee, salvo lo que recorta a mano.
+  leer: La salida de cada orden entra entera en lo que el subagente lee, salvo lo que recorta a mano.
     - claude plugin test, 536 líneas sin recortar
     - claude plugin validate, 83 líneas, casi todas informativas
   captura: Un script distinto cada vez y una imagen que mirar, unos 1.500 tokens que se quedan.
