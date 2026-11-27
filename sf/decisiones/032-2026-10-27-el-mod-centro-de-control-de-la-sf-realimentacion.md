@@ -1,5 +1,7 @@
 # El mod, centro de control de la SF: realimentación
 
+Estado: deprecada el 2026-11-27 por «El mod es el centro de control de la SF: el método, la cola, un proyecto por sesión y las propuestas por revisar» (406); lo demás, por «Ningún proyecto escribe en la SF, y lo que es de la SF se dice en una línea» (401).
+
 - **Origen:** SoftwareFactory, 2026-10-27. El propietario: «el mod podria controla la realimentacion de sf?» y, sobre la propuesta: «sí, aprueba e implementa la realimentación en el mod. El mod va tomando responsabilidades como centro de control de la sf».
 - **Contexto:** las propuestas se acumulan en `docs/propuestas.md` sin una vista de cuántas esperan revisión; las mejoras registradas desde otros proyectos no se notaban.
 - **Decisión:** el mod de estado es el centro de control de la SF: muestra el estado del método, la cola de peticiones, controla «Un proyecto por sesión» y sigue la realimentación. En la SF, la franja y `/sf` cuentan las propuestas por revisar (su «Estado» dice «pendiente de aprobación» o «de decisión») y las que no tienen la línea `- **Kanban:**`; `/sf` enumera las que esperan revisión. Desde otro proyecto, cuando se registra una mejora en `docs/propuestas.md` de la SF, el mod lo avisa y la cuenta en la sesión. Con JKanban incorporado, las cuentas saldrán de las tareas del proyecto SoftwareFactory. Qué es una mejora sigue siendo juicio de Claude y del propietario.
