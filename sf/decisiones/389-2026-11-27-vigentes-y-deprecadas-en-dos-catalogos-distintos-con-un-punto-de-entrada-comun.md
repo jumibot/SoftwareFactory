@@ -6,4 +6,4 @@ Precisa la 359 («Las decisiones, en dos catálogos: vigentes y deprecadas»), q
 
 Porqué: el propietario de la Software Factory: «Dos catálogos distintos accesibles desde un punto común si se quiere» (tarea 439).
 
-Aplicada en: pendiente, en la tarea 439: `indice_decisiones.py`, `cola.py decision` y el enlace del panel.
+Aplicada en: tarea 439: `indice_decisiones.py` (vigentes.md, deprecadas.md y la entrada del README, con sus .html) y `cola.py decision`. Pendiente: el enlace del panel a los catálogos.
