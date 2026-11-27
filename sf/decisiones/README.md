@@ -414,7 +414,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | 22 | 2026-10-27 | [Llevar cada decisión a los documentos en cuanto se toma](022-2026-10-27-llevar-cada-decision-a-los-documentos-en-cuanto-se-toma.md) |
 | 21 | 2026-10-27 | [Un solo plugin, `sf`, con las skills y activado para el usuario](021-2026-10-27-un-solo-plugin-sf-con-las-skills-y-activado-para-el-usuario.md) |
 | 20 | 2026-10-27 | [La SF es fuente, no instalación operativa](020-2026-10-27-la-sf-es-fuente-no-instalacion-operativa.md) |
-| 19 | 2026-10-27 | [Estado del proyecto en `docs/sf.json` y mod de estado](019-2026-10-27-estado-del-proyecto-en-docs-sf-json-y-mod-de-estado.md) (sustituida en parte) |
+| 19 | 2026-10-27 | [Estado del proyecto en `docs/sf.json` y mod de estado](019-2026-10-27-estado-del-proyecto-en-docs-sf-json-y-mod-de-estado.md) |
 | 18 | 2026-10-27 | [Los proyectos anteriores a la SF se incorporan sin rehacerlos](018-2026-10-27-los-proyectos-anteriores-a-la-sf-se-incorporan-sin-rehacerlos.md) |
 | 17 | 2026-10-26 | [Kit de documentos HTML en la SF](017-2026-10-26-kit-de-documentos-html-en-la-sf.md) |
 | 16 | 2026-10-26 | [Documento fundacional en todos los proyectos](016-2026-10-26-documento-fundacional-en-todos-los-proyectos.md) |
