@@ -351,7 +351,12 @@ def infografia(args: str, hijos: list) -> str:
 
 def a_html(md: str) -> str:
     md = "\n".join(emitir(arbol_bloques(md.splitlines())))
-    return cifras_de_listas(marcar_preguntas(markdown.Markdown(extensions=EXTENSIONES).convert(md)))
+    return cifras_en_fila(cifras_de_listas(marcar_preguntas(markdown.Markdown(extensions=EXTENSIONES).convert(md))))
+
+
+def cifras_en_fila(html: str) -> str:
+    """Dos o más cifras destacadas seguidas (<p class="metrica">) van en un <div class="metricas"> que las reparte en fila."""
+    return re.sub(r'(?:<p class="metrica">(?:(?!</p>).)*</p>\s*){2,}', lambda m: f'<div class="metricas">{m.group(0).strip()}</div>'+'\n', html, flags=re.S)
 
 
 def cifras_de_listas(html: str) -> str:

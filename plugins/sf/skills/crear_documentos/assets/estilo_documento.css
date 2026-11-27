@@ -190,6 +190,8 @@ button:disabled { opacity: .45; cursor: default; }
 .metrica { font-size: .875rem !important; color: var(--texto-suave); }
 .metrica strong { display: block; font-family: var(--fuente-titulos); font-size: 2rem; line-height: 1.15; color: var(--primario-texto, var(--primario));
                   font-variant-numeric: tabular-nums; }
+.metricas { display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: .8rem 1.4rem; margin: .6rem 0 1rem; }
+.metricas > .metrica { margin: 0; min-width: 0; }
 .columnas { display: grid; gap: 1rem; margin: .6rem 0 .8rem; }
 .columnas.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .columna { min-width: 0; }

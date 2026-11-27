@@ -97,7 +97,7 @@ Primer párrafo: la entradilla, más grande.
 - `{: .lectura}` párrafo con un filete encima.
 - `{: .formula}` fórmula en bloque.
 - `{: .etiqueta-tarjeta}` etiqueta pequeña que sube encima del título de su tarjeta.
-- `**9.343 €** 43 unidades` y `{: .metrica}` debajo: cifra grande con su pie.
+- `**9.343 €** 43 unidades` y `{: .metrica}` debajo: cifra grande con su pie; varias seguidas salen en fila, repartidas en el ancho (en el móvil, de a dos o una por fila; al imprimir, en fila).
 
 ### Recuadros
 

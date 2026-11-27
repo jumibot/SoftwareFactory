@@ -97,3 +97,16 @@ class EnElNavegador(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class CifrasEnFila(unittest.TestCase):
+    def test_las_cifras_seguidas_van_en_un_contenedor_y_una_sola_no(self):
+        dos = gen.a_html('**29 %** uno\n{: .metrica}\n\n**41 %** dos\n{: .metrica}\n\n**7** tres\n{: .metrica}\n')
+        self.assertEqual(dos.count('<div class="metricas">'), 1)
+        self.assertEqual(dos.count('<p class="metrica">'), 3)
+        sola = gen.a_html('**29 %** uno\n{: .metrica}\n\nTexto.\n\n**41 %** dos\n{: .metrica}\n')
+        self.assertNotIn('metricas', sola)
+
+    def test_el_css_las_reparte_en_el_ancho(self):
+        css = (SCRIPTS.parent / 'assets' / 'estilo_documento.css').read_text(encoding='utf-8')
+        self.assertIn('.metricas { display: grid; grid-template-columns: repeat(auto-fit', css)
