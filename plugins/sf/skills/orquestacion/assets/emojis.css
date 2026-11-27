@@ -1,0 +1,16 @@
+/* Catálogo de emojis: rejilla y barra de búsqueda. Usa las variables del estilo del documento. */
+.emojis{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:2px;margin:6px 0 10px}
+@media (min-width:1280px){.emojis{grid-template-columns:repeat(50,minmax(0,1fr));gap:0}}
+.emojis button{font:inherit;font-size:19px;color:inherit;overflow:hidden;line-height:1.5;min-height:24px;padding:0;border:0;border-radius:4px;background:none;cursor:pointer;text-align:center}
+.emojis button:hover,.emojis button:focus-visible{background:var(--acento-fondo,#ffe680);outline:2px solid var(--primario-linea,var(--primario,#888))}
+body.sin-tonos .emojis .tono{display:none}
+.emojis .fuera,.fuera-emojis{display:none!important}
+#barra-emojis{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;
+  padding:8px 16px;background:var(--superficie,var(--pagina,#fff));border-top:1px solid var(--linea,#ccc);color:var(--texto,inherit);font-size:15px}
+#barra-emojis input[type=search]{font:inherit;min-height:32px;padding:2px 8px;min-width:14em;flex:1 1 14em;max-width:26em;
+  color:inherit;background:var(--fondo,transparent);border:1px solid var(--borde-campo,var(--linea,#888));border-radius:4px}
+#barra-emojis label{display:flex;gap:6px;align-items:center;min-height:24px}
+#barra-emojis .estado{color:var(--texto-suave,inherit)}
+body{padding-bottom:64px}
+@media (max-width:640px){body{padding-bottom:128px}}
+@media print{#barra-emojis{display:none}}

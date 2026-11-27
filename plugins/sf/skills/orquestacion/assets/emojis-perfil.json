@@ -1,0 +1,8 @@
+{
+  "tipo": "Catálogo de emojis",
+  "descripcion": "Catálogo de emojis de Unicode, por grupos y subgrupos plegables, con buscador por nombre, ocultar tonos de piel y copiar al pulsar.",
+  "recursos": [],
+  "css": ["emojis.css"],
+  "js": ["emojis.js"],
+  "subsecciones": "plegables"
+}
