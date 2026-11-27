@@ -4,12 +4,12 @@ descripcion: El subagente la lanza una vez; ella elige, salta lo ya pasado, lanz
 pie: SF · PROBAR | CON LA ORDEN
 foco: resumen
 nodos:
-  diff: Ver qué cambió | frente a develop
-  elegir: Elegir qué pruebas lanzar | según las reglas del proyecto
-  marca: ¿Ya pasó igual? | compara con la marca | dec
-  lanzar: Lanzar todo a la vez | pruebas en partes
-  resumen: Contar lo que pasó | pocas líneas, solo lo que falla
-  registro: Guardar el texto completo | en un archivo | externo
+  diff: Ver qué cambió | solo lo de la rama
+  elegir: Elegir qué pruebas lanzar | según el proyecto
+  marca: ¿Ya pasó igual? | si sí, no se repite | dec
+  lanzar: Lanzar a la vez | todas las pruebas
+  resumen: Contar lo que pasó | 4 o 5 líneas
+  registro: Guardar el texto completo | sin leerlo | externo
 flechas:
   inicio > diff
   diff > elegir: ARCHIVOS

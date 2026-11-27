@@ -5,7 +5,7 @@ pie: SF · PROBAR | HOY
 foco: pruebas
 nodos:
   vuelta: Acabar la vuelta | cambió archivos
-  pruebas: Lanzar pruebas a mano | 6 órdenes, 6 pasos
+  pruebas: Lanzar pruebas a mano | 6 órdenes
   repetir: ¿Falló o cambió? | vuelve a lanzar | dec
   espera: Esperar a las lentas | 6 min, corren aparte
   leer: Leer lo que escriben | hasta 536 líneas
