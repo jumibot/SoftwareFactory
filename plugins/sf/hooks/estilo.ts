@@ -20,17 +20,10 @@ export const FONDO_ETIQUETA = '#3f3f46'
 // anterior era un amarillo oscuro y apagado, '#4a4226': para volver, basta con ponerlo aquí.
 export const FONDO_ORDEN = '#000000'
 
-// La letra del código de tarea, más apagada que el número, en su mismo tono (dimColor se quedaba corto).
 // Los números de tarea ocupan tres columnas, alineados a la derecha: «  4», « 41», «236» (petición del propietario,
 // 2026-10-31; antes, dos). El hueco delante va fuera del botón del número, para que nada lo recorte.
 export const ANCHO_NUMERO = 3
 export const hueco = (id: number | string) => Math.max(0, ANCHO_NUMERO - String(id).length)
-
-// Un color por letra, igual en las cuentas y en los códigos: verde solo para las C; las demás, sin color. La tarea
-// en curso, en dorado (tarea 383; antes, azul, decisión 334, y amarillo). El rojo, solo para las reabiertas, como fondo del
-// número; las H de sesiones anteriores, sin rojo (petición del propietario, 2026-10-31).
-export const colorLetra = (l: string) => (l === 'C' ? 'success' : undefined)
-export const colorLetraApagada = (l: string) => (l === 'C' ? LETRA.cerrada : LETRA.neutra)
 
 // La marca del subagente de una tarea, siempre verde: llena (●) si trabaja y vacía (○) si está parado, sea porque
 // terminó y espera instrucciones o porque se detuvo (petición del propietario, tarea 383; antes, roja si esperaba,
@@ -66,7 +59,7 @@ export const TEXTO_TAREA = '#717171'
 // distinga bien del gris oscuro de los hechos, LETRA.neutra (petición del propietario, 2026-11-01, tarea 256).
 export const TEXTO_PASO = '#a3a3a3'
 
-export const LETRA = { tarea: '#a88a14', cerrada: '#3a9355', reabierta: '#ab4040', neutra: '#4f4f4f' } as const
+export const LETRA = { neutra: '#4f4f4f' } as const
 
 // Las etiquetas de la cabecera, todas del mismo ancho salvo la de la rama (tarea 260): el de ACTUALIZAR con su
 // relleno de siempre, « ACTUALIZAR », 12 columnas (petición del propietario, 2026-11-01: «todos del tamaño de

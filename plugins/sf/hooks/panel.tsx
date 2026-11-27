@@ -6,8 +6,8 @@ import { CLAVE_PLEGADO, COLORES, FASES, FONDO_BLOQUE, PANEL, PLEGADAS_DE_INICIO,
 import { COLOR_MARCA, COLOR_MARCA_CLARO, DESPUES, RELLENO_MARCA, LEMA, LETRA_MARCA, NOMBRE, NOMBRE_ANCHO, ORDEN_EMPEZAR, PARA_EMPEZAR, bienvenida, sangriaOrden } from './bienvenida'
 import { ANCHO_LOGO, coloresLogo, logoSvg, logoTexto } from './logo'
 import { modoLogo } from './tema'
-import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, MARCA_SUBAGENTE_PARADO, COLOR_TURBO, COLOR_TAREA, colorTareaDe, COLOR_LISTA, COLOR_ESPERA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, colorLetra, colorLetraApagada, hueco, puntosDe } from './estilo'
-import { atrasada, commitsDe, creadaEn, cuentaPasos, esperaAbierta, texto, ultimoCierre } from './lectura'
+import { COLOR_ACTUALIZAR, COLOR_AVISO, COLOR_ORDEN_DESTRUCTIVA, COLOR_RELEASE, FONDO_AVISO, FONDO_AVISO_ALTERNO, FONDO_ORDEN, MARCA_SUBAGENTE, MARCA_SUBAGENTE_PARADO, COLOR_TURBO, COLOR_TAREA, colorTareaDe, COLOR_LISTA, COLOR_ESPERA, FONDO_ETIQUETA, LETRA, anchoComun, centrar, huecos, TEXTO_PASO, TEXTO_TAREA, hueco, puntosDe } from './estilo'
+import { atrasada, commitsDe, cuentaPasos, esperaAbierta, texto, ultimoCierre } from './lectura'
 import { AVISO_PANTALLA, anotarPantalla, sinPantallaCompleta } from './pantalla'
 import { ORDEN_CONTINUAR, borrarIncorporacion, terminada } from './contexto'
 import { COLOR_PRUEBA, cambiarPrueba, desdeCopia, enLaFuente } from './prueba'
@@ -444,33 +444,22 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
     }
 
     const plegadas = await read($, plegado)
-    // La letra es el estado de la tarea, la misma en todos los sitios (decisión del propietario, 2026-10-28):
-    // A (actual): en cola o en curso, entró en esta sesión; H (histórico): en cola o en curso, ya estaba al abrirla
-    // (una H no pasa a A); O: en observación; C: cerrada, ya fuera de la cola; D: descartada (decisión del
-    // propietario, 2026-10-29), también si ya ha salido de la cola; R: revertida en develop, solo en las salidas
-    // anteriores a la decisión 134 (ahora una revertida sale eliminada o vuelve a Pendientes). Salen del historial de cada tarea, que escribe cola.py (tarea 145): A si se creó (o nació de un
-    // /sf_split) después del inicio de la sesión; H si no, si no tiene historial o si está reabierta. Fuera de la cola, el
-    // estado con que salió, en .sf/historial.jsonl.
     const desde = await read($, inicioSesion)
     const enCola = new Map(est.peticiones.map(p => [p.id, p] as const))
     const fuera = new Map(est.salidas.map(t => [t.id, t] as const))
-    const letra = (id: number) => {
-      const p = enCola.get(id)
-      if (p === undefined) {
-        const e = fuera.get(id)?.estado
-        return e === 'descartada' ? 'D' : e === 'revertida' ? 'R' : 'C'
-      }
-      if (p.estado === 'descartada') return 'D'
-      if (p.estado === 'en-observacion') return 'O'
-      return !p.reabierta && (creadaEn(p.historial) ?? -Infinity) >= desde ? 'A' : 'H'
+    // Cerrada: ya fuera de la cola y sin haber salido descartada ni revertida (estas dos, solo las salidas anteriores
+    // a la decisión 134: ahora una revertida sale eliminada o vuelve a Pendientes). Su número va en verde.
+    const cerrada = (id: number) => {
+      if (enCola.has(id)) return false
+      const e = fuera.get(id)?.estado
+      return e !== 'descartada' && e !== 'revertida'
     }
-    // Sin letras tras los números (decisión del propietario, 2026-10-31): la letra solo da el color del número. El rojo,
-    // solo en las reabiertas, como fondo del número, en todos los apartados; las de sesiones anteriores (H), en gris
-    // (petición del propietario, 2026-10-31).
+    // El número, en verde si es de una tarea cerrada y, si no, con el color normal; el de la tarea en curso, en dorado. El
+    // rojo, solo en las reabiertas, como fondo del número, en todos los apartados.
     const reabierta = (id: number) => enCola.get(id)?.reabierta === true
     const fondoNumero = (id: number) => (reabierta(id) ? 'error' : undefined)
     const colorNumero = (id: number, enCurso = false) =>
-      enCurso ? colorEnCurso : reabierta(id) ? TEXTO_TAREA : (colorLetra(letra(id)) ?? TEXTO_TAREA)
+      enCurso ? colorEnCurso : reabierta(id) ? TEXTO_TAREA : cerrada(id) ? 'success' : TEXTO_TAREA
     // Las peticiones (pet:<sección>:<id>), los commits (hecho:<hash>) y las propuestas (prop:<título>) empiezan plegados.
     const abierta = (clave: string) =>
       !(
@@ -1301,10 +1290,13 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       if (e === null) continue
       porId.set(t.id, { id: t.id, texto: t.texto, commit: t.commit ?? commitsDe(t.historial)[0] ?? null, fecha: e.fecha ?? 0, tipo: t.tipo ?? null })
     }
-    // Las quitadas con «limpiar» no salen mientras sigan cerradas (C), descartadas (D) o revertidas (R, solo las de
-    // antes de la decisión 134) y sin otro cierre después; si vuelven a cerrarse, vuelven. Una revertida ahora no
-    // queda en Cerradas: eliminada, no entra; de vuelta en Pendientes, sale solo allí, como reabierta.
-    const limpiable = (id: number) => ['C', 'D', 'R'].includes(letra(id))
+    // Las quitadas con «limpiar» no salen mientras sigan cerradas, descartadas o revertidas (estas, solo las de antes de
+    // la decisión 134) y sin otro cierre después; si vuelven a cerrarse, vuelven. Una revertida ahora no queda en
+    // Cerradas: eliminada, no entra; de vuelta en Pendientes, sale solo allí, como reabierta.
+    const limpiable = (id: number) => {
+      const p = enCola.get(id)
+      return p === undefined || p.estado === 'descartada'
+    }
     const visible = (c: Cerrada) => !(limpiadas[String(c.id)] === c.fecha && limpiable(c.id))
     // Lo último arriba: la fecha más reciente entre su último cierre y el último cambio de su historial (decisión 129).
     const tocada = new Map([...est.salidas, ...est.peticiones].map(t => [t.id, Math.max(0, ...t.historial.map(e => e.fecha ?? 0))] as const))
@@ -1348,16 +1340,16 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
             [quitarProbadas && filaOrdenes([quitarProbadas]), ...cerradas.map(c => {
               const k = `hecho:${c.id}`
               const id = String(c.id)
-              // Sin led: el código de la tarea va en verde si está cerrada (T o C) y en rojo si se ha reabierto
-              // en observación para corregirla (A o H), con su mismo número (norma del propietario, 2026-10-28).
-              const L = letra(c.id)
-              // Desplegada, Revertir en su menú, en las cerradas (C) que han entrado en develop: con su
+              // Sin led: el código de la tarea va en verde si está cerrada y en rojo si se ha reabierto
+              // en observación para corregirla, con su mismo número (norma del propietario, 2026-10-28).
+              const esCerrada = cerrada(c.id)
+              // Desplegada, Revertir en su menú, en las cerradas que han entrado en develop: con su
               // commit «… (N)» en develop (decisión del propietario, 2026-10-29). El primer clic la parte en
               // «¿Revertir?» [eliminar] [a Pendientes]; el segundo, en uno de ellos, revierte (decisiones 134 y 168).
-              const revertir = L === 'C' && (est.mergeadas[id]?.length ?? 0) > 0
-              // A observación, en todas las cerradas (C), antes de Revertir: la cerrada por error vuelve a observación
+              const revertir = esCerrada && (est.mergeadas[id]?.length ?? 0) > 0
+              // A observación, en todas las cerradas, antes de Revertir: la cerrada por error vuelve a observación
               // con su commit de develop, con dos clics (296).
-              const reobservar = L === 'C'
+              const reobservar = esCerrada
               // Plegada, como arriba: el título entero, con sangría colgante; se despliega si tiene commit u órdenes.
               const hayMas = c.commit !== null || revertir || reobservar
               const codigo = (

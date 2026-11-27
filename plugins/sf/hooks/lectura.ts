@@ -128,11 +128,6 @@ export function leerEventos(v: unknown): Evento[] {
 // reapertura. Eliminar y fusionar la sacan sin cerrarla; limpiar quita una descartada que ya estaba en Cerradas.
 export const CIERRES = ['a-observacion', 'cerrada', 'descartada', 'revertida', 'reabierta']
 
-// Cuándo entró en la cola: creada o, por /sf_split, nacida; null sin historial (anterior a cola.py).
-export function creadaEn(h: Evento[]): number | null {
-  return h.find(e => e.evento === 'creada' || e.evento === 'nacida')?.fecha ?? null
-}
-
 // El último evento de cierre desde `desde` (ms), o null.
 export function ultimoCierre(h: Evento[], desde: number): Evento | null {
   for (let i = h.length - 1; i >= 0; i--) {
