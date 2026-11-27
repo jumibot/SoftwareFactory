@@ -180,7 +180,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | 256 | 2026-11-04 | [Las tareas de investigar no tienen rama](256-2026-11-04-las-tareas-de-investigar-no-tienen-rama.md) |
 | 255 | 2026-11-04 | [Logo «/SF»: barra estrecha y empinada en morado claro](255-2026-11-04-logo-sf-barra-estrecha-y-empinada-en-morado-claro.md) |
 | 254 | 2026-11-04 | [En la app, /sf disponible antes del primer mensaje y solo órdenes al escribir /sf](254-2026-11-04-en-la-app-sf-disponible-antes-del-primer-mensaje-y-solo-ordenes-al-escribir-sf.md) |
-| 253 | 2026-11-04 | [Botones del panel en la app de escritorio, con contorno de color](253-2026-11-04-botones-del-panel-en-la-app-de-escritorio-con-contorno-de-color.md) (sustituida) |
+| 253 | 2026-11-04 | [Botones del panel en la app de escritorio, con contorno de color](253-2026-11-04-botones-del-panel-en-la-app-de-escritorio-con-contorno-de-color.md) |
 | 252 | 2026-11-03 | [La SF se trabaja en el repositorio público, con revisión antes de publicar](252-2026-11-03-la-sf-se-trabaja-en-el-repositorio-publico-con-revision-antes-de-publicar.md) |
 | 251 | 2026-11-03 | [El título de una tarea dice el resultado buscado, sin ambigüedad](251-2026-11-03-el-titulo-de-una-tarea-dice-el-resultado-buscado-sin-ambiguedad.md) |
 | 250 | 2026-11-03 | [No interrumpir mientras se prueba o se está en otra tarea](250-2026-11-03-no-interrumpir-mientras-se-prueba-o-se-esta-en-otra-tarea.md) |
