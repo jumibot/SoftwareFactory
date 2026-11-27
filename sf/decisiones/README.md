@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 407 | 2026-11-27 | [La orden Activar rama pone una tarea en prueba con un clic, sin Claude y sin darla por buena](407-2026-11-27-la-orden-activar-rama-pone-una-tarea-en-prueba-con-un-clic-sin-claude-y-sin-darla-por-buena.md) |
 | 406 | 2026-11-27 | [El mod es el centro de control de la SF: el método, la cola, un proyecto por sesión y las propuestas por revisar](406-2026-11-27-el-mod-es-el-centro-de-control-de-la-sf-el-metodo-la-cola-un-proyecto-por-sesion-y-las-propuestas-por-revisar.md) |
 | 405 | 2026-11-27 | [Ejemplos, plantillas y propuestas, cada uno en su sitio](405-2026-11-27-ejemplos-plantillas-y-propuestas-cada-uno-en-su-sitio.md) |
 | 404 | 2026-11-27 | [Un mod de la SF dice si el proyecto está bajo la SF y en qué punto del método está](404-2026-11-27-un-mod-de-la-sf-dice-si-el-proyecto-esta-bajo-la-sf-y-en-que-punto-del-metodo-esta.md) |
