@@ -1,5 +1,7 @@
 # Flujo de tareas: respuestas a la revisión de la tabla de estados
 
+Estado: deprecada el 2026-11-27 por «La cola por dentro: historial, copias, bloqueo, quién y por dónde, reabrir y subagentes» (414); lo demás, por «El paso de prueba es «Activar rama para poder probar»» (172), «Los pasos de cierre, desde que la tarea entra en curso» (174), «Una tarea en curso con rama no vuelve a la cola» (170), «La marca del subagente, verde trabajando y roja en espera» (162), «El tipo de tarea decide cómo se maneja el repositorio» (219), «Los commits los lleva siempre Claude» (225) y «Revertir elimina la tarea o la deja pendiente» (134).
+
 - **Origen:** SoftwareFactory, 2026-10-29, revisión de la tabla de la tarea 92 (`flujo_tareas/references/estados.md`). El propietario: «ok a la propuesta en bloque, sí a las dos».
 - **Contexto:** la tabla dejó 23 huecos e incoherencias entre las reglas escritas y el código del panel.
 - **Decisión:**
