@@ -8,9 +8,9 @@ export function numeroTarea(id: number | string): string {
   return 'T' + [...String(id)].map(d => (/[0-9]/.test(d) ? `${[...CIRCULOS][Number(d)]} ` : d)).join('')
 }
 
-// La línea del foco, como la escribe Claude: «🅵🅾🅲🆄🆂 `título (T❸ ❾ ❷ )`» (sf:orquestacion, «Cómo escribir»).
+// La línea del foco, como la escribe Claude: «🅵🅾🅲🆄🆂 `TÍTULO (T❸ ❾ ❷ )`», con el título en mayúsculas (sf:orquestacion, «Cómo escribir»).
 export function lineaFoco(f: { id: number; texto: string }): string {
-  return `🅵🅾🅲🆄🆂 \`${f.texto} (${numeroTarea(f.id)})\``
+  return `🅵🅾🅲🆄🆂 \`${f.texto.toLocaleUpperCase('es')} (${numeroTarea(f.id)})\``
 }
 
 // El recordatorio, de una línea: solo con el foco guardado en la cola («cola.py foco N») y cuando los avisos del mod

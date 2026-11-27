@@ -6310,7 +6310,7 @@ test('Foco (436): con el foco guardado, los avisos de otras tareas llevan una l�
   await escribe(m, 'hola')
   expect(a.contextos.at(-1)).toEqual([
     LANZA([4], true),
-    '🅵🅾🅲🆄🆂 `Panel lateral (T❶ )` es el foco: lo que estos avisos traen de la 4, y lo que hagas por ellos, va al final como off-topic, sin menús de otras tareas.',
+    '🅵🅾🅲🆄🆂 `PANEL LATERAL (T❶ )` es el foco: lo que estos avisos traen de la 4, y lo que hagas por ellos, va al final como off-topic, sin menús de otras tareas.',
   ])
 })
 
@@ -6322,7 +6322,7 @@ test('Foco (436): con el foco en la tarea del aviso, sin recordatorio', async (.
 
 test('Foco (382): al empezar, tras /clear, al reanudar y tras compactar, SessionStart da la línea del foco guardado; sin foco o en un subagente, no', async (...m) => {
   await preparar(m, { extra: { [COLA]: JSON.stringify({ foco: 1, peticiones: INICIAL }) } })
-  const linea = 'Foco guardado en la cola: 🅵🅾🅲🆄🆂 `Panel lateral (T❶ )`. Es el foco hasta que el propietario lo cambie (cola.py foco).'
+  const linea = 'Foco guardado en la cola: 🅵🅾🅲🆄🆂 `PANEL LATERAL (T❶ )`. Es el foco hasta que el propietario lo cambie (cola.py foco).'
   for (const source of ['startup', 'clear', 'resume', 'compact'] as const)
     expect((await m[0].classic.SessionStart({ source })).additionalContext ?? []).toContain(linea)
   const sub = await m[0].classic.SessionStart({ source: 'startup', agent_id: 'sub', agent_type: 'general-purpose' } as never)
