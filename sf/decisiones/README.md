@@ -410,7 +410,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | 26 | 2026-10-27 | [Diagramas en SVG, nunca en ASCII](026-2026-10-27-diagramas-en-svg-nunca-en-ascii.md) |
 | 25 | 2026-10-27 | [Un mapa de la SF: «Cómo funciona»](025-2026-10-27-un-mapa-de-la-sf-como-funciona.md) |
 | 24 | 2026-10-27 | [La metodología viaja en el plugin `sf`](024-2026-10-27-la-metodologia-viaja-en-el-plugin-sf.md) |
-| 23 | 2026-10-27 | [Propuestas, decisiones, plantillas y ejemplos, cada uno en su sitio](023-2026-10-27-propuestas-decisiones-plantillas-y-ejemplos-cada-uno-en-su-sitio.md) (sustituida en parte) |
+| 23 | 2026-10-27 | [Propuestas, decisiones, plantillas y ejemplos, cada uno en su sitio](023-2026-10-27-propuestas-decisiones-plantillas-y-ejemplos-cada-uno-en-su-sitio.md) |
 | 22 | 2026-10-27 | [Llevar cada decisión a los documentos en cuanto se toma](022-2026-10-27-llevar-cada-decision-a-los-documentos-en-cuanto-se-toma.md) |
 | 21 | 2026-10-27 | [Un solo plugin, `sf`, con las skills y activado para el usuario](021-2026-10-27-un-solo-plugin-sf-con-las-skills-y-activado-para-el-usuario.md) |
 | 20 | 2026-10-27 | [La SF es fuente, no instalación operativa](020-2026-10-27-la-sf-es-fuente-no-instalacion-operativa.md) |
