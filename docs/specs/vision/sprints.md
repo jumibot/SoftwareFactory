@@ -6,7 +6,7 @@ herramientas: recomendadas
 
 **Estado:** 4 de noviembre de 2026, versión 0.25. Basado en las decisiones 260 a 262, 264 a 266, 269, 271 a 277 y en el informe «Sprints con objetivo» 1.13 (tarea 347).
 
-<div class="lector" data-titulo="El verano de Marc · prólogo" data-al-abrir="historia" data-marca="/SF" data-invitacion="Pulsa el logo de la Software Factory para vivir, con el verano de Marc, qué cambia cuando cada sprint tiene un objetivo" style="--lector-marca:#6a62b5;--lector-marca-claro:#7b74c2">
+<div class="lector" data-titulo="El verano de Marc · prólogo" data-al-abrir="historia" data-marca="/SF" data-invitacion="Pulsa el logo de la Software Factory para vivir, con el verano de Marc, qué cambia cuando cada sprint tiene un objetivo" style="--lector-marca:#25283a;--lector-marca-claro:#f5c400;--lector-marca-marco:#f5c400;--lector-marca-marco-claro:#f2f2f0">
 <div class="libro">
 <p class="libro-capitulo">Prólogo</p>
 <p class="libro-titulo">Tres días para el jueves</p>
@@ -14,7 +14,7 @@ herramientas: recomendadas
 <p>En la bandeja esperaba un correo de Laura, la farmacéutica: <em>«¿El jueves nos enseñas el gemelo? Y dime si la caja cabe en nuestras estanterías»</em>. El jueves. Laura querría ver simulado el verano de Marc entero: el autobús de las 13:15 con 35 °C en la calle y sesenta días en la nevera de casa. Sin que la caja fallara ni una vez: un vial que se calienta se tira, y de eso responde la farmacia. Para una startup de una persona, esa colaboración lo era todo. Si el jueves convencía, podría crecer hacia un piloto con pacientes. Si no, quizá no habría otra cita. Y la última campaña del gemelo, la simulación larga que recorre el verano minuto a minuto, se había parado a los 420 minutos. Siete horas de sesenta días. Sin avisar, como quien se cansa a mitad de cuesta.</p>
 <p class="libro-ornamento"></p>
 <p>Lo demás se había ido amontonando la semana anterior. Otro bug: en el gemelo, la humedad de dentro salía negativa al abrir la tapa, algo imposible. Una petición que Àlex se anotó el domingo por la noche, «que la app avise antes», sin decir antes de qué. Dos ideas sueltas: pesar los viales, llevar la caja en ambulancias. La recarga en la farmacia, a medias desde el jueves anterior: que la batería se cargara en cada visita a por viales, y no en casa. Y una oferta del fabricante de la Peltier, la pieza que enfría la caja con electricidad.</p>
-<p>Nada se había perdido: todo estaba anotado en la cola. A la derecha, bajo el «/SF» morado, el panel de la Software Factory lo decía con su calma de siempre: 4 en curso, 19 en cola, 9 en observación. En ningún sitio ponía qué tocaba ahora. <strong>No había sprint.</strong> Àlex miró el panel y el correo de Laura. Pensó lo que piensa cualquiera con tres días por delante: <strong>¿por dónde se empieza?</strong></p>
+<p>Nada se había perdido: todo estaba anotado en la cola. A la derecha, bajo el «/SF» dorado, el panel de la Software Factory lo decía con su calma de siempre: 4 en curso, 19 en cola, 9 en observación. En ningún sitio ponía qué tocaba ahora. <strong>No había sprint.</strong> Àlex miró el panel y el correo de Laura. Pensó lo que piensa cualquiera con tres días por delante: <strong>¿por dónde se empieza?</strong></p>
 </div>
 </div>
 
@@ -26,7 +26,7 @@ Cada vez que abres Claude Code, Claude hace la **daily** sin que se la pidas, ha
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 440" width="100%" role="img" aria-label="El ciclo del sprint: abrir Claude Code, daily, seguir mientras queden tareas del objetivo; si no, revisión y objetivo nuevo" style="font-family:var(--fuente-texto);display:block">
-<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#5b53a6}.sp-marca-claro{fill:#6f67b8}:root[data-theme="dark"] .sp-marca{fill:#9d97d4}:root[data-theme="dark"] .sp-marca-claro{fill:#c9c5ef}</style>
+<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#25283a}.sp-marca-claro{fill:#f5c400}:root[data-theme="dark"] .sp-marca{fill:#f5c400}:root[data-theme="dark"] .sp-marca-claro{fill:#f2f2f0}</style>
 <line x1="34" y1="40" x2="34" y2="400" stroke="#b2deda" stroke-width="2"/>
 <circle cx="34" cy="40" r="7" fill="#00726b"/>
 <text x="56" y="38" font-size="14.5" font-weight="700" fill="#004d47">Abres Claude Code · o escribes /sf_daily</text>
@@ -101,7 +101,7 @@ El objetivo de Àlex es pequeño a propósito. El método ya tenía la **fase** 
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 330" width="100%" role="img" aria-label="Jerarquía: fase, devslice, sprints y tareas, con un ejemplo ilustrativo" style="font-family:var(--fuente-texto);display:block">
-<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#5b53a6}.sp-marca-claro{fill:#6f67b8}:root[data-theme="dark"] .sp-marca{fill:#9d97d4}:root[data-theme="dark"] .sp-marca-claro{fill:#c9c5ef}</style>
+<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#25283a}.sp-marca-claro{fill:#f5c400}:root[data-theme="dark"] .sp-marca{fill:#f5c400}:root[data-theme="dark"] .sp-marca-claro{fill:#f2f2f0}</style>
 <rect x="10" y="10" width="540" height="310" rx="10" fill="none" stroke="#b2deda" stroke-width="1.5"/>
 <text x="26" y="38" font-size="14.5" font-weight="700" fill="#004d47">Fase · desarrollo</text>
 <text x="26" y="56" font-size="12.5" fill="#555">dónde está el proyecto en el método</text>
@@ -199,14 +199,14 @@ Un sprint **no tiene fecha**: acaba cuando se cumple su objetivo o cuando lo cam
 
 <div class="caso">
 <p class="caso-etiqueta">El caso · capítulo 6 · Un vistazo</p>
-<p>El viernes, mientras arranca la daily, Àlex mira el panel de la SF. Bajo el «/SF» morado, en una línea, <strong>el objetivo nuevo: fijar la batería</strong>. Le basta para saber dónde está.</p>
+<p>El viernes, mientras arranca la daily, Àlex mira el panel de la SF. Bajo el «/SF» dorado, en una línea, <strong>el objetivo nuevo: fijar la batería</strong>. Le basta para saber dónde está.</p>
 </div>
 
 El panel enseña **solo el sprint actual**: su objetivo, en una línea bajo la cabecera, y una marca en sus tareas. La cabecera con el sprint se despliega: plegada, el objetivo; desplegada, lo demás del sprint, como su revisión (277). Las secciones de siempre no cambian; lo de fuera, sin marca, sigue en su sitio.
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 260" width="100%" role="img" aria-label="El panel con el objetivo del sprint bajo la cabecera y la marca en las tareas del sprint" style="font-family:var(--fuente-texto);display:block">
-<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#5b53a6}.sp-marca-claro{fill:#6f67b8}:root[data-theme="dark"] .sp-marca{fill:#9d97d4}:root[data-theme="dark"] .sp-marca-claro{fill:#c9c5ef}</style>
+<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#25283a}.sp-marca-claro{fill:#f5c400}:root[data-theme="dark"] .sp-marca{fill:#f5c400}:root[data-theme="dark"] .sp-marca-claro{fill:#f2f2f0}</style>
 <rect x="10" y="10" width="540" height="240" rx="10" fill="none" style="stroke:var(--borde-campo)" stroke-width="1"/>
 <text x="26" y="38" font-size="15" font-weight="700" class="sp-marca">/<tspan class="sp-marca-claro">SF</tspan></text><text x="62" y="38" font-size="14" font-weight="700" fill="#004d47">SmartColdBox</text>
 <text x="380" y="38" font-size="12.5" fill="#555">TURBO  RELEASE</text>

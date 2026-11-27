@@ -74,6 +74,9 @@ strong { font-weight: 650; }
 .idea h3 { font-family: var(--fuente-titulos); font-size: 1.15rem; margin: 0 0 .5rem; }
 .idea p { margin: 0 0 .5rem; font-size: 1.05rem; max-width: 80ch; }
 .oscura .idea > p { color: rgba(255,255,255,.86); }
+/* El código en línea sobre la portada oscura: el fondo suave del tema es claro y el texto, blanco (1,08:1); aquí, una
+ * banda translúcida sobre el fondo de la portada y el color de su texto. En papel, la portada vuelve a clara. */
+.portada.oscura code { background: rgba(255,255,255,.14); color: inherit; }
 /* «portada: compacta»: título, raya pegada, versión en gris y la entrada con menos aire */
 .portada.compacta { padding: clamp(1rem, 2.4vw, 1.5rem) 0 1rem; }
 .compacta .titular { margin: 0 0 .45rem; }
@@ -371,6 +374,7 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
   .portada, .portada.oscura { background: var(--superficie); color: var(--texto); padding: 0 0 1rem; break-after: page; border: 0; }
   .oscura .marca, .oscura .cifras strong { color: var(--primario-texto, var(--primario)); }
   .oscura .subtitulo, .oscura .idea p, .oscura .datos-version, .oscura .datos-version span, .oscura .cifras span { color: var(--texto); }
+  .portada.oscura code { background: var(--fondo-suave); }
   .menu, .buscador, .sin-resultados, .imprimir, .saltar, .plegar-tarjetas { display: none !important; }
   .seccion-titulo::after { display: none; }
   details.seccion::details-content { content-visibility: visible; display: block; } /* abiertas aunque no haya JS */
@@ -967,9 +971,11 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
    girando desde el lomo, como una hoja que se pasa. Sin animación con movimiento reducido. */
 .lector-paso { width: 1.7rem; height: 1.7rem; font-size: .85rem; border-color: transparent; color: #a9a9ae; }
 .lector-paso:hover { color: #e4e4e8; }
-/* La marca del proyecto en el marco del lector, como el logo de un aparato: data-marca="/SF" y, si se quiere,
-   sus colores: --lector-marca para las letras («SF») y --lector-marca-claro para lo que va delante («/»), como el
-   logo de la SF, con la barra más clara que las letras (decisión 255). */
+/* La marca del proyecto, como el logo de un aparato: data-marca="/SF" y, si se quiere, sus colores, los del logo del
+   proyecto con la barra más clara que las letras (decisión 255): --lector-marca para las letras («SF») y
+   --lector-marca-claro para lo que va delante («/»), sobre el papel de la pantalla de entrada; y
+   --lector-marca-marco y --lector-marca-marco-claro, los del logo para fondo oscuro, en el marco oscuro. Sin los del
+   marco, el marco toma los del papel. */
 /* Pantalla de entrada (encendido del lector): papel de tinta electrónica, el logo grande y la invitación. */
 .lector-portada { position: absolute; inset: 0; z-index: 3; border-radius: inherit; display: flex; flex-direction: column;
                   align-items: center; justify-content: center; gap: 1.6rem; padding: 2rem 2.2rem; text-align: center;
@@ -980,8 +986,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
                        border: 0; padding: .2em .35em; border-radius: 12px; cursor: pointer; color: var(--lector-marca-claro, #161616); }
 .lector-portada-logo b { color: var(--lector-marca, #161616); }
 /* Latido: un halo suave en los colores de la marca que respira lento; es también la señal de foco. */
-.lector-portada-logo { --halo1: color-mix(in srgb, var(--lector-marca, #827dbd) 45%, transparent);
-                       --halo2: color-mix(in srgb, var(--lector-marca-claro, #b3aee6) 55%, transparent);
+.lector-portada-logo { --halo1: color-mix(in srgb, var(--lector-marca, #161616) 45%, transparent);
+                       --halo2: color-mix(in srgb, var(--lector-marca-claro, #161616) 55%, transparent);
                        animation: lector-latido 2s ease-in-out infinite alternate; }
 .lector-portada-logo:focus-visible { outline: none; }
 @keyframes lector-latido {
@@ -995,8 +1001,9 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .lector-portada .lector-portada-aviso { position: absolute; left: 1.4rem; right: 1.4rem; bottom: 1rem; max-width: none;
                                         font: .7rem/1.4 var(--fuente-texto); letter-spacing: .02em; color: #5a574f; }
 .lector-portada p { margin: 0; max-width: 17rem; font: italic 1.08rem/1.55 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif; color: #2a2926; }
-.lector-marca { flex: none; font: 700 .78rem/1 var(--fuente-texto); letter-spacing: .02em; color: var(--lector-marca-claro, #e4e4e8); }
-.lector-marca b { color: var(--lector-marca, #b8b8bd); font-weight: 700; }
+.lector-marca { flex: none; font: 700 .78rem/1 var(--fuente-texto); letter-spacing: .02em;
+                color: var(--lector-marca-marco-claro, var(--lector-marca-claro, #e4e4e8)); }
+.lector-marca b { color: var(--lector-marca-marco, var(--lector-marca, #b8b8bd)); font-weight: 700; }
 .lector .libro-fin button { background: #161616; color: #e7e3d9; border-radius: 4px; }
 @media screen {
   :root[data-theme="dark"] .libro:not(.lector .libro) { background: var(--superficie); border-color: var(--linea); color: var(--texto);
@@ -1075,8 +1082,10 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
-<header class="portada oscura"><div class="portada-dentro"><p class="marca"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2YyZjJmMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjJmMmYwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPC9zdmc+Cg==" alt="" width="72" height="40">SoftwareFactory</p><h1 class="titular">Sprints con objetivo: saber qué toca cada vez que abres Claude Code</h1><p class="tipo-doc">Documento de visión</p><div class="idea"><p><strong>Estado:</strong> 4 de noviembre de 2026, versión 0.25. Basado en las decisiones 260 a 262, 264 a 266, 269, 271 a 277 y en el informe «Sprints con objetivo» 1.13 (tarea 347).</p>
-<div class="lector" data-titulo="El verano de Marc · prólogo" data-al-abrir="historia" data-marca="/SF" data-invitacion="Pulsa el logo de la Software Factory para vivir, con el verano de Marc, qué cambia cuando cada sprint tiene un objetivo" style="--lector-marca:#6a62b5;--lector-marca-claro:#7b74c2">
+<header class="portada oscura"><div class="portada-dentro"><p class="marca"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2YyZjJmMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjJmMmYwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPC9zdmc+Cg==" alt="" width="72" height="40">SoftwareFactory</p><h1 class="titular">Sprints con objetivo: saber qué toca cada vez que abres Claude Code</h1><p class="tipo-doc">Documento de visión</p><div class="idea"><p><strong>Estado:</strong> 4 de noviembre de 2026, versión 0.25. Basado en las decisiones 260 a 262, 264 a 266, 269, 271 a 277 y en el informe «Sprints con objetivo» 1.13 (tarea 347).</p></div></div></header>
+<nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
+<div class="hoja">
+  <main id="contenido" tabindex="-1"><div class="lector" data-titulo="El verano de Marc · prólogo" data-al-abrir="historia" data-marca="/SF" data-invitacion="Pulsa el logo de la Software Factory para vivir, con el verano de Marc, qué cambia cuando cada sprint tiene un objetivo" style="--lector-marca:#25283a;--lector-marca-claro:#f5c400;--lector-marca-marco:#f5c400;--lector-marca-marco-claro:#f2f2f0">
 <div class="libro">
 <p class="libro-capitulo">Prólogo</p>
 <p class="libro-titulo">Tres días para el jueves</p>
@@ -1084,16 +1093,13 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
 <p>En la bandeja esperaba un correo de Laura, la farmacéutica: <em>«¿El jueves nos enseñas el gemelo? Y dime si la caja cabe en nuestras estanterías»</em>. El jueves. Laura querría ver simulado el verano de Marc entero: el autobús de las 13:15 con 35 °C en la calle y sesenta días en la nevera de casa. Sin que la caja fallara ni una vez: un vial que se calienta se tira, y de eso responde la farmacia. Para una startup de una persona, esa colaboración lo era todo. Si el jueves convencía, podría crecer hacia un piloto con pacientes. Si no, quizá no habría otra cita. Y la última campaña del gemelo, la simulación larga que recorre el verano minuto a minuto, se había parado a los 420 minutos. Siete horas de sesenta días. Sin avisar, como quien se cansa a mitad de cuesta.</p>
 <p class="libro-ornamento"></p>
 <p>Lo demás se había ido amontonando la semana anterior. Otro bug: en el gemelo, la humedad de dentro salía negativa al abrir la tapa, algo imposible. Una petición que Àlex se anotó el domingo por la noche, «que la app avise antes», sin decir antes de qué. Dos ideas sueltas: pesar los viales, llevar la caja en ambulancias. La recarga en la farmacia, a medias desde el jueves anterior: que la batería se cargara en cada visita a por viales, y no en casa. Y una oferta del fabricante de la Peltier, la pieza que enfría la caja con electricidad.</p>
-<p>Nada se había perdido: todo estaba anotado en la cola. A la derecha, bajo el «/SF» morado, el panel de la Software Factory lo decía con su calma de siempre: 4 en curso, 19 en cola, 9 en observación. En ningún sitio ponía qué tocaba ahora. <strong>No había sprint.</strong> Àlex miró el panel y el correo de Laura. Pensó lo que piensa cualquiera con tres días por delante: <strong>¿por dónde se empieza?</strong></p>
+<p>Nada se había perdido: todo estaba anotado en la cola. A la derecha, bajo el «/SF» dorado, el panel de la Software Factory lo decía con su calma de siempre: 4 en curso, 19 en cola, 9 en observación. En ningún sitio ponía qué tocaba ahora. <strong>No había sprint.</strong> Àlex miró el panel y el correo de Laura. Pensó lo que piensa cualquiera con tres días por delante: <strong>¿por dónde se empieza?</strong></p>
 </div>
-</div></div></div></header>
-<nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
-<div class="hoja">
-  <main id="contenido" tabindex="-1"><details class="seccion" id="resumen-operativo" open><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">01</span> Resumen operativo</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La respuesta es un <strong>sprint con objetivo</strong>: una frase con lo que quieres conseguir ahora, siempre a la vista en el panel. El objetivo decide qué se pone en curso. Lo demás se anota igual, pero espera en cola hasta que tú digas otra cosa.</p>
+</div><details class="seccion" id="resumen-operativo" open><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">01</span> Resumen operativo</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La respuesta es un <strong>sprint con objetivo</strong>: una frase con lo que quieres conseguir ahora, siempre a la vista en el panel. El objetivo decide qué se pone en curso. Lo demás se anota igual, pero espera en cola hasta que tú digas otra cosa.</p>
 <p>Cada vez que abres Claude Code, Claude hace la <strong>daily</strong> sin que se la pidas, haya sprint o no: un resumen de pie, de tres o cuatro líneas, y después conversas. Sin sprint, es el momento de fijar uno: Claude propone objetivos con su recomendación, y tú decides. Cuando no queda nada del objetivo, Claude propone la <strong>revisión y planificación</strong>: qué se consiguió y qué entra en el siguiente.</p>
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 440" width="100%" role="img" aria-label="El ciclo del sprint: abrir Claude Code, daily, seguir mientras queden tareas del objetivo; si no, revisión y objetivo nuevo" style="font-family:var(--fuente-texto);display:block">
-<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#5b53a6}.sp-marca-claro{fill:#6f67b8}:root[data-theme="dark"] .sp-marca{fill:#9d97d4}:root[data-theme="dark"] .sp-marca-claro{fill:#c9c5ef}</style>
+<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#25283a}.sp-marca-claro{fill:#f5c400}:root[data-theme="dark"] .sp-marca{fill:#f5c400}:root[data-theme="dark"] .sp-marca-claro{fill:#f2f2f0}</style>
 <line x1="34" y1="40" x2="34" y2="400" stroke-width="2" style="stroke: var(--borde)"/>
 <circle cx="34" cy="40" r="7" style="fill: var(--primario)"/>
 <text x="56" y="38" font-size="14.5" font-weight="700" style="fill: var(--tinta-oscura)">Abres Claude Code · o escribes /sf_daily</text>
@@ -1155,7 +1161,7 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
 <p>El objetivo de Àlex es pequeño a propósito. El método ya tenía la <strong>fase</strong> y el <strong>devslice</strong>, una porción de producto completa que puede llevar semanas. El sprint es más corto: un devslice tiene <strong>muchos sprints</strong>, y el objetivo de cada uno es una parte de lo que el devslice persigue. Debajo, las <strong>tareas</strong> de la cola.</p>
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 330" width="100%" role="img" aria-label="Jerarquía: fase, devslice, sprints y tareas, con un ejemplo ilustrativo" style="font-family:var(--fuente-texto);display:block">
-<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#5b53a6}.sp-marca-claro{fill:#6f67b8}:root[data-theme="dark"] .sp-marca{fill:#9d97d4}:root[data-theme="dark"] .sp-marca-claro{fill:#c9c5ef}</style>
+<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#25283a}.sp-marca-claro{fill:#f5c400}:root[data-theme="dark"] .sp-marca{fill:#f5c400}:root[data-theme="dark"] .sp-marca-claro{fill:#f2f2f0}</style>
 <rect x="10" y="10" width="540" height="310" rx="10" fill="none" stroke-width="1.5" style="stroke: var(--borde)"/>
 <text x="26" y="38" font-size="14.5" font-weight="700" style="fill: var(--tinta-oscura)">Fase · desarrollo</text>
 <text x="26" y="56" font-size="12.5" style="fill: var(--texto-suave)">dónde está el proyecto en el método</text>
@@ -1231,13 +1237,13 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
 <p>Un sprint <strong>no tiene fecha</strong>: acaba cuando se cumple su objetivo o cuando lo cambias, también con su revisión. El ritmo con Claude es irregular, y una fecha obligaría a cerrar sprints a medias. La revisión es tan breve como la daily: números, lo importante y candidatos.</p>
 <hr /></div></details><details class="seccion" id="que-cambia-en-el-panel-y-en-las-ordenes"><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">07</span> Qué cambia en el panel y en las órdenes</h2></summary><div class="seccion-cuerpo"><div class="caso">
 <p class="caso-etiqueta">El caso · capítulo 6 · Un vistazo</p>
-<p>El viernes, mientras arranca la daily, Àlex mira el panel de la SF. Bajo el «/SF» morado, en una línea, <strong>el objetivo nuevo: fijar la batería</strong>. Le basta para saber dónde está.</p>
+<p>El viernes, mientras arranca la daily, Àlex mira el panel de la SF. Bajo el «/SF» dorado, en una línea, <strong>el objetivo nuevo: fijar la batería</strong>. Le basta para saber dónde está.</p>
 </div>
 
 <p>El panel enseña <strong>solo el sprint actual</strong>: su objetivo, en una línea bajo la cabecera, y una marca en sus tareas. La cabecera con el sprint se despliega: plegada, el objetivo; desplegada, lo demás del sprint, como su revisión (277). Las secciones de siempre no cambian; lo de fuera, sin marca, sigue en su sitio.</p>
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 260" width="100%" role="img" aria-label="El panel con el objetivo del sprint bajo la cabecera y la marca en las tareas del sprint" style="font-family:var(--fuente-texto);display:block">
-<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#5b53a6}.sp-marca-claro{fill:#6f67b8}:root[data-theme="dark"] .sp-marca{fill:#9d97d4}:root[data-theme="dark"] .sp-marca-claro{fill:#c9c5ef}</style>
+<style>.sp-sprint{fill:#a6501a}.sp-sprint-l{stroke:#a6501a}:root[data-theme="dark"] .sp-sprint{fill:#e39a6b}:root[data-theme="dark"] .sp-sprint-l{stroke:#e39a6b}.sp-marca{fill:#25283a}.sp-marca-claro{fill:#f5c400}:root[data-theme="dark"] .sp-marca{fill:#f5c400}:root[data-theme="dark"] .sp-marca-claro{fill:#f2f2f0}</style>
 <rect x="10" y="10" width="540" height="240" rx="10" fill="none" style="stroke:var(--borde-campo)" stroke-width="1"/>
 <text x="26" y="38" font-size="15" font-weight="700" class="sp-marca">/<tspan class="sp-marca-claro">SF</tspan></text><text x="62" y="38" font-size="14" font-weight="700" style="fill: var(--tinta-oscura)">SmartColdBox</text>
 <text x="380" y="38" font-size="12.5" style="fill: var(--texto-suave)">TURBO  RELEASE</text>
@@ -1274,7 +1280,7 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
 <hr /></div></details><details class="seccion" id="anexo-el-caso-y-sus-fuentes"><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">10</span> Anexo: el caso y sus fuentes</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El caso ocurre en SmartColdBox, un proyecto real que se desarrolla con la SF en colaboración con el Hospital Universitario Son Espases (Palma): un dispositivo de conservación de viales. Son del proyecto el verano de su visión (el autobús de las 13:15, hora y media de transporte con 35 °C fuera y 60 días en la nevera doméstica), la campaña del gemelo que se quedó en 420 minutos, la recarga en la farmacia, la batería y su presupuesto pendientes, la leyenda del corte y el pesaje (<code>docs/decisiones-y-pendientes.md</code> de SmartColdBox).</p>
 <p><strong>Todo lo demás es inventado, y nada de ello se atribuye a Son Espases.</strong> Son personajes imaginados Àlex, Laura y Marc (estos dos, de la visión del proyecto), y es imaginado lo que dicen y hacen: la semana, la demostración, la cola, las tareas, el devslice, los objetivos y las escenas. El proyecto está hoy en fase de visión.</p>
 <p>Las fuentes de los sprints son las decisiones del propietario de la Software Factory 260 a 262, 264 a 266, 269, 271 a 277 (<code>docs/decisiones/</code>) y el informe «Sprints con objetivo» 1.13 (<code>docs/referencias/reports/</code>), con su porqué, lo abierto y las tareas.</p></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Documento de visión</p><p class="procedencia">Generado el 25/11/2026 18:41 · fuente sprints.md · huella 6439b3d86402 · commit e5214cb (con cambios sin commit) · estilo v4</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Documento de visión</p><p class="procedencia">Generado el 27/11/2026 11:42 · fuente sprints.md · huella af2e56fdbd55 · commit cd60d71 (con cambios sin commit) · estilo v4</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
@@ -1363,7 +1369,7 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
  *   #notas-documento) y sube la versión. Esa copia se puede pasar al autor: tools/kit_documentos/extraer_notas.py las lista.
  * Sin JavaScript no aparece nada; no se imprime. */
 (function () {
-  const VERSION = '1.10.0';
+  const VERSION = '1.10.1';
   const main = document.querySelector('main, .report-body');
   if (!main) return;
   const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title, .seccion-titulo h2';
@@ -2363,6 +2369,7 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
     return getComputedStyle(raiz).getPropertyValue('--pagina').trim() || '#fff';
   };
   const titulos = secciones.map(d => d.querySelector(':scope > summary')).filter(Boolean);
+  let cambioDeTema = false;
   function seguir() {
     const activo = pref.cabecera && innerWidth >= 700 && innerHeight >= 500;
     const tope = activo ? altoMenu() : 0;
@@ -2373,13 +2380,15 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
       const r = d.getBoundingClientRect(), s = sm.getBoundingClientRect();
       const y = Math.max(0, Math.min(tope - s.top, r.bottom - s.bottom - 8));
       if (y > 0) {
-        if (!sm.classList.contains('titulo-fijo')) sm.style.backgroundColor = fondoDe(d);
+        if (!sm.classList.contains('titulo-fijo') || cambioDeTema) sm.style.backgroundColor = fondoDe(d);
         sm.classList.add('titulo-fijo'); sm.style.transform = 'translateY(' + y + 'px)';
       } else { sm.classList.remove('titulo-fijo'); sm.style.backgroundColor = ''; }
     }
   }
   let raf = 0;
   const pedir = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(seguir); };
+  // Al cambiar de tema con el título fijo, su fondo se recalcula: si no, se queda con el del tema anterior.
+  new MutationObserver(() => { cambioDeTema = true; seguir(); cambioDeTema = false; }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   addEventListener('scroll', seguir, { passive: true });
   addEventListener('resize', pedir);
   document.addEventListener('toggle', pedir, true);
@@ -2844,6 +2853,8 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
 /* Lector de libros (.lector) y «Leer la historia completa». Sin librerías; sin JS, el texto se ve seguido. */
 (function () {
   var CLAVE_PASO = 'sf-lector-paso';
+  // Los colores de la marca: en el papel de la pantalla de entrada y en el marco oscuro, cada uno con los suyos.
+  var MARCA = ['--lector-marca', '--lector-marca-claro', '--lector-marca-marco', '--lector-marca-marco-claro'];
   // Dónde va el texto del documento: en el generador común, la portada y <main>; .report-body, en los HTML de la maqueta antigua.
   var DOC = ['.portada', 'main', '.report-body'];
   function enDoc(sel) { return DOC.map(function (d) { return sel.split(', ').map(function (x) { return d + ' ' + x; }).join(', '); }).join(', '); }
@@ -2879,7 +2890,7 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
     if (fuente) {
       var marca = document.createElement('span'); marca.className = 'lector-marca'; marca.setAttribute('aria-hidden', 'true');
       marca.innerHTML = marcaHTML(fuente.getAttribute('data-marca'));
-      ['--lector-marca', '--lector-marca-claro'].forEach(function (v) { var c = fuente.style.getPropertyValue(v); if (c) lector.style.setProperty(v, c); });
+      MARCA.forEach(function (v) { var c = fuente.style.getPropertyValue(v); if (c) lector.style.setProperty(v, c); });
       barra.insertBefore(marca, barra.firstChild);
     }
     var pie = document.createElement('div'); pie.className = 'lector-pie';
@@ -3057,7 +3068,7 @@ html.historia-primero body > :not(.lector-capa) { visibility: hidden; }
     var fuente = document.querySelector('.lector[data-al-abrir="historia"]');
     if (!boton && fuente && fuente.getAttribute('data-marca')) {
       var portada = document.createElement('div'); portada.className = 'lector-portada';
-      ['--lector-marca', '--lector-marca-claro'].forEach(function (v) { var c = fuente.style.getPropertyValue(v); if (c) portada.style.setProperty(v, c); });
+      MARCA.forEach(function (v) { var c = fuente.style.getPropertyValue(v); if (c) portada.style.setProperty(v, c); });
       var inv = fuente.getAttribute('data-invitacion') || 'Pulsa el logo para entrar en la historia';
       var bp = document.createElement('button'); bp.type = 'button'; bp.className = 'lector-portada-logo';
       bp.innerHTML = marcaHTML(fuente.getAttribute('data-marca')); bp.setAttribute('aria-label', inv);

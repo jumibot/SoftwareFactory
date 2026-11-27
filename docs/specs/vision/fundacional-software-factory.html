@@ -74,6 +74,9 @@ strong { font-weight: 650; }
 .idea h3 { font-family: var(--fuente-titulos); font-size: 1.15rem; margin: 0 0 .5rem; }
 .idea p { margin: 0 0 .5rem; font-size: 1.05rem; max-width: 80ch; }
 .oscura .idea > p { color: rgba(255,255,255,.86); }
+/* El código en línea sobre la portada oscura: el fondo suave del tema es claro y el texto, blanco (1,08:1); aquí, una
+ * banda translúcida sobre el fondo de la portada y el color de su texto. En papel, la portada vuelve a clara. */
+.portada.oscura code { background: rgba(255,255,255,.14); color: inherit; }
 /* «portada: compacta»: título, raya pegada, versión en gris y la entrada con menos aire */
 .portada.compacta { padding: clamp(1rem, 2.4vw, 1.5rem) 0 1rem; }
 .compacta .titular { margin: 0 0 .45rem; }
@@ -371,6 +374,7 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
   .portada, .portada.oscura { background: var(--superficie); color: var(--texto); padding: 0 0 1rem; break-after: page; border: 0; }
   .oscura .marca, .oscura .cifras strong { color: var(--primario-texto, var(--primario)); }
   .oscura .subtitulo, .oscura .idea p, .oscura .datos-version, .oscura .datos-version span, .oscura .cifras span { color: var(--texto); }
+  .portada.oscura code { background: var(--fondo-suave); }
   .menu, .buscador, .sin-resultados, .imprimir, .saltar, .plegar-tarjetas { display: none !important; }
   .seccion-titulo::after { display: none; }
   details.seccion::details-content { content-visibility: visible; display: block; } /* abiertas aunque no haya JS */
@@ -1416,7 +1420,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </article>
 </div>
 <p>La comparación debe conservar lo que la vista de agentes hace bien: es oficial, sigue cada versión de Claude Code y no exige instalar nada. El valor añadido de la SF se comprueba en la fase 1: si con ella bajan las horas con tres o más frentes y los commits de madrugada, aporta; si no, basta con la vista de agentes y el mod.</p></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Documento fundacional · Versión 0.1 · 27/10/2026 · Objetivo de diseño · Documento de proyecto</p><p>Software Factory · Documento de desarrollo de SoftwareFactory. Diferencia hechos publicados, objetivos de diseño y supuestos. Las decisiones las toma el propietario de la SF.</p><p class="procedencia">Generado el 26/11/2026 15:35 · fuente fundacional-software-factory.md · huella c79f1752483d · sin commit · estilo v4</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Documento fundacional · Versión 0.1 · 27/10/2026 · Objetivo de diseño · Documento de proyecto</p><p>Software Factory · Documento de desarrollo de SoftwareFactory. Diferencia hechos publicados, objetivos de diseño y supuestos. Las decisiones las toma el propietario de la SF.</p><p class="procedencia">Generado el 27/11/2026 11:42 · fuente fundacional-software-factory.md · huella 3100e9f197ad · commit cd60d71 · estilo v4</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
@@ -1505,7 +1509,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
  *   #notas-documento) y sube la versión. Esa copia se puede pasar al autor: tools/kit_documentos/extraer_notas.py las lista.
  * Sin JavaScript no aparece nada; no se imprime. */
 (function () {
-  const VERSION = '1.10.0';
+  const VERSION = '1.10.1';
   const main = document.querySelector('main, .report-body');
   if (!main) return;
   const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title, .seccion-titulo h2';
@@ -2505,6 +2509,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     return getComputedStyle(raiz).getPropertyValue('--pagina').trim() || '#fff';
   };
   const titulos = secciones.map(d => d.querySelector(':scope > summary')).filter(Boolean);
+  let cambioDeTema = false;
   function seguir() {
     const activo = pref.cabecera && innerWidth >= 700 && innerHeight >= 500;
     const tope = activo ? altoMenu() : 0;
@@ -2515,13 +2520,15 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
       const r = d.getBoundingClientRect(), s = sm.getBoundingClientRect();
       const y = Math.max(0, Math.min(tope - s.top, r.bottom - s.bottom - 8));
       if (y > 0) {
-        if (!sm.classList.contains('titulo-fijo')) sm.style.backgroundColor = fondoDe(d);
+        if (!sm.classList.contains('titulo-fijo') || cambioDeTema) sm.style.backgroundColor = fondoDe(d);
         sm.classList.add('titulo-fijo'); sm.style.transform = 'translateY(' + y + 'px)';
       } else { sm.classList.remove('titulo-fijo'); sm.style.backgroundColor = ''; }
     }
   }
   let raf = 0;
   const pedir = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(seguir); };
+  // Al cambiar de tema con el título fijo, su fondo se recalcula: si no, se queda con el del tema anterior.
+  new MutationObserver(() => { cambioDeTema = true; seguir(); cambioDeTema = false; }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   addEventListener('scroll', seguir, { passive: true });
   addEventListener('resize', pedir);
   document.addEventListener('toggle', pedir, true);

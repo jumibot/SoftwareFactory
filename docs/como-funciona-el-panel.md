@@ -6,7 +6,7 @@ herramientas: recomendadas
 
 El panel de la SF, parte por parte: qué enseña, cómo se lee y qué se puede hacer desde él. El resumen está en [Cómo funciona la Software Factory](como-funciona-la-software-factory.html#el-panel-de-la-sf). Qué hace cada cambio de estado de una tarea, en [Cómo funcionan los estados](como-funcionan-los-estados.html). Las reglas que hay detrás están en la metodología y en las [decisiones](../sf/decisiones/README.md).
 
-**Estado:** 25 de noviembre de 2026, plugin `sf` 1.9.9 (ver «Historial»).
+**Estado:** 27 de noviembre de 2026, plugin `sf` 1.9.12 (ver «Historial»).
 
 ## Qué es
 
@@ -216,7 +216,7 @@ Cada tarea sale **en una sola sección**: las de arriba no se repiten en Pendien
 Plegada, cada una es solo su línea: el número y el título, enteros y sin negrita, con el tipo detrás. A la derecha, la marca de su subagente, si lo tiene (ver «La marca del subagente»). Su color dice en qué punto está:
 
 - **dorado**, en curso: un tono por tema de Claude Code, `#d4af37` con el oscuro y `#8b6914` con el claro, para que se lea en los dos (decisión [Las tareas en curso del panel vuelven a un color cálido: el dorado](../sf/decisiones/355-2026-11-25-las-tareas-en-curso-del-panel-vuelven-a-un-color-calido-el-dorado-no-el-azul.md)). El tema sale del ajuste `theme` de `/config`: claro si empieza por «light»; oscuro con cualquier otro, sin ajuste o «auto»;
-- **verde**, lista para probar: Claude la ha dejado lista (`cola.py listo`) y desde entonces no ha vuelto al trabajo, con un paso nuevo, una vuelta a la cola o una reapertura. Activar rama no la quita;
+- **verde**, lista para probar: Claude la ha dejado lista (`cola.py listo`) y desde entonces no ha vuelto al trabajo, con un paso nuevo, una vuelta a la cola o una reapertura. Activar rama no la quita. Con pasos de trabajo sin hacer no sale en verde, ni aunque Claude la haya dejado lista; no cuentan los de cierre, las ayudas de prueba ni «Esperar al propietario: …»;
 - **rojo**, esperándote: tiene sin hacer un paso «Esperar al propietario: …», una decisión, una respuesta o un retoque tuyo. Claude lo añade al quedarse esperando y lo marca hecho con tu respuesta. Si además está lista para probar, manda el verde.
 
 Desplegada, enseña su detalle, como en las secciones (ver «Cómo se lee una tarea»); arriba, además, la Prueba y la orden Paso +.
@@ -320,11 +320,11 @@ Todas las tareas tienen el mismo diseño en todas las secciones: arriba, en Pend
 
 El número va **sin letra detrás**, alineado a la derecha en tres columnas («  4», « 41», «236»), para que los títulos empiecen en la misma columna. Su color dice el estado: dorado, en curso; verde, cerrada; gris, lo demás. Una tarea **reabierta** lleva el número con fondo rojo, en todas las secciones; es el único rojo de los números.
 
-El título va entero, sin negrita y en un gris más apagado que el texto normal; si no cabe, sigue en la línea siguiente en su misma columna, con sangría colgante. Detrás va su **tipo**, entre paréntesis y en minúsculas: «(deliberar)». Sin tipo, nada.
+El título va entero, sin negrita y en un gris más apagado que el texto normal; si no cabe, sigue en la línea siguiente en su misma columna, con sangría colgante. Detrás va su **tipo**, entre paréntesis y en minúsculas: «(deliberar)». Sin tipo, nada. Si espera a otra tarea todavía abierta, en cola o en curso, lleva detrás, atenuado, « · espera a la 436»; al cerrarse esa, desaparece y el panel avisa a Claude de que ya puede seguir.
 
 ### Desplegar una tarea
 
-Toda tarea se despliega, porque toda tarea tiene al menos una orden, el «?». En el terminal, su número va subrayado y un clic en la línea la despliega o la pliega; en una superficie gráfica, lo hace el «▸» o «▾» del final de la fila. Plegada, solo su línea. Desplegada, debajo y por este orden:
+Toda tarea se despliega, porque toda tarea tiene al menos una orden, el «?». En el terminal, su número va subrayado y un clic en la línea la despliega o la pliega; en una superficie gráfica, también: toda la línea se pulsa, y el «▸» o «▾» del final solo marca si está abierta. Plegada, solo su línea. Desplegada, debajo y por este orden:
 
 1. el menú de órdenes: una fila con las de la tarea y, debajo, otra con las de sus pasos (ver «Actuar desde el panel»);
 2. la rama, atenuada: «Rama: feature/95-rama-en-panel», con « (no existe)» si ya no está en el repositorio, y en la misma línea, tras « · », «Commit: …»;
@@ -499,7 +499,7 @@ El modo prueba se apaga solo al empezar cada sesión, una vez por sesión: la ma
 
 Todo esto solo en el repositorio fuente de la SF. En otra carpeta con el catálogo local, como una carpeta de prueba, el mod no apaga el modo prueba ni escribe en `.sf/`: manda lo que diga su `.claude/settings.local.json`.
 
-Cómo se prepara el catálogo local está en [Cómo funciona la Software Factory](como-funciona-la-software-factory.html#publicacion-del-plugin).
+Cómo se prepara el catálogo local está en [Cómo funciona la Software Factory](como-se-desarrolla-la-software-factory.html#publicacion-del-plugin).
 
 ### TURBO
 
@@ -709,10 +709,11 @@ En una carpeta sin SF nada de esto aplica.
 
 En las superficies gráficas, la app de escritorio, VS Code y el móvil, el panel se ve y funciona como en el terminal, con lo que cambia su forma de dibujar. Allí el texto va en letra proporcional y cada botón es un botón nativo, que solo pinta su texto con la letra clara de la app:
 
-- Cada botón va **lleno de su color**, como la etiqueta de la versión: un tono más oscuro que el de su letra en el terminal, para que la letra clara se lea. Los discretos, como Separar pasos y Paso +, en un gris apagado. Las órdenes de la tarea y la marca del subagente van también en su caja de color: sin ella, el botón nativo las pinta en blanco.
+- Cada botón va **lleno de su color**, como la etiqueta de la versión: un tono más oscuro que el de su letra en el terminal, para que la letra clara se lea. Los discretos, como Separar pasos y Paso +, en un gris apagado. Las órdenes de la tarea (Activar rama, Redescribir, «?», Descartar) son la excepción: texto de su color sobre una etiqueta negra redondeada, del alto mínimo, como en el terminal. La marca del subagente es solo su ● u ○ verde, sin botón lleno.
 - Los botones son **pequeños**: sin contorno ni relleno a los lados, del alto del botón nativo con un filo de su color arriba y abajo, y separados por el hueco más pequeño de la app, para que la cabecera y las órdenes de una tarea quepan en una fila con el panel estrecho.
 - El «?» y la «×» de los pasos son enlaces pequeños dentro de la línea, no botones, para no agrandar la fila.
-- El número y el título de una tarea van fuera del botón, como texto con su color; despliega un «▸» o «▾» al final de la fila. Plegado, el título se corta con «…».
+- En la ficha desplegada, los sangrados son los del terminal: el número de un paso y su texto, alineados arriba; la continuación de un texto largo, bajo el texto y no bajo el número; y el número del título deja el mismo hueco que en el terminal.
+- La línea de una tarea, con su número y su título, es **una sola zona pulsable**, como en el terminal: un clic en cualquier punto la despliega o la pliega; el «▸» o «▾» del final solo indica el estado, sin contorno. Plegado, el título se corta con «…».
 - Las etiquetas de la cabecera toman el ancho de su texto y se parten en filas si no caben; la de la versión queda siempre a la derecha.
 - El logo va en SVG, porque los caracteres de bloque se descuadran en su letra, y toma el modo claro u oscuro de la app; el nombre, en grande.
 - El scroll es de la app: el panel entero, cabecera incluida, se desplaza con su barra (ver «La cabecera»).
@@ -727,6 +728,8 @@ Fuera de la pantalla completa del terminal, el panel y la caja se pintan en la c
 
 Con tu primer mensaje de la conversación, Claude recibe el encargo de ofrecerte activarla, una vez por conversación, con la causa que el mod puede leer: una variable de entorno que la quita, el ajuste `tui` ya puesto tras un arranque fallido, o nada. Con tu OK, la activa en `.claude/settings.local.json` del proyecto, nunca en `~/.claude` sin tu OK expreso. En una carpeta sin SF no se ofrece hasta incorporarla.
 
+En pantalla completa, un proyecto sin SF no abre el panel: la bienvenida sale como la caja flotante, igual que fuera de ella, y el panel solo se abre al empezar la incorporación.
+
 ## Lo que el panel dice a Claude
 
 El mod añade contexto a la conversación para que Claude no dependa de acordarse:
@@ -737,6 +740,7 @@ El mod añade contexto a la conversación para que Claude no dependa de acordars
 - **Lo cambiado desde el panel.** Con cada mensaje tuyo, «Desde el panel: …», con lo que has cambiado en la cola desde el panel desde el mensaje anterior: «cerrada la 12; la 15, paso añadido: «…»». Sale de los eventos del historial con `via` panel. Va también tras cada encargo del panel a Claude. Sobrevive a `/reload-plugins`, también si cambia de plugin, sin repetirse ni perder nada; tras `/clear` o al reanudar una conversación, cuenta desde ahí, y nunca llega más atrás de 12 horas. Tras cerrar o descartar una tarea con subagente, pide detenerlo.
 - **Los subagentes.** Con cada mensaje tuyo y al volver un subagente, «ANTES DE NADA…» pide lanzar el de cada tarea en curso que no tiene ninguno vivo, mientras falte; y avisa una vez de cada subagente que ha terminado sin recoger. Tras `/clear` o una compactación, lo pendiente se vuelve a avisar. Con `automatizaciones.avisos_subagentes` apagado, no avisa.
 - **El arranque.** Al abrir o reanudar la sesión, tras `/clear` y tras compactar, el mod no espera a tu primer mensaje: si hay tareas en curso sin subagente o subagentes terminados sin recoger, segundo y medio después le encarga a Claude un turno propio, como mensaje del plugin y no tuyo, para que los lance todos a la vez o los recoja y diga al acabar qué ha hecho. Solo con alguien delante (no con `-p` ni en el SDK), con la SF activa y con `automatizaciones.avisos_subagentes` encendido. Mientras dura, tus mensajes no vuelven a pedir lanzarlos: Claude te atiende y sigue después. Si Claude Code no admite el encargo, el mod lo deja escrito en el prompt, si está vacío, para enviarlo con Intro, y lo dice en un aviso emergente; si no puede, el aviso pide que escribas cualquier cosa.
+- **Las reglas, tras actualizar el plugin.** Si cambian al recargarlo, el mod vuelve a entregar la orquestación con tu siguiente mensaje, sin que lo pidas.
 - **La incorporación**, en una carpeta sin SF, y **la pantalla completa**, como se dice arriba.
 - **La sesión con la SF**: que se ha apagado aquí, porque otra la tomó o con `/sf_forzar_inactiva`, y que deje las reglas de la SF; que se ha activado con `/sf_forzar_activa`; o que la que la tenía ya no da latido. Con la SF apagada, nada más (ver «Una sola sesión con la SF por proyecto»).
 
@@ -744,7 +748,12 @@ Los encargos del panel a Claude («?», Paso +, TURBO, los cierres que fallan…
 
 ## El foco
 
-El foco, la tarea en la que estás, lo lleva solo Claude, en la línea con que empieza cada respuesta: no se guarda en ningún archivo y ni el panel ni la caja lo muestran (decisión [El foco solo lo sabe Claude](../sf/decisiones/328-2026-11-06-el-foco-solo-lo-sabe-claude-ni-el-panel-ni-la-caja-del-prompt-lo-muestran.md)). Lo que el mod pone para no interrumpirte son dos cosas, solo con la SF activa en la sesión.
+El foco es la tarea en la que estás. Lo fijan tus palabras, que Claude guarda con `cola.py foco N`, o **Activar rama**, que lo pone en la tarea probada. Queda en `.sf/peticiones.json`; el cierre de la tarea lo quita, y caduca tras un rato sin hablar de ella. El panel no lo dibuja: lo usa el mod, solo con la SF activa en la sesión (decisión [El foco solo lo sabe Claude](../sf/decisiones/328-2026-11-06-el-foco-solo-lo-sabe-claude-ni-el-panel-ni-la-caja-del-prompt-lo-muestran.md), que ahora se guarda en la cola).
+
+- **Recordatorio en los avisos.** Si los avisos del mod traen algo de otras tareas, añaden una línea: lo de esas tareas, y lo que Claude haga por ellas, va al final como off-topic, sin menús de otras tareas. Sin foco guardado, nada.
+- **Al empezar la sesión**, tras `/clear` y tras compactar, el mod da a Claude la línea del foco guardado, para que no se pierda con la conversación.
+- **Lo que espera.** Una tarea que espera a otra («espera N») no recibe el aviso de lanzar su subagente mientras la otra siga abierta; al cerrarse, el mod avisa de que ya puede seguir.
+- **Dos cosas más** para no interrumpirte:
 
 ::: tarjetas 2
 ### La sugerencia tras un rato sin escribir
@@ -859,6 +868,7 @@ Lo más reciente, arriba. La 1.7.0 es la primera versión pública, sin la histo
 
 | Versión del plugin | Cambio |
 | --- | --- |
+| 1.9.12 | Foco guardado en la cola y «· espera a la N» en la línea de la tarea; en la app, línea entera pulsable, órdenes como etiqueta negra y sangrados de la ficha como en el terminal; el panel no se abre solo en un proyecto sin SF; sin verde de «lista para probar» con pasos de trabajo pendientes; al actualizar el plugin, la orquestación se entrega sola. |
 | 1.9.9 | Las tareas en curso, en dorado, un tono por tema; las listas para probar, en verde, y las que esperan al propietario, en rojo. La marca del subagente, siempre verde: ● si trabaja, ○ si está parado. |
 | 1.9.9 | La SF se lleva como un proyecto más: lee su `.sf/proyecto.json`, su caja dice su fase y su commit de versión es «vX.Y.Z»; el modo prueba sigue solo en el repositorio fuente. |
 | 1.9.9 | En la app, el scroll es de la app: el panel entero se desplaza con su barra y se queda donde lo dejas. |

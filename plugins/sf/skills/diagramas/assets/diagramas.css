@@ -75,6 +75,7 @@
 .d-gen .externo > .d-caja { stroke-dasharray: 5 4; }
 .d-gen .d-nn { font-weight: 650; fill: var(--texto, #1a1a1a); }
 .d-gen .d-sb { fill: var(--texto-suave, #555); }
+.d-gen :is(.foco, .salida) .d-sb { fill: color-mix(in srgb, var(--texto-suave, #555) 55%, var(--texto, #1a1a1a)); }  /* sobre el fondo tintado del foco y de la salida, el gris suave no llega a 4,5:1 */
 .d-gen .d-cl { font-family: var(--fuente-escena, Georgia, serif); font-style: italic; fill: var(--texto-suave, #555); }
 .d-gen text.d-etiqueta { fill: var(--texto-suave, #555); }
 .d-gen .d-b-verde, .d-gen text.d-b-verde { fill: var(--b-verde, #15803d); color: var(--b-verde, #15803d); }

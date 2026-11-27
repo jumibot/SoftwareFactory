@@ -214,6 +214,8 @@
     const ids = [...new Set([...fig.querySelectorAll('[data-plegar]')].map(t => t.dataset.plegar))];
     if (!ids.length) return;
     fig.classList.add('d-js');
+    // Con cajas que se pliegan (se pulsan), el <svg role="img"> esconde sus hijos al lector de pantalla: pasa a grupo.
+    fig.querySelectorAll('svg[role="img"]').forEach(s => { if (s.querySelector('[data-plegar]')) s.setAttribute('role', 'group'); });
     let abiertas = new Set();
     const pinta = () => fig.querySelectorAll('svg').forEach(s => ids.forEach(id => ponerCaja(s, id, abiertas.has(id))));
     const modo = () => {

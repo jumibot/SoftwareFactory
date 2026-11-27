@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cómo funciona el panel · Documento de visión</title>
-  <meta name="theme-color" content="#af8f13">
+  <meta name="theme-color" content="#25283a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
@@ -56,7 +56,11 @@ strong { font-weight: 650; }
 .marca img { height: 40px; width: auto; }
 /* Portada clara con logo para fondo oscuro (o en placa): cada uno en su modo de «Lectura». */
 .marca img.logo-oscuro { display: none; }
+/* En la portada oscura, el logo para fondo oscuro si lo hay (en papel, la portada vuelve a clara). */
+@media screen { .portada.oscura .marca img.logo-claro:has(+ img.logo-oscuro) { display: none; }
+                .portada.oscura .marca img.logo-oscuro { display: inline; } }
 .oscura .marca { color: var(--tenue); }
+@media screen { .oscura .tipo-doc { color: var(--tenue); } }  /* como la marca: el primario no se lee sobre el oscuro */
 .portada.oscura a { color: #fff; text-decoration-color: var(--tenue); }  /* el primario no se lee sobre el oscuro */
 .enlace-proyecto { margin: -.8rem 0 1.2rem; font-size: .9375rem; overflow-wrap: anywhere; }
 .marca img.placa { background: #fff; border-radius: 6px; padding: 4px; box-sizing: content-box; }
@@ -69,7 +73,10 @@ strong { font-weight: 650; }
 .portada-linea { height: 3px; background: var(--primario); border: 0; margin: 0 0 1rem; max-width: 36em; }
 .idea h3 { font-family: var(--fuente-titulos); font-size: 1.15rem; margin: 0 0 .5rem; }
 .idea p { margin: 0 0 .5rem; font-size: 1.05rem; max-width: 80ch; }
-.oscura .idea p { color: rgba(255,255,255,.86); }
+.oscura .idea > p { color: rgba(255,255,255,.86); }
+/* El código en línea sobre la portada oscura: el fondo suave del tema es claro y el texto, blanco (1,08:1); aquí, una
+ * banda translúcida sobre el fondo de la portada y el color de su texto. En papel, la portada vuelve a clara. */
+.portada.oscura code { background: rgba(255,255,255,.14); color: inherit; }
 /* «portada: compacta»: título, raya pegada, versión en gris y la entrada con menos aire */
 .portada.compacta { padding: clamp(1rem, 2.4vw, 1.5rem) 0 1rem; }
 .compacta .titular { margin: 0 0 .45rem; }
@@ -328,7 +335,7 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
  * cambia de rol: sobre las superficies oscuras, el primario aclarado en lugar del tenue; en las tarjetas con color,
  * los campos y los chips con el color aclarado (350); y el logo de la portada clara. */
 @media screen {
-  :where(:root[data-theme="dark"]) :is(.oscura .marca, .oscura .cifras strong, .recuadro.decision .recuadro-etiqueta,
+  :where(:root[data-theme="dark"]) :is(.oscura .marca, .oscura .tipo-doc, .oscura .cifras strong, .recuadro.decision .recuadro-etiqueta,
                                        .recuadro.decision h3) { color: var(--primario); }
   :root[data-theme="dark"] .portada.oscura a { text-decoration-color: var(--primario); }
   :root[data-theme="dark"] .tarjeta.con-color dt { color: var(--c-oscuro-o, var(--c-oscuro)); border-top-color: var(--c-borde-o, var(--c-borde)); }
@@ -367,6 +374,7 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
   .portada, .portada.oscura { background: var(--superficie); color: var(--texto); padding: 0 0 1rem; break-after: page; border: 0; }
   .oscura .marca, .oscura .cifras strong { color: var(--primario-texto, var(--primario)); }
   .oscura .subtitulo, .oscura .idea p, .oscura .datos-version, .oscura .datos-version span, .oscura .cifras span { color: var(--texto); }
+  .portada.oscura code { background: var(--fondo-suave); }
   .menu, .buscador, .sin-resultados, .imprimir, .saltar, .plegar-tarjetas { display: none !important; }
   .seccion-titulo::after { display: none; }
   details.seccion::details-content { content-visibility: visible; display: block; } /* abiertas aunque no haya JS */
@@ -511,8 +519,8 @@ dl.faq dd { margin: 0; color: var(--texto); }
   figure:not(.vertical):not(.diagrama):not(.infografia)::before { content: none; }
 }
 </style>
-  <style data-estilo="v3">
-    code, pre, kbd, .formula { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; } .portada.oscura { background: var(--cabecera); color: var(--sobre-cabecera); } .portada.oscura .marca, .portada.oscura .subtitulo, .portada.oscura .idea p, .portada.oscura a, .portada.oscura .datos-version, .portada.oscura .datos-version span, .portada.oscura .cifras strong, .portada.oscura .cifras span { color: var(--sobre-cabecera); } @media print { .portada.oscura, .portada.oscura :is(.marca, .subtitulo, .idea p, a, .datos-version, .datos-version span, .cifras strong, .cifras span) { color: var(--texto); } } .seccion-titulo::after { display: none; } :root { --esquinas: 6px; } .portada, .menu { border-bottom: 0; } .pie { border-top: 0; } .recuadro:not(.decision) { border-left: 0; border-radius: var(--esquinas, 8px); }
+  <style data-estilo="v4">
+    code, pre, kbd, .formula { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; } .seccion-titulo::after { display: none; } :root { --esquinas: 6px; } .portada, .menu { border-bottom: 0; } .pie { border-top: 0; } .recuadro:not(.decision) { border-left: 0; border-radius: var(--esquinas, 8px); }
   </style>
   <style data-kit="tools/kit_documentos/herramientas.css">
 /* Columna de herramientas del documento (assets/herramientas.js): la usan documento_vision y documento_fundacional.
@@ -825,6 +833,11 @@ p.editando { outline: 2px solid var(--primario); outline-offset: 4px; border-rad
 
 /* Pie con la procedencia del documento (la ponen los generadores). */
 .procedencia { font-size: .75rem; color: var(--texto-suave); margin-top: .35rem; font-variant-numeric: tabular-nums; }
+/* La maqueta anterior al generador único (309) tiene el pie oscuro (.site-footer) y el código sin cortar: con el kit
+ * puesto al día (actualizar_copia.py), el pie y su procedencia se leen a 4,5:1 y una ruta larga no desborda el móvil.
+ * Regenerar el documento lo pasa a la maqueta actual, que ya lo hace. */
+.site-footer, .site-footer .procedencia { color: rgba(255,255,255,.78); }
+:where(code) { overflow-wrap: anywhere; }
 
 /* Tamaño de las notas en la columna: el panel ocupa lo que dejan las demás herramientas y cada
  * nota abierta se reparte ese alto con las otras, entre 12em y el 60 % de la pantalla; su texto llena la tarjeta. */
@@ -889,8 +902,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
-<header class="portada oscura"><div class="portada-dentro"><p class="marca"><img class="logo-claro" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPC9zdmc+Cg==" alt="" width="72" height="40"><img class="logo-oscuro" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2YyZjJmMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjJmMmYwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPC9zdmc+Cg==" alt="" width="72" height="40">SoftwareFactory</p><h1 class="titular">Cómo funciona el panel</h1><p class="tipo-doc">Documento de visión</p><div class="idea"><p>El panel de la SF, parte por parte: qué enseña, cómo se lee y qué se puede hacer desde él. El resumen está en <a href="como-funciona-la-software-factory.html#el-panel-de-la-sf">Cómo funciona la Software Factory</a>. Qué hace cada cambio de estado de una tarea, en <a href="como-funcionan-los-estados.html">Cómo funcionan los estados</a>. Las reglas que hay detrás están en la metodología y en las <a href="../sf/decisiones/README.md">decisiones</a>.</p>
-<p><strong>Estado:</strong> 25 de noviembre de 2026, plugin <code>sf</code> 1.9.9 (ver «Historial»).</p></div></div></header>
+<header class="portada oscura"><div class="portada-dentro"><p class="marca"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2YyZjJmMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjJmMmYwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPC9zdmc+Cg==" alt="" width="72" height="40">SoftwareFactory</p><h1 class="titular">Cómo funciona el panel</h1><p class="tipo-doc">Documento de visión</p><div class="idea"><p>El panel de la SF, parte por parte: qué enseña, cómo se lee y qué se puede hacer desde él. El resumen está en <a href="como-funciona-la-software-factory.html#el-panel-de-la-sf">Cómo funciona la Software Factory</a>. Qué hace cada cambio de estado de una tarea, en <a href="como-funcionan-los-estados.html">Cómo funcionan los estados</a>. Las reglas que hay detrás están en la metodología y en las <a href="../sf/decisiones/README.md">decisiones</a>.</p>
+<p><strong>Estado:</strong> 27 de noviembre de 2026, plugin <code>sf</code> 1.9.12 (ver «Historial»).</p></div></div></header>
 <nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
 <div class="hoja">
   <main id="contenido" tabindex="-1"><details class="seccion" id="que-es" open><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">01</span> Qué es</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El panel es el <strong>mod de estado</strong> del plugin <code>sf</code>. Un mod es la parte de un plugin que cambia la interfaz o el comportamiento de Claude Code: responde a eventos de la sesión y dibuja en un panel o sobre el prompt. Este mod es el centro de control de la SF dentro de Claude Code, y las nuevas responsabilidades de control se plantean primero en él.</p>
@@ -918,39 +931,39 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <text x="16" y="124" font-size="11.5" fill="#15803d"><tspan text-decoration="underline">201</tspan> Que la caja diga la fase (corregir)</text>
 <text x="330" y="124" text-anchor="end" font-size="12" fill="#15803d">○</text>
 <rect x="12" y="140" width="326" height="164" rx="4" fill="none" stroke="#bbb" stroke-width="1"/>
-<text x="20" y="162" font-size="11.5" font-weight="700" fill="#333">PENDIENTES ▾ <tspan font-weight="400" style="fill: var(--texto-tenue)">2</tspan></text>
+<text x="20" y="162" font-size="11.5" font-weight="700" fill="#333">PENDIENTES ▾ <tspan font-weight="400" style="fill: var(--texto-suave)">2</tspan></text>
 <text x="20" y="182" font-size="11.5" fill="#666"><tspan text-decoration="underline"> 12</tspan> Ordenar la cola por sprint (diseñar)</text>
 <text x="20" y="200" font-size="11.5" fill="#666"><tspan text-decoration="underline" style="fill: var(--superficie); paint-order:stroke" stroke="#dc2626" stroke-width="7">205</tspan> Avisar del push que falta (corregir)</text>
-<text x="20" y="226" font-size="11.5" font-weight="700" fill="#333">EN OBSERVACIÓN ▸ <tspan font-weight="400" style="fill: var(--texto-tenue)">1</tspan></text>
-<text x="20" y="252" font-size="11.5" font-weight="700" fill="#333">CERRADAS ▸ <tspan font-weight="400" style="fill: var(--texto-tenue)">4</tspan></text>
-<text x="20" y="278" font-size="11.5" font-weight="700" fill="#333">PROPUESTAS ▸ <tspan font-weight="400" style="fill: var(--texto-tenue)">3</tspan></text>
+<text x="20" y="226" font-size="11.5" font-weight="700" fill="#333">EN OBSERVACIÓN ▸ <tspan font-weight="400" style="fill: var(--texto-suave)">1</tspan></text>
+<text x="20" y="252" font-size="11.5" font-weight="700" fill="#333">CERRADAS ▸ <tspan font-weight="400" style="fill: var(--texto-suave)">4</tspan></text>
+<text x="20" y="278" font-size="11.5" font-weight="700" fill="#333">PROPUESTAS ▸ <tspan font-weight="400" style="fill: var(--texto-suave)">3</tspan></text>
 <line x1="342" y1="45" x2="350" y2="45" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="360" cy="45" r="10" fill="#f97316"/>
 <text x="360" y="50" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">1</text>
-<text x="376" y="42" font-size="14" font-weight="700" style="fill: var(--oscuro)">Cabecera</text>
+<text x="376" y="42" font-size="14" font-weight="700" style="fill: var(--tinta-oscura)">Cabecera</text>
 <text x="376" y="59" font-size="12.5" style="fill: var(--texto-suave)">botones, sesión y rama; fija</text>
 <line x1="342" y1="114" x2="350" y2="114" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="360" cy="114" r="10" fill="#f97316"/>
 <text x="360" y="119" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">2</text>
-<text x="376" y="111" font-size="14" font-weight="700" style="fill: var(--oscuro)">Tareas en curso</text>
+<text x="376" y="111" font-size="14" font-weight="700" style="fill: var(--tinta-oscura)">Tareas en curso</text>
 <text x="376" y="128" font-size="12.5" style="fill: var(--texto-suave)">su color dice en qué punto está</text>
 <line x1="342" y1="182" x2="350" y2="182" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="360" cy="182" r="10" fill="#f97316"/>
 <text x="360" y="187" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">3</text>
-<text x="376" y="179" font-size="14" font-weight="700" style="fill: var(--oscuro)">Pendientes</text>
+<text x="376" y="179" font-size="14" font-weight="700" style="fill: var(--tinta-oscura)">Pendientes</text>
 <text x="376" y="196" font-size="12.5" style="fill: var(--texto-suave)">en cola; la 205, reabierta</text>
 <line x1="342" y1="222" x2="350" y2="222" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="360" cy="222" r="10" fill="#f97316"/>
 <text x="360" y="227" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">4</text>
-<text x="376" y="227" font-size="14" font-weight="700" style="fill: var(--oscuro)">En observación</text>
+<text x="376" y="227" font-size="14" font-weight="700" style="fill: var(--tinta-oscura)">En observación</text>
 <line x1="342" y1="248" x2="350" y2="248" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="360" cy="248" r="10" fill="#f97316"/>
 <text x="360" y="253" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">5</text>
-<text x="376" y="253" font-size="14" font-weight="700" style="fill: var(--oscuro)">Cerradas en la sesión</text>
+<text x="376" y="253" font-size="14" font-weight="700" style="fill: var(--tinta-oscura)">Cerradas en la sesión</text>
 <line x1="342" y1="274" x2="350" y2="274" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="360" cy="274" r="10" fill="#f97316"/>
 <text x="360" y="279" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">6</text>
-<text x="376" y="279" font-size="14" font-weight="700" style="fill: var(--oscuro)">Propuestas por decidir</text>
+<text x="376" y="279" font-size="14" font-weight="700" style="fill: var(--tinta-oscura)">Propuestas por decidir</text>
 </svg>
 <figcaption style="font-size:.82rem;color:var(--texto-suave);text-align:center;font-style:italic;margin-top:.3rem;">El panel en la SF, con dos tareas en curso, la 201 lista para probar, y Pendientes desplegada. Es un esquema, no una captura.</figcaption>
 </figure></div></details><details class="seccion" id="la-cabecera"><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">02</span> La cabecera</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La cabecera queda fija al hacer scroll en el terminal: lo demás sube bajo ella con la rueda o las teclas, también las tareas en curso. Si cambia la lista de tareas, se cierra el panel o cabe entero, el cuerpo vuelve arriba. Lo que queda fuera de la vista se marca: arriba, «▲ N filas más · arriba», que vuelve arriba al pulsarlo; abajo, «▼ N filas más».</p>
@@ -1000,35 +1013,35 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <text x="264" y="100" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">8</text>
 <circle cx="14" cy="136" r="11" fill="#f97316"/>
 <text x="14" y="141" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">1</text>
-<text x="34" y="141" font-size="16" font-weight="700" style="fill: var(--oscuro)">ACTUALIZAR o REFRESCAR, en rojo</text>
+<text x="34" y="141" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">ACTUALIZAR o REFRESCAR, en rojo</text>
 <text x="34" y="161" font-size="15" style="fill: var(--texto-suave)">con una versión nueva, o la sesión por detrás</text>
 <circle cx="14" cy="184" r="11" fill="#f97316"/>
 <text x="14" y="189" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">2</text>
-<text x="34" y="189" font-size="16" font-weight="700" style="fill: var(--oscuro)">RELEASE, en violeta</text>
+<text x="34" y="189" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">RELEASE, en violeta</text>
 <text x="34" y="209" font-size="15" style="fill: var(--texto-suave)">publica develop en main con su tag</text>
 <circle cx="14" cy="232" r="11" fill="#f97316"/>
 <text x="14" y="237" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">3</text>
-<text x="34" y="237" font-size="16" font-weight="700" style="fill: var(--oscuro)">TURBO, en cian</text>
+<text x="34" y="237" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">TURBO, en cian</text>
 <text x="34" y="257" font-size="15" style="fill: var(--texto-suave)">pide a Claude lanzar lo que no te necesita</text>
 <circle cx="14" cy="280" r="11" fill="#f97316"/>
 <text x="14" y="285" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">4</text>
-<text x="34" y="285" font-size="16" font-weight="700" style="fill: var(--oscuro)">Etiqueta de prueba, solo en la SF</text>
+<text x="34" y="285" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Etiqueta de prueba, solo en la SF</text>
 <text x="34" y="305" font-size="15" style="fill: var(--texto-suave)">«PRUEBA» en naranja: la copia de trabajo</text>
 <circle cx="14" cy="328" r="11" fill="#f97316"/>
 <text x="14" y="333" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">5</text>
-<text x="34" y="333" font-size="16" font-weight="700" style="fill: var(--oscuro)">SF y la versión que corre</text>
+<text x="34" y="333" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">SF y la versión que corre</text>
 <text x="34" y="353" font-size="15" style="fill: var(--texto-suave)">con el color de la sesión; un clic, la próxima comprobación</text>
 <circle cx="14" cy="376" r="11" fill="#f97316"/>
 <text x="14" y="381" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">6</text>
-<text x="34" y="381" font-size="16" font-weight="700" style="fill: var(--oscuro)">Duración de la sesión</text>
+<text x="34" y="381" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Duración de la sesión</text>
 <text x="34" y="401" font-size="15" style="fill: var(--texto-suave)">en horas y minutos, desde que se abrió</text>
 <circle cx="14" cy="424" r="11" fill="#f97316"/>
 <text x="14" y="429" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">7</text>
-<text x="34" y="429" font-size="16" font-weight="700" style="fill: var(--oscuro)">Prompts de la sesión</text>
+<text x="34" y="429" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Prompts de la sesión</text>
 <text x="34" y="449" font-size="15" style="fill: var(--texto-suave)">los que envías tú; con 0, atenuados</text>
 <circle cx="14" cy="472" r="11" fill="#f97316"/>
 <text x="14" y="477" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">8</text>
-<text x="34" y="477" font-size="16" font-weight="700" style="fill: var(--oscuro)">Rama activa, sola en su fila</text>
+<text x="34" y="477" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Rama activa, sola en su fila</text>
 <text x="34" y="497" font-size="15" style="fill: var(--texto-suave)">en dorado si es la de una tarea; «develop ↑2» si hay que subir</text>
 </svg>
 <figcaption style="font-size:.82rem;color:var(--texto-suave);text-align:center;font-style:italic;margin-top:.3rem;">La cabecera en la SF, con una versión nueva por instalar, en modo prueba y en la rama de una tarea. Es un esquema, no una captura.</figcaption>
@@ -1068,7 +1081,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <p>Plegada, cada una es solo su línea: el número y el título, enteros y sin negrita, con el tipo detrás. A la derecha, la marca de su subagente, si lo tiene (ver «La marca del subagente»). Su color dice en qué punto está:</p>
 <ul>
 <li><strong>dorado</strong>, en curso: un tono por tema de Claude Code, <code>#d4af37</code> con el oscuro y <code>#8b6914</code> con el claro, para que se lea en los dos (decisión <a href="../sf/decisiones/355-2026-11-25-las-tareas-en-curso-del-panel-vuelven-a-un-color-calido-el-dorado-no-el-azul.md">Las tareas en curso del panel vuelven a un color cálido: el dorado</a>). El tema sale del ajuste <code>theme</code> de <code>/config</code>: claro si empieza por «light»; oscuro con cualquier otro, sin ajuste o «auto»;</li>
-<li><strong>verde</strong>, lista para probar: Claude la ha dejado lista (<code>cola.py listo</code>) y desde entonces no ha vuelto al trabajo, con un paso nuevo, una vuelta a la cola o una reapertura. Activar rama no la quita;</li>
+<li><strong>verde</strong>, lista para probar: Claude la ha dejado lista (<code>cola.py listo</code>) y desde entonces no ha vuelto al trabajo, con un paso nuevo, una vuelta a la cola o una reapertura. Activar rama no la quita. Con pasos de trabajo sin hacer no sale en verde, ni aunque Claude la haya dejado lista; no cuentan los de cierre, las ayudas de prueba ni «Esperar al propietario: …»;</li>
 <li><strong>rojo</strong>, esperándote: tiene sin hacer un paso «Esperar al propietario: …», una decisión, una respuesta o un retoque tuyo. Claude lo añade al quedarse esperando y lo marca hecho con tu respuesta. Si además está lista para probar, manda el verde.</li>
 </ul>
 <p>Desplegada, enseña su detalle, como en las secciones (ver «Cómo se lee una tarea»); arriba, además, la Prueba y la orden Paso +.</p>
@@ -1093,11 +1106,11 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <text x="85" y="70" text-anchor="middle" font-size="11.5" fill="#777">Separar pasos</text>
 <rect x="134" y="56" width="56" height="20" rx="3" fill="none" stroke="#999" stroke-width="1.2"/>
 <text x="162" y="70" text-anchor="middle" font-size="11.5" fill="#777">Paso +</text>
-<text x="40" y="98" font-size="12" style="fill: var(--texto-tenue)">Rama: feature/198-actualizar-como-funciona-panel</text>
-<text x="40" y="120" font-size="12" text-decoration="underline" style="fill: var(--texto-tenue)">Prueba</text>
-<text x="40" y="142" font-size="12" text-decoration="underline" style="fill: var(--texto-tenue)">Descripción</text>
+<text x="40" y="98" font-size="12" style="fill: var(--texto-suave)">Rama: feature/198-actualizar-como-funciona-panel</text>
+<text x="40" y="120" font-size="12" text-decoration="underline" style="fill: var(--texto-suave)">Prueba</text>
+<text x="40" y="142" font-size="12" text-decoration="underline" style="fill: var(--texto-suave)">Descripción</text>
 <text x="68" y="160" font-size="12" fill="#666">Llevar al documento los cambios del panel.</text>
-<text x="40" y="184" font-size="12" style="fill: var(--texto-tenue)"><tspan text-decoration="underline">Pasos</tspan> 1/4</text>
+<text x="40" y="184" font-size="12" style="fill: var(--texto-suave)"><tspan text-decoration="underline">Pasos</tspan> 1/4</text>
 <text x="40" y="204" font-size="12" style="fill: var(--texto-suave)"><tspan>  1</tspan> Leer la tarea <tspan fill="#15803d">?</tspan></text>
 <text x="40" y="222" font-size="12" font-weight="700" fill="#777">  2<tspan font-weight="400"> Comprobarlo contra el código </tspan><tspan font-weight="400" fill="#15803d">?</tspan></text>
 <text x="40" y="240" font-size="12" fill="#777">  3 Escribir el documento <tspan fill="#15803d">?</tspan> <tspan fill="#b91c1c">×</tspan></text>
@@ -1128,44 +1141,44 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <text x="549" y="21" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">8</text>
 <circle cx="14" cy="294" r="11" fill="#f97316"/>
 <text x="14" y="299" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">1</text>
-<text x="34" y="299" font-size="16" font-weight="700" style="fill: var(--oscuro)">Número, título y tipo</text>
+<text x="34" y="299" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Número, título y tipo</text>
 <text x="34" y="319" font-size="15" style="fill: var(--texto-suave)">en dorado, verde o rojo; el número la pliega</text>
 <circle cx="14" cy="342" r="11" fill="#f97316"/>
 <text x="14" y="347" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">2</text>
-<text x="34" y="347" font-size="16" font-weight="700" style="fill: var(--oscuro)">Órdenes de la tarea</text>
+<text x="34" y="347" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Órdenes de la tarea</text>
 <text x="34" y="367" font-size="15" style="fill: var(--texto-suave)">en verde; la que destruye, en rojo y al final</text>
 <circle cx="14" cy="390" r="11" fill="#f97316"/>
 <text x="14" y="395" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">3</text>
-<text x="34" y="395" font-size="16" font-weight="700" style="fill: var(--oscuro)">Órdenes de sus pasos</text>
+<text x="34" y="395" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Órdenes de sus pasos</text>
 <text x="34" y="415" font-size="15" style="fill: var(--texto-suave)">en su fila, con la letra atenuada</text>
 <circle cx="14" cy="438" r="11" fill="#f97316"/>
 <text x="14" y="443" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">4</text>
-<text x="34" y="443" font-size="16" font-weight="700" style="fill: var(--oscuro)">Rama y commit</text>
+<text x="34" y="443" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Rama y commit</text>
 <text x="34" y="463" font-size="15" style="fill: var(--texto-suave)">atenuados, en la columna del número</text>
 <circle cx="14" cy="486" r="11" fill="#f97316"/>
 <text x="14" y="491" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">5</text>
-<text x="34" y="491" font-size="16" font-weight="700" style="fill: var(--oscuro)">Prueba</text>
+<text x="34" y="491" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Prueba</text>
 <text x="34" y="511" font-size="15" style="fill: var(--texto-suave)">qué mirar al probarla</text>
 <circle cx="14" cy="534" r="11" fill="#f97316"/>
 <text x="14" y="539" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">6</text>
-<text x="34" y="539" font-size="16" font-weight="700" style="fill: var(--oscuro)">Descripción</text>
+<text x="34" y="539" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Descripción</text>
 <text x="34" y="559" font-size="15" style="fill: var(--texto-suave)">abierta de inicio, en la columna del título</text>
 <circle cx="14" cy="582" r="11" fill="#f97316"/>
 <text x="14" y="587" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">7</text>
-<text x="34" y="587" font-size="16" font-weight="700" style="fill: var(--oscuro)">Pasos numerados</text>
+<text x="34" y="587" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Pasos numerados</text>
 <text x="34" y="607" font-size="15" style="fill: var(--texto-suave)">el hecho, oscuro; el actual, en negrita; «?» y «×»</text>
 <circle cx="14" cy="630" r="11" fill="#f97316"/>
 <text x="14" y="635" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">8</text>
-<text x="34" y="635" font-size="16" font-weight="700" style="fill: var(--oscuro)">Marca del subagente</text>
+<text x="34" y="635" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Marca del subagente</text>
 <text x="34" y="655" font-size="15" style="fill: var(--texto-suave)">verde: ● si trabaja, ○ si está parado</text>
 </svg>
 <figcaption style="font-size:.82rem;color:var(--texto-suave);text-align:center;font-style:italic;margin-top:.3rem;">Una tarea en curso desplegada, con su menú, su rama, la prueba, la descripción y los pasos. Es un esquema, no una captura.</figcaption>
 </figure></div></details><details class="seccion" id="como-se-lee-una-tarea"><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">04</span> Cómo se lee una tarea</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Todas las tareas tienen el mismo diseño en todas las secciones: arriba, en Pendientes, en En observación y en Cerradas.</p>
 <details id="numero-titulo-y-tipo" class="subseccion" open><summary class="subseccion-summary">Número, título y tipo</summary>
 <p>El número va <strong>sin letra detrás</strong>, alineado a la derecha en tres columnas («  4», « 41», «236»), para que los títulos empiecen en la misma columna. Su color dice el estado: dorado, en curso; verde, cerrada; gris, lo demás. Una tarea <strong>reabierta</strong> lleva el número con fondo rojo, en todas las secciones; es el único rojo de los números.</p>
-<p>El título va entero, sin negrita y en un gris más apagado que el texto normal; si no cabe, sigue en la línea siguiente en su misma columna, con sangría colgante. Detrás va su <strong>tipo</strong>, entre paréntesis y en minúsculas: «(deliberar)». Sin tipo, nada.</p>
+<p>El título va entero, sin negrita y en un gris más apagado que el texto normal; si no cabe, sigue en la línea siguiente en su misma columna, con sangría colgante. Detrás va su <strong>tipo</strong>, entre paréntesis y en minúsculas: «(deliberar)». Sin tipo, nada. Si espera a otra tarea todavía abierta, en cola o en curso, lleva detrás, atenuado, « · espera a la 436»; al cerrarse esa, desaparece y el panel avisa a Claude de que ya puede seguir.</p>
 </details><details id="desplegar-una-tarea" class="subseccion" open><summary class="subseccion-summary">Desplegar una tarea</summary>
-<p>Toda tarea se despliega, porque toda tarea tiene al menos una orden, el «?». En el terminal, su número va subrayado y un clic en la línea la despliega o la pliega; en una superficie gráfica, lo hace el «▸» o «▾» del final de la fila. Plegada, solo su línea. Desplegada, debajo y por este orden:</p>
+<p>Toda tarea se despliega, porque toda tarea tiene al menos una orden, el «?». En el terminal, su número va subrayado y un clic en la línea la despliega o la pliega; en una superficie gráfica, también: toda la línea se pulsa, y el «▸» o «▾» del final solo marca si está abierta. Plegada, solo su línea. Desplegada, debajo y por este orden:</p>
 <ol>
 <li>el menú de órdenes: una fila con las de la tarea y, debajo, otra con las de sus pasos (ver «Actuar desde el panel»);</li>
 <li>la rama, atenuada: «Rama: feature/95-rama-en-panel», con « (no existe)» si ya no está en el repositorio, y en la misma línea, tras « · », «Commit: …»;</li>
@@ -1340,7 +1353,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <p>En el repositorio de la SF, la etiqueta de prueba, o <code>/sf_prueba</code>, cambia entre el plugin publicado y la copia de trabajo, para ver un cambio sin commit ni publicación. Cambia <code>.claude/settings.local.json</code> y lanza <code>/reload-plugins</code>. Claude Code guarda la recarga hasta que la sesión queda libre: con Claude trabajando, el aviso dice que recarga al acabar su turno y que mientras sigue el panel de antes.</p>
 <p>El modo prueba se apaga solo al empezar cada sesión, una vez por sesión: la marca queda en <code>.sf/prueba.json</code>, y un <code>/reload-plugins</code> posterior no lo vuelve a apagar. Si la sesión arrancó desde la copia de trabajo, lanza <code>/reload-plugins</code> para volver al publicado. Al cerrar la sesión, también se apaga. Cada arranque y cada cambio quedan en <code>.sf/prueba.log</code>, fuera de git.</p>
 <p>Todo esto solo en el repositorio fuente de la SF. En otra carpeta con el catálogo local, como una carpeta de prueba, el mod no apaga el modo prueba ni escribe en <code>.sf/</code>: manda lo que diga su <code>.claude/settings.local.json</code>.</p>
-<p>Cómo se prepara el catálogo local está en <a href="como-funciona-la-software-factory.html#publicacion-del-plugin">Cómo funciona la Software Factory</a>.</p>
+<p>Cómo se prepara el catálogo local está en <a href="como-se-desarrolla-la-software-factory.html#publicacion-del-plugin">Cómo funciona la Software Factory</a>.</p>
 </details><details id="turbo" class="subseccion" open><summary class="subseccion-summary">TURBO</summary>
 <p>TURBO lanza de una vez el trabajo que no te necesita. Al pulsarlo, el panel avisa, «TURBO: se lo paso a Claude.», y le pasa este prompt como si lo escribieras tú:</p>
 <blockquote class="destacado"><p>TURBO: pon en curso, cada una con su subagente, las tareas de la cola que se pueden hacer sin interactuar con el propietario; lanza también el subagente de las tareas en curso que aún no lo tienen, y avísame de cuáles.</p></blockquote>
@@ -1366,8 +1379,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <rect x="150" y="4" width="404" height="96" rx="8" fill="none" stroke="#999" stroke-width="1.2"/>
 <text x="162" y="26" font-size="12" font-weight="700" fill="#333">SF 1.7 → 1.8.2 · LecturaFàcil · 2/7 Especificación…</text>
 <text x="162" y="46" font-size="12" fill="#333">▶ Exportar en UTF-8 con BOM</text>
-<text x="162" y="66" font-size="12" style="fill: var(--texto-tenue)">en cola 3 · observación 1 · propuestas 2</text>
-<text x="162" y="86" font-size="12" style="fill: var(--texto-tenue)">/sf abre el panel</text>
+<text x="162" y="66" font-size="12" style="fill: var(--texto-suave)">en cola 3 · observación 1 · propuestas 2</text>
+<text x="162" y="86" font-size="12" style="fill: var(--texto-suave)">/sf abre el panel</text>
 <line x1="140" y1="22" x2="150" y2="22" stroke="#f97316" stroke-width="1.5"/>
 <circle cx="130" cy="22" r="10" fill="#f97316"/>
 <text x="130" y="27" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">1</text>
@@ -1382,19 +1395,19 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <text x="102" y="87" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">4</text>
 <circle cx="14" cy="132" r="11" fill="#f97316"/>
 <text x="14" y="137" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">1</text>
-<text x="34" y="137" font-size="16" font-weight="700" style="fill: var(--oscuro)">Dónde estás, en negrita</text>
+<text x="34" y="137" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Dónde estás, en negrita</text>
 <text x="34" y="157" font-size="15" style="fill: var(--texto-suave)">versión de la SF, proyecto, fase y devslice</text>
 <circle cx="14" cy="180" r="11" fill="#f97316"/>
 <text x="14" y="185" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">2</text>
-<text x="34" y="185" font-size="16" font-weight="700" style="fill: var(--oscuro)">Tareas en curso</text>
+<text x="34" y="185" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Tareas en curso</text>
 <text x="34" y="205" font-size="15" style="fill: var(--texto-suave)">con «▶», recortadas</text>
 <circle cx="14" cy="228" r="11" fill="#f97316"/>
 <text x="14" y="233" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">3</text>
-<text x="34" y="233" font-size="16" font-weight="700" style="fill: var(--oscuro)">Cuentas</text>
+<text x="34" y="233" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Cuentas</text>
 <text x="34" y="253" font-size="15" style="fill: var(--texto-suave)">solo las que no son cero, atenuadas</text>
 <circle cx="14" cy="276" r="11" fill="#f97316"/>
 <text x="14" y="281" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">4</text>
-<text x="34" y="281" font-size="16" font-weight="700" style="fill: var(--oscuro)">Cómo abrir el panel</text>
+<text x="34" y="281" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Cómo abrir el panel</text>
 <text x="34" y="301" font-size="15" style="fill: var(--texto-suave)">«/sf abre el panel»</text>
 </svg>
 <figcaption style="font-size:.82rem;color:var(--texto-suave);text-align:center;font-style:italic;margin-top:.3rem;">La caja de un proyecto atrasado, con una tarea en curso y el panel cerrado. Es un esquema, no una captura.</figcaption>
@@ -1479,19 +1492,19 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <text x="462" y="335" text-anchor="middle" font-size="13" font-weight="700" style="fill: var(--superficie)">4</text>
 <circle cx="14" cy="394" r="11" fill="#f97316"/>
 <text x="14" y="399" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">1</text>
-<text x="34" y="399" font-size="16" font-weight="700" style="fill: var(--oscuro)">El logo «/SF»</text>
+<text x="34" y="399" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">El logo «/SF»</text>
 <text x="34" y="419" font-size="15" style="fill: var(--texto-suave)">la barra recuerda /sf; claro u oscuro según el tema</text>
 <circle cx="14" cy="442" r="11" fill="#f97316"/>
 <text x="14" y="447" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">2</text>
-<text x="34" y="447" font-size="16" font-weight="700" style="fill: var(--oscuro)">La orden, un botón</text>
+<text x="34" y="447" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">La orden, un botón</text>
 <text x="34" y="467" font-size="15" style="fill: var(--texto-suave)">se la pasa a Claude como si la escribieras tú</text>
 <circle cx="14" cy="490" r="11" fill="#f97316"/>
 <text x="14" y="495" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">3</text>
-<text x="34" y="495" font-size="16" font-weight="700" style="fill: var(--oscuro)">Cabecera de la lista</text>
+<text x="34" y="495" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">Cabecera de la lista</text>
 <text x="34" y="515" font-size="15" style="fill: var(--texto-suave)">su estado como etiqueta y el paso en que va</text>
 <circle cx="14" cy="538" r="11" fill="#f97316"/>
 <text x="14" y="543" text-anchor="middle" font-size="14" font-weight="700" style="fill: var(--superficie)">4</text>
-<text x="34" y="543" font-size="16" font-weight="700" style="fill: var(--oscuro)">El paso actual</text>
+<text x="34" y="543" font-size="16" font-weight="700" style="fill: var(--tinta-oscura)">El paso actual</text>
 <text x="34" y="563" font-size="15" style="fill: var(--texto-suave)">en amarillo y negrita; los hechos, con «✓» y su respuesta</text>
 </svg>
 <figcaption style="font-size:.82rem;color:var(--texto-suave);text-align:center;font-style:italic;margin-top:.3rem;">La bienvenida, con el tema oscuro, y una incorporación ya empezada: sin ella, la lista no sale. Durante la incorporación, la invitación a empezar se quita; aquí se ve para enseñar las dos partes juntas. Es un esquema, no una captura.</figcaption>
@@ -1520,10 +1533,11 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </ul>
 <p>En una carpeta sin SF nada de esto aplica.</p></div></details><details class="seccion" id="en-la-app-de-escritorio"><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">10</span> En la app de escritorio</h2></summary><div class="seccion-cuerpo"><p class="entradilla">En las superficies gráficas, la app de escritorio, VS Code y el móvil, el panel se ve y funciona como en el terminal, con lo que cambia su forma de dibujar. Allí el texto va en letra proporcional y cada botón es un botón nativo, que solo pinta su texto con la letra clara de la app:</p>
 <ul>
-<li>Cada botón va <strong>lleno de su color</strong>, como la etiqueta de la versión: un tono más oscuro que el de su letra en el terminal, para que la letra clara se lea. Los discretos, como Separar pasos y Paso +, en un gris apagado. Las órdenes de la tarea y la marca del subagente van también en su caja de color: sin ella, el botón nativo las pinta en blanco.</li>
+<li>Cada botón va <strong>lleno de su color</strong>, como la etiqueta de la versión: un tono más oscuro que el de su letra en el terminal, para que la letra clara se lea. Los discretos, como Separar pasos y Paso +, en un gris apagado. Las órdenes de la tarea (Activar rama, Redescribir, «?», Descartar) son la excepción: texto de su color sobre una etiqueta negra redondeada, del alto mínimo, como en el terminal. La marca del subagente es solo su ● u ○ verde, sin botón lleno.</li>
 <li>Los botones son <strong>pequeños</strong>: sin contorno ni relleno a los lados, del alto del botón nativo con un filo de su color arriba y abajo, y separados por el hueco más pequeño de la app, para que la cabecera y las órdenes de una tarea quepan en una fila con el panel estrecho.</li>
 <li>El «?» y la «×» de los pasos son enlaces pequeños dentro de la línea, no botones, para no agrandar la fila.</li>
-<li>El número y el título de una tarea van fuera del botón, como texto con su color; despliega un «▸» o «▾» al final de la fila. Plegado, el título se corta con «…».</li>
+<li>En la ficha desplegada, los sangrados son los del terminal: el número de un paso y su texto, alineados arriba; la continuación de un texto largo, bajo el texto y no bajo el número; y el número del título deja el mismo hueco que en el terminal.</li>
+<li>La línea de una tarea, con su número y su título, es <strong>una sola zona pulsable</strong>, como en el terminal: un clic en cualquier punto la despliega o la pliega; el «▸» o «▾» del final solo indica el estado, sin contorno. Plegado, el título se corta con «…».</li>
 <li>Las etiquetas de la cabecera toman el ancho de su texto y se parten en filas si no caben; la de la versión queda siempre a la derecha.</li>
 <li>El logo va en SVG, porque los caracteres de bloque se descuadran en su letra, y toma el modo claro u oscuro de la app; el nombre, en grande.</li>
 <li>El scroll es de la app: el panel entero, cabecera incluida, se desplaza con su barra (ver «La cabecera»).</li>
@@ -1531,7 +1545,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <li>El aviso de la cabecera va como texto, con una «×» que lo quita hasta su siguiente turno.</li>
 </ul>
 <p>En la app, <code>/sf:panel</code> sale en la lista de órdenes desde antes del primer mensaje (decisión <a href="../sf/decisiones/254-2026-11-04-en-la-app-sf-disponible-antes-del-primer-mensaje-y-solo-ordenes-al-escribir-sf.md">En la app, /sf disponible antes del primer mensaje</a>).</p></div></details><details class="seccion" id="sin-pantalla-completa"><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">11</span> Sin pantalla completa</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Fuera de la pantalla completa del terminal, el panel y la caja se pintan en la conversación y <strong>no reciben clics</strong>. El motor lo dice en cada dibujo. Entonces el panel y la caja avisan arriba, en blanco: «Los botones necesitan la pantalla completa: pide a Claude que la active.» En el móvil, que tampoco está en pantalla completa, los toques sí llegan y no se avisa.</p>
-<p>Con tu primer mensaje de la conversación, Claude recibe el encargo de ofrecerte activarla, una vez por conversación, con la causa que el mod puede leer: una variable de entorno que la quita, el ajuste <code>tui</code> ya puesto tras un arranque fallido, o nada. Con tu OK, la activa en <code>.claude/settings.local.json</code> del proyecto, nunca en <code>~/.claude</code> sin tu OK expreso. En una carpeta sin SF no se ofrece hasta incorporarla.</p></div></details><details class="seccion" id="lo-que-el-panel-dice-a-claude"><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">12</span> Lo que el panel dice a Claude</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El mod añade contexto a la conversación para que Claude no dependa de acordarse:</p>
+<p>Con tu primer mensaje de la conversación, Claude recibe el encargo de ofrecerte activarla, una vez por conversación, con la causa que el mod puede leer: una variable de entorno que la quita, el ajuste <code>tui</code> ya puesto tras un arranque fallido, o nada. Con tu OK, la activa en <code>.claude/settings.local.json</code> del proyecto, nunca en <code>~/.claude</code> sin tu OK expreso. En una carpeta sin SF no se ofrece hasta incorporarla.</p>
+<p>En pantalla completa, un proyecto sin SF no abre el panel: la bienvenida sale como la caja flotante, igual que fuera de ella, y el panel solo se abre al empezar la incorporación.</p></div></details><details class="seccion" id="lo-que-el-panel-dice-a-claude"><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">12</span> Lo que el panel dice a Claude</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El mod añade contexto a la conversación para que Claude no dependa de acordarse:</p>
 <ul>
 <li><strong>Las reglas y la orquestación</strong>, en los proyectos incorporados y también en la SF (decisión <a href="../sf/decisiones/298-2026-11-05-en-la-sf-las-reglas-y-sf-orquestacion-las-entrega-el-mod-como-en-los-demas-proyectos.md">En la SF, las reglas y sf:orquestacion las entrega el mod, como en los demás proyectos</a>), al empezar la sesión, tras <code>/clear</code> y tras compactar: las reglas comunes, las del método si el proyecto lo sigue, sus convenciones y la skill <code>sf:orquestacion</code> entera (decisión <a href="../sf/decisiones/187-2026-11-01-el-panel-entrega-las-reglas-y-la-orquestacion-en-los-proyectos.md">El panel entrega las reglas y la orquestación en los proyectos</a>). Si el <code>CLAUDE.md</code> aún importa la copia vieja, <code>.sf/claude-sf.md</code>, no repite las reglas y el panel avisa. Con <code>automatizaciones.orquestacion</code> apagado, no entrega la orquestación.</li>
 <li><strong>Lo que es de la SF</strong>, en cada petición, al final del prompt de sistema de los proyectos incorporados: lo que pinta el plugin y <code>~/.claude</code> no son del proyecto. En el repositorio fuente de la SF no va, porque allí lo del plugin sí es del proyecto.</li>
@@ -1539,10 +1554,17 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <li><strong>Lo cambiado desde el panel.</strong> Con cada mensaje tuyo, «Desde el panel: …», con lo que has cambiado en la cola desde el panel desde el mensaje anterior: «cerrada la 12; la 15, paso añadido: «…»». Sale de los eventos del historial con <code>via</code> panel. Va también tras cada encargo del panel a Claude. Sobrevive a <code>/reload-plugins</code>, también si cambia de plugin, sin repetirse ni perder nada; tras <code>/clear</code> o al reanudar una conversación, cuenta desde ahí, y nunca llega más atrás de 12 horas. Tras cerrar o descartar una tarea con subagente, pide detenerlo.</li>
 <li><strong>Los subagentes.</strong> Con cada mensaje tuyo y al volver un subagente, «ANTES DE NADA…» pide lanzar el de cada tarea en curso que no tiene ninguno vivo, mientras falte; y avisa una vez de cada subagente que ha terminado sin recoger. Tras <code>/clear</code> o una compactación, lo pendiente se vuelve a avisar. Con <code>automatizaciones.avisos_subagentes</code> apagado, no avisa.</li>
 <li><strong>El arranque.</strong> Al abrir o reanudar la sesión, tras <code>/clear</code> y tras compactar, el mod no espera a tu primer mensaje: si hay tareas en curso sin subagente o subagentes terminados sin recoger, segundo y medio después le encarga a Claude un turno propio, como mensaje del plugin y no tuyo, para que los lance todos a la vez o los recoja y diga al acabar qué ha hecho. Solo con alguien delante (no con <code>-p</code> ni en el SDK), con la SF activa y con <code>automatizaciones.avisos_subagentes</code> encendido. Mientras dura, tus mensajes no vuelven a pedir lanzarlos: Claude te atiende y sigue después. Si Claude Code no admite el encargo, el mod lo deja escrito en el prompt, si está vacío, para enviarlo con Intro, y lo dice en un aviso emergente; si no puede, el aviso pide que escribas cualquier cosa.</li>
+<li><strong>Las reglas, tras actualizar el plugin.</strong> Si cambian al recargarlo, el mod vuelve a entregar la orquestación con tu siguiente mensaje, sin que lo pidas.</li>
 <li><strong>La incorporación</strong>, en una carpeta sin SF, y <strong>la pantalla completa</strong>, como se dice arriba.</li>
 <li><strong>La sesión con la SF</strong>: que se ha apagado aquí, porque otra la tomó o con <code>/sf_forzar_inactiva</code>, y que deje las reglas de la SF; que se ha activado con <code>/sf_forzar_activa</code>; o que la que la tenía ya no da latido. Con la SF apagada, nada más (ver «Una sola sesión con la SF por proyecto»).</li>
 </ul>
-<p>Los encargos del panel a Claude («?», Paso +, TURBO, los cierres que fallan…) entran como si los escribieras tú. Tras interrumpir a Claude con Esc, Claude Code no los admite hasta que escribas algo: entonces el panel deja el encargo escrito en el prompt, si está vacío, para enviarlo con Intro, y lo dice.</p></div></details><details class="seccion" id="el-foco"><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">13</span> El foco</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El foco, la tarea en la que estás, lo lleva solo Claude, en la línea con que empieza cada respuesta: no se guarda en ningún archivo y ni el panel ni la caja lo muestran (decisión <a href="../sf/decisiones/328-2026-11-06-el-foco-solo-lo-sabe-claude-ni-el-panel-ni-la-caja-del-prompt-lo-muestran.md">El foco solo lo sabe Claude</a>). Lo que el mod pone para no interrumpirte son dos cosas, solo con la SF activa en la sesión.</p>
+<p>Los encargos del panel a Claude («?», Paso +, TURBO, los cierres que fallan…) entran como si los escribieras tú. Tras interrumpir a Claude con Esc, Claude Code no los admite hasta que escribas algo: entonces el panel deja el encargo escrito en el prompt, si está vacío, para enviarlo con Intro, y lo dice.</p></div></details><details class="seccion" id="el-foco"><summary class="seccion-titulo sin-etiqueta"><h2><span class="seccion-numero">13</span> El foco</h2></summary><div class="seccion-cuerpo"><p class="entradilla">El foco es la tarea en la que estás. Lo fijan tus palabras, que Claude guarda con <code>cola.py foco N</code>, o <strong>Activar rama</strong>, que lo pone en la tarea probada. Queda en <code>.sf/peticiones.json</code>; el cierre de la tarea lo quita, y caduca tras un rato sin hablar de ella. El panel no lo dibuja: lo usa el mod, solo con la SF activa en la sesión (decisión <a href="../sf/decisiones/328-2026-11-06-el-foco-solo-lo-sabe-claude-ni-el-panel-ni-la-caja-del-prompt-lo-muestran.md">El foco solo lo sabe Claude</a>, que ahora se guarda en la cola).</p>
+<ul>
+<li><strong>Recordatorio en los avisos.</strong> Si los avisos del mod traen algo de otras tareas, añaden una línea: lo de esas tareas, y lo que Claude haga por ellas, va al final como off-topic, sin menús de otras tareas. Sin foco guardado, nada.</li>
+<li><strong>Al empezar la sesión</strong>, tras <code>/clear</code> y tras compactar, el mod da a Claude la línea del foco guardado, para que no se pierda con la conversación.</li>
+<li><strong>Lo que espera.</strong> Una tarea que espera a otra («espera N») no recibe el aviso de lanzar su subagente mientras la otra siga abierta; al cerrarse, el mod avisa de que ya puede seguir.</li>
+<li><strong>Dos cosas más</strong> para no interrumpirte:</li>
+</ul>
 <div class="tarjetas cols-2">
 <article class="tarjeta">
 <h3>La sugerencia tras un rato sin escribir</h3>
@@ -1631,6 +1653,10 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </tr>
 </thead>
 <tbody>
+<tr>
+<td data-label="Versión del plugin">1.9.12</td>
+<td data-label="Cambio">Foco guardado en la cola y «· espera a la N» en la línea de la tarea; en la app, línea entera pulsable, órdenes como etiqueta negra y sangrados de la ficha como en el terminal; el panel no se abre solo en un proyecto sin SF; sin verde de «lista para probar» con pasos de trabajo pendientes; al actualizar el plugin, la orquestación se entrega sola.</td>
+</tr>
 <tr>
 <td data-label="Versión del plugin">1.9.9</td>
 <td data-label="Cambio">Las tareas en curso, en dorado, un tono por tema; las listas para probar, en verde, y las que esperan al propietario, en rojo. La marca del subagente, siempre verde: ● si trabaja, ○ si está parado.</td>
@@ -2361,7 +2387,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </tr>
 </tbody>
 </table></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Documento de visión</p><p class="procedencia">Generado el 25/11/2026 17:35 · fuente como-funciona-el-panel.md · huella 4e9d457e17c7 · commit 391602b (con cambios sin commit) · estilo v3</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Documento de visión</p><p class="procedencia">Generado el 27/11/2026 11:42 · fuente como-funciona-el-panel.md · huella 77c819bbcd79 · commit 6fea85a (con cambios sin commit) · estilo v4</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
@@ -2450,7 +2476,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
  *   #notas-documento) y sube la versión. Esa copia se puede pasar al autor: tools/kit_documentos/extraer_notas.py las lista.
  * Sin JavaScript no aparece nada; no se imprime. */
 (function () {
-  const VERSION = '1.10.0';
+  const VERSION = '1.10.1';
   const main = document.querySelector('main, .report-body');
   if (!main) return;
   const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title, .seccion-titulo h2';
@@ -3450,6 +3476,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     return getComputedStyle(raiz).getPropertyValue('--pagina').trim() || '#fff';
   };
   const titulos = secciones.map(d => d.querySelector(':scope > summary')).filter(Boolean);
+  let cambioDeTema = false;
   function seguir() {
     const activo = pref.cabecera && innerWidth >= 700 && innerHeight >= 500;
     const tope = activo ? altoMenu() : 0;
@@ -3460,13 +3487,15 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
       const r = d.getBoundingClientRect(), s = sm.getBoundingClientRect();
       const y = Math.max(0, Math.min(tope - s.top, r.bottom - s.bottom - 8));
       if (y > 0) {
-        if (!sm.classList.contains('titulo-fijo')) sm.style.backgroundColor = fondoDe(d);
+        if (!sm.classList.contains('titulo-fijo') || cambioDeTema) sm.style.backgroundColor = fondoDe(d);
         sm.classList.add('titulo-fijo'); sm.style.transform = 'translateY(' + y + 'px)';
       } else { sm.classList.remove('titulo-fijo'); sm.style.backgroundColor = ''; }
     }
   }
   let raf = 0;
   const pedir = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(seguir); };
+  // Al cambiar de tema con el título fijo, su fondo se recalcula: si no, se queda con el del tema anterior.
+  new MutationObserver(() => { cambioDeTema = true; seguir(); cambioDeTema = false; }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   addEventListener('scroll', seguir, { passive: true });
   addEventListener('resize', pedir);
   document.addEventListener('toggle', pedir, true);

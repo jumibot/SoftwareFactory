@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Muestra del tema · Documento</title>
-  <meta name="theme-color" content="#af8f13">
+  <meta name="theme-color" content="#25283a">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
@@ -56,7 +56,11 @@ strong { font-weight: 650; }
 .marca img { height: 40px; width: auto; }
 /* Portada clara con logo para fondo oscuro (o en placa): cada uno en su modo de «Lectura». */
 .marca img.logo-oscuro { display: none; }
+/* En la portada oscura, el logo para fondo oscuro si lo hay (en papel, la portada vuelve a clara). */
+@media screen { .portada.oscura .marca img.logo-claro:has(+ img.logo-oscuro) { display: none; }
+                .portada.oscura .marca img.logo-oscuro { display: inline; } }
 .oscura .marca { color: var(--tenue); }
+@media screen { .oscura .tipo-doc { color: var(--tenue); } }  /* como la marca: el primario no se lee sobre el oscuro */
 .portada.oscura a { color: #fff; text-decoration-color: var(--tenue); }  /* el primario no se lee sobre el oscuro */
 .enlace-proyecto { margin: -.8rem 0 1.2rem; font-size: .9375rem; overflow-wrap: anywhere; }
 .marca img.placa { background: #fff; border-radius: 6px; padding: 4px; box-sizing: content-box; }
@@ -69,7 +73,10 @@ strong { font-weight: 650; }
 .portada-linea { height: 3px; background: var(--primario); border: 0; margin: 0 0 1rem; max-width: 36em; }
 .idea h3 { font-family: var(--fuente-titulos); font-size: 1.15rem; margin: 0 0 .5rem; }
 .idea p { margin: 0 0 .5rem; font-size: 1.05rem; max-width: 80ch; }
-.oscura .idea p { color: rgba(255,255,255,.86); }
+.oscura .idea > p { color: rgba(255,255,255,.86); }
+/* El código en línea sobre la portada oscura: el fondo suave del tema es claro y el texto, blanco (1,08:1); aquí, una
+ * banda translúcida sobre el fondo de la portada y el color de su texto. En papel, la portada vuelve a clara. */
+.portada.oscura code { background: rgba(255,255,255,.14); color: inherit; }
 /* «portada: compacta»: título, raya pegada, versión en gris y la entrada con menos aire */
 .portada.compacta { padding: clamp(1rem, 2.4vw, 1.5rem) 0 1rem; }
 .compacta .titular { margin: 0 0 .45rem; }
@@ -328,7 +335,7 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
  * cambia de rol: sobre las superficies oscuras, el primario aclarado en lugar del tenue; en las tarjetas con color,
  * los campos y los chips con el color aclarado (350); y el logo de la portada clara. */
 @media screen {
-  :where(:root[data-theme="dark"]) :is(.oscura .marca, .oscura .cifras strong, .recuadro.decision .recuadro-etiqueta,
+  :where(:root[data-theme="dark"]) :is(.oscura .marca, .oscura .tipo-doc, .oscura .cifras strong, .recuadro.decision .recuadro-etiqueta,
                                        .recuadro.decision h3) { color: var(--primario); }
   :root[data-theme="dark"] .portada.oscura a { text-decoration-color: var(--primario); }
   :root[data-theme="dark"] .tarjeta.con-color dt { color: var(--c-oscuro-o, var(--c-oscuro)); border-top-color: var(--c-borde-o, var(--c-borde)); }
@@ -367,6 +374,7 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
   .portada, .portada.oscura { background: var(--superficie); color: var(--texto); padding: 0 0 1rem; break-after: page; border: 0; }
   .oscura .marca, .oscura .cifras strong { color: var(--primario-texto, var(--primario)); }
   .oscura .subtitulo, .oscura .idea p, .oscura .datos-version, .oscura .datos-version span, .oscura .cifras span { color: var(--texto); }
+  .portada.oscura code { background: var(--fondo-suave); }
   .menu, .buscador, .sin-resultados, .imprimir, .saltar, .plegar-tarjetas { display: none !important; }
   .seccion-titulo::after { display: none; }
   details.seccion::details-content { content-visibility: visible; display: block; } /* abiertas aunque no haya JS */
@@ -511,8 +519,8 @@ dl.faq dd { margin: 0; color: var(--texto); }
   figure:not(.vertical):not(.diagrama):not(.infografia)::before { content: none; }
 }
 </style>
-  <style data-estilo="v3">
-    code, pre, kbd, .formula { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; } .portada.oscura { background: var(--cabecera); color: var(--sobre-cabecera); } .portada.oscura .marca, .portada.oscura .subtitulo, .portada.oscura .idea p, .portada.oscura a, .portada.oscura .datos-version, .portada.oscura .datos-version span, .portada.oscura .cifras strong, .portada.oscura .cifras span { color: var(--sobre-cabecera); } @media print { .portada.oscura, .portada.oscura :is(.marca, .subtitulo, .idea p, a, .datos-version, .datos-version span, .cifras strong, .cifras span) { color: var(--texto); } } .seccion-titulo::after { display: none; } :root { --esquinas: 6px; } .portada, .menu { border-bottom: 0; } .pie { border-top: 0; } .recuadro:not(.decision) { border-left: 0; border-radius: var(--esquinas, 8px); }
+  <style data-estilo="v4">
+    code, pre, kbd, .formula { font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace; } .seccion-titulo::after { display: none; } :root { --esquinas: 6px; } .portada, .menu { border-bottom: 0; } .pie { border-top: 0; } .recuadro:not(.decision) { border-left: 0; border-radius: var(--esquinas, 8px); }
   </style>
   <style data-kit="tools/kit_documentos/herramientas.css">
 /* Columna de herramientas del documento (assets/herramientas.js): la usan documento_vision y documento_fundacional.
@@ -825,6 +833,11 @@ p.editando { outline: 2px solid var(--primario); outline-offset: 4px; border-rad
 
 /* Pie con la procedencia del documento (la ponen los generadores). */
 .procedencia { font-size: .75rem; color: var(--texto-suave); margin-top: .35rem; font-variant-numeric: tabular-nums; }
+/* La maqueta anterior al generador único (309) tiene el pie oscuro (.site-footer) y el código sin cortar: con el kit
+ * puesto al día (actualizar_copia.py), el pie y su procedencia se leen a 4,5:1 y una ruta larga no desborda el móvil.
+ * Regenerar el documento lo pasa a la maqueta actual, que ya lo hace. */
+.site-footer, .site-footer .procedencia { color: rgba(255,255,255,.78); }
+:where(code) { overflow-wrap: anywhere; }
 
 /* Tamaño de las notas en la columna: el panel ocupa lo que dejan las demás herramientas y cada
  * nota abierta se reparte ese alto con las otras, entre 12em y el 60 % de la pantalla; su texto llena la tarjeta. */
@@ -964,6 +977,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 .d-gen .externo > .d-caja { stroke-dasharray: 5 4; }
 .d-gen .d-nn { font-weight: 650; fill: var(--texto, #1a1a1a); }
 .d-gen .d-sb { fill: var(--texto-suave, #555); }
+.d-gen :is(.foco, .salida) .d-sb { fill: color-mix(in srgb, var(--texto-suave, #555) 55%, var(--texto, #1a1a1a)); }  /* sobre el fondo tintado del foco y de la salida, el gris suave no llega a 4,5:1 */
 .d-gen .d-cl { font-family: var(--fuente-escena, Georgia, serif); font-style: italic; fill: var(--texto-suave, #555); }
 .d-gen text.d-etiqueta { fill: var(--texto-suave, #555); }
 .d-gen .d-b-verde, .d-gen text.d-b-verde { fill: var(--b-verde, #15803d); color: var(--b-verde, #15803d); }
@@ -1157,7 +1171,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </head>
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
-<header class="portada oscura"><div class="portada-dentro"><p class="marca"><img class="logo-claro" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjMjUyODNhIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iIzI1MjgzYSIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiMyNTI4M2EiLz4KPC9zdmc+Cg==" alt="" width="72" height="40"><img class="logo-oscuro" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2YyZjJmMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjJmMmYwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPC9zdmc+Cg==" alt="" width="72" height="40">Proyecto de ejemplo · Muestra del tema</p><h1 class="titular">Muestra del tema<span class="lema">Así se ven los documentos<br>con este tema.</span></h1><p class="subtitulo">Portada, secciones, recuadros, tabla, botones y un diagrama, tal como los genera crear_documentos.</p></div></header>
+<header class="portada oscura"><div class="portada-dentro"><p class="marca"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2YyZjJmMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjJmMmYwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPC9zdmc+Cg==" alt="" width="72" height="40">Proyecto de ejemplo · Muestra del tema</p><h1 class="titular">Muestra del tema<span class="lema">Así se ven los documentos<br>con este tema.</span></h1><p class="subtitulo">Portada, secciones, recuadros, tabla, botones y un diagrama, tal como los genera crear_documentos.</p></div></header>
 <nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
 <div class="hoja">
   <main id="contenido" tabindex="-1"><details class="seccion" id="recuadros" open><summary class="seccion-titulo"><span class="etiqueta">01 / Recuadros</span><h2>Recuadros y tabla</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La entradilla abre cada sección, un poco más grande que el texto, y deja ver la letra de los títulos y del texto.</p>
@@ -1237,7 +1251,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <pre><code class="language-json">{<span class="sx-p">"colores"</span>: {<span class="sx-p">"primario"</span>: <span class="sx-s">"#1d6fb6"</span>}, <span class="sx-p">"portada"</span>: {<span class="sx-p">"forma"</span>: <span class="sx-s">"oscura"</span>}}
 </code></pre>
 <p class="metrica"><strong>4,5:1</strong> contraste mínimo del texto</p></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Documento · Versión 1.0 · Muestra</p><p class="procedencia">Generado el 24/11/2026 19:02 · fuente muestra-proyecto.md · huella 101d5748baa4 · sin commit · estilo v3</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Documento · Versión 1.0 · Muestra</p><p class="procedencia">Generado el 27/11/2026 11:41 · fuente muestra-proyecto.md · huella 0299d17d4993 · sin commit · estilo v4</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
@@ -1326,7 +1340,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
  *   #notas-documento) y sube la versión. Esa copia se puede pasar al autor: tools/kit_documentos/extraer_notas.py las lista.
  * Sin JavaScript no aparece nada; no se imprime. */
 (function () {
-  const VERSION = '1.10.0';
+  const VERSION = '1.10.1';
   const main = document.querySelector('main, .report-body');
   if (!main) return;
   const SECCION = 'details.seccion, details.bloque', TITULO = '.etiqueta, .bloque-title, .seccion-titulo h2';
@@ -2326,6 +2340,7 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     return getComputedStyle(raiz).getPropertyValue('--pagina').trim() || '#fff';
   };
   const titulos = secciones.map(d => d.querySelector(':scope > summary')).filter(Boolean);
+  let cambioDeTema = false;
   function seguir() {
     const activo = pref.cabecera && innerWidth >= 700 && innerHeight >= 500;
     const tope = activo ? altoMenu() : 0;
@@ -2336,13 +2351,15 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
       const r = d.getBoundingClientRect(), s = sm.getBoundingClientRect();
       const y = Math.max(0, Math.min(tope - s.top, r.bottom - s.bottom - 8));
       if (y > 0) {
-        if (!sm.classList.contains('titulo-fijo')) sm.style.backgroundColor = fondoDe(d);
+        if (!sm.classList.contains('titulo-fijo') || cambioDeTema) sm.style.backgroundColor = fondoDe(d);
         sm.classList.add('titulo-fijo'); sm.style.transform = 'translateY(' + y + 'px)';
       } else { sm.classList.remove('titulo-fijo'); sm.style.backgroundColor = ''; }
     }
   }
   let raf = 0;
   const pedir = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(seguir); };
+  // Al cambiar de tema con el título fijo, su fondo se recalcula: si no, se queda con el del tema anterior.
+  new MutationObserver(() => { cambioDeTema = true; seguir(); cambioDeTema = false; }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
   addEventListener('scroll', seguir, { passive: true });
   addEventListener('resize', pedir);
   document.addEventListener('toggle', pedir, true);
@@ -3021,6 +3038,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
     const ids = [...new Set([...fig.querySelectorAll('[data-plegar]')].map(t => t.dataset.plegar))];
     if (!ids.length) return;
     fig.classList.add('d-js');
+    // Con cajas que se pliegan (se pulsan), el <svg role="img"> esconde sus hijos al lector de pantalla: pasa a grupo.
+    fig.querySelectorAll('svg[role="img"]').forEach(s => { if (s.querySelector('[data-plegar]')) s.setAttribute('role', 'group'); });
     let abiertas = new Set();
     const pinta = () => fig.querySelectorAll('svg').forEach(s => ids.forEach(id => ponerCaja(s, id, abiertas.has(id))));
     const modo = () => {
