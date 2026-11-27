@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 388 | 2026-11-27 | [Las decisiones, en un solo formato: regla y porqué](388-2026-11-27-las-decisiones-en-un-solo-formato-regla-y-porque.md) |
 | 387 | 2026-11-27 | [Las skills gráficas entienden lo que representan y aportan criterio](387-2026-11-27-las-skills-graficas-entienden-lo-que-representan-y-aportan-criterio.md) |
 | 386 | 2026-11-27 | [Abrir el catálogo de emojis al decidir qué emoji poner](386-2026-11-27-abrir-el-catalogo-de-emojis-al-decidir-que-emoji-poner.md) |
 | 385 | 2026-11-27 | [Antes de una representación gráfica, decidir los puntos clave que transmite](385-2026-11-27-antes-de-una-representacion-grafica-decidir-los-puntos-clave-que-transmite.md) |
