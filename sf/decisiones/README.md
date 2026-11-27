@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 415 | 2026-11-27 | [Los diagramas deducen si sus bloques forman un ciclo o una jerarquía, y una línea de los datos puede fijar la forma](415-2026-11-27-los-diagramas-deducen-si-sus-bloques-forman-un-ciclo-o-una-jerarquia-y-una-linea-de-los-datos-puede-fijar-la-forma.md) |
 | 414 | 2026-11-27 | [La cola por dentro: historial, copias, bloqueo, quién y por dónde, reabrir y subagentes](414-2026-11-27-la-cola-por-dentro-historial-copias-bloqueo-quien-y-por-donde-reabrir-y-subagentes.md) |
 | 413 | 2026-11-27 | [El panel no enseña horas, y solo la tarea en curso va en dorado](413-2026-11-27-el-panel-no-ensena-horas-y-solo-la-tarea-en-curso-va-en-dorado.md) |
 | 412 | 2026-11-27 | [La SF fija su mecanismo y se adapta al proyecto en el remoto, la rama de publicación, el idioma, los commits y el manifiesto](412-2026-11-27-la-sf-fija-su-mecanismo-y-se-adapta-al-proyecto-en-el-remoto-la-rama-de-publicacion-el-idioma-los-commits-y-el-manifiesto.md) |
