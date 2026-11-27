@@ -241,7 +241,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | 195 | 2026-11-01 | [Fuera la sección Documentos del panel](195-2026-11-01-fuera-la-seccion-documentos-del-panel.md) |
 | 194 | 2026-11-01 | [Sin registro ni mejoras de la SF desde otros proyectos](194-2026-11-01-sin-registro-ni-mejoras-de-la-sf-desde-otros-proyectos.md) |
 | 193 | 2026-11-01 | [Una sola sesión con la SF por proyecto](193-2026-11-01-una-sola-sesion-con-la-sf-por-proyecto.md) |
-| 192 | 2026-11-01 | [La mejora desde otro proyecto se escribe con Edit o Write](192-2026-11-01-la-mejora-desde-otro-proyecto-se-escribe-con-edit-o-write.md) (sustituida) |
+| 192 | 2026-11-01 | [La mejora desde otro proyecto se escribe con Edit o Write](192-2026-11-01-la-mejora-desde-otro-proyecto-se-escribe-con-edit-o-write.md) |
 | 191 | 2026-11-01 | [Activar rama integra develop, avisa a Claude si choca y adelanta la rama del subagente](191-2026-11-01-activar-rama-integra-develop-y-avisa-a-claude-si-choca.md) |
 | 190 | 2026-11-01 | [La orden fija de cola.py pasa por el lanzador real, también con CLAUDE_CONFIG_DIR](190-2026-11-01-la-orden-fija-de-cola-py-pasa-por-el-lanzador-real.md) |
 | 189 | 2026-11-01 | [Descartar borra también la rama del subagente](189-2026-11-01-descartar-borra-tambien-la-rama-del-subagente.md) |

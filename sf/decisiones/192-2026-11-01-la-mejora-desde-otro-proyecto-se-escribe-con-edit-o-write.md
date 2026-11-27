@@ -1,6 +1,6 @@
 # La mejora desde otro proyecto se escribe con Edit o Write
 
-**Sustituida** el 2026-11-01 por «Sin registro ni mejoras de la SF desde otros proyectos».
+Estado: deprecada el 2026-11-27 por «Ningún proyecto escribe en la SF, y lo que es de la SF se dice en una línea» (401).
 
 - **Origen:** SoftwareFactory, 2026-11-01, tarea «Registrar una mejora desde otro proyecto deja docs/propuestas.md de la SF sin commit» (276). El propietario acepta la opción recomendada.
 - **Contexto:** el mod lleva a `develop`, con su commit, la mejora que Claude escribe en `docs/propuestas.md` de la SF desde otro proyecto (`cola.py propuestas-a-develop`). Solo intercepta Edit y Write: una escritura por terminal no dispara el commit.
