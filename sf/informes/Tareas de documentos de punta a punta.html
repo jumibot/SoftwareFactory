@@ -316,10 +316,52 @@ a.salto { font-size: .875rem; }
 .pie { margin-top: 3rem; border-top: 1px solid var(--linea); padding: 1rem 0 2.5rem; font-size: .875rem; color: var(--texto-suave); }
 .pie p { margin: 0 0 .4rem; }
 code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; border-radius: 3px; overflow-wrap: anywhere; }
-/* Bloques de código: fondo suave y filete (pagina.codigo: bloque, el de por defecto; «linea» los deja entre dos líneas). */
-pre { background: var(--fondo-suave); border-left: 3px solid var(--primario); padding: .9rem 1.1rem; margin: 1rem 0 1.4rem;
-      border-radius: 0 var(--esquinas, 6px) var(--esquinas, 6px) 0; overflow-x: auto; line-height: 1.5; font-size: .9rem; }
-pre code { background: none; padding: 0; border-radius: 0; font-size: inherit; }
+/* Bloques de código: fondo suave y las esquinas de las demás cajas (pagina.codigo: bloque, el de por defecto; «linea» los
+ * deja entre dos líneas). */
+pre { background: var(--fondo-suave); padding: .9rem 1.1rem; margin: 1rem 0 1.4rem; border-radius: var(--esquinas, 8px);
+      overflow-x: auto; line-height: 1.5; font-size: .9rem; scrollbar-width: thin; scrollbar-color: var(--borde) transparent; }
+pre code { background: none; padding: 0; border-radius: 0; font-size: inherit; font-variant-ligatures: none; }
+/* La caja de cada bloque (scripts/resaltar_codigo.py): la barra con el lenguaje, que pliega y despliega el bloque, y
+ * «Copiar» (assets/codigo.js); el código se desplaza en horizontal dentro de la caja sin ensanchar la página. */
+.codigo { background: var(--fondo-suave); margin: 1rem 0 1.4rem; min-width: 0; max-width: 100%;
+          border-radius: var(--esquinas, 8px); }
+.codigo > pre { background: none; border: 0; border-radius: 0; margin: 0; max-width: 100%; }
+.codigo-barra { display: flex; align-items: center; gap: .6rem; min-height: 1.9rem; padding: .35rem .6rem 0 1.1rem;
+                font-family: var(--fuente-texto); font-size: .78rem; color: var(--texto-suave); }
+.codigo-barra + pre { padding-top: .45rem; }
+.codigo.plegado > .codigo-barra { padding-bottom: .35rem; }
+.codigo-lenguaje { font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+.codigo-plegar { flex: 1; display: flex; align-items: center; gap: .55rem; min-width: 0; margin: 0 0 0 -.3rem; padding: .2rem .3rem;
+                 font: inherit; color: inherit; text-align: left; background: none; border: 0; border-radius: 4px; cursor: pointer; }
+.codigo-plegar::before { content: ""; flex: none; width: .42em; height: .42em; margin: 0 .1rem 0 .15rem;
+                         border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+                         transform: translateY(-.1em) rotate(45deg); transition: transform .15s; }
+.codigo-plegar[aria-expanded="false"]::before { transform: rotate(-45deg); }
+.codigo-plegar:hover { color: var(--texto); background: none; }
+.codigo-lineas { display: none; font-weight: 400; }
+.codigo.plegado .codigo-lineas { display: inline; }
+.codigo-copiar { flex: none; font: inherit; font-weight: 650; color: var(--texto-suave); background: var(--superficie);
+                 border: 1px solid var(--borde-campo, var(--borde)); border-radius: 4px; padding: .2rem .6rem; line-height: 1.3;
+                 cursor: pointer; }
+.codigo-copiar:hover { color: var(--texto); background: var(--superficie); border-color: var(--texto-suave); }
+:is(.codigo-copiar, .codigo-plegar):focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+/* Ámbitos plegables (resaltar_codigo.py y codigo.js): la flecha, en el margen izquierdo de la línea que abre el ámbito;
+ * plegado, «…» al final de esa línea. Sin JS no hay flechas ni margen. */
+.codigo > pre.con-ambitos { padding-left: 1.6rem; }
+pre .amb-flecha { position: relative; display: inline-block; box-sizing: border-box; width: 1.15rem; height: 1.25em;
+                  margin: 0 .35rem 0 -1.5rem; padding: 0; vertical-align: -.3em; font: inherit; line-height: 1; color: var(--texto-suave);
+                  background: none; border: 0; border-radius: 3px; cursor: pointer; opacity: .7; }
+pre .amb-flecha::before { content: ""; position: absolute; left: 50%; top: 50%; width: .4em; height: .4em;
+                          border-right: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor;
+                          transform: translate(-50%, -70%) rotate(45deg); transition: transform .15s; }
+pre .amb-flecha[aria-expanded="false"]::before { transform: translate(-70%, -50%) rotate(-45deg); }
+pre .amb-flecha:hover, pre .amb-flecha:focus-visible, pre .amb-flecha[aria-expanded="false"] { opacity: 1; color: var(--texto); }
+pre .amb-flecha:hover { background: var(--fondo-medio); }
+pre .amb-flecha:focus-visible { outline: 2px solid var(--acento); outline-offset: 0; }
+.amb.plegado > .amb-cabeza > .amb-marca::after { content: "…"; margin-left: .4em; padding: 0 .4em; border-radius: 3px;
+                                                  background: var(--fondo-medio); color: var(--texto); }
+@media (prefers-reduced-motion: reduce) { .codigo-plegar::before, pre .amb-flecha::before { transition: none; } }
+:is(.tarjeta, .columna, .tarjeta-cuerpo) { min-width: 0; }  /* un código largo no ensancha su columna */
 /* Coloreado de los bloques de código (scripts/resaltar_codigo.py): colores con significado fijo, variables --sx-…. */
 :root { --sx-clave: var(--primario-texto, var(--primario)); --sx-cadena: #1f812d; --sx-numero: #a6501a; --sx-palabra: var(--acento);
         --sx-funcion: #1f7a7a; --sx-atributo: #a6501a; --sx-comentario: var(--texto-suave); }
@@ -391,6 +433,16 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
   .recuadro.decision { background: var(--fondo); color: var(--texto); }
   .recuadro.decision .recuadro-etiqueta, .recuadro.decision h3 { color: var(--primario-texto, var(--primario)); }
   a { color: inherit; text-decoration: none; }
+  /* Código: las líneas largas se parten en la hoja en vez de cortarse; sin «Copiar» */
+  .codigo-copiar, .codigo-lineas, .codigo-plegar::before, .codigo-barra:not(:has(.codigo-lenguaje:not(.codigo-generico))) {
+    display: none !important; }
+  .codigo > pre[hidden] { display: block !important; }  /* plegado en pantalla, desplegado en la hoja */
+  .amb-flecha, .amb-marca { display: none !important; }
+  .amb-cuerpo[hidden] { display: inline !important; }
+  .codigo > pre.con-ambitos { padding-left: 1.1rem; }
+  pre, .codigo > pre { white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; font-size: 8.5pt; }
+  .codigo-barra, .codigo.plegado > .codigo-barra { min-height: 0; padding-bottom: 0; font-size: 7.5pt; }
+  .codigo, pre { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
   </style>
@@ -903,10 +955,10 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <body>
 <a class="saltar" href="#contenido">Saltar al contenido</a>
 <header class="portada oscura"><div class="portada-dentro"><p class="marca"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDggNjAiIHdpZHRoPSIxMDgiIGhlaWdodD0iNjAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iU29mdHdhcmUgRmFjdG9yeSIgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj4KPHJlY3QgeD0iMTIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIxOC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2YyZjJmMCIvPgo8cmVjdCB4PSIxMi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjJmMmYwIi8+CjxyZWN0IHg9IjAuMCIgeT0iNDIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMTIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSI2LjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iNi4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmMmYyZjAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzNi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI1NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI4NC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5Ni4wIiB5PSIwLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIxMDIuMCIgeT0iMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzAuMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjEyLjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIxMi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMTIuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjMwLjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjM2LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNDguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzMC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjYuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3Mi4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzguMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijg0LjAiIHk9IjI0LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI5MC4wIiB5PSIyNC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iOTYuMCIgeT0iMjQuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjU0LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI2MC4wIiB5PSIzNi4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNzIuMCIgeT0iMzYuMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9Ijc4LjAiIHk9IjM2LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSIzMC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iMzYuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjQyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI0OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPHJlY3QgeD0iNTQuMCIgeT0iNDguMCIgd2lkdGg9IjYuMyIgaGVpZ2h0PSIxMi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjYwLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iNi4zIiBmaWxsPSIjZjVjNDAwIi8+CjxyZWN0IHg9IjcyLjAiIHk9IjQ4LjAiIHdpZHRoPSI2LjMiIGhlaWdodD0iMTIuMyIgZmlsbD0iI2Y1YzQwMCIvPgo8cmVjdCB4PSI3OC4wIiB5PSI0OC4wIiB3aWR0aD0iNi4zIiBoZWlnaHQ9IjEyLjMiIGZpbGw9IiNmNWM0MDAiLz4KPC9zdmc+Cg==" alt="" width="72" height="40">Software Factory · Informe de análisis · Noviembre 2026</p><h1 class="titular">Tareas de documentos de punta a punta<span class="lema">Una orden por vuelta;<br>el documento, su respaldo y su HTML, juntos en develop.</span></h1><p class="subtitulo">Cómo se lleva una tarea de documentos de punta a punta — qué toca, cómo llega cada vuelta a develop con su respaldo y su HTML, cuándo se abre — y qué pasa con las «Actualizar…», la revisión y el diálogo.</p></div></header>
-<nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><a href="#resumen">Resumen</a><a href="#hoy">Hoy</a><a href="#orden">La orden</a><a href="#decidido">Decidido</a><a href="#por-decidir">Abierto · vuelta</a><a href="#por-decidir-compartidos">Abierto · Actualizar</a><a href="#por-decidir-revision">Abierto · revisión</a><a href="#separar">Separar</a><a href="#tareas">Tareas</a><a href="#anexo">Anexo</a><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
+<nav class="menu" aria-label="Secciones del documento"><div class="menu-dentro"><a href="#resumen">Resumen</a><a href="#hoy">Hoy</a><a href="#orden">La orden</a><a href="#decidido">Decidido</a><a href="#por-decidir">Por decidir</a><a href="#por-decidir-vuelta">Decidido · vuelta</a><a href="#por-decidir-compartidos">Decidido · Actualizar</a><a href="#por-decidir-revision">Decidido · revisión</a><a href="#separar">Separar</a><a href="#tareas">Tareas</a><a href="#anexo">Anexo</a><span class="menu-botones"><button type="button" class="plegar">Plegar todo</button><button type="button" class="imprimir" onclick="window.print()">Imprimir / PDF</button></span></div></nav>
 <div class="hoja">
-  <main id="contenido" tabindex="-1"><details class="seccion" id="resumen" open><summary class="seccion-titulo"><span class="etiqueta">01 / Resumen</span><h2>Una sola orden para cada vuelta</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Se propone que cada vuelta de un documento la lleve a <code>develop</code> una sola orden, <code>cola.py documento N RUTA</code>. La orden respalda en <code>_respaldo/</code> la versión que hay en <code>develop</code>, regenera el HTML, hace el commit en <code>develop</code> sin cambiar de rama y abre el HTML si la tarea es el foco. Al usarla, la tarea declara su documento, y solo ese documento entra en <code>develop</code>.</p>
-<p>Las piezas ya existen y se usan a mano: <code>respaldar.py</code>, el generador único y <code>commit_en_develop</code>, con la que <code>cola.py decision</code> ya escribe en <code>develop</code> sin cambiar de rama. Falta juntarlas, y se nota. 11 de los 25 HTML de <code>sf/informes/</code> y <code>docs/</code> no corresponden a su <code>.md</code>, y seis informes no tienen HTML. Una documental que crea un documento nuevo sigue teniendo rama. La «Actualizar» del CLAUDE.md lleva tres pasos «Reflejar» de la 379, que aún está en observación.</p>
+  <main id="contenido" tabindex="-1"><details class="seccion" id="resumen" open><summary class="seccion-titulo"><span class="etiqueta">01 / Resumen</span><h2>Una sola orden para cada vuelta</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La orden que se propuso y se ha decidido es que cada vuelta de un documento la lleve a <code>develop</code> una sola orden, <code>cola.py documento N RUTA</code>. La orden respalda en <code>_respaldo/</code> la versión que hay en <code>develop</code>, regenera el HTML, hace el commit en <code>develop</code> sin cambiar de rama y abre el HTML si la tarea es el foco. Al usarla, la tarea declara su documento, y solo ese documento entra en <code>develop</code>. La implementa la tarea «Llevar cada vuelta de un documento a develop con una orden: respaldo, HTML, commit y apertura» (469).</p>
+<p>Las piezas ya existen y se usan a mano: <code>respaldar.py</code>, el generador único y <code>commit_en_develop</code>, con la que <code>cola.py decision</code> ya escribe en <code>develop</code> sin cambiar de rama. Faltaba juntarlas, y se nota. 11 de los 25 HTML de <code>sf/informes/</code> y <code>docs/</code> no corresponden a su <code>.md</code>, y seis informes no tienen HTML. Una documental que crea un documento nuevo sigue teniendo rama. La «Actualizar» del CLAUDE.md lleva tres pasos «Reflejar» de una tarea que aún está en observación.</p>
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 436" width="100%" role="img" aria-label="La vuelta de un documento: el subagente escribe el .md; después, respaldar, regenerar el HTML, el commit en develop y abrir el HTML, que hoy van a mano o no existen y que la orden propuesta haría juntos" style="font-family:var(--fuente-texto);display:block">
 <rect x="10" y="10" width="430" height="70" rx="10" fill="none" style="stroke:var(--primario-linea)" stroke-width="1.5"/>
@@ -934,8 +986,9 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <figcaption style="font-size:.82rem;text-align:center;font-style:italic;margin-top:.3rem;">Tras escribir, cuatro pasos que hoy van a mano o faltan; la llave discontinua es la orden propuesta, que los haría juntos.</figcaption>
 </figure>
 
-<p>De las once preguntas que llegaron del informe «Tipos de tarea», la 13 ya está resuelta (decisiones 344 y 346). Quedan diez, en tres bloques: la vuelta de un documento, las «Actualizar…», y la revisión y el diálogo. Salen cinco tareas y un paso en la 305.</p>
-<p><a class="salto" href="#por-decidir">Ver las 10 preguntas</a> · <a class="salto" href="#tareas">Ver las tareas</a></p></div></details><details class="seccion" id="hoy"><summary class="seccion-titulo"><span class="etiqueta">02 / Hoy</span><h2>Cómo funciona hoy cada pieza</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Lo decidido el 2 de noviembre (216, 217, 219, 220) está escrito en las skills, pero casi todo se hace a mano. Solo las deliberativas tienen ya su camino en <code>cola.py</code>: sin rama, worktree ni rama auxiliar (278). Las documentales siguen el camino de una tarea de código aunque su documento sea nuevo. El color de cada tarjeta dice si la pieza existe (verde), existe a medias (naranja) o falta (frambuesa).</p>
+<p>De las once preguntas que llegaron del informe «Tipos de tarea», la 13 ya estaba resuelta y las otras diez las ha decidido el propietario, todas con la opción recomendada (A). <strong>No queda ninguna pregunta abierta.</strong> Las decisiones están registradas como 393 (la vuelta de un documento), 394 (las «Actualizar…») y 395 (el diálogo de las skills de documentos).</p>
+<p>Salen cinco tareas, ya en la cola, y un paso en la tarea 305. Se separaron dos cosas: el paso del botón «Finalizar deliberación», que ya era de la 305, y el umbral de pasos, que pasa a la 309.</p>
+<p><a class="salto" href="#decidido">Ver lo decidido</a> · <a class="salto" href="#tareas">Ver las tareas</a></p></div></details><details class="seccion" id="hoy"><summary class="seccion-titulo"><span class="etiqueta">02 / Hoy</span><h2>Cómo funciona hoy cada pieza</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Lo decidido el 2 de noviembre (216, 217, 219, 220) está escrito en las skills, pero casi todo se hace a mano. Solo las deliberativas tienen ya su camino en <code>cola.py</code>: sin rama, worktree ni rama auxiliar (278). Las documentales siguen el camino de una tarea de código aunque su documento sea nuevo. El color de cada tarjeta dice si la pieza existe (verde), existe a medias (naranja) o falta (frambuesa).</p>
 <div class="tarjetas cols-3">
 <details class="tarjeta con-cabecera con-color plegable" open="open" style="--c:#a6501a;--c-oscuro:#6c3411;--c-borde:#e4caba;--c-suave:#f6eee8;--c-oscuro-o:#be8059;--c-borde-o:#755345;--c-suave-o:#3c343f">
 <summary class="tarjeta-cabecera"><svg class="tarjeta-icono" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h8l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M14 2v5h5M8 13h8M8 17h6"/></svg><h3 class="tarjeta-titulo">Solo su documento</h3></summary>
@@ -1004,52 +1057,47 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </div>
 </details>
 </div>
-<p>Algunas cosas ya están resueltas. La pregunta 13 la resolvieron las decisiones 344 y 346. El aviso del informe 274 sobre el CLAUDE.md, que decía «en el principal», ya no vale: el CLAUDE.md dice ahora «cada una con su subagente». El botón «Finalizar deliberación» (paso 9) también es el paso 5 de la 305.</p></div></details><details class="seccion" id="orden"><summary class="seccion-titulo"><span class="etiqueta">03 / La orden</span><h2>Una orden para cada vuelta</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La orden junta las cuatro piezas en una llamada que el subagente hace al terminar cada vuelta. Así no depende de que Claude se acuerde, que es lo que hoy deja HTML desfasados y documentos sin commit. El nombre, <code>cola.py documento</code>, es provisional.</p>
+<p>Algunas cosas ya están resueltas. La pregunta 13 la resolvieron las decisiones 344 y 346. El aviso del informe «Tipos de tarea» sobre el CLAUDE.md, que decía «en el principal», ya no vale: el CLAUDE.md dice ahora «cada una con su subagente». El paso del botón «Finalizar deliberación» ya es de «Decidir y aplicar cómo se lleva y se cierra cada familia de tareas, con su agente» (305) y se quitó de esta tarea.</p></div></details><details class="seccion" id="orden"><summary class="seccion-titulo"><span class="etiqueta">03 / La orden</span><h2>Una orden para cada vuelta</h2></summary><div class="seccion-cuerpo"><p class="entradilla">La orden junta las cuatro piezas en una llamada que el subagente hace al terminar cada vuelta. Así no depende de que Claude se acuerde, que es lo que hoy deja HTML desfasados y documentos sin commit. El nombre, <code>cola.py documento</code>, es provisional.</p>
 <ol>
-<li><strong>Declara el documento.</strong> La primera vez, anota en la tarea la ruta de su <code>.md</code>; después, solo admite esa ruta. Entran el <code>.md</code>, su HTML, su carpeta de imágenes o diagramas y sus respaldos (<a href="#p1">pregunta 1</a>).</li>
-<li><strong>Respalda.</strong> Si <code>develop</code> ya tiene el documento, copia esa versión y su HTML a <code>_respaldo/&lt;nombre&gt;_antes-&lt;motivo&gt;</code>. El respaldo sale de <code>develop</code>, no de la copia del subagente, y va en el mismo commit (<a href="#p10">10</a> y <a href="#p12">12</a>).</li>
-<li><strong>Regenera el HTML</strong> con el generador de su tipo, en el mismo cambio (220).</li>
-<li><strong>Hace el commit en <code>develop</code></strong> solo de esos archivos, con <code>commit_en_develop</code>: un commit normal si <code>develop</code> está activa y, si no, sin tocar la copia de trabajo (<a href="#p3">3</a>).</li>
-<li><strong>Abre el HTML</strong> si la tarea es el foco. Si no lo es, lo dice en su salida (<a href="#p6">6</a>).</li>
+<li><strong>Declara el documento.</strong> La primera vez, anota en la tarea la ruta de su <code>.md</code>; después, solo admite esa ruta. Entran el <code>.md</code>, su HTML, su carpeta de imágenes o diagramas y sus respaldos (pregunta 1: <a href="#p1">cómo se cumple «solo su documento»</a>).</li>
+<li><strong>Respalda.</strong> Si <code>develop</code> ya tiene el documento, copia esa versión y su HTML a <code>_respaldo/&lt;nombre&gt;_antes-&lt;motivo&gt;</code>, con «-2», «-3»… si el nombre existe. El respaldo sale de <code>develop</code>, no de la copia del subagente, y va en el mismo commit (<a href="#p10">respaldos con el mismo nombre</a>, <a href="#p12">qué se respalda</a>).</li>
+<li><strong>Regenera el HTML</strong> con el generador de su tipo, en el mismo cambio.</li>
+<li><strong>Hace el commit en <code>develop</code></strong> solo de esos archivos, con <code>commit_en_develop</code>: un commit normal si <code>develop</code> está activa y, si no, sin tocar la copia de trabajo (<a href="#p3">subagente de un documento nuevo</a>).</li>
+<li><strong>Abre el HTML</strong> si la tarea es el foco. Si no lo es, lo dice en su salida (<a href="#p6">cuándo se abre</a>).</li>
 </ol>
-<p>A favor: una vuelta pasa a ser una sola orden, y el documento de cada tarea queda anotado en la cola, que es lo que necesita el botón Abrir de la 452. En contra: <code>cola.py</code> crece y tiene que conocer los generadores. Un documento que ya existe sigue con su rama y su squash (219): para él, la orden solo regenera y respalda.</p>
-<h3>Los pasos de implementación de la 303</h3>
+<p>A favor: una vuelta pasa a ser una sola orden, y el documento de cada tarea queda anotado en la cola, que es lo que necesita el botón Abrir de «Abrir los documentos desde el panel» (452). En contra: <code>cola.py</code> crece y tiene que conocer los generadores. Un documento que ya existe sigue con su rama y su squash: para él, la orden solo regenera y respalda. Se hace en la tarea 469.</p>
+<h3>Los pasos de implementación de la tarea</h3>
+<p>Estos pasos de la tarea 303 han ido a otras tareas o se han quitado:</p>
 <table>
 <thead>
 <tr>
 <th>Paso</th>
-<th>Hoy</th>
-<th>Propuesta</th>
+<th>Dónde queda</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td data-label="Paso">7 · Respaldar antes de sustituir (217)</td>
-<td data-label="Hoy"><code>respaldar.py</code> existe y se llama a mano</td>
-<td data-label="Propuesta">Lo hace la orden: va a su tarea</td>
+<td data-label="Paso">Respaldar antes de sustituir</td>
+<td data-label="Dónde queda">En «Llevar cada vuelta de un documento a develop con una orden: respaldo, HTML, commit y apertura» (469)</td>
 </tr>
 <tr>
-<td data-label="Paso">8 · Regenerar con una orden única y comprobar que ninguno queda desfasado (220, 305)</td>
-<td data-label="Hoy">El generador único ya está; la visión, migrada. Faltan la orden y el aviso</td>
-<td data-label="Propuesta">Tarea propia: la orden única y <code>--comprobar</code></td>
+<td data-label="Paso">Regenerar con una orden única y comprobar que ninguno queda desfasado</td>
+<td data-label="Dónde queda">En «Avisar de los HTML desfasados de su .md, con una orden única para regenerar» (470)</td>
 </tr>
 <tr>
-<td data-label="Paso">9 · Botón «Finalizar deliberación» (222)</td>
-<td data-label="Hoy">Sin hacer; es también el paso 5 de la 305</td>
-<td data-label="Propuesta">Quitarlo de la 303: es un duplicado</td>
+<td data-label="Paso">Botón «Finalizar deliberación»</td>
+<td data-label="Dónde queda">Quitado: ya es un paso de «Decidir y aplicar cómo se lleva y se cierra cada familia de tareas, con su agente» (305)</td>
 </tr>
 <tr>
-<td data-label="Paso">15 · Sin rama para una tarea que solo hace un documento nuevo</td>
-<td data-label="Hoy"><code>cola.py rama</code> solo se niega en las deliberativas</td>
-<td data-label="Propuesta">En la tarea de la orden: <code>rama</code> se niega si el documento declarado aún no está en <code>develop</code></td>
+<td data-label="Paso">Sin rama para una tarea que solo hace un documento nuevo</td>
+<td data-label="Dónde queda">En la tarea 469: <code>rama</code> se niega si el documento declarado aún no está en <code>develop</code></td>
 </tr>
 <tr>
-<td data-label="Paso">16 · Que el pie no diga «con cambios sin commit»</td>
-<td data-label="Hoy"><code>procedencia()</code> sigue citando el commit anterior</td>
-<td data-label="Propuesta">Con la orden única: si el <code>.md</code> no tiene commit, el pie da la huella y «sin commit todavía»</td>
+<td data-label="Paso">Que el pie no diga «con cambios sin commit»</td>
+<td data-label="Dónde queda">En la tarea 470: si el <code>.md</code> no tiene commit, el pie da la huella y «sin commit todavía»</td>
 </tr>
 </tbody>
-</table></div></details><details class="seccion" id="decidido"><summary class="seccion-titulo"><span class="etiqueta">04 / Decidido</span><h2>Lo que ya está decidido</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Esta tarea aún no ha fijado decisiones. Parte de estas, que siguen vigentes:</p>
+</table></div></details><details class="seccion" id="decidido"><summary class="seccion-titulo"><span class="etiqueta">04 / Decidido</span><h2>Lo que ya está decidido</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Esta tarea ha fijado tres decisiones, que recogen las diez preguntas. Debajo, las decisiones anteriores en las que se apoya.</p>
 <table>
 <thead>
 <tr>
@@ -1060,189 +1108,200 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </thead>
 <tbody>
 <tr>
-<td data-label="Nº">147</td>
-<td data-label="Decisión">Documentación, una vez por tarea</td>
-<td data-label="Qué fija aquí">Un solo paso «Reflejar» por tarea; quien actualiza mira su squash</td>
+<td data-label="Nº">393</td>
+<td data-label="Decisión">Cada vuelta de un documento la lleva a develop una sola orden, solo con ese documento</td>
+<td data-label="Qué fija aquí">La orden, el documento declarado, el worktree desprendido, cuándo se abre el HTML, los respaldos con «-2», qué se respalda, el <code>.ignore</code> y la copia anotada fuera de git (preguntas 1, 3, 6, 10, 11, 12 y 14)</td>
 </tr>
 <tr>
-<td data-label="Nº">216</td>
-<td data-label="Decisión">Los documentos nuevos van a <code>develop</code> en cada vuelta y se ofrecen en el navegador</td>
-<td data-label="Qué fija aquí">La vuelta, solo con el documento, y abrirlo</td>
+<td data-label="Nº">394</td>
+<td data-label="Decisión">Las «Actualizar…» no se quedan atrás: Reflejar nace al entrar la tarea en develop y RELEASE avisa de las pendientes</td>
+<td data-label="Qué fija aquí">El momento del paso «Reflejar» y el aviso de RELEASE (preguntas 2 y 4)</td>
 </tr>
 <tr>
-<td data-label="Nº">217</td>
-<td data-label="Decisión">Antes de sustituir un documento, se respalda en <code>_respaldo/</code></td>
-<td data-label="Qué fija aquí">El respaldo y su nombre</td>
-</tr>
-<tr>
-<td data-label="Nº">219</td>
-<td data-label="Decisión">El tipo de tarea decide cómo se maneja el repositorio</td>
-<td data-label="Qué fija aquí">Un documento nuevo, sin rama; uno existente, con rama</td>
-</tr>
-<tr>
-<td data-label="Nº">220</td>
-<td data-label="Decisión">Cada cambio de un <code>.md</code> regenera su HTML</td>
-<td data-label="Qué fija aquí">El HTML, en el mismo cambio</td>
-</tr>
-<tr>
-<td data-label="Nº">278</td>
-<td data-label="Decisión">Una deliberativa solo escribe su documento, sin rama</td>
-<td data-label="Qué fija aquí">El camino que ya tienen las deliberativas</td>
+<td data-label="Nº">395</td>
+<td data-label="Decisión">En las skills de documentos, el subagente prepara en tanda las preguntas de cada fase y el principal las lleva al propietario</td>
+<td data-label="Qué fija aquí">El reparto del diálogo (pregunta 15)</td>
 </tr>
 <tr>
 <td data-label="Nº">344, 346</td>
 <td data-label="Decisión">La mudanza a <code>sf/</code>, justo antes de cerrar; todos los informes en <code>sf/informes/</code></td>
-<td data-label="Qué fija aquí">Resuelven la pregunta 13</td>
-</tr>
-<tr>
-<td data-label="Nº">369</td>
-<td data-label="Decisión">Una tarea de código tampoco crea documentos</td>
-<td data-label="Qué fija aquí">Regenerar documentos es trabajo de una documental</td>
-</tr>
-<tr>
-<td data-label="Nº">377</td>
-<td data-label="Decisión">Cada documento compartido se actualiza en su propia tarea</td>
-<td data-label="Qué fija aquí">Las «Actualizar…»</td>
+<td data-label="Qué fija aquí">Resolvieron la pregunta 13</td>
 </tr>
 </tbody>
-</table></div></details><details class="seccion" id="por-decidir"><summary class="seccion-titulo"><span class="etiqueta">05 / Por decidir</span><h2>La vuelta de un documento</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Diez preguntas abiertas en tres bloques. Conservan el número del informe 274, que es el que citan los pasos de la tarea. Este bloque reúne las seis que dan forma a la orden.</p>
+</table>
+<p>Siguen vigentes, como base: 147 (documentación una vez por tarea), 216 (los documentos nuevos van a <code>develop</code> y se ofrecen en el navegador), 217 (respaldar antes de sustituir), 219 (el tipo de tarea decide cómo se maneja el repositorio), 220 (cada cambio de un <code>.md</code> regenera su HTML), 278 (una deliberativa solo escribe su documento), 369 (una tarea de código tampoco crea documentos) y 377 (cada documento compartido se actualiza en su tarea).</p></div></details><details class="seccion" id="por-decidir"><summary class="seccion-titulo"><span class="etiqueta">05 / Por decidir</span><h2>Todo decidido</h2></summary><div class="seccion-cuerpo"><p class="entradilla">No queda ninguna pregunta abierta: las diez están decididas, todas con la opción recomendada (A). Las preguntas conservan el número del informe «Tipos de tarea» (274), que es el que citan los pasos de las tareas. Van en tres bloques: la vuelta de un documento, las «Actualizar…», y la revisión y el diálogo.</p></div></details><details class="seccion" id="por-decidir-vuelta"><summary class="seccion-titulo"><span class="etiqueta">06 / La vuelta de un documento</span><h2>Seis preguntas que dan forma a la orden</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Las seis dan forma a la orden de cada vuelta. Las recoge la decisión 393 y las lleva la tarea 469 (salvo la 11 y la 14, que van a la 472).</p>
 <div class="tarjetas preguntas cols-2">
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p1" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p1" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">1 · Cómo se cumple «solo su documento»</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">1 · Cómo se cumple «solo su documento»</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
-<p>Hoy es una regla (278, 369) y nada la comprueba (240). Una deliberativa hace su commit en <code>develop</code> sin que nada mire qué lleva.</p>
+<p>Hoy es una regla, escrita en el encargo de las deliberativas y en la orquestación, y nada la comprueba. Una deliberativa hace su commit en <code>develop</code> sin que nada mire qué lleva.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">La tarea declara su documento con la orden de cada vuelta, y la orden solo lleva a <code>develop</code> ese documento con lo suyo. En una documental con rama, <code>cerrar</code> se niega si la rama toca otros archivos.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Solo la regla, como hoy, en la orquestación y en el encargo.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Solo una comprobación por familia al cerrar: que la rama no toque más que <code>.md</code>, HTML, imágenes y <code>_respaldo/</code>.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">La tarea declara su documento con la orden de cada vuelta, y la orden solo lleva a <code>develop</code> ese documento con lo suyo. En una documental con rama, <code>cerrar</code> se niega si la rama toca otros archivos.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Solo la regla, como hoy, en la orquestación y en el encargo.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Solo una comprobación por familia al cerrar: que la rama no toque más que <code>.md</code>, HTML, imágenes y <code>_respaldo/</code>.</dd>
 <dt class="recomendacion">Recomendación</dt>
-<dd class="recomendacion"><strong>A.</strong> Se cumple con la orden, sin depender de la memoria, y da al panel el documento de cada tarea, que la 452 necesita.</dd>
+<dd class="recomendacion"><strong>A.</strong> Se cumple con la orden, sin depender de la memoria, y da al panel el documento de cada tarea, que necesita «Abrir los documentos desde el panel» (452).</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">A. La tarea declara su documento y solo ese documento, con lo suyo, entra en <code>develop</code>. Decisión 393; la aplica la tarea 469.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p3" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p3" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">3 · El subagente de un documento nuevo</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">3 · El subagente de un documento nuevo</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
-<p>La deliberativa ya trabaja sin worktree (278) y solo hace commit con <code>develop</code> activa. Si el propietario está probando otra tarea, el informe queda sin commit en la copia de trabajo de esa rama, y al volver a <code>develop</code> git puede negarse a cambiar.</p>
+<p>Una deliberativa ya trabaja sin worktree y solo hace commit con <code>develop</code> activa. Si el propietario está probando otra tarea, el informe queda sin commit en la copia de trabajo de esa rama, y al volver a <code>develop</code> git puede negarse a cambiar.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Un worktree desprendido desde <code>develop</code>, sin rama propia, compatible con la 278, solo para escribir. La orden lleva el documento a <code>develop</code> con <code>commit_en_develop</code> y pone el worktree al día.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Sin worktree, como hoy, y la orden hace el commit con <code>commit_en_develop</code> aunque haya otra rama activa. El archivo sigue en la copia de trabajo de esa rama.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Como hoy.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Un worktree desprendido desde <code>develop</code>, sin rama propia, solo para escribir. La orden lleva el documento a <code>develop</code> con <code>commit_en_develop</code> y pone el worktree al día.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Sin worktree, como hoy, y la orden hace el commit con <code>commit_en_develop</code> aunque haya otra rama activa. El archivo sigue en la copia de trabajo de esa rama.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Como hoy.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Nunca toca la copia de trabajo del propietario y funciona con cualquier rama activa. B deja el choque para cuando se vuelve a <code>develop</code>.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">A. El subagente de un documento nuevo escribe en un worktree desprendido desde <code>develop</code>, sin rama propia. Decisión 393; la aplica la tarea 469.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p6" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p6" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">6 · Cuándo se abre el HTML en cada vuelta</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">6 · Cuándo se abre el HTML en cada vuelta</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
-<p>La 216 pide ofrecerlo en cada versión nueva. Abrir una ventana mientras el propietario está en otra tarea le interrumpe (333, 380).</p>
+<p>Se decidió ofrecerlo en cada versión nueva. Abrir una ventana mientras el propietario está en otra tarea le interrumpe.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Lo abre la orden de cada vuelta si la tarea es el foco, que ya se guarda en la cola (382). Si no lo es, la orden lo dice en su salida y el principal lo deja como off-topic. Para abrirlo otra vez, el botón Abrir de la 452.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Lo abre siempre la orden.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Lo ofrece el principal en cada vuelta, con una pregunta, como hoy.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Lo abre la orden de cada vuelta si la tarea es el foco, que ya se guarda en la cola. Si no lo es, la orden lo dice en su salida y el principal lo deja como off-topic. Para abrirlo otra vez, el botón Abrir de «Abrir los documentos desde el panel» (452).</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Lo abre siempre la orden.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Lo ofrece el principal en cada vuelta, con una pregunta, como hoy.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Se cumple sin depender de Claude y no salta encima de otra tarea.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">A. Lo abre la orden si la tarea es el foco; si no, lo dice y el principal lo da como off-topic. Decisión 393; la aplica la tarea 469.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p10" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p10" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">10 · Respaldos con el mismo nombre</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">10 · Respaldos con el mismo nombre</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p>Hoy <code>respaldar.py</code> se para y pide otro motivo. Dentro de la orden, la vuelta se quedaría a medias.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Añadir <code>-2</code>, <code>-3</code>… solo si el nombre ya existe.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Poner siempre la fecha y la hora en el nombre.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Como hoy: se para y se elige otro motivo.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Añadir <code>-2</code>, <code>-3</code>… solo si el nombre ya existe.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Poner siempre la fecha y la hora en el nombre.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Como hoy: se para y se elige otro motivo.</dd>
 <dt class="recomendacion">Recomendación</dt>
-<dd class="recomendacion"><strong>A.</strong> El nombre sigue siendo el de la 217, y la vuelta no se para.</dd>
+<dd class="recomendacion"><strong>A.</strong> El nombre sigue siendo el de siempre, y la vuelta no se para.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">A. Se añade «-2», «-3»… solo si el nombre ya existe. Decisión 393; la aplica la tarea 469.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p11" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p11" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">11 · Búsquedas y respaldos</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">11 · Búsquedas y respaldos</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p>La búsqueda de Claude entra en <code>_respaldo/</code>. Buscar «punta a punta» en los <code>.md</code> de <code>sf/informes/</code> da siete archivos, y los siete son respaldos. En una carpeta de prueba se comprobó que un <code>.ignore</code> con <code>_respaldo/</code> los quita de las búsquedas a cualquier profundidad, y que si se nombra la carpeta se sigue buscando en ella.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Un <code>.ignore</code> con <code>_respaldo/</code> en la raíz de la SF y en la de cada proyecto, que lo pone la incorporación. ripgrep lo respeta; git, no.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Nada.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Un <code>.ignore</code> con <code>_respaldo/</code> en la raíz de la SF y en la de cada proyecto, que lo pone la incorporación. ripgrep lo respeta; git, no.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Nada.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Claude deja de citar como vigente una versión sustituida, y los respaldos se siguen encontrando cuando se buscan a propósito.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">A. Un <code>.ignore</code> con <code>_respaldo/</code> en la SF y en cada proyecto. Decisión 393; la aplica la tarea 472.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p12" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p12" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">12 · Qué se respalda</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">12 · Qué se respalda</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
-<p>En la práctica ya es A. Los informes, las visiones y los «Cómo funciona…» se respaldan. <code>cola.py</code> escribe las decisiones y las propuestas por partes, sin respaldo. Falta registrarlo.</p>
+<p>En la práctica ya es A. Los informes, las visiones y los «Cómo funciona…» se respaldan. <code>cola.py</code> escribe las decisiones y las propuestas por partes, sin respaldo. Faltaba registrarlo.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Solo los documentos que se reescriben enteros. Los registros (propuestas, decisiones y su índice), no.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Todo documento que cambie una tarea de documentos.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Solo los documentos que se reescriben enteros. Los registros (propuestas, decisiones y su índice), no.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Todo documento que cambie una tarea de documentos.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Los registros se editan por partes, y git ya guarda su historia.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">A. Solo se respaldan los documentos que se reescriben enteros; los registros, no. Decisión 393; la aplica la tarea 469.</dd>
 </dl>
 </div>
 </details>
-</div></div></details><details class="seccion" id="por-decidir-compartidos"><summary class="seccion-titulo"><span class="etiqueta">06 / Por decidir en las «Actualizar…»</span><h2>Que los documentos compartidos no se queden atrás</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Dos preguntas sobre cuándo llega el trabajo a las «Actualizar…» y cómo no se quedan paradas. La segunda roza «Decidir si el panel avisa por umbral de pasos» (309).</p>
-<p><a class="salto" href="#a-309">Ver la separación propuesta</a></p>
-<div class="tarjetas preguntas cols-2">
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p2" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p14" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">2 · Las tareas «Actualizar…» atascadas</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">14 · Revisión con notas</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
-<p>Desde el informe 274 se cerraron las tres atascadas, pero la 422 ya lleva 12 pasos sin ponerse en curso. La opción «cada tarea en su rama» de entonces ya no cabe, porque la descartó la 377.</p>
+<p>«Guardar» crea la copia anotada <code>&lt;nombre&gt;.notas-&lt;autor&gt;.html</code>, y <code>extraer_notas.py</code> la lee. Nada decía dónde va esa copia ni si entra en git, y el <code>.gitignore</code> no la nombra.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">RELEASE avisa de las «Actualizar…» con pasos pendientes, porque la versión saldría con esos documentos desfasados. Y, cuando está libre, el principal propone primero las que pasan de diez pasos o de una semana.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Solo un aviso por umbral en el panel, que se decide en la 309.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Como hoy.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">La copia anotada se guarda junto al documento y fuera de git (<code>*.notas-*.html</code> en el <code>.gitignore</code>, también en los proyectos). El subagente le pasa <code>extraer_notas.py</code> en la vuelta siguiente.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Las notas llegan por el chat.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">La copia anotada entra en git, como registro de la revisión.</dd>
+<dt class="recomendacion">Recomendación</dt>
+<dd class="recomendacion"><strong>A.</strong> Lo que vale de la copia pasa al <code>.md</code>. Versionarla llenaría el historial de HTML enteros.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">A. La copia anotada, junto al documento y fuera de git. Decisión 393; la aplica la tarea 472.</dd>
+</dl>
+</div>
+</details>
+</div></div></details><details class="seccion" id="por-decidir-compartidos"><summary class="seccion-titulo"><span class="etiqueta">07 / Las «Actualizar…»</span><h2>Que los documentos compartidos no se queden atrás</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Dos preguntas sobre cuándo llega el trabajo a las «Actualizar…» y cómo no se quedan paradas. Las recoge la decisión 394 y las lleva la tarea 473. El umbral del panel de la pregunta 2 se llevó a «Decidir si el panel avisa por umbral de pasos» (309).</p>
+<p><a class="salto" href="#a-309">Ver la separación</a></p>
+<div class="tarjetas preguntas cols-2">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p2" open="open">
+<summary class="tarjeta-cabecera">
+<h3 class="tarjeta-titulo">2 · Las tareas «Actualizar…» atascadas</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
+<div class="tarjeta-cuerpo">
+<p>Las tres atascadas del informe «Tipos de tarea» se cerraron, pero la «Actualizar» del CLAUDE.md y el arranque (422) lleva 12 pasos sin ponerse en curso. La opción «cada tarea en su rama» de entonces ya no cabe, porque se descartó.</p>
+<dl>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">RELEASE avisa de las «Actualizar…» con pasos pendientes, porque la versión saldría con esos documentos desfasados. Y, cuando está libre, el principal propone primero las que pasan de diez pasos o de una semana.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Solo un aviso por umbral en el panel, que se decide en «Decidir si el panel avisa por umbral de pasos» (309).</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Como hoy.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Publicar es cuando un documento desfasado hace daño. Si la 309 fija un umbral para el panel, se usa el mismo.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">A. RELEASE avisa de las «Actualizar…» pendientes y el principal propone primero las de más de diez pasos o una semana. Decisión 394; la aplica la tarea 473.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p4" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p4" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">4 · Cuándo se añade «Reflejar»</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">4 · Cuándo se añade «Reflejar»</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
-<p>Hoy se añade al poner en curso la tarea de origen. La 147 pide un solo paso por tarea, y que quien actualiza mire su squash, que en ese momento aún no existe. La 422 tiene tres pasos de la 379, que sigue en observación, y uno de la 313, en curso.</p>
+<p>Hoy se añade al poner en curso la tarea de origen. La regla pide un solo paso por tarea, y que quien actualiza mire su squash, que en ese momento aún no existe. La «Actualizar» del CLAUDE.md (422) tiene tres pasos de una tarea que sigue en observación y uno de otra en curso.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Al poner en curso se anota en la propia tarea qué documento compartido toca. <code>cola.py</code> añade el paso «Reflejar» a la «Actualizar…» cuando la tarea entra en <code>develop</code> (cerrar o a observación), uno solo, y descartar o revertir lo quita.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Como hoy, pero el subagente de la «Actualizar…» solo refleja las tareas que ya están en <code>develop</code>, y deja pendientes los demás pasos.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Como hoy.</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">Al poner en curso se anota en la propia tarea qué documento compartido toca. <code>cola.py</code> añade el paso «Reflejar» a la «Actualizar…» cuando la tarea entra en <code>develop</code> (cerrar o a observación), uno solo, y descartar o revertir lo quita.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Como hoy, pero el subagente de la «Actualizar…» solo refleja las tareas que ya están en <code>develop</code>, y deja pendientes los demás pasos.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Como hoy.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> El paso nace cuando ya hay un squash que mirar, y no se repite.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">A. «Reflejar» nace al entrar la tarea en <code>develop</code>, uno solo. Decisión 394; la aplica la tarea 473.</dd>
 </dl>
 </div>
 </details>
-</div></div></details><details class="seccion" id="por-decidir-revision"><summary class="seccion-titulo"><span class="etiqueta">07 / Por decidir en la revisión</span><h2>Revisión, diálogo y sitio de los informes</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Cómo vuelven las notas del propietario al <code>.md</code> y quién lleva el diálogo de las skills de documentos. La 13 ya está resuelta.</p>
+</div></div></details><details class="seccion" id="por-decidir-revision"><summary class="seccion-titulo"><span class="etiqueta">08 / La revisión y el diálogo</span><h2>Revisión, diálogo y sitio de los informes</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Cómo vuelven las notas del propietario al <code>.md</code> y quién lleva el diálogo de las skills de documentos. La pregunta 14 (revisión con notas) quedó en el primer bloque; aquí quedan la 13, resuelta antes, y la 15 (decisión 395).</p>
 <div class="tarjetas preguntas cols-2">
 <details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p13" open="open">
 <summary class="tarjeta-cabecera">
@@ -1256,61 +1315,46 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong></dd>
 <dt class="decision">Decisión</dt>
-<dd class="decision">A, por decisiones posteriores. La mudanza se hizo justo antes de cerrar la tarea que la lleva, sin otras ramas tocando esos archivos (344), con todos los informes en <code>sf/informes/</code> (346), en la 379. <code>informe_deliberativa</code> ya los pone ahí.</dd>
+<dd class="decision">A, por decisiones anteriores (344 y 346). La mudanza se hizo justo antes de cerrar la tarea que la lleva, sin otras ramas tocando esos archivos, con todos los informes en <code>sf/informes/</code>. <code>informe_deliberativa</code> ya los pone ahí.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p14" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" data-recomendada="A" id="p15" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">14 · Revisión con notas</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">15 · Diálogo de las skills de documentos</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
-<p>«Guardar» crea la copia anotada <code>&lt;nombre&gt;.notas-&lt;autor&gt;.html</code>, y <code>extraer_notas.py</code> la lee. Nada dice dónde va esa copia ni si entra en git, y el <code>.gitignore</code> no la nombra.</p>
+<p>En la práctica ya es A. El subagente propone y devuelve lo que hay que decidir, y el principal lo lleva al propietario. Las skills de visión y fundacional no lo decían: su fase 1 es «valorar en conversación».</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">La copia anotada se guarda junto al documento y fuera de git (<code>*.notas-*.html</code> en el <code>.gitignore</code>, también en los proyectos). El subagente le pasa <code>extraer_notas.py</code> en la vuelta siguiente.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Las notas llegan por el chat.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">La copia anotada entra en git, como registro de la revisión (352).</dd>
+<dt class="opcion recomendada elegida">Opción A<span class="marca-opcion recomendada">Recomendada</span><span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion recomendada elegida">El subagente prepara en tanda las preguntas de cada fase y el principal las lleva al propietario. Se escribe así en las dos skills.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">El principal hace la fase de diálogo, con la instrucción expresa del propietario.</dd>
 <dt class="recomendacion">Recomendación</dt>
-<dd class="recomendacion"><strong>A.</strong> Lo que vale de la copia pasa al <code>.md</code>. Versionarla llenaría el historial de HTML enteros.</dd>
+<dd class="recomendacion"><strong>A</strong>, y B cuando el propietario lo pida. Es lo que ya se hace; faltaba escribirlo donde se lee al crear un documento.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">A. El subagente prepara en tanda las preguntas de cada fase y el principal las lleva; el diálogo directo, solo cuando el propietario lo pida. Decisión 395; lo aplica un paso de la tarea 305.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p15" open="open">
-<summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">15 · Diálogo de las skills de documentos</h3><span class="estado-pregunta abierta">Abierta</span></summary>
-<div class="tarjeta-cuerpo">
-<p>En la práctica ya es A. El subagente propone y devuelve lo que hay que decidir, y el principal lo lleva al propietario (363, 375 y 376). Las skills de visión y fundacional no lo dicen: su fase 1 es «valorar en conversación».</p>
-<dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">El subagente prepara en tanda las preguntas de cada fase y el principal las lleva al propietario. Se escribe así en las dos skills.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">El principal hace la fase de diálogo, con la instrucción expresa del propietario.</dd>
-<dt class="recomendacion">Recomendación</dt>
-<dd class="recomendacion"><strong>A</strong>, y B cuando el propietario lo pida. Es lo que ya se hace; falta escribirlo donde se lee al crear un documento.</dd>
-</dl>
-</div>
-</details>
-</div></div></details><details class="seccion" id="separar"><summary class="seccion-titulo"><span class="etiqueta">08 / Separar</span><h2>Las separaciones propuestas</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Casi todo se queda aquí. Hay dos excepciones: un paso repetido y un umbral que ya se delibera en otra tarea.</p>
+</div></div></details><details class="seccion" id="separar"><summary class="seccion-titulo"><span class="etiqueta">09 / Separar</span><h2>Lo que se llevó a otras tareas</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Todo está hecho. Se separaron dos cosas: un paso repetido y un umbral que ya se delibera en otra tarea.</p>
 <div class="tarjetas cols-2">
 <article class="tarjeta">
-<h3 id="a-305">1 · Quitar de la 303 el paso 9</h3>
-<p>«Botón Finalizar deliberación» (222) ya es el paso 5 de «Decidir y aplicar cómo se lleva y se cierra cada familia de tareas» (305).</p>
+<h3 id="a-305">1 · Quitar el paso del botón «Finalizar deliberación» de esta tarea</h3>
+<p>El paso «Botón Finalizar deliberación» ya es un paso de la tarea «Decidir y aplicar cómo se lleva y se cierra cada familia de tareas, con su agente» (305).</p>
 <dl>
-<dt>Se hace</dt>
-<dd>Con <code>paso quitar 303 9</code> y el OK del propietario. No se lleva ninguna pregunta.</dd>
+<dt>Hecho</dt>
+<dd>Quitado de esta tarea (303). No se llevó ninguna pregunta.</dd>
 </dl>
 </article>
 <article class="tarjeta">
-<h3 id="a-309">2 · El umbral de pasos, a la 309</h3>
-<p>«Decidir si el panel avisa por umbral de pasos» (309) ya delibera si el panel avisa por número de pasos.</p>
+<h3 id="a-309">2 · El umbral de pasos, a «Decidir si el panel avisa por umbral de pasos» (309)</h3>
+<p>Esa tarea ya delibera si el panel avisa por número de pasos.</p>
 <dl>
-<dt>Se lleva</dt>
-<dd>La parte de umbral de la <a href="#p2">pregunta 2</a>: diez pasos o una semana, y si el panel lo pinta. El aviso de RELEASE se queda aquí.</dd>
+<dt>Hecho</dt>
+<dd>Se le llevó la parte de umbral de la <a href="#p2">pregunta 2</a>: diez pasos o una semana, y si el panel lo pinta. El aviso de RELEASE se queda en la tarea 473.</dd>
 </dl>
 </article>
-</div></div></details><details class="seccion" id="tareas"><summary class="seccion-titulo"><span class="etiqueta">09 / Tareas</span><h2>Las tareas que salen</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Salen cinco tareas y un paso en la 305. Cada una se crea con lo que decida el propietario en sus preguntas.</p>
+</div></div></details><details class="seccion" id="tareas"><summary class="seccion-titulo"><span class="etiqueta">10 / Tareas</span><h2>Las tareas que salen</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Salen cinco tareas y un paso en la 305. Todas están ya en la cola.</p>
 <table>
 <thead>
 <tr>
@@ -1321,42 +1365,42 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </thead>
 <tbody>
 <tr>
-<td data-label="Tarea">«Llevar cada vuelta de un documento a develop con una orden: respaldo, HTML, commit y apertura»</td>
+<td data-label="Tarea">«Llevar cada vuelta de un documento a develop con una orden: respaldo, HTML, commit y apertura» (469)</td>
 <td data-label="Tipo">implementar</td>
-<td data-label="Qué hace"><code>cola.py documento N RUTA</code>: declara el documento, respalda la versión de <code>develop</code>, regenera, hace el commit con <code>commit_en_develop</code> y abre el HTML si la tarea es el foco. Lleva el worktree desprendido y la <code>rama</code> negada para un documento nuevo. Recoge las preguntas 1, 3, 6, 10 y 12 y los pasos 7 y 15, con sus pruebas.</td>
+<td data-label="Qué hace"><code>cola.py documento N RUTA</code>: declara el documento, respalda la versión de <code>develop</code>, regenera, hace el commit con <code>commit_en_develop</code> y abre el HTML si la tarea es el foco. Lleva el worktree desprendido, la negativa de <code>rama</code> para un documento nuevo, los respaldos con «-2», «-3» y las preguntas 1, 3, 6, 10 y 12.</td>
 </tr>
 <tr>
-<td data-label="Tarea">«Avisar de los HTML desfasados de su .md, con una orden única para regenerar»</td>
+<td data-label="Tarea">«Avisar de los HTML desfasados de su .md, con una orden única para regenerar» (470)</td>
 <td data-label="Tipo">implementar</td>
-<td data-label="Qué hace">Una orden que elige el generador por el tipo del documento. Con <code>--comprobar</code>, lista los HTML cuya huella no es la del <code>.md</code> y los <code>.md</code> sin HTML. El pie deja de citar el commit anterior. Pasos 8 y 16.</td>
+<td data-label="Qué hace">Una orden que elige el generador por el tipo del documento. Con <code>--comprobar</code>, lista los HTML cuya huella no es la del <code>.md</code> y los <code>.md</code> sin HTML. El pie deja de citar el commit anterior.</td>
 </tr>
 <tr>
-<td data-label="Tarea">«Regenerar los HTML desfasados y crear los que faltan»</td>
+<td data-label="Tarea">«Regenerar los HTML desfasados y crear los que faltan» (471)</td>
 <td data-label="Tipo">documentar</td>
-<td data-label="Qué hace">Los 11 desfasados y los 6 informes sin HTML, después de la anterior. Los «Cómo funciona…», como paso «Reflejar» de su «Actualizar…».</td>
+<td data-label="Qué hace">Los 11 desfasados y los 6 informes sin HTML, después de la anterior (470). Los «Cómo funciona…», como paso «Reflejar» de su «Actualizar…».</td>
 </tr>
 <tr>
-<td data-label="Tarea">«Que las búsquedas no entren en _respaldo/ y las copias anotadas no entren en git»</td>
+<td data-label="Tarea">«Que las búsquedas no entren en _respaldo/ y las copias anotadas no entren en git» (472)</td>
 <td data-label="Tipo">implementar</td>
 <td data-label="Qué hace"><code>.ignore</code> y <code>.gitignore</code> en la SF y en la incorporación de proyectos. Preguntas 11 y 14.</td>
 </tr>
 <tr>
-<td data-label="Tarea">«Que «Reflejar» nazca al entrar la tarea en develop, y RELEASE avise de las «Actualizar…» pendientes»</td>
+<td data-label="Tarea">«Que «Reflejar» nazca al entrar la tarea en develop, y RELEASE avise de las «Actualizar…» pendientes» (473)</td>
 <td data-label="Tipo">implementar</td>
 <td data-label="Qué hace">En <code>cola.py</code>, el panel y <code>sf:orquestacion</code>. Preguntas 2 y 4.</td>
 </tr>
 <tr>
-<td data-label="Tarea">Paso en la 305</td>
-<td data-label="Tipo">—</td>
+<td data-label="Tarea">Un paso en «Decidir y aplicar cómo se lleva y se cierra cada familia de tareas, con su agente» (305)</td>
+<td data-label="Tipo">decidir y aplicar</td>
 <td data-label="Qué hace">«Decir en documento_vision y documento_fundacional cómo se reparten el diálogo el principal y el subagente» (pregunta 15).</td>
 </tr>
 </tbody>
-</table></div></details><details class="seccion" id="anexo"><summary class="seccion-titulo"><span class="etiqueta">10 / Anexo</span><h2>Texto propuesto para los documentos compartidos</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Se aplica cuando estén hechas las tareas que salen, con su paso «Reflejar» en la «Actualizar…» de cada documento, y siempre que el propietario elija las opciones recomendadas.</p>
+</table></div></details><details class="seccion" id="anexo"><summary class="seccion-titulo"><span class="etiqueta">11 / Anexo</span><h2>Texto propuesto para los documentos compartidos</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Se aplica cuando estén hechas las tareas que salen, con su paso «Reflejar» en la «Actualizar…» de cada documento. El propietario ha elegido las opciones recomendadas.</p>
 <p><strong>Metodología, «Tareas y cola», y «Cómo funciona la Software Factory»:</strong></p>
 <blockquote class="destacado"><p>Una tarea de documentos declara su documento. Cada vuelta la lleva a <code>develop</code> la orden <code>cola.py documento N RUTA</code>: respalda la versión anterior en <code>_respaldo/</code>, regenera el HTML, hace el commit en <code>develop</code> sin cambiar de rama y abre el HTML si la tarea es el foco. Un documento nuevo no tiene rama, y su subagente escribe en un worktree desprendido desde <code>develop</code>; uno que ya existe se cambia en la rama de su tarea y entra por squash.</p></blockquote>
 <p><strong>Metodología, «Documentos compartidos»:</strong></p>
 <blockquote class="destacado"><p>Al poner en curso una tarea, se anota qué documento compartido toca. Cuando la tarea entra en <code>develop</code>, <code>cola.py</code> añade a la «Actualizar &lt;documento&gt;» un solo paso, «Reflejar «&lt;título&gt;» (NN)». RELEASE avisa de las «Actualizar…» con pasos pendientes.</p></blockquote></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Informe de análisis · Versión 1.0 · 27/11/2026 · Propuesta · Tarea 303</p><p>Informe de la tarea «Llevar las tareas de documentos de punta a punta: qué tocan, respaldo y HTML al día y abierto en cada vuelta» (303), que absorbió la 297. Parte de las preguntas 1 a 4, 6 y 10 a 15 del informe «Tipos de tarea» (274), de las decisiones 147, 216, 217, 219, 220, 278, 344, 346, 369 y 377, y de cola.py, el panel, sf:orquestacion, sf:flujo_tareas, crear_documentos y kit_documentos en develop. Espera la decisión del propietario.</p><p class="procedencia">Generado el 27/11/2026 12:49 · fuente Tareas de documentos de punta a punta.md · huella f0e32a6ac5c3 · sin commit · estilo v4</p></footer>
+  <footer class="pie"><p>SoftwareFactory · Informe de análisis · Versión 2.0 · 27/11/2026 · Decidido · Tarea 303</p><p>Informe de la tarea «Llevar las tareas de documentos de punta a punta: qué tocan, respaldo y HTML al día y abierto en cada vuelta» (303), que absorbió la 297. Parte de las preguntas del informe «Tipos de tarea» (274) y de las decisiones 147, 216, 217, 219, 220, 278, 344, 346, 369 y 377. Decidido por el propietario de la Software Factory: decisiones 393, 394 y 395.</p><p class="procedencia">Generado el 27/11/2026 18:18 · fuente Tareas de documentos de punta a punta.md · huella ea44703c86fb · commit b4cb62d (con cambios sin commit) · estilo v4</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
