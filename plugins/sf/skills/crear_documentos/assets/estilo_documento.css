@@ -293,6 +293,8 @@ a.salto { font-size: .875rem; }
               text-transform: uppercase; padding: .5rem .7rem; }
 .seccion td { border-bottom: 1px solid var(--linea); padding: .55rem .7rem; vertical-align: top; }
 .seccion td:first-child { font-weight: 650; color: var(--tinta-oscura); width: 28%; }
+/* Columna de contenido breve (un número, un estado): lo justo, y el resto del ancho para las de texto */
+.seccion th.corta, .seccion td.corta { width: 1%; white-space: nowrap; }
 .seccion tr:nth-child(even) td { background: var(--fondo-suave); }
 
 .pie { margin-top: 3rem; border-top: 1px solid var(--linea); padding: 1rem 0 2.5rem; font-size: .875rem; color: var(--texto-suave); }
@@ -384,7 +386,7 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
   .seccion thead { display: none; }
   .seccion tr { border: 1px solid var(--linea); border-radius: 6px; margin: 0 0 .7rem; padding: .3rem .2rem; }
   .seccion td { border: 0; padding: .25rem .6rem; }
-  .seccion td:first-child { width: 100%; }
+  .seccion td:first-child, .seccion td.corta { width: 100%; white-space: normal; }
   .seccion td::before { content: attr(data-label); display: block; font-size: .8125rem; letter-spacing: .08em;
                         text-transform: uppercase; color: var(--texto-suave); }
   .seccion tr:nth-child(even) td { background: none; }

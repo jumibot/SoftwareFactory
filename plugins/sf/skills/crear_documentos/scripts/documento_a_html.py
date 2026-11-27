@@ -493,14 +493,42 @@ def recuadros(h: str) -> str:
     return re.sub(r"<blockquote>(.*?)</blockquote>", uno, h, flags=re.S)
 
 
+COLUMNA_CORTA = 8  # caracteres: una columna cuyas celdas son todas así de cortas (un número, un estado) no pide ancho
+
+
 def etiquetar_tablas(h: str) -> str:
-    """data-label en cada celda con el texto de su cabecera, para las fichas apiladas en el móvil."""
+    """data-label en cada celda con el texto de su cabecera, para las fichas apiladas en el móvil, y clase «corta»
+    en las celdas de las columnas de contenido breve, para que el ancho vaya a las columnas de texto."""
+    def texto(x):
+        return re.sub(r"<[^>]+>", "", x).strip()
+
     def una(tm):
         tabla = tm.group(0)
-        heads = [re.sub(r"<[^>]+>", "", x).strip() for x in re.findall(r"<th[^>]*>(.*?)</th>", tabla, re.S)]
+        heads = [texto(x) for x in re.findall(r"<th[^>]*>(.*?)</th>", tabla, re.S)]
+        filas = [re.findall(r"<t[dh][^>]*>(.*?)</t[dh]>", r, re.S) for r in re.findall(r"<tr>.*?</tr>", tabla, re.S)]
+        n = len(heads)
+        cortas = set()
+        if n > 1:
+            for i in range(n):
+                cs = [f[i] for f in filas if i < len(f)]
+                if cs and all(len(texto(c)) <= COLUMNA_CORTA and "<br" not in c for c in cs):
+                    cortas.add(i)
+        def clase(attrs, i):
+            if i not in cortas:
+                return attrs
+            if 'class="' in attrs:
+                return attrs.replace('class="', 'class="corta ', 1)
+            return attrs + ' class="corta"'
         def fila(rm):
-            celdas = iter(heads)
-            return re.sub(r"<td([^>]*)>", lambda c: f'<td{c.group(1)} data-label="{next(celdas, "")}">', rm.group(0))
+            k = iter(range(10 ** 6))
+            def td(c):
+                i = next(k)
+                return f'<td{clase(c.group(1), i)} data-label="{heads[i] if i < n else ""}">'
+            def th(c):
+                return f'<th{clase(c.group(1), next(k))}>'
+            r = re.sub(r"<th([^>]*)>", th, rm.group(0))
+            k = iter(range(10 ** 6))
+            return re.sub(r"<td([^>]*)>", td, r)
         return re.sub(r"<tr>.*?</tr>", fila, tabla, flags=re.S)
     return re.sub(r"<table>.*?</table>", una, h, flags=re.S)
 
