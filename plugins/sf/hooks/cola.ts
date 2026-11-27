@@ -204,6 +204,9 @@ export function listaParaProbar(p: Peticion): boolean {
   if (p.estado !== 'en-curso') return false
   const listo = p.historial.map(e => e.evento).lastIndexOf('listo')
   if (listo < 0) return false
+  // Con pasos de trabajo sin hacer, no (tarea 447): ni los de cierre, ni las ayudas de prueba, ni la espera al
+  // propietario (que puede ir a la vez que lista para probar) cuentan.
+  if (p.pasos.some(x => x.estado !== 'hecho' && x.ayuda !== true && !PASOS_DE_CIERRE.includes(x.texto) && !x.texto.trim().startsWith(PREFIJO_ESPERA))) return false
   return !p.historial.slice(listo + 1).some(e => VUELVE_AL_TRABAJO.has(e.evento) || (e.evento === 'paso' && pasoDeTrabajo(e.detalle)))
 }
 

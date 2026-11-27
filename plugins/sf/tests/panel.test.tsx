@@ -8314,6 +8314,11 @@ test('Lista para probar: desde «listo» hasta volver al trabajo o salir de en c
   expect(listaParaProbar(t({ historial: [listo, e('en-cola')] }))).toBe(false)
   expect(listaParaProbar(t({ historial: [listo, e('reabierta', 'bug')] }))).toBe(false)
   expect(listaParaProbar(t({ historial: [listo, e('paso', '3 pendiente: Cerrar la tarea')] }))).toBe(true)
+  // Con un paso de trabajo sin hacer no está lista (tarea 447), aunque el historial diga «listo»; las ayudas de prueba no cuentan.
+  const pendiente = [{ texto: 'Otro arreglo', estado: 'pendiente' }, ...PASOS_LISTA] as Peticion['pasos']
+  expect(listaParaProbar(t({ historial: [listo], pasos: pendiente }))).toBe(false)
+  expect(listaParaProbar(t({ historial: [listo], pasos: [...PASOS_LISTA.slice(0, 1), { texto: 'Mirar el CSV', estado: 'pendiente', ayuda: true }, ...PASOS_LISTA.slice(1)] as Peticion['pasos'] }))).toBe(true)
+  expect(listaParaProbar(t({ historial: [listo], pasos: [{ texto: 'Esperar al propietario: elegir color', estado: 'pendiente' }, ...PASOS_LISTA] as Peticion['pasos'] }))).toBe(true)
   // Un «listo» nuevo tras volver al trabajo, otra vez lista.
   expect(listaParaProbar(t({ historial: [listo, e('paso', 'añadido 2: Otro'), e('listo', 'mirar otra vez')] }))).toBe(true)
   // Fuera de en curso (cerrada a observación, en cola), no.

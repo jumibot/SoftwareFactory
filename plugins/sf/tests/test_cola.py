@@ -198,17 +198,38 @@ class Pasos(Base):
 
     def test_los_pasos_de_cierre_no_cambian_de_texto(self):  # tarea 253
         self.orden('paso', 'añadir', '11', 'Quitar la negrita')
+        self.orden('paso', 'marcar', '11', '1', 'hecho')
         self.orden('listo', '11', '--prueba', 'mirar')
         self.assertIn('de cierre', self.orden('paso', 'marcar', '11', '2', 'hecho', '--texto', 'Quitada la negrita', ok=False))
         self.assertIn('de cierre', self.orden('paso', 'marcar', '11', '1', 'hecho', '--texto', 'Cerrar la tarea', ok=False))
         self.assertIn('de cierre', self.orden('paso', 'añadir', '11', 'Activar rama para poder probar', ok=False))
         self.orden('paso', 'marcar', '11', '2', 'hecho')  # sin texto, sí
         self.assertEqual([(p['texto'], p['estado']) for p in self.tarea(11)['pasos']],
-                         [('Quitar la negrita', 'pendiente'), ('Activar rama para poder probar', 'hecho'), ('Cerrar la tarea', 'pendiente')])
+                         [('Quitar la negrita', 'hecho'), ('Activar rama para poder probar', 'hecho'), ('Cerrar la tarea', 'pendiente')])
+
+    def test_listo_se_niega_con_pasos_de_trabajo_sin_hacer(self):  # tarea 447
+        self.orden('paso', 'añadir', '11', 'Primero')
+        self.orden('paso', 'añadir', '11', 'Segundo')
+        self.orden('paso', 'marcar', '11', '1', 'hecho')
+        r = self.orden('listo', '11', '--prueba', 'mirar', ok=False)
+        self.assertIn('pasos de trabajo sin hacer: 2', r)
+        self.assertNotIn('prueba', self.tarea(11))
+        # Las ayudas de prueba no cuentan; con el trabajo hecho, listo vale.
+        self.orden('paso', 'añadir', '11', 'Mirar el CSV', '--prueba')
+        self.orden('paso', 'marcar', '11', '2', 'hecho')
+        self.assertIn('lista para probar', self.orden('listo', '11', '--prueba', 'mirar'))
+        # «Esperar al propietario:» tampoco cuenta: puede ir a la vez que lista para probar.
+        self.orden('paso', 'añadir', '11', 'Esperar al propietario: elegir color')
+        self.assertIn('lista para probar', self.orden('listo', '11', '--prueba', 'mirar'))
+        self.orden('paso', 'quitar', '11', '3')
+        # Un paso de trabajo añadido después de listo devuelve «Activar rama…» a pendiente y listo se vuelve a negar.
+        self.orden('paso', 'añadir', '11', 'Tercero')
+        self.assertIn('pasos de trabajo sin hacer', self.orden('listo', '11', '--prueba', 'otra vez', ok=False))
 
     def test_listo_no_repite_el_paso_de_prueba(self):  # tarea 253
         self.orden('listo', '11', '--prueba', 'mirar')
         self.orden('paso', 'añadir', '11', 'Otro')
+        self.orden('paso', 'marcar', '11', '1', 'hecho')
         self.assertNotIn('Aviso', self.orden('listo', '11', '--prueba', 'mirar otra vez'))
         self.assertEqual([p['texto'] for p in self.tarea(11)['pasos']], ['Otro', 'Activar rama para poder probar', 'Cerrar la tarea'])
 
@@ -324,7 +345,6 @@ class SinGit(Base):
     def test_cierre_con_paso_de_trabajo_pendiente_no(self):
         self.orden('crear', 'Propuesta', '--en-curso')
         self.orden('paso', 'añadir', '11', 'Redactarla')
-        self.orden('listo', '11', '--prueba', 'leerla')
         self.assertIn('sin hacer: 1', self.orden('cerrar', '11', ok=False))
         self.assertIn('sin hacer: 1', self.orden('a-observacion', '11', ok=False))
         self.assertEqual(self.tarea(11)['estado'], 'en-curso')

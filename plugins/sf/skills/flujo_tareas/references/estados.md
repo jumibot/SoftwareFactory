@@ -224,7 +224,7 @@ Las órdenes van como `python -I -X utf8 "$HOME/.claude/sf/cola.py" <orden>` (el
 
 #### 13 · Lista para probar
 
-- **De → a:** sin cambio; se escribe `prueba`. Los pasos de cierre ya están desde que la tarea entró en curso (02, 03, 27; 174); `listo` no los toca. Una tarea en curso de antes de la 174 los recibe al cargar la cola, una vez y al final; un repetido se quita (174).
+- **De → a:** sin cambio; se escribe `prueba`. Los pasos de cierre ya están desde que la tarea entró en curso (02, 03, 27; 174); `listo` no los toca. `listo` se niega si quedan pasos de trabajo sin hacer (los que no son de cierre ni ayudas de prueba ni «Esperar al propietario:»): márcalos hechos o quítalos antes. El panel tampoco pinta en verde una tarea con pasos de trabajo pendientes. Una tarea en curso de antes de la 174 los recibe al cargar la cola, una vez y al final; un repetido se quita (174).
 - **Cuándo:** al acabar el último paso de trabajo. Sin «Cerrar la tarea», ninguna tarea se cierra, con rama o sin ella.
 - **Quién:** principal.
 - **Autorización:** ninguna. Propone probar, con cómo. Si la tarea no tiene nada que probar (deliberar, investigar, documentar, especificar…), propone cerrarla directamente, enseñando el resultado: el OK del propietario es la aprobación; se cierra (18 o 20), sin pasar por observación, y el cierre marca «Activar rama para poder probar» (172).

@@ -1365,6 +1365,14 @@ def cierre_pendiente(t: dict) -> None:
 
 def o_listo(cola: Cola, a) -> str:
     t = cola.tarea(a.n, 'en-curso')
+    # No deja lista para probar una tarea con pasos de trabajo sin hacer (tarea 447): el panel la pintaría en verde y
+    # el cierre se negaría por ellos. Ni los de cierre, ni las ayudas de prueba, ni «Esperar al propietario:» cuentan.
+    sin_hacer = [i + 1 for i, p in enumerate(pasos(t))
+                 if p.get('estado') != 'hecho' and p.get('texto') not in PASOS_CIERRE and not es_ayuda(p)
+                 and not str(p.get('texto')).strip().startswith('Esperar al propietario:')]
+    if sin_hacer:
+        raise Rechazo(f'La {a.n} tiene pasos de trabajo sin hacer: {enumerar(sin_hacer)}. No está lista para probar: '
+                      f'márcalos con «paso marcar {a.n} P hecho» o quita los pendientes con «paso quitar {a.n} P».')
     # Solo guarda el «qué mirar» (decisión 174). Una tarea de antes, sin los pasos de cierre o con uno repetido, se
     # arregla aquí, y se avisa.
     avisos = asegurar_cierre(t)
