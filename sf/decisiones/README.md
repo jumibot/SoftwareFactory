@@ -21,7 +21,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | --- | --- | --- |
 | 386 | 2026-11-27 | [Abrir el catálogo de emojis al decidir qué emoji poner](386-2026-11-27-abrir-el-catalogo-de-emojis-al-decidir-que-emoji-poner.md) |
 | 385 | 2026-11-27 | [Antes de una representación gráfica, decidir los puntos clave que transmite](385-2026-11-27-antes-de-una-representacion-grafica-decidir-los-puntos-clave-que-transmite.md) |
-| 384 | 2026-11-27 | [Los off-topic, sangrados bajo «Otras tareas» y sin paréntesis](384-2026-11-27-los-off-topic-sangrados-bajo-otras-tareas-y-sin-parentesis.md) |
+| 384 | 2026-11-27 | [Los off-topic, sangrados bajo «OTRAS TAREAS» en morado y sin paréntesis](384-2026-11-27-los-off-topic-sangrados-bajo-otras-tareas-y-sin-parentesis.md) |
 | 383 | 2026-11-27 | [Como mucho seis tareas en curso a la vez](383-2026-11-27-como-mucho-seis-tareas-en-curso-a-la-vez.md) |
 | 382 | 2026-11-25 | [El foco y las esperas guardados en la cola: recordatorio solo con foco, el foco sigue en observación y el mod lo da al arrancar](382-2026-11-25-el-foco-y-las-esperas-guardados-en-la-cola-recordatorio-solo-con-foco-el-foco-sigue-en-observacion-y-el-mod-lo-da-al-arrancar.md) |
 | 381 | 2026-11-25 | [Un juego fijo de emojis de estado en las respuestas del principal, coherente con el panel](381-2026-11-25-un-juego-fijo-de-emojis-de-estado-en-las-respuestas-del-principal-coherente-con-el-panel.md) |
