@@ -2,7 +2,7 @@
 antetitulo: Software Factory · Informe de diseño · Noviembre 2026
 lema: Un servidor local para las páginas de la SF; // tus respuestas llegan al chat como un mensaje tuyo.
 subtitulo: Cómo puede una página generada por la SF hablar con la sesión de Claude Code, con las respuestas de un informe como primer uso, qué ofrece hoy el mod, qué diseño se recomienda y qué protege.
-version: Versión 2.2 · 27/11/2026
+version: Versión 2.3 · 27/11/2026
 estado: Propuesta · Tarea 475
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
@@ -20,9 +20,9 @@ Por decisión del propietario (416), **el mod de la SF levanta en el propio orde
 
 La API de mods no deja al mod escuchar en un puerto, pero sí lanzar un proceso hijo que vive con la sesión (`$.process.spawn`). Ese hijo es un script de Python, requisito ya de la SF. Para escribir en el chat, el mod usa lo que ya usa el panel: `$.prompt.submit` como mensaje del propietario, que espera a que Claude acabe lo que hace y, tras un Esc, deja el texto escrito en el prompt.
 
-**Cada documento con preguntas es un front, una interfaz a su medida** (417): el servidor y el camino al chat son comunes, y cada front define cómo envía lo suyo. El propietario aceptó las cinco recomendaciones de las preguntas anteriores (417) y queda **una pregunta abierta**: cómo envía la información un front, y qué conviene a los informes deliberativos como primero ([Cómo envía un front lo que se contesta (7)](#p7)). Todo se implementa en esta misma tarea.
+**Cada documento con preguntas es un front, una interfaz a su medida** (417): el servidor y el camino al chat son comunes, y cada front define cómo envía lo suyo. El propietario aceptó las cinco recomendaciones de las preguntas anteriores (417) y quedan **dos preguntas abiertas**: cómo envía la información un front ([Cómo envía un front lo que se contesta (7)](#p7)) y si el documento también recibe y se actualiza en su sitio ([Si el documento recibe y se actualiza en su sitio (8)](#p8)). Todo se implementa en esta misma tarea.
 
-[Ver la pregunta abierta](#por-decidir){: .salto}
+[Ver las dos preguntas abiertas](#por-decidir){: .salto}
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 470" width="100%" role="img" aria-label="El recorrido de una petición: la página generada por la SF, servida desde 127.0.0.1 con su token, manda una petición numerada a sf_proxy; sf_proxy, hijo del mod y de una sola sesión, comprueba el token y el número y se la pasa al mod; el mod la pone en el chat como mensaje del propietario o la entrega a quien la atiende; el principal actúa, por ejemplo registra las respuestas en el informe y en las decisiones" style="font-family:var(--fuente-texto);display:block">
@@ -137,6 +137,16 @@ Quien crea un front nuevo define, como mínimo:
 - **Qué ve quien contesta:** el estado de cada cosa (elegida, enviada, en el chat, guardada) y qué pasa sin sesión.
 - **Cómo cambia el documento:** qué pasa si se regenera con cambios en lo ya contestado.
 
+### El documento que también recibe {#diseno-recibe}
+
+Una idea del propietario: el documento puede ser una **página única que se actualiza con lo que reciba**, sin recargar ni abrir otro archivo. El camino de vuelta ya existe en parte: la página pregunta a `sf_proxy` el estado de cada petición (el acuse). Ampliarlo es que la página reciba también:
+
+- **El estado de lo contestado:** una pregunta que Claude acaba de registrar pasa a decidida en pantalla, con su decisión.
+- **La versión nueva del documento:** cuando se regenera el informe, la página muestra las secciones cambiadas.
+- **Avisos de Claude:** «Claude está registrando tus respuestas», «hay una pregunta nueva», «esta pregunta ha cambiado».
+
+El **HTML del repositorio no cambia**: sigue siendo el documento estático, completo y sin servidor, que se abre, se imprime y se versiona. La actualización vive solo en la página abierta por `sf_proxy`, que añade lo recibido encima y no guarda nada en el archivo. Cómo se recibe y cuánto se actualiza es la pregunta [Si el documento recibe y se actualiza en su sitio (8)](#p8).
+
 ### La respuesta de un informe, el primer front {#diseno-fichas}
 
 El generador común (`documento_a_html.py`) añade a cada pregunta abierta de `::: preguntas` lo que hace falta para contestarla. Su comportamiento vive en un script nuevo del kit, `respuestas.js`, que no sale al imprimir ni en la copia guardada:
@@ -233,7 +243,7 @@ Si la sesión no está abierta, la petición falla. La página deja las elegidas
 
 ## Por decidir | Lo que tiene que elegir el propietario | Por decidir {#por-decidir}
 
-Una pregunta abierta, nueva. Las otras cinco las decidió el propietario (417) y la primera, la 416; se quedan abajo con su estado.
+Dos preguntas abiertas, nuevas. Las otras cinco las decidió el propietario (417) y la primera, la 416; se quedan abajo con su estado.
 
 ::: preguntas 2 plegables
 
@@ -255,6 +265,22 @@ Opción D
 
 Recomendación
 :   **A.** Es como decides hoy en el chat (una tanda de respuestas) y combina con lo decidido de mandar solo las elegidas: un mensaje, sin ruido y con la elección guardada en el navegador hasta enviarla. Si un informe largo lo pide, su front puede pasar a C sin tocar el servidor.
+
+### Si el documento recibe y se actualiza en su sitio (8) {recomendada=B} {: #p8}
+
+Hoy el informe es un archivo que se abre: para ver una decisión registrada o una versión nueva, se regenera y se vuelve a abrir. Con `sf_proxy`, la página abierta puede además **recibir** algo y cambiar en su sitio, como una página única, sin recargar.
+
+Opción A
+:   **Solo envía.** La página manda y recibe el acuse de cada envío (elegida, enviada, en el chat). Para ver lo que Claude registró, se vuelve a abrir el informe desde la SF. Es lo más simple y no cambia el documento abierto.
+
+Opción B
+:   **Recibe el estado y los avisos, y avisa de la versión nueva.** La página pregunta a `sf_proxy` cada pocos segundos y actualiza en su sitio las fichas que pasan a decididas y muestra los avisos de Claude. Si hay una versión nueva del informe, enseña «versión nueva disponible» y se recarga a petición del propietario. Mantiene lo que has elegido y no has enviado. Es sencillo (sin conexión abierta), funciona con la página en segundo plano y no pierde nada.
+
+Opción C
+:   **Página única completa, con el servidor que empuja.** `sf_proxy` empuja los cambios por una conexión abierta (eventos del servidor) y la página se reescribe sola con la versión nueva, secciones incluidas. Es inmediato, pero es lo más complejo: hay que fusionar el contenido nuevo con lo que se está leyendo y eligiendo, y la conexión abierta muere con la sesión.
+
+Recomendación
+:   **B.** Da el beneficio principal (ver la decisión registrada y los avisos sin reabrir) con consulta cada pocos segundos, que el diseño ya usa para el acuse. La versión nueva del informe se ofrece, no se aplica sola, para no cambiar el texto bajo quien lee. C se puede añadir luego a un front que lo necesite.
 
 ### Qué pasa con una petición que no es una respuesta (6) {estado=decidida elegida=A recomendada=A} {: #p6}
 
