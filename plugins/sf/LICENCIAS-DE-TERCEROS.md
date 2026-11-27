@@ -25,6 +25,14 @@ Texto de la licencia MIT, que se aplica a las partes adaptadas de esos proyectos
 >
 > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## Datos copiados dentro del plugin
+
+| Archivo | Procedencia | Licencia | Copyright | Lo usa |
+| --- | --- | --- | --- | --- |
+| `skills/orquestacion/assets/emoji-test.txt` | [Unicode emoji-test.txt](https://unicode.org/Public/emoji/latest/emoji-test.txt), versión 18.0 | [Unicode License v3](https://www.unicode.org/license.txt) | © 2026 Unicode, Inc. | `orquestacion`: `scripts/emojis.py` genera con él `assets/emojis.html`, el catálogo de emojis. |
+
+Unicode® es marca registrada de Unicode, Inc.
+
 ## Dependencias que no viajan en el plugin
 
 Se instalan desde su propio repositorio, fijadas a un commit en el catálogo de la SF, y traen su propia licencia.

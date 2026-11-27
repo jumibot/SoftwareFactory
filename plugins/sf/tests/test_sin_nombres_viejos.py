@@ -29,7 +29,8 @@ DOCUMENTOS = [
 # viejo, no hacen fallar la prueba; cuando ya no lo tengan, la prueba pide sacarlos de aquí.
 EN_SU_TAREA: set[str] = set()
 # Lo que Claude Code genera en el plugin (claude plugin test): rutas relativas a plugins/sf, archivo o carpeta.
-GENERADOS = {'tsconfig.json', '.claude-plugin/types'}
+# También la lista de Unicode del catálogo de emojis (datos de terceros, «testing» en inglés).
+GENERADOS = {'tsconfig.json', '.claude-plugin/types', 'skills/orquestacion/assets/emoji-test.txt'}
 EXTENSIONES = {'.py', '.ts', '.tsx', '.md', '.json', '.html', '.txt', '.css', '.js'}
 MARCA = 'migración 215'
 # Lo que nombraba el estado de antes y sus órdenes, campos, botones y frases.
