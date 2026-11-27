@@ -1,37 +1,38 @@
 tipo: proceso
 titulo: Una sola orden por vuelta
-descripcion: El subagente la lanza una vez; ella elige, salta lo ya pasado, lanza a la vez y le devuelve pocas líneas.
-pie: SF · PROBAR | CON LA ORDEN
+descripcion: Una vez por vuelta, en cualquier proyecto: una ronda selecciona, otra ejecuta y devuelve pocas líneas.
+pie: SF · TESTEAR | CON LA ORDEN
 foco: resumen
 nodos:
-  diff: Ver qué cambió | solo lo de la rama
-  elegir: Elegir qué tests lanzar | según el proyecto
+  detectar: Saber qué tests hay | declarados, vistos, detectados
+  elegir: Ronda 1: seleccionar | cada test dice qué cubre
   marca: ¿Ya pasó igual? | si sí, caché | dec
-  lanzar: Lanzar a la vez | todos los tests
+  lanzar: Ronda 2: ejecutar | los seleccionados, a la vez
   resumen: Contar lo que pasó | 4 o 5 líneas
   registro: Guardar la salida | en un log | externo
 flechas:
-  inicio > diff
-  diff > elegir: ARCHIVOS
-  elegir > marca: QUÉ TESTS
+  inicio > detectar
+  detectar > elegir: TODOS
+  elegir > marca: LOS QUE TOCA
   marca > lanzar: CAMBIÓ
   marca > resumen: IGUAL | verde
   lanzar > resumen: RESULTADOS
   lanzar > registro: SALIDA ENTERA | discontinua
 fichas:
-  diff: Lo que cambió en la rama de la tarea frente a develop, más lo que aún no tiene commit.
-    - sin rama (una deliberativa): los archivos que se le nombren
-  elegir: Cada regla dice qué archivos mira y qué orden lanza.
-    - tools/cola.py: los tests de la cola
-    - un .ts o .tsx del mod: claude plugin test
-    - un .md con su .html: generarlo y comprobar_documento
-    - un archivo sin regla: todos los tests
-  marca: Un hash de los archivos de los que depende cada comprobación.
+  detectar: Junta tres fuentes; si dos dicen lo mismo, manda el declarado, luego el visto, luego el detectado.
+    - declarados: lo que el proyecto escribe en .sf/comprobar.json
+    - vistos: lo que la SF ya lanzó, con su duración y lo que cubre (.sf/comprobaciones-vistas.json)
+    - detectados: por el stack (pytest, vitest, cargo, go, dotnet, Playwright, tsc, eslint)
+  elegir: Compara los archivos modificados con lo que cubre cada test y lista qué corre y qué se salta, con su porqué.
+    - determinista: los mismos archivos dan siempre la misma lista
+    - un test que no declara qué cubre corre siempre
+  marca: Un hash de los archivos de los que depende cada test.
     - igual que la última vez que pasó: no se repite
-  lanzar: Todo a la vez, en procesos aparte.
-    - los tests de la cola, en diez shards: de 148 s a 28 s
-    - los navegadores, pocos a la vez
+    - antes de dejar la tarea lista para probar, pasada completa sin selección ni caché
+  lanzar: Todo lo seleccionado a la vez, cada cosa en su proceso.
+    - el reparto lo da el runner de su stack, o shards por archivo (pytest)
+    - en la SF, la cola en diez shards: de 148 s a 28 s
   resumen: Lo que el subagente lee: una línea por comprobación.
     - lo que falla: el nombre del test y su error
     - la línea «Comprobado: …» lista para los pasos
-  registro: La salida entera de cada orden, para depurar un fallo.
+  registro: La salida entera de cada orden, para depurar un fallo; la duración se anota en lo visto.
