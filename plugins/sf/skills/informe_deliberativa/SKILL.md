@@ -38,6 +38,8 @@ Si el análisis no deja nada por decidir, separar o crear, esas secciones se qui
 
 **Cabecera:** `antetitulo` con «Proyecto · Informe de <análisis, diseño o investigación> · <mes año>», `lema`, `subtitulo` con lo que el informe responde, `version`, `estado` («Propuesta · Tarea N», «Decidido · Tarea N»…), `portada: oscura`, `destino: proyecto`, `herramientas`, `menu: secciones` (el propietario salta entre secciones), `tipo` («Informe de análisis», «Informe de diseño», «Informe de investigación») y `pie` con la tarea, de qué parte el informe y quién decide.
 
+El informe lleva el número de su tarea sobre el título de la portada («Tarea N»): el generador lo toma del campo opcional `tarea` o, si no está, del «Tarea N» del `estado`; sin ninguno, no pinta nada.
+
 ## Las preguntas
 
 Cada pregunta es una tarjeta de `::: preguntas`, el recurso «pregunta con opciones» de `crear_documentos`:

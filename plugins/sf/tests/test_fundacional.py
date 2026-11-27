@@ -234,3 +234,30 @@ class IconosPropios(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TareaEnLaCabecera(unittest.TestCase):
+    """«Tarea N» sobre el título de la portada del informe: del campo «tarea» o del «estado»; sin ninguno, nada."""
+
+    def generar(self, cabecera: str) -> str:
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as d:
+            md = Path(d) / 'doc.md'
+            md.write_text('---\ndestino: proyecto\nherramientas: ninguna\n' + cabecera + '---\n# Prueba\n\n## Uno | Primera {#uno}\n\nTexto.\n',
+                          encoding='utf-8')
+            r = subprocess.run([sys.executable, '-I', '-X', 'utf8', str(INFORME), str(md), '--identidad', 'ninguna',
+                                '--logo', 'ninguno'], capture_output=True, text=True, encoding='utf-8')
+            self.assertEqual(r.returncode, 0, r.stderr)
+            return md.with_suffix('.html').read_text(encoding='utf-8')
+
+    def test_del_estado(self):
+        html = self.generar('estado: Decidido · Tarea 303\n')
+        self.assertEqual(html.count('portada-tarea">Tarea 303<'), 1)
+        self.assertLess(html.index('portada-tarea'), html.index('class="titular"'))
+
+    def test_del_campo_tarea_manda(self):
+        html = self.generar('estado: Decidido · Tarea 303\ntarea: 477\n')
+        self.assertIn('portada-tarea">Tarea 477<', html)
+        self.assertNotIn('Tarea 303<', html.split('</header>')[0])
+
+    def test_sin_tarea_no_pinta_nada(self):
+        self.assertNotIn('portada-tarea">', self.generar('estado: Decidido\n'))

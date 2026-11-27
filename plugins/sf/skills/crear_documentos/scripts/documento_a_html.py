@@ -136,7 +136,14 @@ def mezclar(hex_color: str, con: str, t: float) -> str:
     return "#" + "".join(f"{round(x + (y - x) * t):02x}" for x, y in zip(a, b))
 
 
+def numero_tarea(datos: dict) -> str:
+    """Número de la tarea del documento: el campo «tarea» de la cabecera o, si no, el «Tarea N» del «estado». Vacío si no hay."""
+    m = re.search(r"\d+", str(datos.get("tarea", ""))) or re.search(r"(?<!\w)Tarea\s+(\d+)", str(datos.get("estado", "")))
+    return (m.group(1) if m and m.groups() else m.group(0)) if m else ""
+
+
 OPCIONES_TARJETA = {"color", "icono"}
+
 # «::: preguntas»: cada tarjeta es una pregunta con opciones («Opción A» / «:   …»), recomendación y estado.
 ESTADOS = {"abierta": "Abierta", "decidida": "Decidida", "separada": "Separada"}
 OPCIONES_PREGUNTA = {"icono", "estado", "recomendada", "elegida", "destino"}
@@ -852,6 +859,9 @@ def main():
     p = [f'<header class="portada{clase_portada}"><div class="portada-dentro">']
     if not compacta:
         p.append(f'<p class="marca">{marca}</p>')
+    tarea = numero_tarea(datos)
+    if tarea:
+        p.append(f'<p class="tipo-doc portada-tarea">Tarea {esc(tarea)}</p>')
     if datos.get("antetitulo"):
         p.append(f'<h1 class="titular">{esc(nombre)}' + (f'<span class="lema">{lema}</span>' if lema else "") + "</h1>")
     else:
