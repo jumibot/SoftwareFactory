@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 411 | 2026-11-27 | [Que el proyecto va por detrás de la SF lo dice un solo aviso en el panel lateral, y la caja sobre el prompt da las dos versiones](411-2026-11-27-que-el-proyecto-va-por-detras-de-la-sf-lo-dice-un-solo-aviso-en-el-panel-lateral-y-la-caja-sobre-el-prompt-da-las-dos-versiones.md) |
 | 410 | 2026-11-27 | [Lo mínimo de todo proyecto SF son las tareas, el repositorio y el registro de decisiones; la metodología se elige](410-2026-11-27-lo-minimo-de-todo-proyecto-sf-son-las-tareas-el-repositorio-y-el-registro-de-decisiones-la-metodologia-se-elige.md) |
 | 409 | 2026-11-27 | [Un paso pendiente se quita con dos clics en su «×»; los de cierre, nunca](409-2026-11-27-un-paso-pendiente-se-quita-con-dos-clics-en-su-los-de-cierre-nunca.md) |
 | 408 | 2026-11-27 | [Separar pasos de una tarea en una tarea nueva lo hace cola.py, sin Claude](408-2026-11-27-separar-pasos-de-una-tarea-en-una-tarea-nueva-lo-hace-cola-py-sin-claude.md) |
