@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 394 | 2026-11-27 | [Las «Actualizar…» no se quedan atrás: Reflejar nace al entrar la tarea en develop y RELEASE avisa de las pendientes](394-2026-11-27-las-actualizar-no-se-quedan-atras-reflejar-nace-al-entrar-la-tarea-en-develop-y-release-avisa-de-las-pendientes.md) |
 | 393 | 2026-11-27 | [Cada vuelta de un documento la lleva a develop una sola orden, solo con ese documento](393-2026-11-27-cada-vuelta-de-un-documento-la-lleva-a-develop-una-sola-orden-solo-con-ese-documento.md) |
 | 392 | 2026-11-27 | [Sin copia privada de develop: develop sigue en el remoto del proyecto](392-2026-11-27-sin-copia-privada-de-develop-develop-sigue-en-el-remoto-del-proyecto.md) |
 | 391 | 2026-11-27 | [Los repositorios públicos se revisan cada 15 días con la herramienta de la SF y lo encontrado se avisa en el panel](391-2026-11-27-los-repositorios-publicos-se-revisan-cada-15-dias-con-la-herramienta-de-la-sf-y-lo-encontrado-se-avisa-en-el-panel.md) |
