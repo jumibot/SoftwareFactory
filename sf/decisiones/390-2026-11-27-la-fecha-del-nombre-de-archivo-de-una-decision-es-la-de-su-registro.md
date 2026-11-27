@@ -4,4 +4,4 @@ El nombre `NNN-AAAA-MM-DD-titulo.md` lleva la fecha del día en que se registra,
 
 Porqué: el código y el texto no coincidían; el propietario elige la del registro (tarea 439).
 
-Aplicada en: pendiente, en la tarea 439: `indice_decisiones.py` (INTRO), cabecera de `sf/decisiones/README.md` y metodología.
+Aplicada en: tarea 439: `indice_decisiones.py` y cabecera de `sf/decisiones/README.md`. Pendiente: la metodología, en «Actualizar la metodología» (422).
