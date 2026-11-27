@@ -1,0 +1,30 @@
+tipo: proceso
+titulo: Cómo mejora la SF
+descripcion: La decisión del propietario es la única puerta entre proponer y cambiar.
+foco: dec
+nodos:
+  det: Se detecta | en la SF o en otro proyecto
+  prop: sf/propuestas.md | aún sin decidir
+  dec: ¿La aprueba? | dec
+  decis: sf/decisiones/ | con su porqué
+  tarea: Aplicada en una tarea | rama, prueba y squash
+  ver: Versión nueva | RELEASE y ACTUALIZAR
+  desc: Descartada | con su motivo | salida
+flechas:
+  inicio > det
+  det > prop
+  prop > dec
+  dec > decis: SÍ
+  dec > desc: NO | rojo
+  decis > tarea
+  tarea > ver
+notas:
+  SI NO TOCA EL PLUGIN: basta con el squash a develop
+fichas:
+  det: Desde otro proyecto, el propietario la trae a una sesión de la SF.
+  prop: El cambio, su beneficio, su impacto y cómo se comprobará.
+  dec: Aprobar, ajustar o descartar es cosa del propietario.
+  decis: Registrada con cola.py decision, en develop.
+  tarea: En la fuente: metodología, especificación, skills, plantillas o código.
+  ver: RELEASE la publica; ACTUALIZAR la instala.
+  desc: Queda en «Descartadas», con el motivo.

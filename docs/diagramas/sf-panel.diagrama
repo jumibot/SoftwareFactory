@@ -1,0 +1,15 @@
+tipo: proceso
+titulo: Qué hace el panel solo y qué le pide a Claude
+descripcion: Lo que se resuelve con una orden lo hace el panel; lo que pide criterio, se lo pide a Claude.
+foco: panel
+nodos:
+  panel: Panel · /sf | tus clics
+  solo: Lo hace el panel solo | Activar rama, Cerrar, Descartar
+  claude: Se lo pide a Claude | «?», Redescribir, Paso +, TURBO
+flechas:
+  panel > solo: ÓRDENES
+  panel > claude: PIDE | discontinua
+fichas:
+  panel: La cabecera, las tareas en curso y las secciones de tareas, con sus botones.
+  solo: Activar rama, Cerrar, A observación, Descartar, Revertir o Eliminar: órdenes que se resuelven sin criterio, con cola.py y git.
+  claude: El «?» de un paso, Redescribir, Paso +, TURBO, Poner en curso (que lanza el subagente) y los cierres que fallan: piden criterio.

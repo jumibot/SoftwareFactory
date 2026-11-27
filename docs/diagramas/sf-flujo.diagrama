@@ -1,0 +1,26 @@
+tipo: arquitectura
+titulo: Cómo avanza el trabajo de una tarea
+descripcion: Todo el movimiento entre ramas es local y lo mueven los botones del panel; solo Cerrar y RELEASE suben al repositorio.
+foco: dev
+nodos:
+  sub: Rama del subagente | sub-NN, en su worktree
+  tarea: Rama de la tarea | feature/NN, solo en local
+  dev: develop | donde se junta el trabajo
+  main: main | lo publicado, con su tag
+  repo: Repositorio | develop, main y tags
+zonas:
+  local: PROYECTO EN LOCAL | sub, tarea, dev, main
+  remoto: REPOSITORIO | repo
+flechas:
+  sub > tarea: TRAER | discontinua
+  dev > tarea: ACTIVAR RAMA
+  tarea > dev: CERRAR | principal
+  dev > main: RELEASE | principal
+  dev > repo: SUBE | linea=segundo
+  main > repo: SUBE | linea=segundo
+fichas:
+  sub: El subagente trabaja y commitea aquí, en su worktree. Si su trabajo no está en la rama de la tarea, ni Activar rama ni Cerrar siguen.
+  tarea: Se crea desde develop. Se borra al cerrar: no llega al repositorio.
+  dev: Recibe cada tarea cerrada, con su squash. Es la rama de trabajo del proyecto.
+  main: Lo publicado, solo avanza con RELEASE y por fast-forward.
+  repo: Recibe develop con Cerrar y main y el tag con RELEASE. Nada más sube solo.

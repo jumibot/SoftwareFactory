@@ -1,0 +1,29 @@
+tipo: arquitectura
+titulo: Dos sitios: tu proyecto y tu equipo
+descripcion: Tu proyecto se desarrolla en local; al repositorio solo suben develop y main, con Cerrar y RELEASE. En tu equipo viven el plugin y su estado.
+nodos:
+  tenias: Código, documentos y CLAUDE.md | lo que ya tenías, intacto
+  anade: .sf/proyecto.json y sf/ | lo que añade la SF | foco
+  ramas: develop, main y feature/ | feature/, solo en local | foco
+  solo: Cola, historial y worktrees | solo en local, no sube | foco
+  repo: Repositorio | develop, main y tags
+  plug: Plugin sf y ~/.claude/sf/ | instalado, con su estado | foco
+  sesion: Tu sesión de Claude | recibe las reglas
+  global: CLAUDE.md global y memorias | intactos
+zonas:
+  local: PROYECTO EN LOCAL | tenias, anade, ramas, solo
+  equipo: TU EQUIPO · FUERA DEL PROYECTO | plug, sesion, global
+  remoto: REPO DEL PROYECTO | repo
+flechas:
+  ramas > repo: CERRAR/RELEASE
+  plug > sesion: REGLAS | principal
+  sesion > anade: ESCRIBE
+fichas:
+  tenias: La SF no renombra ni mueve nada de esto. Si no hay CLAUDE.md, crea uno solo con el título y la descripción.
+  anade: Lo escribe Claude en tu carpeta, en un commit propio y con tu OK, junto a unas líneas de .gitattributes y .gitignore. Viaja al repositorio con develop.
+  ramas: develop y main suben al repositorio, develop con Cerrar y main y los tags con RELEASE. Las ramas de tarea, feature/NN, se quedan en local y se borran al cerrar.
+  solo: Dentro de tu carpeta pero fuera del repositorio, por el .gitignore: no sube.
+  repo: En GitHub. Solo recibe lo que suben Cerrar y RELEASE.
+  plug: Instalado en tu equipo; sus reglas viven aquí, no en tu proyecto. En ~/.claude/sf/ guarda su estado local: el latido de la sesión, el progreso de una incorporación y las copias de cola.py.
+  sesion: El mod le entrega las reglas desde el plugin al empezar cada sesión.
+  global: La SF no los toca ni escribe en ellos sin tu OK.

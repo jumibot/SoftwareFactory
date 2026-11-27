@@ -1,0 +1,25 @@
+tipo: proceso
+titulo: De la fuente a los proyectos
+descripcion: Lo que se edita está arriba; lo que se usa, abajo. Las mejoras vuelven a la fuente por un solo camino.
+foco: fuente
+nodos:
+  fuente: Fuente | repositorio de la SF · develop
+  pub: Versión publicada | main, con su tag vX.Y.Z
+  inst: Copia instalada | caché de Claude Code · no se edita
+  proy: Proyectos | .sf/ y sf/ en cada uno
+flechas:
+  inicio > fuente
+  fuente > pub: RELEASE | principal
+  pub > inst: ACTUALIZAR | rojo
+  inst > proy: CADA SESIÓN
+  proy > fuente: MEJORAS | vuelta
+notas:
+  HASTA QUE NO SE PUBLICA: un cambio en la fuente no llega a los proyectos
+fichas:
+  fuente: Aquí se edita todo: el plugin en plugins/sf/ y lo propio de la SF en docs/ y sf/.
+  pub: Cada versión del plugin, con su tag.
+    - RELEASE: sube la versión, pasa develop a main por fast-forward, pone el tag y sube main y el tag
+  inst: La versión que Claude Code descarga en su caché, para el usuario.
+    - ACTUALIZAR (rojo): instala la versión publicada
+  proy: Cada proyecto pone solo lo suyo: .sf/ y sf/. El kanban es opcional.
+    - Mejoras: el propietario las trae a una sesión de la SF

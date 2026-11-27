@@ -1,422 +1,382 @@
+---
+tipo: Documento explicativo
+destino: proyecto
+herramientas: recomendadas
+---
 # Cómo funciona la Software Factory
 
-Este documento describe el funcionamiento de la Software Factory: sus componentes, dónde está cada uno y cómo se relacionan. No contiene reglas. Las reglas están en la metodología, en la especificación y en las decisiones, y aquí solo se dice dónde buscarlas.
+Este documento es para quien usa la Software Factory (SF) en sus proyectos: qué es, qué hace, cómo se instala y cómo se trabaja con ella. No contiene reglas: están en la metodología y en las decisiones, y aquí solo se dice dónde buscarlas. Cómo se escribe, se publica y se mejora la propia SF está en [Cómo se desarrolla la Software Factory](como-se-desarrolla-la-software-factory.html).
 
-**Estado:** 2 de noviembre de 2026, plugin `sf` 1.5.0.
+**Estado:** 27 de noviembre de 2026, plugin sf 1.9.11.
 
 ## La SF es un plugin
 
-Un **plugin de Claude Code** es un paquete que amplía Claude Code con piezas que se instalan juntas: skills, comandos con barra, agentes, hooks, servidores MCP y mods de la interfaz. Se publica por versiones y se instala entero, para un proyecto o para el usuario.
+Un **plugin de Claude Code** es un paquete que amplía Claude Code con piezas que se instalan juntas: skills, órdenes con barra, hooks y mods de la interfaz. Se publica por versiones y se instala entero.
 
-La SF se escribe en un solo sitio, este repositorio. Llega a los proyectos de una sola forma: el plugin `sf` de Claude Code. Lleva la metodología, las skills, las plantillas de reglas y de estructuras, el kit de documentos y el mod con el panel. Se publica y se instala una vez, para el usuario. Desde ese momento está en todas las sesiones, en cualquier proyecto, con el prefijo `sf:`.
+La SF llega a los proyectos de una sola forma: el plugin `sf`. Lleva el método de trabajo, las skills, las plantillas, el generador de documentos, las herramientas de la cola y el panel. Se instala una vez, para el usuario, y desde ese momento está en todas las sesiones, en cualquier proyecto, con el prefijo `sf:`.
 
-Cada proyecto pone solo lo suyo. La carpeta `.sf/` lo identifica, guarda su configuración y lleva su estado y su cola. La carpeta `sf/` guarda los documentos de la SF en el proyecto: sus propuestas, sus decisiones y sus informes. El kanban es opcional.
+La SF no vive dentro de tus proyectos: el plugin está instalado en tu equipo. Al incorporar un proyecto, la SF le añade dos carpetas suyas, `.sf/` (su configuración, su estado y su cola de tareas) y `sf/` (sus propuestas, sus decisiones y sus informes), y deja lo demás como está: «Incorporación de un proyecto a la SF» dice exactamente qué añade, qué cambia y qué no toca. El kanban es opcional.
 
-El circuito se cierra al revés. Lo que falla o falta en la SF se lleva a una sesión de la SF y allí se convierte en propuesta. Solo cuando el propietario la aprueba se aplica en la fuente y se publica una versión nueva.
+Las mejoras de la SF llegan en versiones nuevas del plugin: el panel avisa cuando hay una más nueva que la instalada, y ACTUALIZAR la instala (en «Actualizar la SF»).
 
-<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 44 560 556" width="100%" role="img" aria-label="Mapa de la SF: de la fuente a los proyectos, pasando por la versión publicada y la copia instalada, y la vuelta de las mejoras" style="font-family:var(--fuente-texto);display:block">
-<defs><marker id="flecha-cf-fra" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#be185d"/></marker><marker id="flecha-cf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#00726b"/></marker></defs>
-<rect x="14" y="54" width="500" height="178" rx="10" fill="none" stroke="#b2deda" stroke-width="1.5"/>
-<path d="M30,66 v18 a10,4 0 0 0 20,0 v-18" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/><ellipse cx="40" cy="66" rx="10" ry="4" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/>
-<text x="62" y="74" font-size="14.5" font-weight="700" fill="#004d47">1 · Fuente: el repositorio de la SF</text>
-<text x="62" y="92" font-size="12.5" fill="#555">D:\Projectes\SoftwareFactory · aquí se edita todo</text>
-<text x="34" y="124" font-size="12.5" font-weight="700" fill="#00726b">Contenido del plugin sf</text>
-<text x="34" y="144" font-size="12.5" fill="#555">metodología (sf:metodologia)</text>
-<text x="34" y="162" font-size="12.5" fill="#555">skills del método y de orquestación</text>
-<text x="34" y="180" font-size="12.5" fill="#555">plantillas de reglas y estructuras</text>
-<text x="34" y="198" font-size="12.5" fill="#555">kit de documentos y CLI de la cola</text>
-<text x="34" y="216" font-size="12.5" fill="#555">mod: panel /sf y reglas</text>
-<text x="290" y="124" font-size="12.5" font-weight="700" fill="#004d47">Se queda en el repositorio</text>
-<text x="290" y="144" font-size="12.5" fill="#555">especificación</text>
-<text x="290" y="162" font-size="12.5" fill="#555">visiones</text>
-<text x="290" y="180" font-size="12.5" fill="#555">decisiones</text>
-<text x="290" y="198" font-size="12.5" font-weight="700" fill="#be185d">propuestas</text>
-<text x="290" y="216" font-size="12.5" fill="#555">investigación e informes</text>
-<line x1="264" y1="232" x2="264" y2="262" stroke="#00726b" stroke-width="2" marker-end="url(#flecha-cf)"/>
-<text x="276" y="252" font-size="12" fill="#00726b">RELEASE: a main, con tag</text>
-<rect x="14" y="266" width="500" height="54" rx="10" fill="none" stroke="#b2deda" stroke-width="1.5"/>
-<path d="M30,278 v18 a10,4 0 0 0 20,0 v-18" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/><ellipse cx="40" cy="278" rx="10" ry="4" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/>
-<text x="62" y="288" font-size="14.5" font-weight="700" fill="#004d47">2 · Versión publicada</text>
-<text x="62" y="306" font-size="12.5" fill="#555">cada versión del plugin, con su tag vX.Y.Z</text>
-<line x1="264" y1="320" x2="264" y2="350" stroke="#00726b" stroke-width="2" marker-end="url(#flecha-cf)"/>
-<text x="276" y="340" font-size="12" fill="#00726b">ACTUALIZAR, desde el panel</text>
-<rect x="14" y="354" width="500" height="54" rx="10" fill="none" stroke="#b2deda" stroke-width="1.5"/>
-<path d="M30,366 v18 a10,4 0 0 0 20,0 v-18" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/><ellipse cx="40" cy="366" rx="10" ry="4" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/>
-<text x="62" y="376" font-size="14.5" font-weight="700" fill="#004d47">3 · Copia instalada, activa para el usuario</text>
-<text x="62" y="394" font-size="12.5" fill="#555">~/.claude/plugins/cache/…/sf/1.5.0 · no se edita</text>
-<line x1="264" y1="408" x2="264" y2="438" stroke="#00726b" stroke-width="2" marker-end="url(#flecha-cf)"/>
-<text x="276" y="428" font-size="12" fill="#00726b">en cada sesión, en cualquier proyecto</text>
-<rect x="14" y="442" width="500" height="126" rx="10" fill="none" stroke="#c0dcc4" stroke-width="1.5"/>
-<text x="34" y="464" font-size="14.5" font-weight="700" fill="#1f812d">4 · Proyectos</text>
-<text x="34" y="482" font-size="12.5" fill="#555">JKanban · LecturaFàcil · SmartColdBox…</text>
-<text x="34" y="510" font-size="12.5" font-weight="700" fill="#1f812d">.sf/</text><text x="80" y="510" font-size="12.5" fill="#555">identidad, configuración, estado y cola</text>
-<text x="34" y="530" font-size="12.5" font-weight="700" fill="#1f812d">sf/</text><text x="80" y="530" font-size="12.5" fill="#555">propuestas, decisiones e informes</text>
-<text x="34" y="550" font-size="12.5" font-weight="700" fill="#1f812d">kanban</text><text x="96" y="550" font-size="12.5" fill="#555">opcional; por defecto, ninguno</text>
-<path d="M514,520 H536 V194 H520" fill="none" stroke="#be185d" stroke-width="1.8" stroke-dasharray="5 4" marker-end="url(#flecha-cf-fra)"/>
-<text transform="rotate(-90 550 357)" x="550" y="357" text-anchor="middle" font-size="12" fill="#be185d">mejoras: el propietario las trae a la SF</text>
-<text x="14" y="592" font-size="12.5" font-style="italic" fill="#888">hasta que no se publica, un cambio en 1 no llega a 4</text>
-</svg>
-<figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Lo que se edita está arriba; lo que se usa, abajo. La línea discontinua es el único camino de vuelta.</figcaption>
-</figure>
+## La SF, el CLAUDE.md y las memorias
+
+La SF no interfiere en tu proyecto. Esto es lo que no toca, lo que solo añade y cómo se las apaña para no estorbar.
+
+### Lo que no hace
+
+::: tarjetas 2
+#### No añade nada de la SF a tu CLAUDE.md {color=turquesa icono=check}
+
+Sus reglas no se copian ni se importan en él. Si el proyecto no tiene `CLAUDE.md`, se crea solo con el título y la descripción.
+
+#### No toca el CLAUDE.md global ni lo demás de ~/.claude {color=turquesa icono=check}
+
+No sin tu OK. Lo único que guarda ahí, en `~/.claude/sf/`, es su propio estado.
+
+#### No escribe en las memorias de Claude {color=turquesa icono=check}
+
+Lo que la SF recuerda entre sesiones está dentro del proyecto, en `.sf/` y `sf/`, no en las memorias.
+
+#### Solo añade lo suyo, en sitios propios {color=turquesa icono=check}
+
+Dos carpetas propias, `.sf/` y `sf/`, que viajan con el proyecto. Tu código y tus documentos se quedan donde están. La lista completa, en «Incorporación de un proyecto a la SF».
+:::
+
+En resumen, hay dos sitios: tu proyecto y tu equipo. Tu proyecto se desarrolla en local, en tu carpeta: ahí están lo que ya tenías, intacto, lo que añade la SF y lo que solo vale en tu máquina, y ahí escribe Claude, así que los cambios llegan primero ahí. Las ramas de cada tarea y todo el movimiento entre ramas son locales; al repositorio, en GitHub, solo suben `develop`, con Cerrar, y `main` y los tags, con RELEASE. En tu equipo, fuera del proyecto, viven el plugin y su estado, y tu CLAUDE.md global y tus memorias quedan intactos.
+
+![](diagramas/sf-dos-sitios.diagrama)
+
+En el esquema, las tres piezas son el proyecto en local, tu equipo y el repo del proyecto, en GitHub. **Lo que aporta la SF va resaltado en color** (sus carpetas y ramas, lo local, el plugin, su estado en `~/.claude/sf/` y la flecha de las reglas); lo tuyo, en neutro.
+
+### Cómo se las apaña
+
+**Sus reglas llegan por el mod, no por tu CLAUDE.md.** Al empezar cada sesión, el mod entrega a Claude las reglas de la SF desde el plugin. Si actualizas el plugin, llegan las nuevas sin tocar el proyecto.
+
+**Lo suyo tiene sitios propios.** Dentro del proyecto, en `.sf/` y `sf/`, con lo local (la cola y los worktrees) marcado como solo de tu máquina; fuera, en `~/.claude/sf/`. Qué va en cada sitio y quién lo pone está en la tabla de «Estructura de un proyecto bajo la SF».
+
+**Ante un choque con tus reglas, pregunta, y manda la tuya.** Antes de preguntar nada, Claude lee tus reglas y te dice qué choca con la SF, una por línea.
+
+- Lo que choca con cómo la SF lleva el repositorio (quién hace los commits y los push, las ramas, cómo se junta el trabajo, quién publica) no se puede dejar como está: sin ello la SF no podría trabajar. Lo aceptas antes de empezar, y con un no no se cambia nada. Si aceptas, Claude adapta esas frases y las ves antes de aplicar nada.
+- Lo demás puede convivir con la SF. Se te propone una regla cada vez, con dos opciones válidas, y lo que decidas se anota en `sf/decisiones/`. Mientras no decidas, manda la regla del proyecto.
+- Un `CLAUDE.md` largo o con muchas reglas propias no se revisa en la incorporación: se propone una tarea aparte, con un cambio cada vez, cada uno con tu OK y en su commit.
+- Mover secciones del `CLAUDE.md` a otro documento tampoco entra: es una petición tuya aparte.
+
+**Lo útil para otros va al plugin, no a las memorias.** Una regla, preferencia o mejora que sirva a otros usuarios de la SF no se guarda en la memoria de Claude ni en tu `CLAUDE.md`, que solo se ven en esa carpeta y en esa máquina: va a una pieza del plugin o, desde otro proyecto, Claude dice en una línea que es de la SF. La memoria queda para lo propio del usuario o de la sesión.
+
+::: tarjetas 2 plegables
+#### Qué lee Claude antes de incorporar {color=turquesa icono=lupa}
+
+El `CLAUDE.md` entero, `.claude/CLAUDE.md` y `CLAUDE.local.md` si los hay; `AGENTS.md`, `CONTRIBUTING.md`, las reglas, los ganchos y los permisos de `.claude/` y de git; y lo que el README diga de cómo se trabaja. Solo lee: no cambia nada. El `CLAUDE.md` global no está en esa lista.
+
+#### Al poner al día un proyecto antiguo {color=turquesa icono=rama}
+
+Se borra la copia `.sf/claude-sf.md` y se quita del `CLAUDE.md` su línea de importación `@.sf/claude-sf.md`, sin tocar lo demás. Mientras la línea siga, el mod entrega solo las reglas del agente principal, para no dar las reglas dos veces, y el panel avisa de que el proyecto va atrasado.
+:::
 
 ## Instalación del plugin
 
-El repositorio de la SF es la **fuente**: aquí se crea y se modifica todo, pero ningún proyecto lo usa directamente. Los proyectos usan la **copia instalada**: la versión publicada, que Claude Code descarga en su caché.
-
-Por eso un cambio en la fuente no llega a ningún proyecto hasta que se publica y se actualiza la copia instalada. Esa copia no se edita nunca, porque la siguiente actualización la sobrescribe. Para ver un cambio antes de publicarlo está el **modo prueba**, solo en la SF (en «Publicación del plugin»).
+Los proyectos usan la **copia instalada**: la versión publicada, que Claude Code descarga en su caché y que no se edita nunca, porque la siguiente actualización la sobrescribe.
 
 El plugin se instala una sola vez por equipo, para el usuario, desde el catálogo de la SF en GitHub:
 
-```
+```bash
 claude plugin marketplace add jumibot/SoftwareFactory
 claude plugin install sf@softwarefactory --scope user
 ```
 
-**Dependencias.** Las skills externas que la SF usa tal cual no viajan copiadas en el plugin: son dependencias de `sf` («Skills externas: tal cual, como dependencias; adaptadas, como propias»). Hoy son tres plugins: `gsap-skills`, `threejs-skills` y `oklch-skill`. Están en el catálogo de la SF, fijados a un commit de sus repositorios, así que instalar `sf` las trae sin añadir otro catálogo («Todas las skills externas actuales, como dependencias»). Solo viaja en el plugin una skill externa adaptada, que entonces es nuestra, con su `ORIGIN.md`. `dataviz` no es dependencia: es un requisito del entorno, anotado en `sf:documento_vision`.
+**Dependencias.** `sf` necesita tres plugins más, `gsap-skills`, `threejs-skills` y `oklch-skill`, del mismo catálogo: instalar `sf` los trae sin añadir otro catálogo. `dataviz` no es dependencia: es un requisito del entorno para crear series de color. Sin una de ellas, `sf` no carga, ni su panel; `claude plugin update` no instala las nuevas, y por eso, a mano, va una orden por plugin.
 
-Sin una de sus dependencias, `sf` no carga, ni su panel. `claude plugin update` no instala las nuevas, y `claude plugin install` solo instala el primer plugin que se le da. Por eso, a mano, va una orden por plugin. Quien actualiza desde la 1.2.10 o antes, con el ACTUALIZAR de entonces, tiene que instalarlas así una vez. Las órdenes están en `plugins/sf/README.md`.
+**Comprobar la instalación.** La skill `sf:comprobar_instalacion`, la única de la SF que sale en el menú `/`, revisa el catálogo, el plugin y sus dependencias (instalados, activos y en la versión publicada) y los requisitos: git con nombre y correo, `gh` con la sesión iniciada y Python 3.9 o posterior. Dice en pocas líneas qué está bien y qué falta, y propone el arreglo con un menú. La orden `/sf:panel` la ofrece también si el mod no está cargado.
 
-## Componentes del plugin
+**Python.** La SF necesita Python 3.9 o posterior. El mod prueba `python`, `python3` y `py`, por este orden, y usa el primero que responde, así que arranca igual en un Mac, donde solo hay `python3`.
 
-La fuente del plugin `sf` está en la carpeta `plugins/sf/` de este repositorio. Al publicar una versión, todo su contenido queda disponible en los proyectos: Claude Code descarga esa versión y la usa en cualquier proyecto que se abra. Las rutas son relativas a esa carpeta. Sus componentes son de dos tipos, con finalidades distintas.
+## Qué lleva el plugin
 
-### Skills y sus recursos
+Sus piezas son de dos tipos, con finalidades distintas: skills y mod.
 
-**Finalidad común: que Claude trabaje según el método.** Son conocimiento e instrucciones que Claude carga cuando la tarea lo pide: qué hacer en cada fase, cómo hacerlo y con qué plantillas y herramientas. No hacen nada por sí solas; actúan a través del trabajo de Claude. La metodología y la guía de diagramas están dentro de la carpeta de la skill `sf:metodologia`; el kit de documentos y los generadores, en la carpeta de las skills que los usan.
+### Skills
 
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr));gap:.9rem;margin:1.2rem 0 1.6rem;"><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">Metodología</p><p style="margin:0 0 .45rem;">Cómo se desarrolla un proyecto: fases, devslices, kanban, estructura y pruebas.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>skills/metodologia/references/desarrollo-de-proyectos.md</code></p><p style="margin:.45rem 0 0;font-size:.82rem;color:var(--primario);font-weight:600;">skill sf:metodologia</p></div><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">Guía de diagramas</p><p style="margin:0 0 .45rem;">Norma y recomendaciones para los diagramas SVG de cualquier documento.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>skills/metodologia/references/diagramas-svg.md</code></p><p style="margin:.45rem 0 0;font-size:.82rem;color:var(--primario);font-weight:600;">con sf:metodologia</p></div><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">Orquestación</p><p style="margin:0 0 .45rem;">Las reglas del agente principal: qué hacer con cada mensaje del propietario, la cola, los subagentes, la prueba y el cierre, y cómo preguntar y escribir. En los proyectos la entrega el mod entera; en la SF la carga el principal.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>skills/orquestacion/</code></p><p style="margin:.45rem 0 0;font-size:.82rem;color:var(--primario);font-weight:600;">skill sf:orquestacion</p></div><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">Skills del método</p><p style="margin:0 0 .45rem;">Herramientas de Claude para cada fase y para el trabajo diario: incorporación de un proyecto, configuración del proyecto, flujo de tareas, visión, fundacional, interfaz, técnica e infografía.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>skills/</code></p><p style="margin:.45rem 0 0;font-size:.82rem;color:var(--primario);font-weight:600;">prefijo sf:</p></div><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">Plantillas de reglas</p><p style="margin:0 0 .45rem;">Las reglas que reciben los proyectos, partidas en dos: las comunes, en <code>claude-sf.md</code>, y las del método, en <code>claude-sf-metodologia.md</code>, solo si el proyecto lo sigue. No se copian al proyecto: las entrega el mod.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>templates/claude-sf.md</code>, <code>templates/claude-sf-metodologia.md</code></p></div><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">Otras plantillas</p><p style="margin:0 0 .45rem;">Estructuras de carpetas por perfil técnico y el <code>propuestas.md</code> vacío que crea la incorporación.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>templates/estructuras/</code>, <code>templates/propuestas.md</code></p></div><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">CLI de la cola</p><p style="margin:0 0 .45rem;">Única vía para escribir <code>.sf/peticiones.json</code>: bloquea la cola (<code>peticiones.lock</code>), guarda una copia antes (<code>copias/</code>) y pasa lo que sale a <code>historial.jsonl</code>. Lo usan Claude y el panel. También registra las decisiones (<code>decision</code>), escribe la parte fija del encargo de un subagente (<code>encargo</code>) y dice si una tarea comparte archivos con otra en curso o en observación (<code>choques</code>, que sale con 3 si los hay).</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>tools/cola.py</code></p><p style="margin:.45rem 0 0;font-size:.82rem;color:var(--primario);font-weight:600;">con sf:flujo_tareas</p></div><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">Lanzador de la cola</p><p style="margin:0 0 .45rem;">El panel lo copia al cargar a <code>~/.claude/sf/cola.py</code>. Claude lanza siempre <code>python -I -X utf8 "$HOME/.claude/sf/cola.py" &lt;orden&gt;</code>, y el lanzador pasa la orden a la copia de <code>cola.py</code> de su sesión, la misma que usa el panel. Así Claude nunca usa el <code>cola.py</code> de la rama activa.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>tools/cola_sesion.py</code></p></div><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">Kit de documentos</p><p style="margin:0 0 .45rem;">Barra y herramientas de los documentos HTML: buscador, notas, lectura y edición.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>tools/kit_documentos/</code></p></div><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">Configuración del proyecto</p><p style="margin:0 0 .45rem;">Enseña y comprueba <code>.sf/proyecto.json</code> (<code>ver</code>) y detecta las convenciones del repositorio (<code>detectar</code>): remotos, ramas, manifiestos, forma de los commits y colores de los proyectos vecinos. Solo lee. La usan la incorporación y <code>sf:configurar_proyecto</code>.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>tools/configuracion.py</code></p></div><div class="ficha" style="margin:0;--oscuro:#134c4c;--borde:#c0dada;border-top:4px solid #1f7a7a;"><p class="ficha-titulo">Índice de decisiones</p><p style="margin:0 0 .45rem;">Regenera el índice <code>README.md</code> de las decisiones, sin Claude. Con <code>--html</code> genera también su <code>README.html</code>, que no se versiona. Con <code>--nombre</code> da el nombre de una decisión nueva, y con <code>--migrar</code> parte un <code>decisiones.md</code> antiguo en un archivo por decisión.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>tools/indice_decisiones.py</code></p></div></div>
+**Finalidad común: que Claude trabaje según el método.** Son conocimiento e instrucciones que Claude carga cuando la tarea lo pide: qué hacer en cada fase, cómo hacerlo y con qué plantillas y herramientas. No hacen nada por sí solas; actúan a través del trabajo de Claude. Salvo `sf:comprobar_instalacion`, son internas: no salen en el menú `/`, para no llenarlo, y Claude las carga cuando tocan.
 
-### Mods
+::: tarjetas 2 plegables
+#### Metodología {color=turquesa icono=documento}
 
-**Finalidad común: que el propietario vea y controle el proyecto desde Claude Code.** Cambian la interfaz o el comportamiento de Claude Code y actúan solos, en respuesta a eventos de la sesión, sin que Claude tenga que acordarse. Hoy hay uno, el mod de estado, con el panel; se resume en «El panel de la SF» y se detalla en [Cómo funciona el panel](como-funciona-el-panel.html).
+Cómo se desarrolla un proyecto: fases, devslices, kanban, estructura, tipos de tarea y pruebas. Con ella viaja la guía común de los esquemas SVG.
 
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr));gap:.9rem;margin:1.2rem 0 1.6rem;"><div class="ficha" style="margin:0;--oscuro:#673210;--borde:#e6cebf;border-top:4px solid #a6501a;"><p class="ficha-titulo">Mod de estado</p><p style="margin:0 0 .45rem;">Panel lateral de la SF (<code>/sf</code>) y caja de reserva sobre el prompt, que leen <code>.sf/</code>. Entrega a Claude las reglas, la orquestación y los avisos.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>hooks/</code></p></div></div>
+#### Orquestación {color=turquesa icono=dialogo}
 
-El mod está repartido en módulos, todos en `hooks/`:
+Las reglas del agente principal: qué hacer con cada mensaje del propietario, el foco, la cola, los subagentes, la prueba y el cierre, y cómo preguntar y escribir. La entrega el mod entera.
 
-| Módulo | Qué hace |
-| --- | --- |
-| `register.tsx` | Engancha el mod a los eventos de la sesión y registra los comandos `/sf` y `/sf_…`, también `/sf_config`. |
-| `panel.tsx` | Pinta el panel y la caja sobre el prompt, y atiende sus clics. |
-| `cola.ts` | Lee el estado, lanza `cola.py` y hace RELEASE, ACTUALIZAR y REFRESCAR. |
-| `lectura.ts` | Lee la cola, el historial y el estado del proyecto. |
-| `configuracion.ts` | Lee `.sf/proyecto.json` con sus valores por defecto. |
-| `contexto.ts` | Entrega las reglas y la orquestación, y añade la regla de lo que es de la SF al prompt de sistema. |
-| `avisos.ts` | Avisa a Claude de lo que el propietario ha cambiado desde el panel. |
-| `subagentes.ts` y `memoria.ts` | Avisan de las tareas en curso sin subagente y de los subagentes sin recoger, y guardan lo avisado en `.sf/subagentes.json`. |
-| `control.ts` | Bloquea la escritura en otro proyecto, y en la cola desde un subagente. |
-| `emergentes.ts` | Da forma a los avisos emergentes: lo importante primero, sin rutas largas. |
-| `pantalla.ts` | Sin pantalla completa, avisa de que los clics no llegan. |
-| `prueba.ts` | Lleva el modo prueba, solo en la SF. |
-| `identidad.ts` | Pone a la sesión el color y el nombre del proyecto. |
-| `estilo.ts` y `constantes.ts` | Colores, anchos, rutas y nombres comunes. |
+#### Flujo, incorporación y configuración {color=turquesa icono=rama}
 
-## Componentes de la SF fuera del plugin
+`sf:flujo_tareas` lleva el ciclo de las tareas con `cola.py`; `sf:incorporar_proyecto_a_sf` prepara un proyecto; `sf:configurar_proyecto` cambia su configuración (`/sf_config`); `sf:comprobar_instalacion` revisa el equipo.
 
-No se instala con el plugin: se queda en el repositorio de la SF.
+#### Documentos {color=naranja icono=documento}
 
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,19rem),1fr));gap:.9rem;margin:1.2rem 0 1.6rem;"><div class="ficha" style="margin:0;"><p class="ficha-titulo">Especificación</p><p style="margin:0 0 .45rem;">Qué hay que construir en la SF.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>docs/specs/funcional/software-factory.md</code></p></div><div class="ficha" style="margin:0;"><p class="ficha-titulo">Visiones</p><p style="margin:0 0 .45rem;">La SF contada desde cada perspectiva.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>docs/specs/vision/</code></p></div><div class="ficha" style="margin:0;"><p class="ficha-titulo">Decisiones</p><p style="margin:0 0 .45rem;">Lo que el propietario ha decidido sobre la SF, con su porqué. La SF aún las tiene en <code>docs/</code>; los proyectos, en <code>sf/</code>.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>docs/decisiones/</code></p></div><div class="ficha" style="margin:0;"><p class="ficha-titulo">Mejora continua a la Software Factory</p><p style="margin:0 0 .45rem;">Dónde se registra una decisión, con qué formato, en qué componentes se aplica y cómo llega a los proyectos.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>docs/mejora-continua-a-la-software-factory.md</code></p></div><div class="ficha" style="margin:0;"><p class="ficha-titulo">Propuestas</p><p style="margin:0 0 .45rem;">Ideas de mejora aún sin decidir.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>docs/propuestas.md</code></p></div><div class="ficha" style="margin:0;"><p class="ficha-titulo">Cómo funciona el panel</p><p style="margin:0 0 .45rem;">Cada parte del panel, qué controla, su código y su historial.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>docs/como-funciona-el-panel.md</code></p></div><div class="ficha" style="margin:0;"><p class="ficha-titulo">Cómo funcionan los estados</p><p style="margin:0 0 .45rem;">Cada cambio de estado de una tarea: cuándo, quién, qué pide y qué hace en git.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>docs/como-funcionan-los-estados.md</code></p></div><div class="ficha" style="margin:0;"><p class="ficha-titulo">Uso del panel</p><p style="margin:0 0 .45rem;">Cómo se vive el panel: fricciones y aciertos.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>docs/uso-del-panel.md</code></p></div><div class="ficha" style="margin:0;"><p class="ficha-titulo">Investigación e informes</p><p style="margin:0 0 .45rem;">Informes y notas con fuentes, como «Configuración inicial» o «Tipos de tarea».</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>docs/referencias/</code></p></div><div class="ficha" style="margin:0;"><p class="ficha-titulo">JKanban</p><p style="margin:0 0 .45rem;">El tablero de tareas, con un MCP para la SF. Es opcional y aún no está conectado.</p><p style="margin:0;font-size:.82rem;color:var(--texto-suave);"><code>D:\Projectes\JKanban</code></p></div></div>
+`sf:crear_documentos` es lo común: el generador único `.md` → HTML, el catálogo de recursos, el estilo del proyecto, el respaldo y la comprobación. Encima, una skill por tipo: `documento_vision` (también los explicativos), `documento_fundacional` e `informe_deliberativa`.
+
+#### Estilo y diagramas {color=naranja icono=lupa}
+
+`sf:fijar_estilo` fija y afina el estilo de los documentos del proyecto, con muestras. `sf:diagramas` dibuja los diagramas desde datos (`.diagrama`), con la estética de diagram-design y su comprobación.
+
+#### Fases del método {color=turquesa icono=codigo}
+
+`sf:diseno_interfaz`, `sf:definicion_tecnica` e `sf:infografia_tecnica`, para la interfaz, la técnica y las infografías 3D de un producto.
+:::
+
+**Las plantillas.** Las reglas que reciben los proyectos van partidas en dos: las comunes y las del método, solo si el proyecto lo sigue. No se copian al proyecto: las entrega el mod. Además, el plugin trae las estructuras de carpetas por perfil técnico y el `propuestas.md` vacío que crea la incorporación.
+
+**Las herramientas.** Son órdenes en Python que lanzan Claude o el panel, no tú. La principal es `cola.py`, la única vía para escribir la cola de tareas (`.sf/peticiones.json`): la bloquea mientras escribe y guarda antes una copia y después lo que cambia en su historial.
+
+### El mod de estado
+
+**Finalidad común: que el propietario vea y controle el proyecto desde Claude Code.** Un mod cambia la interfaz o el comportamiento de Claude Code y actúa solo, en respuesta a eventos de la sesión, sin que Claude tenga que acordarse. El de la SF reúne el panel lateral (`/sf`), la caja sobre el prompt, el control de la sesión y lo que entrega a Claude. Se resume en «El panel de la SF» y se detalla en [Cómo funciona el panel](como-funciona-el-panel.html).
+
+## Incorporación de un proyecto a la SF
+
+La vía es pedírselo a Claude en una sesión abierta en el proyecto. En una carpeta sin SF, el panel da la bienvenida con la orden para empezar y, con el primer mensaje, Claude ofrece incorporarla («En una carpeta sin SF, Claude ofrece incorporarla»). Lo hace la skill `sf:incorporar_proyecto_a_sf`, en cuatro casos: proyecto nuevo, existente, actualizar uno ya incorporado y diagnosticar sin cambiar nada.
+
+**Una operación, sin tarea.** Incorporar y poner al día no pasan por la cola y no crean tarea ni rama («Incorporar un proyecto es una operación sin tarea, guiada por menús»). Claude la guía con menús en la línea de prompts: dice qué va a crear o cambiar, en palabras llanas, pide el OK y lo aplica en `develop`, con su commit. Lo que salga mal se deshace con git.
+
+
+**El repositorio no se elige** («La SF gestiona el repositorio a su manera: la incorporación no lo deja a elección»). Las ramas `develop` y `main`, una rama por tarea, el remoto en GitHub, los commits de Claude y la versión con su tag son fijos. Claude lo explica una sola vez, en palabras llanas, y pregunta si se trabaja así; con un no, para sin cambiar nada. Lo demás se detecta y se confirma (idioma, formato y firma de los commits, remoto, rama de publicación y manifiestos) o se elige (metodología y kanban). El color no se pregunta.
+
+**Los pasos, en el panel.** Mientras dura, el panel enseña bajo la bienvenida cada paso con su respuesta, el actual resaltado y los que faltan atenuados, desde «Plugin» hasta «Comprobación». Claude lo anota fuera del proyecto. Lo respondido no se pierde: si el turno acaba, queda en pausa con «Continuar» y «Abandonar»; si se borra a medias, se guarda aparte para recuperarlo.
+
+::: tarjetas 3
+#### Plugin {color=turquesa icono=check}
+
+Antes de cualquier pregunta, Claude comprueba la versión del plugin: si hay una más nueva, la instala con el OK del propietario y, si basta recargar, el mod recarga los plugins solo y Claude sigue la incorporación sin que nadie escriba nada.
+
+#### Reglas del proyecto {color=turquesa icono=lupa}
+
+Antes de los menús, Claude lee el `CLAUDE.md` y las demás reglas que el proyecto se da, y dice qué choca con cómo trabaja la SF. Lo del repositorio se adapta al aceptar; lo demás se propone después, una cosa cada vez.
+
+#### Los menús {color=turquesa icono=dialogo}
+
+Repositorio, identidad y convenciones, por este orden y de hasta cuatro preguntas. Lo que se detecta sin duda no se pregunta: se enseña en el resumen antes del OK.
+:::
+
+**La SF interfiere lo mínimo en un proyecto ya empezado.** Añade lo suyo en carpetas propias, cambia solo lo que no puede dejar como está, con tu OK, y no toca el resto. Antes de aplicar nada, Claude te enseña la lista, con para qué sirve cada cosa, y espera tu OK.
+
+::: tarjetas 3
+#### Lo que añade la SF {color=turquesa icono=carpeta}
+
+- En `.sf/`: `proyecto.json` (la ficha y la configuración) y, si sigues la metodología, `estado.json` (la fase).
+- En `sf/`: `decisiones/` con su índice, `propuestas.md` vacío, y `informes/` cuando Claude escriba el primero.
+- `.gitattributes`: una línea para que el índice de decisiones no dé conflictos al juntar ramas.
+- Las ramas `develop` y la que hace de `main`, si no existen (las que ya tengas se respetan, también si se llaman `master`), y después una `feature/NN-nombre` por tarea.
+- El repositorio en GitHub, si no tiene remoto (sin él no hay SF).
+- Un `CLAUDE.md` solo con el título y la descripción, si no tienes ninguno.
+
+#### Lo que cambia, con tu OK {color=turquesa icono=documento}
+
+- `.gitignore`: unas líneas para que git no guarde los archivos de trabajo de la SF (la cola, su historial y sus copias, `.sf/estado.json`, `.sf/subagentes.json`, `.claude/worktrees/` y `sf/decisiones/README.html`).
+- Las frases de tu `CLAUDE.md` que chocan con cómo la SF lleva el repositorio, y nada más de él.
+- Al poner al día un proyecto ya incorporado: se quitan `.sf/claude-sf.md` y su línea en el `CLAUDE.md`, y, si lo aceptas, las decisiones, propuestas e informes de la SF que estuvieran en otro sitio pasan a `sf/`.
+- Un commit propio en `develop`, «Incorporado a la SF» (o «Actualizado»), que se sube a GitHub con las ramas.
+
+#### Lo que no toca {color=turquesa icono=check}
+
+- Tu código, tus documentos y las carpetas de tu editor: no los renombra ni los mueve.
+- El resto de tu `CLAUDE.md`, ni el `CLAUDE.md` global ni `~/.claude`.
+- Tus ramas y tu forma de nombrarlas: si tu rama principal es `master`, puede publicar en ella.
+- Reorganizar algo del proyecto es una petición tuya aparte, nunca parte de la incorporación.
+:::
+
+Si no aceptas cómo la SF lleva el repositorio, no se cambia nada. Si el proyecto no tiene estilo para sus documentos, se ofrece fijarlo con `sf:fijar_estilo`; solo se crea `docs/identidad/estilo.json` si aceptas.
+
+**Sin reiniciar.** Con el siguiente mensaje, el mod entrega las reglas y la orquestación («Tras incorporar, el mod entrega las reglas sin reiniciar»), y el panel pasa de la bienvenida al panel del proyecto, con su nombre, su color, la fase si sigue la metodología y sus tareas, sin avisos de la configuración. Sin panel, la caja sobre el prompt muestra `SF <versión> · <proyecto>`.
 
 ## Estructura de un proyecto bajo la SF
 
-Un proyecto está bajo la SF cuando tiene `.sf/proyecto.json`. Hay dos carpetas de la SF, con una regla sencilla: `.sf/` es la máquina y `sf/` son los documentos («Los documentos de la SF van en la carpeta sf/»).
-
-<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 390" width="100%" role="img" aria-label="Qué pone cada cual en un proyecto bajo la SF: lo versionado del proyecto, lo local fuera de git y lo que viene de fuera" style="font-family:var(--fuente-texto);display:block">
-<defs><marker id="flecha-est" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#00726b"/></marker></defs>
-<text x="14" y="20" font-size="12.5" font-weight="700" fill="#1f812d">En el repositorio del proyecto, versionado</text>
-<rect x="14" y="30" width="500" height="114" rx="10" fill="none" stroke="#c0dcc4" stroke-width="1.5"/>
-<text x="34" y="56" font-size="12.5" font-weight="700" fill="#1f812d">.sf/proyecto.json</text><text x="200" y="56" font-size="12.5" fill="#555">identidad y configuración</text>
-<text x="34" y="80" font-size="12.5" font-weight="700" fill="#1f812d">sf/</text><text x="200" y="80" font-size="12.5" fill="#555">propuestas, decisiones e informes</text>
-<text x="34" y="104" font-size="12.5" font-weight="700" fill="#1f812d">CLAUDE.md</text><text x="200" y="104" font-size="12.5" fill="#555">solo lo del proyecto, sin líneas de la SF</text>
-<text x="34" y="128" font-size="12.5" font-weight="700" fill="#1f812d">docs/</text><text x="200" y="128" font-size="12.5" fill="#555">documentos del proyecto, donde ya estén</text>
-<text x="14" y="172" font-size="12.5" font-weight="700" fill="#a6501a">Local, fuera de git</text>
-<rect x="14" y="182" width="500" height="86" rx="10" fill="none" stroke="#e6cebf" stroke-width="1.5"/>
-<text x="34" y="206" font-size="12.5" font-weight="700" fill="#a6501a">.sf/estado.json</text><text x="200" y="206" font-size="12.5" fill="#555">fase y devslice, con metodología</text>
-<text x="34" y="230" font-size="12.5" font-weight="700" fill="#a6501a">.sf/peticiones.json</text><text x="200" y="230" font-size="12.5" fill="#555">la cola, su historial y sus copias</text>
-<text x="34" y="254" font-size="12.5" font-weight="700" fill="#a6501a">.claude/worktrees/</text><text x="200" y="254" font-size="12.5" fill="#555">los worktrees de los subagentes</text>
-<text x="14" y="296" font-size="12.5" font-weight="700" fill="#004d47">Fuera del proyecto</text>
-<rect x="14" y="306" width="500" height="70" rx="10" fill="none" stroke="#b2deda" stroke-width="1.5"/>
-<text x="34" y="330" font-size="12.5" font-weight="700" fill="#00726b">plugin sf</text><text x="200" y="330" font-size="12.5" fill="#555">instalado para el usuario: método, reglas y mod</text>
-<rect x="20" y="342" width="488" height="24" rx="6" fill="none" stroke="#bbb" stroke-width="1.2" stroke-dasharray="4 3"/>
-<text x="34" y="358" font-size="12.5" font-weight="700" fill="#888">kanban</text><text x="200" y="358" font-size="12.5" fill="#888">opcional: JKanban, aún sin conectar</text>
-<path d="M514,330 H538 V56 H520" fill="none" stroke="#00726b" stroke-width="1.6" marker-end="url(#flecha-est)"/>
-<path d="M538,206 H520" fill="none" stroke="#00726b" stroke-width="1.6" marker-end="url(#flecha-est)"/>
-<path d="M538,230 H520" fill="none" stroke="#00726b" stroke-width="1.6" marker-end="url(#flecha-est)"/>
-<text transform="rotate(-90 551 190)" x="551" y="190" text-anchor="middle" font-size="12" fill="#00726b">el mod lee .sf/</text>
-</svg>
-<figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">El proyecto versiona su configuración y los documentos; la máquina de la cola y el estado se quedan en el equipo.</figcaption>
-</figure>
+Un proyecto está bajo la SF cuando tiene `.sf/proyecto.json`. La SF pone dos carpetas en él, con una regla sencilla: `.sf/` es la máquina y `sf/` son los documentos («Los documentos de la SF van en la carpeta sf/»). Qué va al repositorio y qué se queda en tu equipo está en la tabla de abajo; el plugin y el kanban quedan fuera del proyecto.
 
 **`.sf/proyecto.json`** identifica el proyecto y guarda su configuración, en campos sueltos. Lo que falta vale lo de por defecto, y lo que no se entiende sale en los avisos del panel, sin bloquear. Por ejemplo:
 
 ```json
 {
-  "sf": "1.5.0",
-  "proyecto": "LecturaFàcil",
-  "descripcion": "Adapta textos a lectura fácil con revisión humana",
-  "color": "pink",
+  "sf": "1.9.11",
+  "proyecto": "MiProyecto",
+  "descripcion": "Aplicación de ejemplo",
+  "color": "blue",
   "metodologia": true,
-  "kanban": { "proveedor": "jkanban", "proyecto": "LecturaFàcil" },
-  "idioma": "ca",
+  "idioma": "es",
   "commits": "libre",
   "remoto": "origin",
-  "rama_main": "master",
-  "manifiesto": ["frontend/package.json", "backend/pyproject.toml"]
+  "rama_main": "main",
+  "manifiesto": ["package.json"],
+  "coautor": "Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>"
 }
 ```
 
-- `sf` es la versión de la SF con la que se incorporó o se puso al día. Si sus dos primeros números van por detrás del plugin, el panel avisa de que el proyecto va atrasado.
-- `metodologia` dice si el proyecto sigue el método, con fases y documentos. Sin metodología, el panel no da fase ni lee `.sf/estado.json`, y el proyecto solo recibe las reglas comunes.
-- `kanban` es opcional y por defecto no está («El kanban se elige, y por defecto ninguno»).
-- `idioma` es el de los commits, las tareas y los documentos que escribe Claude.
-- `commits` es `libre`, `conventional` o `propio`. Con `libre`, el commit de una tarea lleva «(N)» al final del título; con los otros dos, el trailer `SF-Tarea: N` al pie, y el squash, el prefijo del tipo de tarea.
-- `remoto` es el remoto de GitHub al que se sube. Sin remoto en GitHub no hay SF. Si no existe o no apunta a GitHub, el panel lo avisa.
-- `rama_main` es la rama en la que se publica: `main` u otra que haga de `main`, como `master`.
-- `manifiesto` son los archivos cuya versión sube al publicar (`package.json`, `pyproject.toml` o `plugin.json`), o `null` si solo se marca el tag.
-- `automatizaciones` solo aparece si se apaga algo. Cada regla que el mod o `cola.py` aplican solos tiene su interruptor, encendido por defecto: `orquestacion`, `avisos_subagentes`, `dependencias_al_actualizar` y `encargo_subagente`.
+`sf`
+:   La versión de la SF con que se incorporó o se puso al día. Si sus dos primeros números van por detrás del plugin, el panel avisa de que el proyecto va atrasado.
 
-El detalle de cada campo está en `plugins/sf/README.md` y en el informe «Configuración inicial».
+`color`
+:   El color de las sesiones solo mientras el proyecto no tiene estilo: con `docs/identidad/estilo.json`, sale de su primario (en «El panel de la SF»). No se pregunta.
 
-**Cambiar la configuración.** Se cambia con `/sf_config`, o pidiéndoselo a Claude («La configuración se cambia pidiéndoselo a Claude, con menús»). La skill `sf:configurar_proyecto` la enseña, pregunta qué cambiar con menús, pide el OK y lo aplica en `develop` con su commit, sin tarea. Lo que se ve y se detecta lo da `tools/configuracion.py`, que solo lee. La propia SF no tiene `.sf/proyecto.json`: su configuración sale de su marca, con el manifiesto del plugin y lo demás por defecto.
+`metodologia`
+:   Si el proyecto sigue el método. Sin él, el panel no da fase ni lee `.sf/estado.json`, y el proyecto solo recibe las reglas comunes.
 
-**`sf/`** guarda los documentos de la SF: `sf/propuestas.md`, `sf/decisiones/` (una decisión por archivo, con su índice) y `sf/informes/`. Los documentos del proyecto se quedan donde ya están: la SF no los mueve ni los mapea. Si siguen su estructura documental, están donde la SF los busca; si no, no se mapean («Sin mapa de documentos: o se sigue la estructura de la SF, o no se mapea»).
+`kanban`
+:   Opcional y, por defecto, no está («El kanban se elige, y por defecto ninguno»).
 
-**Lo local.** `.sf/estado.json` guarda la fase y la devslice, solo con metodología, y se actualiza al cambiar de una a otra. La cola, `.sf/peticiones.json`, va con su bloqueo, `.sf/peticiones.lock`, su historial, `.sf/historial.jsonl`, y sus copias, `.sf/copias/`. `.sf/subagentes.json` es lo que el mod sabe de los subagentes de cada sesión, para no perderlo al recargar el plugin. Los worktrees de los subagentes van en `.claude/worktrees/`. Todo eso, y el `sf/decisiones/README.html`, va al `.gitignore` del proyecto.
+`idioma`
+:   El de los commits, las tareas y los documentos que escribe Claude.
 
-**El `CLAUDE.md`** es solo del proyecto. No lleva ninguna línea de la SF: las reglas las entrega el mod (abajo, «Lo que recibe la sesión»). El proyecto no instala nada: el plugin `sf` ya está activo, porque se instaló para el usuario.
+`commits`
+:   `libre`, `conventional` o `propio`. Con `libre`, el commit de una tarea lleva «(N)» al final del título; con los otros dos, el trailer `SF-Tarea: N` y el prefijo del tipo de tarea.
 
-## Incorporación de un proyecto a la SF
+`coautor`
+:   La línea `Co-Authored-By` que cierra los commits de Claude, o `null`, sin firma.
 
-La vía es pedírselo a Claude en una sesión abierta en el proyecto («incorpora este proyecto a la SF»). Lo hace la skill `sf:incorporar_proyecto_a_sf`. Cubre cuatro casos: proyecto nuevo, existente, actualizar uno ya incorporado y diagnosticar sin cambiar nada.
+`remoto` y `rama_main`
+:   El remoto de GitHub al que se sube (sin él no hay SF) y la rama en la que se publica: `main` u otra que haga de `main`.
 
-**Una operación, sin tarea.** Incorporar y poner al día no pasan por la cola ni por el panel, y no crean tarea ni rama («Incorporar un proyecto es una operación sin tarea, guiada por menús»). Claude la guía con menús en la línea de prompts. Dice qué va a crear, mover o cambiar, pide el OK y lo aplica en `develop`, con su commit: «Incorporado a la SF <versión>» o «Actualizado a la SF <versión>».
+`manifiesto`
+:   Los archivos cuya versión sube al publicar, o `null` si solo se marca el tag.
 
-**Sin cambiar el proyecto.** La SF no renombra ni mueve nada del proyecto («Incorporar un proyecto no mueve ni renombra nada»). Lo que necesita lo usa donde ya está o lo añade con lo mínimo. La única excepción es pasar a `sf/` los documentos de la SF y las decisiones que el proyecto ya tuviera, con su propio OK y en su propio commit.
+`automatizaciones`
+:   Solo aparece si se apaga algo: `orquestacion`, `avisos_subagentes`, `encargo_subagente` y `dependencias_al_actualizar`, encendidos por defecto.
 
-**Lo fijo, lo detectado y lo elegido.** Lo fijo no se pregunta: la cola, el modelo de ramas con `develop`, un remoto en GitHub, los commits de Claude, la versión con su tag y las decisiones en `sf/decisiones/`. Negarse a `develop`, al remoto o a que Claude lleve los commits es no usar la SF: se explica, se pide reconfirmar y, si se reconfirma, se para sin cambiar nada. Lo demás se detecta y se confirma (idioma, formato de commit, remoto, rama de publicación y manifiestos) o se elige (metodología y kanban).
+El detalle de cada campo está en el informe «Configuración inicial». Se cambia con `/sf_config`, o pidiéndoselo a Claude: la skill `sf:configurar_proyecto` la enseña, pregunta qué cambiar con menús, pide el OK y lo aplica en `develop` con su commit, sin tarea.
 
-Las preguntas van en tres menús, por este orden:
+**Quién pone qué y dónde.** Tu carpeta es donde se desarrolla: la columna «En el repositorio» dice qué llega al repo, que solo recibe `develop`, `main` y los tags, y qué se queda solo en tu máquina. Lo que la SF añade, en un vistazo:
 
-1. **Identidad:** nombre, descripción, color de las sesiones y si sigue la metodología.
-2. **Repositorio:** si `master` hace de `main`, crear `develop`, el remoto de GitHub (y crearlo con `gh` si no hay ninguno) y que los commits los haga Claude.
-3. **Convenciones:** idioma, formato de los commits, manifiestos y kanban.
+| Qué | Dónde | Quién lo pone | En el repositorio |
+| --- | --- | --- | --- |
+| La ficha y la configuración | `.sf/proyecto.json` | La SF al incorporar; se cambia con `/sf_config` | Sí |
+| La fase y la devslice (con metodología) | `.sf/estado.json` | La SF al incorporar | No |
+| La cola de tareas, su historial y sus copias | `.sf/peticiones.json`, `historial.jsonl`, `copias/` | `cola.py`, cuando Claude o el panel cambian una tarea | No |
+| Lo que el mod sabe de los subagentes | `.sf/subagentes.json` | El mod | No |
+| Los worktrees de los subagentes | `.claude/worktrees/`, dentro de la carpeta del proyecto | El subagente de cada tarea; `cola.py` los quita al cerrarla | No |
+| Las decisiones | `sf/decisiones/`, con su índice | Claude, en cuanto decides algo; la carpeta, la SF al incorporar | Sí |
+| Las propuestas | `sf/propuestas.md` | La SF crea el archivo vacío al incorporar; las propuestas, Claude | Sí |
+| Los informes | `sf/informes/` | Claude, al escribir el primero | Sí |
+| Las ramas | `develop`, la rama de publicación y `feature/NN-nombre` | La SF al incorporar; `cola.py` crea la de cada tarea | `develop` y la de publicación, sí; `feature/NN`, no |
+| El estilo de los documentos | `docs/identidad/estilo.json` | `sf:fijar_estilo`, solo si aceptas | Sí |
+| Las reglas de la SF | No están en el proyecto | El mod, desde el plugin, en cada sesión | No aplica |
+| El latido de la sesión, el progreso de una incorporación y las copias de `cola.py` | `~/.claude/sf/`, fuera del proyecto | El mod y las herramientas | No aplica |
+| Tu `CLAUDE.md`, tu código y tus documentos | Donde ya están | Tú; la SF solo crea el `CLAUDE.md` si no existe | Sí |
 
-Lo que se detecta sin duda no se pregunta: se enseña en el resumen antes del OK. Si una rama solo está en el remoto, se crea la local siguiéndola, sin preguntar.
+Los documentos del proyecto se quedan donde ya están: la SF no los mueve ni los mapea («Sin mapa de documentos: o se sigue la estructura de la SF, o no se mapea»). Lo que no es del repositorio, además de en esa tabla, va al `.gitignore`.
 
-Después se crean `.sf/proyecto.json`, `.sf/estado.json` (con metodología), las líneas del `.gitignore`, `sf/decisiones/` con su índice y su línea `merge=union` en `.gitattributes`, y `sf/propuestas.md` con su «## Propuestas pendientes». Si no hay `CLAUDE.md`, se crea solo con el título y la descripción. Los choques de un `CLAUDE.md` existente con la SF se proponen uno por uno; si es complejo, como el de OncoCore, revisarlo es una tarea aparte, de una sesión entera.
-
-**Actualizar.** Primero se pone al día el plugin si hay una versión publicada más nueva, y se pide `/reload-plugins`. Después se diagnostica y se aplica lo que falta: los campos nuevos de la configuración, el paso a `sf/` y quitar la copia antigua de las reglas, `.sf/claude-sf.md`, con su línea `@.sf/claude-sf.md` del `CLAUDE.md`. Al final se enseña la configuración con que queda y se ofrece cambiarla, con `sf:configurar_proyecto`, y se pide `/clear`, para que entren las reglas nuevas.
-
-**Comprobación.** Al abrir Claude Code en el proyecto, el panel lateral de la SF se abre solo, en pantalla completa, con el color de las sesiones del proyecto, la fase si sigue la metodología y sus tareas, sin avisos de la configuración. Sin panel, la caja sobre el prompt muestra `SF <versión> · <proyecto>` y, con metodología, la fase.
 
 ## Lo que recibe la sesión
 
-En un proyecto incorporado, el mod da a Claude lo que necesita para trabajar según la SF, siempre de la versión instalada del plugin. No depende de que Claude se acuerde de cargarlo ni de una copia en el proyecto («El panel entrega las reglas y la orquestación en los proyectos»).
+En un proyecto incorporado, el mod da a Claude lo que necesita para trabajar según la SF, siempre de la versión instalada del plugin, sin depender de que Claude se acuerde de cargarlo ni de una copia en el proyecto («El panel entrega las reglas y la orquestación en los proyectos»).
 
-<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 270" width="100%" role="img" aria-label="Qué entrega el mod a la sesión y cuándo: las reglas y la orquestación al empezar, la regla de lo que es de la SF en cada petición y los avisos con cada mensaje" style="font-family:var(--fuente-texto);display:block">
-<line x1="34" y1="22" x2="34" y2="192" stroke="#e6cebf" stroke-width="2"/>
-<circle cx="34" cy="22" r="7" fill="#fff" stroke="#a6501a" stroke-width="2"/>
-<text x="56" y="20" font-size="14.5" font-weight="700" fill="#004d47">Al empezar, tras /clear y tras compactar</text>
-<text x="56" y="40" font-size="12.5" fill="#555">las reglas comunes, de claude-sf.md</text>
-<text x="56" y="58" font-size="12.5" fill="#555">las del método, si el proyecto lo sigue</text>
-<text x="56" y="76" font-size="12.5" fill="#555">una línea con sus convenciones</text>
-<text x="56" y="94" font-size="12.5" fill="#555">sf:orquestacion entera, salvo que se apague</text>
-<circle cx="34" cy="134" r="7" fill="#fff" stroke="#a6501a" stroke-width="2"/>
-<text x="56" y="132" font-size="14.5" font-weight="700" fill="#004d47">En cada petición, en el prompt de sistema</text>
-<text x="56" y="152" font-size="12.5" fill="#555">lo que pinta la SF y lo global no son del proyecto</text>
-<circle cx="34" cy="192" r="7" fill="#a6501a"/>
-<text x="56" y="190" font-size="14.5" font-weight="700" fill="#004d47">Con cada mensaje del propietario</text>
-<text x="56" y="210" font-size="12.5" fill="#555">lo que ha cambiado desde el panel</text>
-<text x="56" y="228" font-size="12.5" fill="#555">tareas en curso sin subagente y subagentes sin recoger</text>
-<text x="14" y="260" font-size="12.5" font-style="italic" fill="#888">las dos primeras, solo en proyectos: a la SF se las da su CLAUDE.md</text>
-</svg>
-<figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Tres momentos y tres entregas: nada de esto vive en el proyecto.</figcaption>
-</figure>
+![](diagramas/sf-sesion.diagrama)
 
-**Las reglas y la orquestación.** Al empezar la sesión, tras `/clear` y tras compactar, el mod añade al contexto las reglas comunes de `templates/claude-sf.md`, las del método de `templates/claude-sf-metodologia.md` si el proyecto lo sigue y una línea con sus convenciones: idioma, commits, remoto y rama de publicación. Añade también el texto entero de `sf:orquestacion`, que se apaga con `"automatizaciones": {"orquestacion": false}`; entonces la carga el principal. Los subagentes no la reciben.
+**Las reglas y la orquestación.** Al empezar la sesión, tras `/clear` y tras compactar, Claude recibe las reglas comunes, las del método si el proyecto lo sigue, las convenciones del proyecto (idioma, commits, remoto y rama de publicación) y las reglas del agente principal (`sf:orquestacion`). Se apaga esto último con `"automatizaciones": {"orquestacion": false}`; entonces las carga el propio Claude. Los subagentes no las reciben. Si actualizas o recargas el plugin y han cambiado, tu siguiente mensaje las lleva otra vez, con una línea que dice a qué versión se ha actualizado la SF.
 
-Si el `CLAUDE.md` aún importa la copia antigua, `@.sf/claude-sf.md`, el mod entrega solo la orquestación, para no dar las reglas dos veces, y el panel avisa de que el proyecto va atrasado. Ponerlo al día quita la copia y la línea.
+**El arranque.** Al abrir o reanudar la sesión, tras `/clear` y tras compactar, si hay tareas en curso sin subagente o subagentes terminados sin recoger, Claude no espera a tu primer mensaje: toma un turno propio para lanzarlos o recogerlos. Solo con alguien delante y con los avisos de subagentes encendidos.
 
-**Lo que es de la SF.** En cada petición, el mod añade al final del prompt de sistema una regla corta: lo que el plugin pinta en el proyecto (el panel, la caja, los avisos) y sus skills son de la SF, y `~/.claude` es de todos los proyectos («Lo que pinta la SF y lo global no son del proyecto»). Una petición sobre ello no se cambia en el proyecto ni se anota en él: Claude dice en una línea que es de la SF. Va en el prompt de sistema para que llegue siempre, también a los proyectos atrasados.
+**Tus tareas en curso.** Con cada mensaje tuyo, Claude recibe la lista de tareas en curso, una línea por tarea: su número, su título corto, si está lista para probar o espera por ti y cómo está su subagente. Así no tiene que consultar la cola antes de contestar. Si nada ha cambiado desde el último mensaje, recibe solo «sin cambios».
 
-**Los avisos.** Con cada mensaje del propietario, el mod dice a Claude lo que el propietario ha cambiado en la cola desde el panel desde el mensaje anterior. Y le avisa de las tareas en curso sin subagente vivo y de los subagentes que han terminado sin recoger, una vez cada situación. Estos avisos se apagan con `"automatizaciones": {"avisos_subagentes": false}`. Llegan también en la SF.
+**Los avisos.** Con cada mensaje tuyo, Claude se entera de lo que has cambiado desde el panel desde el mensaje anterior, hasta 12 horas atrás, y de lo que le falta hacer: las tareas en curso sin subagente vivo, en cada mensaje mientras falten (salvo las que esperan a otra), y los subagentes que han terminado sin recoger, una vez cada uno. Los avisos de subagentes se apagan con `"automatizaciones": {"avisos_subagentes": false}`.
+
+**Las esperas.** Si una tarea no puede seguir hasta que otra se cierre, la cola lo guarda como dato (`cola.py espera M N`), no como un paso de texto. Mientras la otra siga abierta, Claude no lanza el subagente de la que espera y el panel pone tras su título, atenuado, « · espera a la N». Cuando la otra se cierra o pasa a observación, la espera se libera sola, y Claude lanza el subagente. Al fusionar tareas, quien esperaba a una absorbida espera a la que queda.
+
+**El foco.** El foco es la tarea en la que estás: lo fijas con tus palabras o con Activar rama, lo guarda la cola (`cola.py foco N`; sin número lo dice, con `--quitar` lo quita) y se va solo cuando esa tarea se cierra, se elimina o se descarta; en observación sigue. Con foco, cada respuesta de Claude empieza con la línea 🅵🅾🅲🆄🆂 y el título corto de la tarea, y lo de otras tareas va al final, como off-topic («Reglas del foco y del off-topic»). Para respetarlo, el mod da a Claude el foco guardado al empezar la sesión, tras `/clear` y tras compactar; cuando sus avisos traen algo de otras tareas, le recuerda que eso va como off-topic y sin menús de otras tareas; y mientras pruebas, no le pide lanzar subagentes de otras. Sin foco guardado no recuerda nada. Y pone dos ayudas para no interrumpirte: tras 10 minutos sin escribir, deja en la caja del prompt, sin enviarla, la pregunta «¿Seguimos con …?»; y con texto a medio escribir, no deja que Claude abra un menú.
+
+**Una sola sesión con la SF por proyecto.** Solo una sesión de cada proyecto lleva la SF: el panel, la cola, los subagentes, sus avisos y las órdenes `/sf_*` («Una sola sesión con la SF por proyecto»). La que la tiene deja un latido cada minuto en `~/.claude/sf/latido-<carpeta>.json`; las demás arrancan con la SF apagada y lo dicen antes del primer mensaje, en un aviso y en una línea del historial: son Claude Code sin más, sin panel, sin reglas de la SF y sin `/color` ni `/rename`. `/sf_forzar_activa` trae la SF a una sesión aunque otra la tenga, y `/sf_forzar_inactiva` la apaga en la suya.
 
 ## El panel de la SF
 
-El **panel** es el mod de estado del plugin `sf`: una columna a la derecha de la conversación que enseña en qué se trabaja, qué espera y qué se ha cerrado. Un mod es la parte de un plugin que cambia la interfaz o el comportamiento de Claude Code, en respuesta a eventos de la sesión. Es el centro de control de la SF dentro de Claude Code, y el mismo en todos los proyectos.
+El **panel** es el mod de estado del plugin `sf`: una columna a la derecha de la conversación que enseña en qué se trabaja, qué espera y qué se ha cerrado. Es el centro de control de la SF dentro de Claude Code, el mismo en todos los proyectos. En la pantalla completa se abre solo al empezar la sesión; `/sf` lo vuelve a abrir, y en la app de escritorio `/sf:panel` sale en el menú desde antes del primer mensaje. Sin sitio para el panel, el mod se enseña en una caja pequeña sobre el prompt. Fuera de la pantalla completa del terminal los clics no llegan: el panel lo dice y Claude ofrece activarla.
 
-En la pantalla completa se abre solo al empezar la sesión; `/sf` lo vuelve a abrir. Sin sitio para el panel, el mod se enseña en una caja pequeña sobre el prompt. Fuera de la pantalla completa los clics no llegan: el panel lo dice y Claude ofrece activarla.
+![](diagramas/sf-panel.diagrama)
 
-<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 312" width="100%" role="img" aria-label="Esquema del panel de la SF: la cabecera con sus etiquetas, la tarea en curso con sus pasos y el bloque de tareas con Pendientes, En observación, Cerradas y Propuestas" style="font-family:var(--fuente-texto);display:block">
-<rect x="14" y="6" width="290" height="300" rx="6" fill="none" stroke="#bbb" stroke-width="1.2"/>
-<rect x="22" y="14" width="62" height="18" rx="3" fill="none" stroke="#a6501a" stroke-width="1"/><text x="53" y="27" text-anchor="middle" font-size="10.5" font-weight="700" fill="#a6501a">RELEASE</text>
-<rect x="90" y="14" width="52" height="18" rx="3" fill="none" stroke="#a6501a" stroke-width="1"/><text x="116" y="27" text-anchor="middle" font-size="10.5" font-weight="700" fill="#a6501a">TURBO</text>
-<rect x="148" y="14" width="56" height="18" rx="3" fill="none" stroke="#a6501a" stroke-width="1"/><text x="176" y="27" text-anchor="middle" font-size="10.5" font-weight="700" fill="#a6501a">PRUEBA</text>
-<rect x="236" y="14" width="60" height="18" rx="3" fill="none" stroke="#555" stroke-width="1"/><text x="266" y="27" text-anchor="middle" font-size="10.5" fill="#555">SF 1.5.0</text>
-<rect x="22" y="38" width="52" height="18" rx="3" fill="none" stroke="#bbb" stroke-width="1"/><text x="48" y="51" text-anchor="middle" font-size="10.5" fill="#555">1h 05m</text>
-<rect x="80" y="38" width="72" height="18" rx="3" fill="none" stroke="#bbb" stroke-width="1"/><text x="116" y="51" text-anchor="middle" font-size="10.5" fill="#555">12 prompts</text>
-<rect x="22" y="62" width="150" height="18" rx="3" fill="none" stroke="#bbb" stroke-width="1"/><text x="30" y="75" font-size="10.5" fill="#555">feature/219-actualizar…</text>
-<text x="24" y="106" font-size="11.5" font-weight="700" fill="#a16207">▶ 219 Actualizar Cómo funciona…</text>
-<text x="38" y="124" font-size="10.5" fill="#888">✓ Reflejar la orquestación</text>
-<text x="38" y="140" font-size="10.5" fill="#555">· Activar rama para poder probar</text>
-<text x="38" y="156" font-size="10.5" fill="#555">· Cerrar la tarea</text>
-<text x="24" y="196" font-size="11.5" fill="#555">▸ Pendientes · 4</text>
-<text x="24" y="222" font-size="11.5" fill="#555">▸ En observación · 1</text>
-<text x="24" y="248" font-size="11.5" fill="#555">▸ Cerradas · 3</text>
-<text x="24" y="274" font-size="11.5" fill="#555">▸ Propuestas · 25</text>
-<rect x="17" y="9" width="284" height="76" rx="4" fill="none" stroke="#a6501a" stroke-width="2"/>
-<line x1="304" y1="46" x2="336" y2="46" stroke="#a6501a" stroke-width="2"/>
-<text x="344" y="44" font-size="15" font-weight="700" fill="#004d47">Cabecera</text>
-<text x="344" y="62" font-size="12.5" fill="#555">publicar, actualizar, TURBO,</text>
-<text x="344" y="78" font-size="12.5" fill="#555">versión, duración y rama</text>
-<rect x="17" y="92" width="284" height="72" rx="4" fill="none" stroke="#a6501a" stroke-width="2"/>
-<line x1="304" y1="128" x2="336" y2="128" stroke="#a6501a" stroke-width="2"/>
-<text x="344" y="126" font-size="15" font-weight="700" fill="#004d47">En curso</text>
-<text x="344" y="144" font-size="12.5" fill="#555">la tarea en amarillo y sus pasos</text>
-<rect x="17" y="178" width="284" height="124" rx="4" fill="none" stroke="#a6501a" stroke-width="2"/>
-<line x1="304" y1="240" x2="336" y2="240" stroke="#a6501a" stroke-width="2"/>
-<text x="344" y="238" font-size="15" font-weight="700" fill="#004d47">Tareas</text>
-<text x="344" y="256" font-size="12.5" fill="#555">un solo bloque, en el orden</text>
-<text x="344" y="272" font-size="12.5" fill="#555">del ciclo de las tareas</text>
-</svg>
-<figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">Esquema del panel en la SF, con una tarea en curso y las secciones plegadas.</figcaption>
-</figure>
+**La cabecera.** Arriba van RELEASE, que publica una versión del proyecto; TURBO, que pide a Claude poner en curso las tareas que no necesitan al propietario y lanzar sus subagentes. A la derecha, `SF` con la versión que corre, en el color de las sesiones del proyecto. ACTUALIZAR o REFRESCAR salen a la izquierda cuando hacen falta. Debajo, la duración de la sesión, los prompts y la rama activa.
 
-**La cabecera.** Arriba van RELEASE, que publica; TURBO, que pide a Claude poner en curso las tareas que no necesitan al propietario y lanzar sus subagentes; y, solo en la SF, PRUEBA, el modo prueba. A la derecha, la etiqueta `SF` con la versión del plugin que corre, en el color de las sesiones del proyecto. ACTUALIZAR o REFRESCAR salen a la izquierda cuando hacen falta (en «Publicación del plugin»). Debajo van la duración de la sesión, los prompts enviados y la rama activa. Los avisos se turnan con la cabecera, en un bloque blanco.
+**En curso y Tareas.** En amarillo, las tareas en curso con sus pasos; un ● verde dice que su subagente trabaja. Debajo, un solo bloque de secciones plegables, en el orden del ciclo: **Pendientes**, **En observación**, **Cerradas** y **Propuestas**, que son las de `sf/propuestas.md`.
 
-**En curso.** En amarillo, las tareas en curso con sus pasos, la tocada la última arriba. Un ● verde dice que su subagente trabaja, y rojo, que espera.
+**Las órdenes, en etiquetas.** Al desplegar una tarea, su primera fila lleva sus órdenes con su nombre («Las órdenes de cada tarea, en un menú de etiquetas»). Primero las de la tarea: Poner en curso, en las de Pendientes, que la pasa a en curso con un clic y pide a Claude que lance su subagente; Activar rama, Cerrar, A observación, Redescribir, A propuesta y, en rojo, Eliminar, Descartar o Revertir. Después, las de sus pasos: Separar pasos y Paso +. Las que cierran o destruyen piden un segundo clic en la misma etiqueta: «¿Cerrar? sí». Una propuesta pasa a la cola con «A Pendientes». En un paso, «?» pide a Claude que lo explique y «×» lo quita. Lo que se puede hacer con una orden lo hace el panel, sin Claude, con git y `cola.py`; cada cambio de estado se explica en [Cómo funcionan los estados](como-funcionan-los-estados.html).
 
-**Tareas.** Un solo bloque de secciones plegables, en el orden del ciclo: **Pendientes**, **En observación**, **Cerradas** y **Propuestas**. Las propuestas son las de `sf/propuestas.md` del proyecto, o `docs/propuestas.md` en la SF.
+**Las órdenes con barra.** Todas las de la SF empiezan por `sf_`, salvo `/sf`, que abre el panel («Los comandos de la SF empiezan por sf_»): `/sf_paso`, `/sf_split`, `/sf_fusionar`, `/sf_redescribir`, `/sf_config`, `/sf_forzar_activa` y `/sf_forzar_inactiva`.
 
-**Las órdenes, en etiquetas.** Al desplegar una tarea, su primera fila lleva sus órdenes con su nombre («Las órdenes de cada tarea, en un menú de etiquetas»). Primero las de la tarea: Activar rama, Cerrar, A observación, Redescribir, A propuesta y, en rojo, Eliminar, Descartar o Revertir. Después, las de sus pasos: Separar pasos y Paso +. Las que piden confirmación lo hacen en la misma etiqueta: «¿Cerrar? sí». Una propuesta pasa a la cola con «A Pendientes». En un paso, «?» pide a Claude que lo explique y «×» lo quita.
+**En la app de escritorio**, VS Code y el móvil, el panel se ve y funciona como en el terminal: cada botón va en su caja de color, del tamaño mínimo, y en la app de escritorio la línea entera de una tarea, sus órdenes y la marca del subagente se pulsan como en el terminal,.
 
-Lo hacen sin Claude, con git, la cola y los comandos de Claude Code. Cada cambio de estado se explica en [Cómo funcionan los estados](como-funcionan-los-estados.html).
+**El control.** El mod controla que cada sesión modifique un solo proyecto: bloquea, con el motivo, la escritura de archivos en otro («Sin registro ni mejoras de la SF desde otros proyectos»). Un worktree cuenta como su repositorio, y un clon con el mismo remoto `origin`, como el mismo proyecto. Y no deja que un subagente escriba la cola.
 
-**Los comandos.** Todos los de la SF empiezan por `sf_`, salvo `/sf`, que abre el panel («Los comandos de la SF empiezan por sf_»). `/sf_paso` añade un paso a la tarea en curso; `/sf_split` separa pasos de una tarea en una nueva; `/sf_fusionar` junta tareas; `/sf_redescribir` pide a Claude que vuelva a redactar una descripción; `/sf_config` pide a Claude cambiar la configuración del proyecto; y `/sf_prueba`, solo en la SF, cambia el modo prueba sin el panel.
-
-**El control.** El mod controla que cada sesión modifique un solo proyecto. Bloquea, con el motivo, la escritura de archivos en otro proyecto, también en la SF: ningún proyecto escribe en ella («Sin registro ni mejoras de la SF desde otros proyectos»). Un worktree cuenta como su repositorio. Y no deja que un subagente escriba la cola. El mod lee `.sf/` al abrir la sesión, al acabar cada turno y tras cada herramienta que puede escribir. Cada minuto relee los subagentes y comprueba la versión instalada. Solo escribe cuando lo pide el propietario.
+**El color de la sesión.** Al arrancar, el mod pone a la sesión el color y el nombre del proyecto, con `/color` y `/rename`. El color sale del primario del estilo del proyecto, el más cercano de los de `/color`, sin reservar el amarillo de la SF («El color de sesión se deriva del color primario del estilo del proyecto»); sin estilo, el `color` de `.sf/proyecto.json`.
 
 El detalle de cada parte, el control, el código y el historial de versiones están en [Cómo funciona el panel](como-funciona-el-panel.html).
 
 ## Flujo de trabajo en un proyecto
 
-Al abrir una sesión en el proyecto, el mod lee `.sf/`, abre el panel y entrega las reglas y la orquestación. Si el proyecto sigue la metodología, Claude usa la skill `sf:metodologia`, que le indica qué sección del método leer según el momento. En cada fase trabaja con la skill que toca: `sf:documento_vision`, `sf:diseno_interfaz`, `sf:definicion_tecnica`…
+Al abrir una sesión en el proyecto, el mod lee `.sf/`, abre el panel y entrega las reglas y la orquestación. Si el proyecto sigue la metodología, Claude usa la skill `sf:metodologia`, que le indica qué sección del método leer según el momento, y en cada fase trabaja con la skill que toca.
 
-**La cola y las tareas.** Toda petición del propietario, y todo bug que se detecte, va a la cola en cuanto llega, con `cola.py`. Se trabaja siempre bajo una tarea en curso. El principal habla con el propietario y lleva la cola; cada tarea en curso tiene su subagente, que hace todo su trabajo en su worktree, con una rama auxiliar `sub-NN`. `cola.py encargo N` le escribe la parte fija del encargo. Las reglas, en `sf:orquestacion`; los estados y las órdenes, en `sf:flujo_tareas`.
+**La cola y las tareas.** Toda petición del propietario, y todo bug que se detecte, va a la cola en cuanto llega, con `cola.py`. Se trabaja siempre bajo una tarea en curso. El principal habla con el propietario y lleva la cola; cada tarea en curso tiene su subagente, que hace todo su trabajo en su worktree, con una rama auxiliar `sub-NN`. Las reglas, en `sf:orquestacion`; los estados y las órdenes, en `sf:flujo_tareas`.
 
-**La SF guía.** Además de hacer lo que se le pide, el principal observa las tareas, el proyecto y al propietario, y sugiere cómo avanzar mejor, en una línea y con la orden lista («La SF guía el desarrollo: observa y sugiere cómo avanzar»). Por ejemplo, `cola.py lista` da de cada tarea `pasos hechos/total`, contando solo los de trabajo, sin los de cierre ni las ayudas de prueba. Si una tarea crece mucho, el principal valora sugerir partirla o cerrar lo hecho, con sus `/sf_split`. Sugerir no es hacer: nada se parte, se cierra ni se reordena sin el OK del propietario.
+**La SF guía.** Además de hacer lo que se le pide, el principal observa las tareas, el proyecto y al propietario, y sugiere cómo avanzar mejor, en una línea y con la orden lista («La SF guía el desarrollo: observa y sugiere cómo avanzar»). Sugerir no es hacer: nada se parte, se cierra ni se reordena sin el OK del propietario.
 
-**Tipos de tarea.** Cada tarea tiene un tipo, uno de siete, en tres familias: **código** (implementar y corregir), **deliberativas** (investigar, deliberar y diseñar) y **documentales** (especificar y documentar). Hoy el tipo da el prefijo del squash cuando los commits son conventional o propios: `feat`, `fix` o `docs`; sin tipo, `chore`. Cómo usa el repositorio cada familia y cómo se cierra está decidido y aún sin aplicar (al final, «Decidido y aún sin aplicar»). El análisis, en el informe «Tipos de tarea».
+**Tipos de tarea.** Cada tarea tiene un tipo, uno de siete, en tres familias: **código** (implementar y corregir), **deliberativas** (investigar, deliberar y diseñar) y **documentales** (especificar y documentar). El tipo da el prefijo del squash cuando los commits son conventional o propios: `feat`, `fix` o `docs`; sin tipo, `chore`. Las deliberativas no tienen rama, worktree ni rama auxiliar: su subagente solo escribe su documento, que va directo a `develop` en cada vuelta con su respaldo, y su único paso de cierre es «Cerrar la tarea», sin observación («Una deliberativa solo escribe su documento, sin rama; lo demás va a tareas propias con rama»).
 
-**Los pasos de cierre.** Una tarea lleva dos pasos de cierre desde que entra en curso: «Activar rama para poder probar» y «Cerrar la tarea» («Los pasos de cierre, desde que la tarea entra en curso»). No se quitan, y los pasos nuevos van antes de ellos. Si se añade trabajo con la rama ya activada, «Activar rama» vuelve a pendiente, para probar otra vez.
+**Los pasos de cierre.** Las demás llevan dos desde que entran en curso: «Activar rama para poder probar» y «Cerrar la tarea». No se quitan, y los pasos nuevos van antes de ellos. Si se añade trabajo con la rama ya activada, «Activar rama» vuelve a pendiente, para probar otra vez.
 
-**La prueba.** «Activar rama» integra `develop` en la rama de la tarea y la activa, para probar con lo último. Si choca, no la activa y dice qué archivos chocan. Detrás puede haber ayudas de prueba, que Claude planifica cuando puede («Ayudas de prueba: tras activar la rama y no obligatorias para cerrar»): salen como «(opcional)», no cuentan para cerrar y no devuelven «Activar rama» a pendiente.
+**La prueba.** «Activar rama» integra `develop` en la rama de la tarea y la activa, para probar con lo último. Si choca, no la activa y dice qué archivos chocan. Detrás puede haber ayudas de prueba, que salen como «(opcional)» y no cuentan para cerrar.
 
-**El cierre.** Cerrar entra la rama en `develop` por squash, con su commit, y lo sube al remoto. «A observación» cierra igual, pero deja la tarea en observación: se vigila un tiempo y después se cierra, si va bien, o se revierte, si va mal («En observación, sin alias ni rastros»). Cerrar se niega si el subagente tiene trabajo sin traer a la rama. Al cerrar, `cola.py` quita el worktree del subagente y borra su rama auxiliar, sin forzar: lo que quede con cambios se avisa («cola.py recoge el subagente al dejar la tarea sin él»). Descartar, en cambio, lo borra todo.
+**El cierre.** Cerrar entra la rama en `develop` por squash, con su commit, y lo sube al remoto con la revisión de lo que sale. Una rama sin cambios respecto a `develop` se cierra sin commit: se borra y la tarea sale de la cola. «A observación» cierra igual, pero deja la tarea en observación, que después se cierra, si va bien, o se revierte. Cerrar se niega si el subagente tiene trabajo sin traer; al cerrar, `cola.py` quita su worktree y borra su rama auxiliar, sin forzar. Descartar, en cambio, lo borra todo.
 
-**Las decisiones.** Lo que decide el propietario se registra en cuanto se toma, con `cola.py decision "Título" --archivo RUTA [--push]`. La orden da el número, escribe el archivo, rehace el índice y hace el commit «Decisión NNN: Título» en `develop`, aunque la rama activa sea otra, sin cambiarla («Las decisiones se guardan en develop aunque la rama activa sea otra»). No toca la cola.
+El trabajo de una tarea avanza por ramas locales, y lo mueven los botones del panel y, para el subagente, Claude. Al repositorio solo suben dos cosas: Cerrar, que sube `develop`, y RELEASE, que sube `main` y su tag.
 
-**Lo que es de la SF.** En un proyecto solo se anotan propuestas de ese proyecto («Un proyecto solo anota propuestas suyas»). Si algo de la SF falla, sobra o falta, Claude lo dice en una línea y no lo anota ni en la cola ni en las propuestas del proyecto. Llevarlo a la SF es cosa del propietario, en una sesión de la SF.
+![](diagramas/sf-flujo.diagrama)
 
-## Flujo de mejora de la SF
+Lo que hace el subagente, en su rama `sub-NN`, lo trae Claude a la rama de la tarea al recogerlo (`git merge --ff-only`); mientras falte, ni Activar rama ni Cerrar siguen. Las ramas de tarea no llegan al repositorio: se borran al cerrar.
 
-La SF mejora con el uso. Ninguna mejora salta de la idea al código: pasa por una propuesta y por una decisión del propietario.
+**Las decisiones.** Lo que decide el propietario se registra en cuanto se toma: Claude le da número, lo guarda en un archivo de `sf/decisiones/`, rehace el índice y hace el commit «Decisión NNN: Título» en `develop`, aunque la rama activa sea otra, sin cambiarla. No toca la cola.
 
-<figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 44 560 356" width="100%" role="img" aria-label="Flujo de mejora de la SF, de la detección a la versión publicada" style="font-family:var(--fuente-texto);display:block">
-<line x1="34" y1="66" x2="34" y2="346" stroke="#b2deda" stroke-width="2"/>
-<circle cx="34" cy="66" r="7" fill="#fff" stroke="#1f812d" stroke-width="2"/>
-<text x="56" y="64" font-size="14.5" font-weight="700" fill="#004d47">Se detecta, en la SF o en otro proyecto</text>
-<text x="56" y="82" font-size="12.5" fill="#555">desde otro, el propietario lo trae a una sesión de la SF</text>
-<path d="M50,128 v16 a10,4 0 0 0 20,0 v-16" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/><ellipse cx="60" cy="128" rx="10" ry="4" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/>
-<circle cx="34" cy="136" r="7" fill="#fff" stroke="#00726b" stroke-width="2"/>
-<text x="82" y="134" font-size="14.5" font-weight="700" fill="#004d47">docs/propuestas.md</text>
-<text x="82" y="152" font-size="12.5" fill="#555">lo que aún no está decidido; nada se aplica</text>
-<rect x="56" y="172" width="196" height="24" rx="12" fill="#be185d"/>
-<text x="154" y="188" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">el propietario decide</text>
-<path d="M50,208 v16 a10,4 0 0 0 20,0 v-16" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/><ellipse cx="60" cy="208" rx="10" ry="4" fill="#e0f4f3" stroke="#00726b" stroke-width="1.5"/>
-<circle cx="34" cy="216" r="7" fill="#fff" stroke="#00726b" stroke-width="2"/>
-<text x="82" y="214" font-size="14.5" font-weight="700" fill="#004d47">docs/decisiones/</text>
-<text x="82" y="232" font-size="12.5" fill="#555">con su porqué, a develop con cola.py decision</text>
-<circle cx="34" cy="282" r="7" fill="#fff" stroke="#00726b" stroke-width="2"/>
-<text x="56" y="280" font-size="14.5" font-weight="700" fill="#004d47">Aplicada en una tarea</text>
-<text x="56" y="298" font-size="12.5" fill="#555">en su rama, con su prueba y su squash a develop</text>
-<circle cx="34" cy="346" r="7" fill="#00726b"/>
-<text x="56" y="344" font-size="14.5" font-weight="700" fill="#004d47">Versión nueva del plugin</text>
-<text x="56" y="362" font-size="12.5" fill="#555">RELEASE la publica; ACTUALIZAR la instala</text>
-<text x="34" y="392" font-size="12.5" font-style="italic" fill="#888">si no toca el plugin, basta con el squash a develop</text>
-</svg>
-<figcaption style="font-size:.82rem;color:#555;text-align:center;font-style:italic;margin-top:.3rem;">La decisión del propietario es la única puerta entre proponer y cambiar.</figcaption>
-</figure>
+**Publicar una versión del proyecto.** Se desarrolla en `develop`; `main`, o la rama de publicación que diga la configuración, es lo que se publica. **RELEASE** ofrece con el primer clic las tres versiones siguientes y confirma la elegida con el segundo, avisando de las tareas que quedan en observación. Antes de tocar nada revisa lo que sale: con el remoto público, algo nuevo con un secreto, un dato personal o un archivo interno para la publicación; lo ya subido se enseña y se publica si se vuelve a pulsar en 10 minutos. Después sube la versión de los manifiestos en un commit «vX.Y.Z» en `develop`, pasa `develop` a `main` por fast-forward, la marca con el tag y hace push de las dos ramas y el tag. Si algo no está en orden, no publica y dice cómo arreglarlo.
 
-**De dónde viene.** En la SF, una mejora es una petición más: va a la cola si ya está clara, o a `docs/propuestas.md` si hay que decidirla. Desde otro proyecto no se escribe nada en la SF: Claude dice en una línea que es de la SF, y el propietario la trae a una sesión de la SF («Sin registro ni mejoras de la SF desde otros proyectos», precisada por «Un proyecto solo anota propuestas suyas»). Con el kanban conectado, la tarea permanente **Mejorar la Software Factory**, del proyecto **SoftwareFactory**, las recogerá.
+**Lo que es de la SF.** En un proyecto solo se anotan propuestas de ese proyecto («Un proyecto solo anota propuestas suyas»). Si algo de la SF falla, sobra o falta, Claude lo dice en una línea y no lo anota en el proyecto: la mejora se lleva a la SF aparte, como se cuenta en [Cómo se desarrolla la Software Factory](como-se-desarrolla-la-software-factory.html).
 
-**La propuesta.** En `docs/propuestas.md` la mejora se convierte en una propuesta: el cambio concreto, su beneficio, su impacto y cómo se comprobará. Ahí se detiene hasta que el propietario la aprueba, la ajusta o la descarta. El panel la enseña en Propuestas, y «A Pendientes» la pasa a la cola como tarea. Registrar o preparar una propuesta no autoriza aplicarla; una instrucción directa del propietario sí, dentro de su alcance.
+## Documentos del proyecto
 
-**La decisión.** Lo aprobado pasa a un archivo de `docs/decisiones/` con su porqué, registrado con `cola.py decision`. Lo descartado queda en «Descartadas», con el motivo.
+Todos los documentos de un proyecto bajo la SF salen de un **generador único** y determinista, con el **estilo del proyecto** («Un solo generador determinista con el estilo del proyecto»). Cada tipo de documento pone solo lo suyo en su skill: un `perfil.json` con los recursos que usa y un envoltorio de pocas líneas. También el índice de las decisiones sale de él.
 
-**La aplicación.** Una decisión se aplica en su tarea, en la fuente: metodología, especificación, skills, plantillas o código. Si el cambio afecta al plugin, se publica una versión nueva, y cada equipo la recibe con ACTUALIZAR.
+::: tarjetas 2 plegables
+#### El estilo del proyecto {color=naranja icono=lupa}
 
-### Publicación del plugin
+Todo el aspecto vive en `docs/identidad/estilo.json`, junto a `identidad.json`: identidad y logo, colores, letra, portada, secciones, página, recuadros, lectura, diagramas y la infografía aparte. El `.md` no fija el aspecto: solo cómo se lee («El aspecto lo fija solo el estilo; cada documento fija cómo se lee»). Sin estilo, el generador sale del paso con un tema elegido por el color del proyecto y lo avisa.
 
-Se desarrolla en `develop`; `main` es lo que instalan los proyectos.
+#### Fijar el estilo {color=naranja icono=check}
 
-1. Cada tarea, en su rama `feature/NN-nombre`, creada desde `develop` con `cola.py rama` antes de tocar el primer activo. Su subagente trabaja en su worktree, con su rama auxiliar.
-2. Probar en la rama con «Activar rama» y el plugin en **modo prueba** (abajo).
-3. Comprobar con `claude plugin validate plugins/sf` y las pruebas de `plugins/sf/tests/`.
-4. Con el OK del propietario, Cerrar: squash de la rama a `develop`, un commit por tarea con sus pasos en el cuerpo y «(N)» al final del título, y push de `develop`. Cada decisión es un archivo propio, así que dos ramas no chocan al añadirlas. El índice, `docs/decisiones/README.md`, se junta sin choques (`merge=union` en `.gitattributes`) y se regenera con `tools/indice_decisiones.py`.
-5. Publicar con **RELEASE**. La versión actual es la del último tag `vX.Y.Z`. El primer clic ofrece las tres siguientes (patch, minor y major) y el segundo confirma la elegida, avisando de las tareas que quedan en observación. Sube la versión de los manifiestos de la configuración, en la SF el `plugins/sf/.claude-plugin/plugin.json`, en un commit «sf X.Y.Z» en `develop`. Pasa `develop` a la rama de publicación (`rama_main`) por fast-forward, la marca con el tag y hace push de las dos ramas y el tag al remoto configurado. Si algo no está en orden, no publica y dice cómo arreglarlo. En los proyectos es igual, con su commit «vX.Y.Z».
-6. Actualizar la copia instalada con **ACTUALIZAR**, en rojo, que sale cuando hay una versión publicada más nueva. Refresca el catálogo (`claude plugin marketplace update softwarefactory`), actualiza el plugin en cada scope que usa el proyecto e instala las dependencias que falten, una orden por plugin, antes de pedir reiniciar. Si alguna no se instala, da sus órdenes y no sigue. Se apaga con `"automatizaciones": {"dependencias_al_actualizar": false}`: entonces solo da las órdenes.
+Lo escribe solo `sf:fijar_estilo`: parte de una de las seis muestras con nombre (sereno, desenfadado, técnico, institucional, sobrio y editorial) o de una séptima, el estilo actual del proyecto (sin él, con su color), enseña muestras del mismo documento y afina en vueltas; cada vuelta aceptada respalda la anterior, sube la versión y anota el historial. También puede generar el catálogo de temas en miniatura, en claro y en oscuro.
 
-**ACTUALIZAR y REFRESCAR.** Son dos botones para dos casos («ACTUALIZAR y REFRESCAR: dos botones para dos casos»). ACTUALIZAR sale cuando hay una versión publicada sin instalar. REFRESCAR sale cuando la instalada es más nueva que la que corre la sesión, porque la actualizó otra sesión: instala las dependencias que falten y recarga el plugin. Con REFRESCAR sale también un aviso: «Esta sesión usa la SF X y está instalada la Y: pulsa REFRESCAR» («El panel avisa cuando la sesión usa un plugin más viejo que el instalado»). La versión publicada se mira al empezar, cada 5 minutos, con `/sf` y tras RELEASE; la instalada, cada minuto. Pulsar la etiqueta `SF` dice cuánto falta para la próxima comprobación.
+#### Contraste y modo oscuro {color=naranja icono=aviso}
 
-Los cambios que no tocan el plugin (especificación, visiones, decisiones, propuestas) solo necesitan el squash a `develop`; llegan a `main` con la siguiente publicación.
+Antes de generar, el generador se detiene si un texto baja de 4,5:1 (3:1 el grande) y solo avisa de un borde o una línea por debajo de 3:1. Un color primario claro, como el amarillo, se sostiene con colores derivados. El modo oscuro de «Lectura» aplica la paleta oscura del estilo, derivada si el tema no la trae, sin invertir la página.
 
-**Modo prueba** (solo en la SF). Ver un cambio del plugin sin commit ni publicación. En este repositorio, la cabecera del panel lleva la etiqueta PRUEBA: atenuada, se usa el plugin publicado; en naranja, la copia de trabajo de `plugins/sf`. Un clic, o `/sf_prueba`, cambia de uno a otro: el mod escribe en `.claude/settings.local.json` (fuera de git) qué plugin está activo en este proyecto, `sf@softwarefactory-dev` o `sf@softwarefactory`, y lanza `/reload-plugins`. En modo prueba, cada retoque se ve con `/reload-plugins`, sin subir la versión. Al entrar en una sesión y al cerrarla, siempre desactivado: el mod lo apaga una vez por sesión y, si la sesión arrancó con la copia de trabajo, recarga el publicado. La sesión que ya lo apagó queda en `.sf/prueba.json`, fuera de git, porque `/reload-plugins` vuelve a pasar por el arranque.
+#### Diagramas {color=naranja icono=rama}
 
-Preparación, una vez por equipo: el catálogo local `softwarefactory-dev`, en `D:/Projectes/.claude-plugin/marketplace.json`, fuera del repositorio, con el plugin `sf` en `./SoftwareFactory/plugins/sf`. Claude Code carga en su sitio, sin copiarlo a la caché, el plugin de un catálogo de carpeta. No acepta la ruta absoluta, la que sube de carpeta ni un enlace, y dos catálogos no pueden llamarse igual: por eso está en la carpeta de arriba. Después, en el repositorio: `claude plugin marketplace add D:/Projectes --scope local` y `claude plugin install sf@softwarefactory-dev --scope local`. Sin el catálogo registrado, el panel no muestra la etiqueta. Probado y descartado: la variable `CLAUDE_CODE_PLUGIN_DIRS` en los ajustes del proyecto, que no carga la copia de trabajo, ni con `/reload-plugins` ni al reiniciar.
+Un diagrama se escribe como datos en un `.diagrama` y el `.md` lo nombra en una línea; en cada generación, el motor de `sf:diagramas` lo dibuja con el estilo del documento, en vertical y, si cabe, en horizontal, con fichas que se abren al pulsar cada nodo.
+:::
 
-## Decidido y aún sin aplicar
+**Respaldar y comprobar.** Antes de sustituir un documento por una versión nueva, la anterior se copia a `_respaldo/`. Cada cambio del `.md` regenera su HTML. Antes de entregar, se abre el HTML en escritorio y en móvil, en claro y en oscuro, lo imprime en A4 y pasa la comprobación de los diagramas: desbordes, errores de JS, contraste, restos de sintaxis y enlaces internos rotos. Sale con error si encuentra alguno. Si el documento abre en la historia, la comprobación lo mide también después de salir de ella, no solo al abrirlo.
 
-Estas decisiones cambian piezas de este mapa, pero el código de la 1.5.0 aún no las lleva. Hasta que se apliquen, vale lo descrito arriba.
+## Actualizar la SF
 
-- **Una sola sesión con la SF por proyecto.** La segunda sesión en el mismo proyecto arrancará con la SF apagada, con un latido para saber cuál la tiene y `/sf_forzar_activa` y `/sf_forzar_inactiva` para pasarla. Hoy dos sesiones pueden tener la SF activa a la vez.
-- **El repositorio según el tipo de tarea.** Las de código seguirán como hoy. Un documento nuevo, también el informe de una deliberativa, irá a `develop` en cada vuelta, sin rama, con su respaldo en `_respaldo/` y su HTML regenerado, y se cerrará con la aprobación del propietario, sin observación. Las deliberativas se cerrarán con «Finalizar deliberación», y cada familia tendrá su agente.
-- **Los documentos de la SF, en `sf/`, también en la SF.** La propia SF pasará `docs/propuestas.md`, sus informes y `docs/decisiones/` a `sf/`, como los demás proyectos.
-- **Cada cambio de un `.md` regenera su HTML,** con una orden única que elija el generador.
+**Actualizar la SF.** La versión publicada del plugin se mira al empezar, cada 5 minutos, con `/sf` y tras publicar; la instalada, cada minuto. **ACTUALIZAR**, en rojo, sale cuando hay una versión publicada sin instalar: refresca el catálogo, actualiza el plugin en cada scope que usa el proyecto e instala las dependencias que falten, una orden por plugin. **REFRESCAR** sale cuando la instalada es más nueva que la que corre la sesión, porque la actualizó otra: recarga el plugin sin reiniciar, con un aviso que lo explica («ACTUALIZAR y REFRESCAR: dos botones para dos casos»). Si hay dependencias nuevas, pide reiniciar Claude Code. Se apaga con `"automatizaciones": {"dependencias_al_actualizar": false}`: entonces solo da las órdenes. Tras recargar, el siguiente mensaje lleva a Claude las reglas y la orquestación nuevas, si han cambiado (en «Lo que recibe la sesión»).
 
 ## Índice de consulta
 
 <dl class="faq">
 <dt>¿Cómo se hace algo en un proyecto?</dt><dd>Metodología (skill <code>sf:metodologia</code>)</dd>
 <dt>¿Qué hace el principal con cada mensaje?</dt><dd>Skill <code>sf:orquestacion</code></dd>
-<dt>¿Qué falta por construir en la SF?</dt><dd>Especificación, próximos pasos</dd>
-<dt>¿Por qué se hizo así?</dt><dd><code>docs/decisiones/</code></dd>
-<dt>¿Cómo se registra una decisión y dónde se aplica?</dt><dd><code>docs/mejora-continua-a-la-software-factory.md</code> y <code>cola.py decision</code></dd>
-<dt>¿Qué ideas esperan aprobación?</dt><dd><code>docs/propuestas.md</code>, y la sección Propuestas del panel</dd>
-<dt>¿Qué hace el panel y cómo evoluciona?</dt><dd>«El panel de la SF», en este documento, y <code>docs/como-funciona-el-panel.md</code></dd>
-<dt>¿Cómo cambia de estado una tarea?</dt><dd><code>docs/como-funcionan-los-estados.md</code> y la skill <code>sf:flujo_tareas</code></dd>
+<dt>¿Por qué se hizo así?</dt><dd><code>sf/decisiones/</code></dd>
+<dt>¿Qué ideas esperan aprobación?</dt><dd><code>sf/propuestas.md</code>, y la sección Propuestas del panel</dd>
+<dt>¿Qué hace el panel?</dt><dd>«El panel de la SF», en este documento, y <a href="como-funciona-el-panel.html">Cómo funciona el panel</a></dd>
+<dt>¿Cómo cambia de estado una tarea?</dt><dd><a href="como-funcionan-los-estados.html">Cómo funcionan los estados</a> y la skill <code>sf:flujo_tareas</code></dd>
 <dt>¿Cómo se pone un proyecto bajo la SF?</dt><dd>«Incorporación de un proyecto a la SF», en este documento, y la skill <code>sf:incorporar_proyecto_a_sf</code></dd>
-<dt>¿Cómo se configura un proyecto?</dt><dd>Su <code>.sf/proyecto.json</code>, que se cambia con <code>/sf_config</code>; el detalle, en <code>plugins/sf/README.md</code> y en el informe «Configuración inicial»</dd>
-<dt>¿Qué reglas recibe un proyecto?</dt><dd><code>plugins/sf/templates/claude-sf.md</code> y <code>claude-sf-metodologia.md</code>, que entrega el mod</dd>
+<dt>¿Está bien instalada la SF en este equipo?</dt><dd>La skill <code>sf:comprobar_instalacion</code></dd>
+<dt>¿Cómo se configura un proyecto?</dt><dd>Su <code>.sf/proyecto.json</code>, que se cambia con <code>/sf_config</code>; el detalle, en el informe «Configuración inicial»</dd>
 <dt>¿En qué punto está un proyecto?</dt><dd>Su <code>.sf/estado.json</code>, si sigue la metodología, o <code>/sf</code> dentro de Claude Code</dd>
 <dt>¿Qué decidió el propietario en un proyecto?</dt><dd>La carpeta <code>sf/decisiones/</code> de ese proyecto</dd>
-<dt>¿Qué carpetas lleva un proyecto?</dt><dd>Metodología, sección 6, y las plantillas del plugin</dd>
-<dt>¿Cómo se dibuja un diagrama?</dt><dd>Guía de diagramas en SVG (<code>plugins/sf/skills/metodologia/references/diagramas-svg.md</code>); nunca ASCII ni mermaid</dd>
-<dt>¿De dónde viene una skill?</dt><dd>El <code>ORIGIN.md</code> de la skill; las externas que se usan tal cual, en las <code>dependencies</code> del <code>plugin.json</code></dd>
-<dt>¿Cómo se instala o se publica el plugin?</dt><dd><code>plugins/sf/README.md</code> y este documento</dd>
-<dt>¿Cómo empieza Claude a trabajar en la SF?</dt><dd><code>CLAUDE.md</code> del repositorio</dd>
+<dt>¿Cómo se hace un documento?</dt><dd>La skill <code>sf:crear_documentos</code> y la de su tipo; su aspecto, en <code>docs/identidad/estilo.json</code>, con <code>sf:fijar_estilo</code></dd>
+<dt>¿Cómo se dibuja un diagrama?</dt><dd>La skill <code>sf:diagramas</code>; nunca ASCII ni mermaid</dd>
+<dt>¿Cómo se desarrolla la propia SF?</dt><dd><a href="como-se-desarrolla-la-software-factory.html">Cómo se desarrolla la Software Factory</a></dd>
 </dl>
-
-## Cuestiones pendientes de decisión
-
-Está en [propuestas](../sf/propuestas.md). Lo que más afecta a este mapa:
-
-- **Procedimiento de instalación del plugin**, más allá de las órdenes de `plugins/sf/README.md`.
-- **Cómo se instala JKanban dentro de la SF.**
-- **Historial de versiones del plugin** (CHANGELOG).
-- **Organización del repositorio de la SF.**

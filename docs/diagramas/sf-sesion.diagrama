@@ -1,0 +1,16 @@
+tipo: proceso
+titulo: Lo que el mod da a Claude en tu sesión
+descripcion: Tres momentos; nada de esto vive en tu proyecto, sino en el plugin.
+foco: empezar
+nodos:
+  empezar: Al empezar | reglas y foco
+  arrancar: Al arrancar | subagentes
+  mensaje: Cada mensaje | tareas y avisos
+flechas:
+  inicio > empezar
+  empezar > arrancar
+  arrancar > mensaje
+fichas:
+  empezar: Las reglas comunes y las del método, las convenciones del proyecto (idioma, commits, remoto y rama de publicación), las reglas del agente principal y, si lo hay, el foco guardado. También tras /clear y tras compactar.
+  arrancar: Con tareas en curso sin subagente o subagentes terminados sin recoger, Claude toma un turno propio para lanzarlos o recogerlos, sin esperar a tu primer mensaje.
+  mensaje: La lista de tareas en curso, o «sin cambios» si no varió; lo que cambiaste desde el panel y lo que falta por hacer; y, con foco, el recordatorio de que lo de otras tareas va como off-topic.
