@@ -336,7 +336,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | 100 | 2026-10-29 | [El orquestador sugiere fusiones y splits](100-2026-10-29-el-orquestador-sugiere-fusiones-y-splits.md) |
 | 99 | 2026-10-29 | [/fusionar junta tareas en una](099-2026-10-29-fusionar-junta-tareas-en-una.md) |
 | 98 | 2026-10-29 | [Las descripciones, sin origen](098-2026-10-29-las-descripciones-sin-origen.md) |
-| 97 | 2026-10-29 | [/split separa pasos en una tarea nueva](097-2026-10-29-split-separa-pasos-en-una-tarea-nueva.md) (sustituida en parte) |
+| 97 | 2026-10-29 | [/split separa pasos en una tarea nueva](097-2026-10-29-split-separa-pasos-en-una-tarea-nueva.md) |
 | 96 | 2026-10-29 | [Los bugs son tareas nuevas](096-2026-10-29-los-bugs-son-tareas-nuevas.md) |
 | 95 | 2026-10-29 | [La tarea que se prueba es la de la rama activa](095-2026-10-29-la-tarea-que-se-prueba-es-la-de-la-rama-activa.md) |
 | 94 | 2026-10-29 | [Mejorar la skill que se usa es un paso](094-2026-10-29-mejorar-la-skill-que-se-usa-es-un-paso.md) |

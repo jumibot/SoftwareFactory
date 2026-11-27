@@ -1,6 +1,6 @@
 # /split separa pasos en una tarea nueva
 
-**Sustituida en parte** el 2026-10-29 por «Las descripciones, sin origen»: la tarea nueva ya no lleva «Separada de la 89».
+Estado: deprecada el 2026-11-27 por «Separar pasos de una tarea en una tarea nueva lo hace cola.py, sin Claude» (408); lo demás, por «Las descripciones, sin origen» (098).
 
 - **Origen:** SoftwareFactory, 2026-10-29, tarea 97, surgida al separar la eliminación de la 89 en la 96: había que pedírselo a Claude a mano.
 - **Decisión:** un comando del mod, `/split`, que funciona también a mitad de turno. `/split 89 2,3` separa de la 89 sus pasos 2 y 3, numerados en el orden en que salen al desplegarla. `/split 89` pregunta qué pasos, con selección múltiple; `/split` a secas pregunta antes la tarea, entre las en curso y en cola con dos pasos o más. El mod no escribe la cola: pide a Claude la tarea nueva (número siguiente, en cola, con esos pasos y su estado, descripción «Separada de la 89»), que la nombre y diga el nombre, y que renombre la 89 si deja de reflejar lo que es; si un paso separado ya está hecho, Claude avisa de que su trabajo sigue en la rama de la 89, y la nueva empieza sin rama. Antes de pedirlo, el mod relee la cola: si la tarea o sus pasos han cambiado, avisa y no envía nada. No se pueden separar todos los pasos: eso es renombrarla.
