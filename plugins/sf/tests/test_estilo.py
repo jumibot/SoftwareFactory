@@ -292,6 +292,28 @@ class Cabecera(Base):
 
 
 class Colores(Base):
+    def test_enlace_de_la_decision_de_una_pregunta_llega_a_4_5_en_todos_los_temas(self):
+        """El enlace de «Decisión» (dd.decision, sobre fondo-medio) se lee a 4,5:1 en claro y en oscuro."""
+        sys.path.insert(0, str(SCRIPTS))
+        from tema_identidad import cargar_tema, normalizar_tema, contraste
+        for f in sorted(TEMAS.glob('*.json')):
+            if f.stem == 'pool':
+                continue
+            t = normalizar_tema(cargar_tema(str(f)), f.stem)
+            for modo in ('colores', 'colores-oscuro'):
+                c = t[modo]
+                with self.subTest(tema=f.stem, modo=modo):
+                    self.assertGreaterEqual(contraste(c['primario-texto'], c['fondo-medio']), 4.5)
+
+    def test_comprobar_contraste_avisa_del_enlace_de_la_decision(self):
+        sys.path.insert(0, str(SCRIPTS))
+        from tema_identidad import cargar_tema, normalizar_tema
+        from estilo_proyecto import comprobar_contraste
+        t = normalizar_tema(cargar_tema('teal'), 'teal')
+        t['colores']['primario-texto'] = '#009690'
+        errores, _ = comprobar_contraste(t, None)
+        self.assertTrue(any('enlaces de la decisión' in e for e in errores), errores)
+
     def test_roles_derivados(self):
         self.escribir_estilo(estilo_morado())
         h = self.generar()

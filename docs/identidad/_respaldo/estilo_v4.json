@@ -1,0 +1,139 @@
+{
+  "version": 4,
+  "origen": "tinta",
+  "historial": [
+    {
+      "version": 1,
+      "fecha": "2026-11-24",
+      "cambio": "estilo de partida desde tinta, con 31 valores cambiados",
+      "motivo": "lo afinado en la prueba de la 392 donde choca con la 335, y el resto de la 335 (decisiones 353 y 354)"
+    },
+    {
+      "version": 2,
+      "fecha": "2026-11-24",
+      "cambio": "colores.borde-campo: \"#8d909b\"; colores.colores-oscuro.borde-campo: \"#6c7186\"; colores.colores-oscuro.primario-linea: \"#f5c400\"; colores.primario-linea: \"#ac8900\"; identidad.logo: [\"logo.svg\"]; identidad.logo-oscuro: \"logo-oscuro.svg\"",
+      "motivo": "los logos de la SF (335, 4) y los roles nuevos primario-linea y borde-campo resueltos (335, 8 y 9)"
+    },
+    {
+      "version": 3,
+      "fecha": "2026-11-24",
+      "cambio": "nombre: \"Áureo\"",
+      "motivo": "El estilo de la SF se llama Áureo"
+    },
+    {
+      "version": 4,
+      "fecha": "2026-11-25",
+      "cambio": "portada.fondo: \"oscuro\"",
+      "motivo": "la portada dorada deslumbra: fondo oscuro del tema, con texto claro, logo para fondo oscuro y la marca en tenue (437)"
+    }
+  ],
+  "identidad": {
+    "producto": "SoftwareFactory",
+    "logo": [
+      "logo.svg"
+    ],
+    "logo-oscuro": "logo-oscuro.svg"
+  },
+  "colores": {
+    "primario": "#f5c400",
+    "oscuro": "#25283a",
+    "primario-vivo": "#f8d340",
+    "fondo": "#fefcf2",
+    "borde": "#b9bcc4",
+    "linea": "#d8d8da",
+    "fondo-medio": "#ebeae7",
+    "fondo-suave": "#f5f5f4",
+    "tenue": "#fae48c",
+    "pagina": "#fbfbfa",
+    "texto": "#25283a",
+    "texto-suave": "#4f5871",
+    "texto-tenue": "#666e83",
+    "acento": "#876c00",
+    "acento-fondo": "#f8f6f0",
+    "acento-borde": "#ddd6b8",
+    "segundo": "#2f5597",
+    "sobre-primario": "#1a1a1a",
+    "primario-texto": "#876c00",
+    "tinta-oscura": "#25283a",
+    "superficie": "#ffffff",
+    "cabecera": "#af8f13",
+    "sobre-cabecera": "#25283a",
+    "colores-oscuro": {
+      "pagina": "#1b1d2c",
+      "fondo-suave": "#23263a",
+      "superficie": "#23263a",
+      "fondo-medio": "#2f3349",
+      "linea": "#3c3e50",
+      "borde": "#575d75",
+      "borde-campo": "#6c7186",
+      "texto": "#f2f2f0",
+      "texto-suave": "#b8bdc9",
+      "texto-tenue": "#9aa1b2",
+      "tinta-oscura": "#f2f2f0",
+      "oscuro": "#383a4c",
+      "primario": "#f5c400",
+      "primario-vivo": "#f8d340",
+      "primario-texto": "#f5c400",
+      "primario-linea": "#f5c400",
+      "sobre-primario": "#1b1d2c",
+      "fondo": "#3e3825",
+      "tenue": "#77631a",
+      "cabecera": "#67571d",
+      "sobre-cabecera": "#f2f2f0",
+      "acento": "#f5c400",
+      "acento-fondo": "#3e3825",
+      "acento-borde": "#937914",
+      "segundo": "#8fb0f0"
+    },
+    "significado": {
+      "correcto": "#1f812d",
+      "aviso": "#a6501a",
+      "error": "#be185d",
+      "info": "#1f7a7a"
+    },
+    "borde-campo": "#8d909b",
+    "primario-linea": "#ac8900"
+  },
+  "letra": {
+    "texto": "'DM Sans', system-ui, sans-serif",
+    "titulos": "'Bricolage Grotesque', 'DM Sans', sans-serif",
+    "escena": "'Source Serif 4', Georgia, serif",
+    "url": "https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap",
+    "tamano": 17,
+    "escala": "editorial",
+    "codigo": "'JetBrains Mono', ui-monospace, Consolas, monospace"
+  },
+  "portada": {
+    "forma": "oscura",
+    "fondo": "oscuro",
+    "linea": "no"
+  },
+  "secciones": {
+    "cabecera": "numero-etiqueta",
+    "etiqueta": "tinte",
+    "opacidad": 1,
+    "marcador": "ninguno",
+    "plegado": "primera"
+  },
+  "pagina": {
+    "ancho": 1240,
+    "codigo": "bloque",
+    "pie": "claro",
+    "filetes": "no",
+    "esquinas": 6
+  },
+  "recuadros": {
+    "filete": "no"
+  },
+  "lectura": {
+    "menu": "botones"
+  },
+  "diagramas": {
+    "tema": "documento"
+  },
+  "aparte": {
+    "escenario": "derivado",
+    "hud": "primario"
+  },
+  "nombre": "Áureo"
+}

@@ -352,7 +352,8 @@ class FijarEstilo(unittest.TestCase):
         c = self.leer('estilo.prueba.json')['colores']
         self.assertEqual(c['tenue'], '#123456')
         self.assertEqual(c['acento'], '#6d28d9')  # el acento de teal no era su primario
-        self.assertEqual(c['primario-texto'], '#c2410c')  # ya se lee: no se oscurece
+        from tema_identidad import contraste
+        self.assertGreaterEqual(contraste(c['primario-texto'], c['fondo-medio']), 4.5)  # también en la decisión de las preguntas
         self.correr('cambiar', 'colores.primario=amarillo', ok=False)
 
     def test_cambiar_y_ver_enseñan_lo_cambiado_frente_al_tema_de_partida(self):

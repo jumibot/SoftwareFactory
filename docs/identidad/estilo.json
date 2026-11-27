@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "origen": "tinta",
   "historial": [
     {
@@ -25,6 +25,12 @@
       "fecha": "2026-11-25",
       "cambio": "portada.fondo: \"oscuro\"",
       "motivo": "la portada dorada deslumbra: fondo oscuro del tema, con texto claro, logo para fondo oscuro y la marca en tenue (437)"
+    },
+    {
+      "version": 5,
+      "fecha": "2026-11-27",
+      "cambio": "colores.primario-texto: \"#806700\"",
+      "motivo": "enlaces de la decisión de las preguntas a 4,5:1, tarea 479"
     }
   ],
   "identidad": {
@@ -53,7 +59,7 @@
     "acento-borde": "#ddd6b8",
     "segundo": "#2f5597",
     "sobre-primario": "#1a1a1a",
-    "primario-texto": "#876c00",
+    "primario-texto": "#806700",
     "tinta-oscura": "#25283a",
     "superficie": "#ffffff",
     "cabecera": "#af8f13",

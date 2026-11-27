@@ -175,7 +175,8 @@ def familia_primario(colores: dict, antes: dict, pedidos: set[str]) -> None:
     nuevos = {"primario-vivo": mezclar(p, blanco, .25), "fondo": mezclar(p, blanco, .95),
               "tenue": mezclar(p, blanco, .55)}
     # Legible también sobre su fondo de aviso, si hace de acento (la página blanca con un 6 % del color).
-    nuevos["primario-texto"] = legible_sobre_su_fondo(p, [pagina, superficie, nuevos["fondo"]], blanco, .06, "#000000")
+    nuevos["primario-texto"] = legible_sobre_su_fondo(
+        p, [pagina, superficie, nuevos["fondo"], colores.get("fondo-medio", mezclar(p, blanco, .84))], blanco, .06, "#000000")
     nuevos.update(cabecera_clara(p, colores.get("texto", "#2b2b2f")))  # la cabecera destacada (351)
     nuevos["primario-linea"] = primario_linea(p, [pagina, superficie, nuevos["fondo"]], "#000000")  # 335, 8
     acento_es_primario = antes.get("acento") in (antes.get("primario"), antes.get("primario-texto"))

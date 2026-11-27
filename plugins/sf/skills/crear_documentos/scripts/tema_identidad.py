@@ -144,9 +144,12 @@ def primario_linea(primario: str, fondos: list, hacia: str) -> str:
     lo justo para 3:1 sobre los fondos. Con un primario claro, como un amarillo, las flechas de los diagramas se ven."""
     return legible(primario, fondos, hacia, 3)
 
-def familia_primario_oscuro(po: str, pagina: str) -> dict:
-    """Los tonos del primario en oscuro (decisión 338), con el primario ya legible sobre la página oscura."""
-    return {"primario": po, "primario-vivo": mezclar(po, BLANCO, .25), "primario-texto": po,
+def familia_primario_oscuro(po: str, pagina: str, fondo_medio: str | None = None) -> dict:
+    """Los tonos del primario en oscuro (decisión 338), con el primario ya legible sobre la página oscura. Como texto
+    (enlaces), también sobre «fondo_medio», el de las decisiones de las preguntas."""
+    # Solo si ya se lee sobre la página: uno que no, lo avisa el contraste.
+    texto = legible(po, [pagina, fondo_medio], BLANCO) if fondo_medio and contraste(po, pagina) >= 4.5 else po
+    return {"primario": po, "primario-vivo": mezclar(po, BLANCO, .25), "primario-texto": texto,
             "primario-linea": primario_linea(po, [pagina, mezclar(pagina, po, .16)], BLANCO),
             "sobre-primario": sobre(po, tinta=pagina), "fondo": mezclar(pagina, po, .16),
             "tenue": mezclar(pagina, po, .42)}
@@ -193,7 +196,7 @@ def derivar_oscuro(claro: dict, dado: dict | None = None) -> dict:
             break
         oscuro = siguiente
     d["oscuro"] = o.get("oscuro") or oscuro
-    for rol, valor in {**familia_primario_oscuro(po, pagina), **cabecera_oscura(po, pagina, d["texto"])}.items():
+    for rol, valor in {**familia_primario_oscuro(po, pagina, d["fondo-medio"]), **cabecera_oscura(po, pagina, d["texto"])}.items():
         d[rol] = o.get(rol) or valor
     if claro["acento"] in (claro["primario"], claro.get("primario-texto")):
         acento = o.get("acento") or d["primario-texto"]
@@ -230,6 +233,13 @@ def normalizar_tema(tema: dict, nombre: str) -> dict:
     # Roles de un primario claro (decisión 319): el texto sobre el primario y el primario usado como texto.
     # Si faltan, se derivan: blanco o la tinta del texto, el de más contraste, y el propio primario.
     colores.setdefault("sobre-primario", sobre(colores["primario"], tinta=colores["texto"]))
+    # Como texto (enlaces) se lee sobre la página, las tarjetas, los recuadros y la decisión de las preguntas. Un
+    # primario que ya se lee sobre los tres primeros se oscurece lo justo para el cuarto; uno claro de verdad se deja
+    # como está, para que el contraste avise y lo fije el propietario (319).
+    colores.setdefault("superficie", BLANCO)
+    base = [colores["pagina"], colores["superficie"], colores["fondo"]]
+    if all(contraste(colores["primario"], f) >= 4.5 for f in base):
+        colores.setdefault("primario-texto", legible(colores["primario"], base + [colores["fondo-medio"]], NEGRO))
     colores.setdefault("primario-texto", colores["primario"])
     colores.setdefault("tinta-oscura", colores["oscuro"])
     colores.setdefault("superficie", BLANCO)

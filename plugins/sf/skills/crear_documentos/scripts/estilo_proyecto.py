@@ -323,6 +323,7 @@ def _contraste_modo(colores: dict, tema: dict, estilo: dict | None, oscuro: bool
         ("primario-texto", "pagina", "enlaces y rótulos sobre la página", False),
         ("primario-texto", "superficie", "enlaces y rótulos en la portada, tarjetas y menú", False),
         ("primario-texto", "fondo", "rótulos de los recuadros", False),
+        ("primario-texto", "fondo-medio", "enlaces de la decisión de las preguntas", False),
         ("sobre-primario", "primario", "texto de los botones y las marcas sobre el primario", False),
         ("primario-linea", "pagina", "líneas y bordes de los diagramas en el color del proyecto", True),
         ("primario-linea", "superficie", "líneas y bordes de los diagramas sobre las tarjetas", True),
