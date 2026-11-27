@@ -2,7 +2,7 @@
 antetitulo: Software Factory · Informe de diseño · Noviembre 2026
 lema: Un servidor local para las páginas de la SF; // tus respuestas llegan al chat como un mensaje tuyo.
 subtitulo: Cómo puede una página generada por la SF hablar con la sesión de Claude Code, con las respuestas de un informe como primer uso, qué ofrece hoy el mod, qué diseño se recomienda y qué protege.
-version: Versión 2.1 · 27/11/2026
+version: Versión 2.2 · 27/11/2026
 estado: Propuesta · Tarea 475
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
@@ -20,9 +20,9 @@ Por decisión del propietario (416), **el mod de la SF levanta en el propio orde
 
 La API de mods no deja al mod escuchar en un puerto, pero sí lanzar un proceso hijo que vive con la sesión (`$.process.spawn`). Ese hijo es un script de Python, requisito ya de la SF. Para escribir en el chat, el mod usa lo que ya usa el panel: `$.prompt.submit` como mensaje del propietario, que espera a que Claude acabe lo que hace y, tras un Esc, deja el texto escrito en el prompt.
 
-De las cinco preguntas del informe anterior, la primera ya está decidida por 416; quedan **cuatro abiertas más una nueva** sobre qué se hace con una petición que no es una respuesta de informe. La más importante es esa nueva ([Qué pasa con una petición que no es una respuesta (6)](#p6)). Salen dos tareas de implementar y pasos en dos tareas que ya existen.
+**Cada documento con preguntas es un front, una interfaz a su medida** (417): el servidor y el camino al chat son comunes, y cada front define cómo envía lo suyo. El propietario aceptó las cinco recomendaciones de las preguntas anteriores (417) y queda **una pregunta abierta**: cómo envía la información un front, y qué conviene a los informes deliberativos como primero ([Cómo envía un front lo que se contesta (7)](#p7)). Todo se implementa en esta misma tarea.
 
-[Ver las cinco preguntas abiertas](#por-decidir){: .salto}
+[Ver la pregunta abierta](#por-decidir){: .salto}
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
 <svg viewBox="0 0 560 470" width="100%" role="img" aria-label="El recorrido de una petición: la página generada por la SF, servida desde 127.0.0.1 con su token, manda una petición numerada a sf_proxy; sf_proxy, hijo del mod y de una sola sesión, comprueba el token y el número y se la pasa al mod; el mod la pone en el chat como mensaje del propietario o la entrega a quien la atiende; el principal actúa, por ejemplo registra las respuestas en el informe y en las decisiones" style="font-family:var(--fuente-texto);display:block">
@@ -123,7 +123,21 @@ La decisión (416) fija la protección: página generada por la SF y token nuevo
 
 **El límite que se acepta.** Con peticiones libres, cualquier página abierta por la SF, y quien tenga su token mientras dura, puede poner un texto en el chat como mensaje del propietario. Si un día se abre a otras personas o a otros equipos, habría que declarar tipos de petición, atar el token a cada página y no pasar texto libre al chat. Hoy no hace falta, y el propietario lo valoró y no lo pidió.
 
-### La respuesta de un informe, el primer uso {#diseno-fichas}
+### Cada documento con preguntas es un front {#diseno-front}
+
+Lo común es el servidor (`sf_proxy`), el token, la numeración y el camino al chat. Lo que cambia es la interfaz: cada documento con preguntas se considera un **front** y se crea a la medida de sus necesidades concretas (417). El informe deliberativo es el primero; la visión, la definición técnica o cualquier otro documento con preguntas tendrán el suyo, sin heredar sin más el del informe. Cómo envía su información cada front lo trata [Cómo envía un front lo que se contesta (7)](#p7).
+
+Quien crea un front nuevo define, como mínimo:
+
+- **Qué se contesta:** qué es una pregunta o un dato en ese documento y qué formas de respuesta admite (opción, matiz, texto libre, cifra).
+- **Cuándo se envía:** todo a la vez, cada respuesta, por bloques o un borrador (pregunta 7).
+- **Qué mensaje llega al chat:** su texto, con el título del documento, la versión y la huella, y cómo se nombra cada cosa para entenderse sola.
+- **Qué hace Claude al recibirlo:** dónde lo registra (el documento, las decisiones) y con qué skill.
+- **Cómo se corrige:** si se puede mandar de nuevo algo ya enviado y qué prevalece.
+- **Qué ve quien contesta:** el estado de cada cosa (elegida, enviada, en el chat, guardada) y qué pasa sin sesión.
+- **Cómo cambia el documento:** qué pasa si se regenera con cambios en lo ya contestado.
+
+### La respuesta de un informe, el primer front {#diseno-fichas}
 
 El generador común (`documento_a_html.py`) añade a cada pregunta abierta de `::: preguntas` lo que hace falta para contestarla. Su comportamiento vive en un script nuevo del kit, `respuestas.js`, que no sale al imprimir ni en la copia guardada:
 
@@ -214,15 +228,35 @@ Si la sesión no está abierta, la petición falla. La página deja las elegidas
 
 | Nº | Decisión | Qué fija aquí |
 | --- | --- | --- |
+| 417 | Las respuestas de una página llegan al chat y Claude las registra, y cada documento con preguntas es un front hecho a su medida | Aceptadas las cinco recomendaciones: [(6)](#p6), [(2)](#p2), [(3)](#p3), [(4)](#p4) y [(5)](#p5). Cada documento con preguntas es un front. |
 | 416 | El servidor local sf_proxy escucha cualquier petición de una página generada por la SF, con un token por apertura y las peticiones numeradas | `sf_proxy` es genérico, en `127.0.0.1`, de una sola sesión, con la página servida por él, un token nuevo en cada apertura y cada petición numerada. Resuelve [Cómo encuentra la página la sesión de Claude (1)](#p1) y marca el límite de la seguridad. |
 
 ## Por decidir | Lo que tiene que elegir el propietario | Por decidir {#por-decidir}
 
-Cinco preguntas abiertas, por importancia. La primera de este bloque es nueva; la antigua primera ya la resolvió la decisión 416 y se queda abajo, marcada.
+Una pregunta abierta, nueva. Las otras cinco las decidió el propietario (417) y la primera, la 416; se quedan abajo con su estado.
 
 ::: preguntas 2 plegables
 
-### Qué pasa con una petición que no es una respuesta (6) {recomendada=A} {: #p6}
+### Cómo envía un front lo que se contesta (7) {recomendada=A} {: #p7}
+
+Cada documento con preguntas tendrá su interfaz propia. Hoy contestas en el chat, una cosa tras otra. Hay que decidir cuándo manda la página lo que has elegido, empezando por el informe deliberativo, que tiene entre una y diez preguntas y suele decidirse en una sentada.
+
+Opción A
+:   **Todo a la vez, al pulsar «Enviar».** Eliges con calma, lo elegido queda guardado en la página como borrador, y un solo mensaje lleva lo elegido y dice qué falta. Si cambias algo ya enviado, lo mandas de nuevo y prevalece lo último. Un mensaje, poco ruido, poder corregir antes. El riesgo: una elección sin enviar se pierde si cierras la página sin avisar, y Claude no sabe nada hasta que envías.
+
+Opción B
+:   **Cada respuesta, al elegirla.** Cada elección es un mensaje. Claude se entera enseguida y no se pierde nada, pero el chat se llena, los mensajes llegan mientras Claude trabaja y se encolan, y corregir una elección es otro mensaje que alguien tiene que reconciliar.
+
+Opción C
+:   **Por bloques o fases.** «Enviar» manda un bloque de preguntas (por ejemplo, las de un bloque de «Por decidir»). Sirve a informes largos con partes independientes, pero obliga a partir las preguntas y deja más botones y estados que seguir.
+
+Opción D
+:   **Borrador guardado en el servidor y envío al final.** Lo elegido se guarda en `sf_proxy` mientras eliges y se envía de una vez al acabar. Sobrevive a cerrar o recargar la página, pero añade estado en el servidor que muere con la sesión y casi no mejora sobre A, donde el navegador ya guarda el borrador.
+
+Recomendación
+:   **A.** Es como decides hoy en el chat (una tanda de respuestas) y combina con lo decidido de mandar solo las elegidas: un mensaje, sin ruido y con la elección guardada en el navegador hasta enviarla. Si un informe largo lo pide, su front puede pasar a C sin tocar el servidor.
+
+### Qué pasa con una petición que no es una respuesta (6) {estado=decidida elegida=A recomendada=A} {: #p6}
 
 Hoy, lo que escribes en el chat lo lee Claude y actúa. Con el servidor genérico, una página puede mandar peticiones de cualquier clase, no solo respuestas de un informe, y hay que decidir qué hace el mod con ellas.
 
@@ -235,7 +269,10 @@ Opción B
 Recomendación
 :   **A.** Es lo que da hoy todo lo que se necesita (las respuestas de un informe) con un solo camino; B añade un mecanismo de despacho que nadie usa aún, y se puede añadir después sin cambiar lo anterior.
 
-### Cuándo está encendido el servidor (2) {recomendada=A} {: #p2}
+Decisión
+:   **A:** todo va al chat como un mensaje tuyo, con el nombre de la página; Claude decide qué hacer (decisión 417).
+
+### Cuándo está encendido el servidor (2) {estado=decidida elegida=A recomendada=A} {: #p2}
 
 `sf_proxy` solo hace falta mientras hay una página interactiva abierta. Encendido de más es un puerto abierto en tu ordenador sin usar, aunque solo se llegue a él desde la propia máquina.
 
@@ -248,7 +285,10 @@ Opción B
 Recomendación
 :   **A.** Solo está encendido cuando se usa, y una página abierta sigue conectada toda la sesión.
 
-### Qué hace Claude al recibir las respuestas (3) {recomendada=A} {: #p3}
+Decisión
+:   **A:** se enciende al abrir la primera página interactiva y sigue hasta cerrar la sesión (decisión 417).
+
+### Qué hace Claude al recibir las respuestas (3) {estado=decidida elegida=A recomendada=A} {: #p3}
 
 Las respuestas de un informe llegan al chat como un mensaje tuyo. Hoy, cuando contestas en el chat, Claude registra lo que dices en el informe y en las decisiones.
 
@@ -261,7 +301,10 @@ Opción B
 Recomendación
 :   **A.** Pulsar Enviar ya es tu decisión; repetirla es el paso que la página quiere ahorrar.
 
-### Mandar solo algunas respuestas (4) {recomendada=A} {: #p4}
+Decisión
+:   **A:** Claude registra directamente las respuestas de un documento, sin pedir otro OK salvo un matiz dudoso (decisión 417).
+
+### Mandar solo algunas respuestas (4) {estado=decidida elegida=A recomendada=A} {: #p4}
 
 Un informe puede tener muchas preguntas, y a veces sabes unas y otras no.
 
@@ -274,7 +317,10 @@ Opción B
 Recomendación
 :   **A.** Deja decidir por partes, que es como se trabaja hoy en el chat.
 
-### En qué documentos se puede contestar (5) {recomendada=A} {: #p5}
+Decisión
+:   **A:** «Enviar» manda las elegidas (decisión 417).
+
+### En qué documentos se puede contestar (5) {estado=decidida elegida=A recomendada=A} {: #p5}
 
 Las fichas de preguntas son un recurso común del generador de documentos. Las usan los informes de las deliberativas, y pueden usarlas la visión, la definición técnica y los demás documentos con preguntas al propietario.
 
@@ -286,6 +332,9 @@ Opción B
 
 Recomendación
 :   **A.** El recurso es el mismo; limitarlo costaría más que no hacerlo.
+
+Decisión
+:   **A:** en todos los documentos del generador con preguntas abiertas (decisión 417).
 
 ### Cómo encuentra la página la sesión de Claude (1) {estado=decidida elegida=A recomendada=A} {: #p1}
 
@@ -308,19 +357,19 @@ Decisión
 
 :::
 
-## Tareas | Las tareas que salen | Tareas {#tareas}
+## Pasos de esta tarea | Lo que se implementa aquí | Pasos {#tareas}
 
-Con el servidor genérico de la decisión 416 y la respuesta de informe como primer uso.
+Por decisión del propietario, todo se hace en esta tarea (475), que pasa a ser de implementar: no salen tareas aparte, son sus pasos. Con el servidor `sf_proxy` de la decisión 416 y los informes deliberativos como primer front.
 
-| Tarea | Tipo | Qué hace |
+| Paso | Tipo | Qué hace |
 | --- | --- | --- |
-| Servir las páginas de la SF y atender sus peticiones con sf_proxy, el servidor local del mod | implementar | `tools/sf_proxy.py` y el mod: levantarlo para una sesión concreta, con el puerto guardado y el secreto de la sesión, y pararlo con ella; registrar cada página al abrirla y darle un token nuevo; servirla con el token dentro; rechazar un número de petición repetido o anterior; las demás comprobaciones de seguridad; el encaminado de cada petición al chat con `encargarAClaude` y los acuses. Primero, probar en Chrome y Edge que `$.http.fetch` llega a `127.0.0.1`. |
-| Contestar las preguntas en la página: elegir, matizar, Enviar y el estado de cada ficha | implementar | El generador común y `respuestas.js` del kit: la numeración de cada petición, las fichas que se eligen, la barra de Enviar o Copiar, el estado de cada ficha y lo guardado en el navegador; y el texto de `sf:crear_documentos` y `sf:informe_deliberativa`. Depende de la anterior. |
-| Abrir las páginas interactivas por el servidor, con su token nuevo | paso | En la tarea del botón Abrir (decisión 396) y en la de la orden de cada vuelta (decisión 393): registrar la página, abrir la dirección con su token y, si el servidor no está, el archivo. |
-| Qué hace el principal con un mensaje de respuestas | paso | En la primera tarea: la regla en `sf:orquestacion` (texto en el anexo). |
-| Actualizar «Cómo funciona la Software Factory» y Actualizar «Cómo funciona el panel» | documentar | Al cerrarse la primera tarea, con el texto del anexo. |
+| Servir las páginas de la SF y atender sus peticiones con sf_proxy, el servidor local del mod | implementar | Primero, probar que `$.http.fetch` llega a `127.0.0.1`. `tools/sf_proxy.py` y el mod: levantarlo para una sesión concreta, con el puerto guardado y el secreto de la sesión, y pararlo con ella; registrar cada página al abrirla y darle un token nuevo; servirla con el token dentro; rechazar un número de petición repetido o anterior; las demás comprobaciones de seguridad; el encaminado de cada petición al chat con `encargarAClaude` y los acuses. Primero, probar en Chrome y Edge que `$.http.fetch` llega a `127.0.0.1`. |
+| Front de los informes deliberativos: elegir, matizar, Enviar y el estado de cada ficha | implementar | Primer front, con el envío que decida la pregunta 7. El generador común y `respuestas.js` del kit: la numeración de cada petición, las fichas que se eligen, la barra de Enviar o Copiar, el estado de cada ficha y lo guardado en el navegador; y el texto de `sf:crear_documentos` y `sf:informe_deliberativa`. Depende de la anterior. |
+| Abrir las páginas interactivas por el servidor, con su token nuevo | implementar | Cambiar el botón Abrir (decisión 396) y la orden de cada vuelta (decisión 393): registrar la página, abrir la dirección con su token y, si el servidor no está, el archivo. |
+| Qué hace el principal con un mensaje de respuestas, y la lista de lo que define un front | implementar | La regla en `sf:orquestacion` (texto en el anexo). |
+| Actualizar «Cómo funciona la Software Factory» y Actualizar «Cómo funciona el panel» | documentar | Al final, con el texto del anexo y en su tarea «Actualizar <documento>». |
 
-## Anexo: texto propuesto para otros documentos | Para las tareas que los cambian | Anexo {#anexo}
+## Anexo: texto propuesto para otros documentos | Para los pasos que los cambian | Anexo {#anexo}
 
 **«Cómo funciona la Software Factory»**, al final de «El mod de estado»:
 
