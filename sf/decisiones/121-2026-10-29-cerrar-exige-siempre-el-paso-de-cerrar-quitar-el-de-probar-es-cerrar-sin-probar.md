@@ -1,5 +1,7 @@
 # Cerrar exige siempre el paso de cerrar; quitar el de probar es cerrar sin probar
 
+Estado: deprecada el 2026-11-27 por «Los pasos de cierre, desde que la tarea entra en curso» (174); lo demás, por «El paso de prueba es «Activar rama para poder probar»» (172).
+
 - **Origen:** SoftwareFactory, 2026-10-29, prueba del CLI `cola.py` de la tarea 92. Al cerrar la 157 sin rama y sin pasos de cierre, el CLI la dejó cerrar. El propietario: «exige siempre probar y cerrar, como antes. Si quiero cerrar sin probar elimino el paso de probar y ya está».
 - **Contexto:** `cerrar` pedía «Probar la tarea» y «Cerrar la tarea» solo a una tarea con rama; sin rama, cerraba sin pasos y con pasos de trabajo pendientes. `a-testing` no pedía ninguno. Y para cerrar sin probar no había otro camino que saltarse los pasos.
 - **Decisión:**
