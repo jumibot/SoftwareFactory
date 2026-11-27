@@ -10,6 +10,8 @@ y las tarjetas abiertas, para ver todo lo que el lector puede abrir. En cada vis
   - errores de JS de la página (los mensajes de error de la consola, como un recurso que no carga, van como aviso);
   - contraste WCAG del texto: 4,5:1 (3:1 el grande) sobre el fondo que tiene debajo; el texto sobre una imagen o un
     degradado no se puede medir y no se mira;
+  - lo mismo en el título de una sección seleccionada (abierta desde el índice, con el título fijo, con el foco y con
+    su destello), en claro y en oscuro, pasando de claro a oscuro con la sección ya fija, como el lector;
 y una vez, en la primera vista: restos de sintaxis en el texto visible (`:::`, `{:`, `[!aviso]`, `**`, fuera del código)
 y enlaces internos a un `#id` que no existe.
 Luego lo imprime en A4 (el PDF, en --pdf o en la carpeta temporal) y mira, con la hoja de impresión: nada cortado por la
@@ -52,6 +54,34 @@ COMUN = r"""
   const describir = el => { let d = el.tagName.toLowerCase();
     if (el.id) d += '#' + el.id; else if (el.classList.length) d += '.' + [...el.classList].slice(0, 2).join('.');
     const t = (el.textContent || '').trim().replace(/\s+/g, ' ').slice(0, 40); return t ? `${d} «${t}»` : d; };
+  // Textos: el color y las capas de fondo que tiene debajo, de fuera a dentro; el contraste se calcula en Python.
+  const textosDe = raiz => {
+    const visible = el => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden'; };
+    const textos = [], vistos = new Set(), w = document.createTreeWalker(raiz, NodeFilter.SHOW_TEXT);
+    for (let n = w.nextNode(); n; n = w.nextNode()) {
+      const el = n.parentElement;
+      if (!el || vistos.has(el) || !n.textContent.trim()) continue;
+      vistos.add(el);
+      if (el.closest('svg, script, style, noscript, template, [aria-hidden="true"], :disabled')) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2 || r.right <= 0 || r.left >= innerWidth || !visible(el)) continue;
+      let capas = [], opacidad = 1, medible = true, opaco = false;
+      for (let e = el; e; e = e.parentElement) {
+        const cs = getComputedStyle(e);
+        opacidad *= +cs.opacity;
+        if (cs.clipPath !== 'none' || (cs.clip && cs.clip !== 'auto') || cs.filter !== 'none' || cs.mixBlendMode !== 'normal') { medible = false; break; }
+        if (!opaco && cs.backgroundImage !== 'none') { medible = false; break; }
+        const c = rgba(cs.backgroundColor);
+        if (!opaco && c && c[3] > 0) { capas.unshift(c); if (c[3] >= 1) opaco = true; }
+      }
+      if (!medible || opacidad <= 0) continue;
+      const cs = getComputedStyle(el), color = rgba(cs.color);
+      if (!color) continue;
+      color[3] *= opacidad;
+      textos.push({elemento: describir(el), color, capas, px: parseFloat(cs.fontSize), peso: parseInt(cs.fontWeight) || 400});
+    }
+    return textos;
+  };
   const desbordes = () => {
     const W = innerWidth, fuera = [];
     for (const el of document.body.querySelectorAll('*')) {
@@ -77,32 +107,7 @@ MEDIR = r"""
   res.scroll = de.scrollWidth > innerWidth + 1 ? de.scrollWidth : 0;
   res.desbordes = desbordes();
 
-  // Textos: el color y las capas de fondo que tiene debajo, de fuera a dentro; el contraste se calcula en Python.
-  const visible = el => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden'; };
-  res.textos = [];
-  const vistos = new Set(), w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  for (let n = w.nextNode(); n; n = w.nextNode()) {
-    const el = n.parentElement;
-    if (!el || vistos.has(el) || !n.textContent.trim()) continue;
-    vistos.add(el);
-    if (el.closest('svg, script, style, noscript, template, [aria-hidden="true"], :disabled')) continue;
-    const r = el.getBoundingClientRect();
-    if (r.width < 2 || r.height < 2 || r.right <= 0 || r.left >= innerWidth || !visible(el)) continue;
-    let capas = [], opacidad = 1, medible = true, opaco = false;
-    for (let e = el; e; e = e.parentElement) {
-      const cs = getComputedStyle(e);
-      opacidad *= +cs.opacity;
-      if (cs.clipPath !== 'none' || (cs.clip && cs.clip !== 'auto') || cs.filter !== 'none' || cs.mixBlendMode !== 'normal') { medible = false; break; }
-      if (!opaco && cs.backgroundImage !== 'none') { medible = false; break; }
-      const c = rgba(cs.backgroundColor);
-      if (!opaco && c && c[3] > 0) { capas.unshift(c); if (c[3] >= 1) opaco = true; }
-    }
-    if (!medible || opacidad <= 0) continue;
-    const cs = getComputedStyle(el), color = rgba(cs.color);
-    if (!color) continue;
-    color[3] *= opacidad;
-    res.textos.push({elemento: describir(el), color, capas, px: parseFloat(cs.fontSize), peso: parseInt(cs.fontWeight) || 400});
-  }
+  res.textos = textosDe(document.body);
 
   if (primera) {
     // Restos de sintaxis en el texto visible, fuera del código.
@@ -120,6 +125,32 @@ MEDIR = r"""
       .filter(h => h.length > 1 && !document.getElementById(decodeURIComponent(h.slice(1)))))];
   }
   return res;
+}
+"""
+
+# Una sección seleccionada: la primera con texto, abierta desde el índice (#id), con el título fijo arriba (se mide en
+# claro y, en oscuro, después de pasar de claro a oscuro, como el lector), con el foco del teclado y con el destello con
+# que se salta a ella (parado en su primer fotograma, el más marcado). Solo el texto de su título.
+SELECCION = r"""
+async ([modo]) => {
+""" + COMUN + r"""
+  const d = document.querySelector('.seccion'), sm = d && d.querySelector(':scope > summary');
+  if (!sm) return null;
+  const tema = () => { const r = document.documentElement; if (modo === 'oscuro') { r.dataset.modo = 'oscuro'; r.dataset.theme = 'dark'; } };
+  const esperar = ms => new Promise(f => setTimeout(f, ms));
+  d.open = true;
+  location.hash = '#' + d.id; await esperar(150);
+  // se recorre la sección hasta que el título se queda fijo
+  const alto = d.getBoundingClientRect().height;
+  scrollTo(0, scrollY + Math.min(alto / 2, 600)); await esperar(200);
+  tema(); await esperar(250);            // el cambio de tema con el título ya fijo
+  sm.focus({focusVisible: true});
+  await esperar(100);
+  const fijo = sm.classList.contains('titulo-fijo'), textos = textosDe(sm);
+  const destello = window.herramientasDocumento && window.herramientasDocumento.destellar;
+  let destellando = [];
+  if (destello) { destello(d); sm.getAnimations().forEach(a => { a.pause(); a.currentTime = 0; }); destellando = textosDe(sm); }
+  return {fijo, textos, destellando};
 }
 """
 
@@ -184,7 +215,7 @@ def comprobar(ruta: Path, pdf: Path, diagramas: bool = True) -> dict:
     from playwright.sync_api import sync_playwright
     html = ruta.read_text(encoding='utf-8', errors='replace')
     modos = ('claro', 'oscuro') if tiene_oscuro(html) else ('claro',)
-    res = {'documento': str(ruta), 'vistas': [], 'a4': None, 'diagramas': None}
+    res = {'documento': str(ruta), 'vistas': [], 'seleccion': [], 'a4': None, 'diagramas': None}
     with sync_playwright() as pw:
         nav = cd.navegador(pw)
         try:
@@ -210,6 +241,18 @@ def comprobar(ruta: Path, pdf: Path, diagramas: bool = True) -> dict:
                     res['vistas'].append(m)
                     primera = False
                     p.close()
+            res['seleccion'] = []
+            for modo in modos:   # sección seleccionada, en escritorio (el título fijo solo se da con pantalla ancha)
+                p = nav.new_page(viewport={'width': 1300, 'height': 900})
+                p.goto(ruta.resolve().as_uri())
+                p.evaluate(cd.SALIR_HISTORIA)
+                p.add_style_tag(content='html { scroll-behavior: auto !important; }')
+                p.evaluate('document.fonts.ready')
+                m = p.evaluate(SELECCION, [modo])
+                if m:
+                    res['seleccion'].append({'modo': modo, 'fijo': m['fijo'], 'contraste': contrastes(m['textos']),
+                                           'destello': contrastes(m['destellando'])})
+                p.close()
             # A4: el PDF y, con la hoja de impresión al ancho de la caja de la página, lo que se mide.
             p = nav.new_page(viewport={'width': A4_ANCHO, 'height': A4_ALTO})
             p.goto(ruta.resolve().as_uri())
@@ -246,6 +289,9 @@ def errores(res) -> list:
         salida += [f'{donde}: {e}' for e in v['contraste']]
         salida += [f'restos de sintaxis: {r}' for r in v.get('restos', [])]
         salida += [f'enlace interno a {h}, que no existe' for h in v.get('enlaces', [])]
+    for v in res.get('seleccion', []):
+        salida += [f"sección seleccionada, {v['modo']}: {e}" for e in v['contraste']]
+        salida += [f"sección seleccionada con destello, {v['modo']}: {e}" for e in v['destello']]
     a4 = res['a4']
     if a4:
         salida += [f"A4: se corta por la derecha {d['elemento']} ({d['de']}–{d['a']} px de {A4_ANCHO})" for d in a4['desbordes']]

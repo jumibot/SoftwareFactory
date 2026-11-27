@@ -172,6 +172,15 @@ class EnElNavegador(unittest.TestCase):
         self.assertTrue(any(e.startswith('A4: se corta por la derecha div.demasiado-ancho') for e in lista), lista)
         self.assertEqual(cdoc.main([str(self.mal), '--pdf', str(self.dir / 'mal.pdf')]), 1)
 
+    def test_la_seccion_seleccionada_se_mide_en_claro_y_oscuro(self):
+        res = cdoc.comprobar(self.bien, self.dir / 'bien.pdf')
+        self.assertEqual([v['modo'] for v in res['seleccion']], ['claro', 'oscuro'])
+        # Un título con el foco que se queda con fondo claro en oscuro (el fallo de la 458) no pasa.
+        html = self.generar('foco-claro', '<style>:root[data-theme="dark"] .seccion-titulo:focus { background: #fafafa !important; }</style>')
+        lista = cdoc.errores(cdoc.comprobar(html, self.dir / 'foco-claro.pdf'))
+        self.assertTrue(any(e.startswith('sección seleccionada, oscuro: contraste') for e in lista), lista)
+        self.assertFalse([e for e in lista if e.startswith('sección seleccionada, claro')], lista)
+
     def test_el_codigo_en_linea_se_lee_sobre_la_portada_oscura(self):
         # El fondo suave del código es claro y el texto de la portada oscura, blanco: sin su regla, 1,08:1.
         html = self.generar('portada-oscura', '', PORTADA_OSCURA)
