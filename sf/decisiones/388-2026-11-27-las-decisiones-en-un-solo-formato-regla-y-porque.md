@@ -8,4 +8,4 @@ Sustituye a los tres formatos descritos hasta ahora: la plantilla MADR de `defin
 
 Porqué: había tres formatos descritos y ninguno era el que se usa desde la 273; el propietario elige el que ya se escribe, corto y con el porqué aparte (tarea 439).
 
-Aplicada en: pendiente, en la tarea 439: plantilla de `definicion_tecnica`, `indice_decisiones.py`, cabecera de `sf/decisiones/README.md` y metodología.
+Aplicada en: tarea 439: plantilla de `definicion_tecnica`, `indice_decisiones.py` y cabecera de `sf/decisiones/README.md`. Pendiente: la metodología, en «Actualizar la metodología» (422).
