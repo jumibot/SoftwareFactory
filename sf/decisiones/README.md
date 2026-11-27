@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 392 | 2026-11-27 | [Sin copia privada de develop: develop sigue en el remoto del proyecto](392-2026-11-27-sin-copia-privada-de-develop-develop-sigue-en-el-remoto-del-proyecto.md) |
 | 391 | 2026-11-27 | [Los repositorios públicos se revisan cada 15 días con la herramienta de la SF y lo encontrado se avisa en el panel](391-2026-11-27-los-repositorios-publicos-se-revisan-cada-15-dias-con-la-herramienta-de-la-sf-y-lo-encontrado-se-avisa-en-el-panel.md) |
 | 390 | 2026-11-27 | [La fecha del nombre de archivo de una decisión es la de su registro](390-2026-11-27-la-fecha-del-nombre-de-archivo-de-una-decision-es-la-de-su-registro.md) |
 | 389 | 2026-11-27 | [Vigentes y deprecadas, en dos catálogos distintos con un punto de entrada común](389-2026-11-27-vigentes-y-deprecadas-en-dos-catalogos-distintos-con-un-punto-de-entrada-comun.md) |
