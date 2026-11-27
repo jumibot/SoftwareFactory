@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 405 | 2026-11-27 | [Ejemplos, plantillas y propuestas, cada uno en su sitio](405-2026-11-27-ejemplos-plantillas-y-propuestas-cada-uno-en-su-sitio.md) |
 | 404 | 2026-11-27 | [Un mod de la SF dice si el proyecto está bajo la SF y en qué punto del método está](404-2026-11-27-un-mod-de-la-sf-dice-si-el-proyecto-esta-bajo-la-sf-y-en-que-punto-del-metodo-esta.md) |
 | 403 | 2026-11-27 | [Las skills de la SF tienen su fuente en el repositorio de la SF, y lo propio de cada proyecto va en su docs/identidad/](403-2026-11-27-las-skills-de-la-sf-tienen-su-fuente-en-el-repositorio-de-la-sf-y-lo-propio-de-cada-proyecto-va-en-su-docs-identidad.md) |
 | 402 | 2026-11-27 | [El número de una tarea va sin letra, y su color dice si está en curso o cerrada](402-2026-11-27-el-numero-de-una-tarea-va-sin-letra-y-su-color-dice-si-esta-en-curso-o-cerrada.md) |
