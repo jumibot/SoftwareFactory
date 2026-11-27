@@ -646,7 +646,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       // Una ayuda de prueba lleva «(opcional)» tras su texto: no se exige para cerrar (decisión 184).
       const lineas = partirPaso(x.ayuda ? `${x.texto} (opcional)` : x.texto, Math.max(12, ancho - 4), botones)
       return (
-        <Box flexDirection="row">
+        <Box flexDirection="row" alignItems="flex-start">
           {/* Numerados en lugar de marcas (decisión del propietario, 2026-10-31): hecho, en gris; en curso, el número
               en negrita; pendiente, normal. El número, sin punto, en tres columnas alineado a su derecha, y un espacio;
               el texto, a su derecha y con sangría colgante, como los títulos: «  1 Elegir», « 12 Probar». */}
@@ -959,7 +959,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
             </Box>
           )}
           {puntos.map(x => (
-            <Box flexDirection="row" paddingLeft={columna + 2}>
+            <Box flexDirection="row" alignItems="flex-start" paddingLeft={columna + 2}>
               <Box width={2} flexShrink={0}>
                 <Text dimColor>-</Text>
               </Box>
@@ -1089,16 +1089,16 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           ? null
           : pulsable(
               clave,
-              { forma: 'linea', cabeza: cabeza === null ? null : unTexto(cabeza), ancho, cuerpo: unTexto(cuerpo), abierta: abierta(clave), flecha: abierta(clave) ? '▾' : '▸' },
+              { forma: 'linea', cabeza: cabeza === null ? null : unTexto(cabeza), ancho, delante, cuerpo: unTexto(cuerpo), abierta: abierta(clave), flecha: abierta(clave) ? '▾' : '▸' },
               alternar(clave),
               true,
             )
       if (linea !== null) return linea
       if (grafica)
         return (
-          <Box flexDirection="row" minWidth={0}>
+          <Box flexDirection="row" alignItems="flex-start" minWidth={0}>
             {cabeza !== null && (
-              <Box minWidth={ancho} flexShrink={0}>
+              <Box minWidth={ancho} flexShrink={0} paddingLeft={delante}>
                 {cabeza}
               </Box>
             )}
@@ -1115,7 +1115,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
           </Box>
         )
       return (
-        <Box flexDirection="row">
+        <Box flexDirection="row" alignItems="flex-start">
           <Box width={ancho} flexShrink={0} paddingLeft={delante}>
             {clave ? (
               <Button key={`${clave}:num`} plain onPress={alternar(clave)}>
@@ -1145,7 +1145,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       const agente = donde === 'cola' || donde === 'observacion' ? marcaSubagente(p, donde) : null
       const conEliminar = (fila: RenderChildren) =>
         agente ? (
-          <Box flexDirection="row">
+          <Box flexDirection="row" alignItems="flex-start">
             <Box flexGrow={1} flexShrink={1} minWidth={grafica ? 0 : undefined}>
               {fila}
             </Box>
@@ -1697,7 +1697,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       )
       return (
         <Box flexDirection="column">
-          <Box flexDirection="row">
+          <Box flexDirection="row" alignItems="flex-start">
             <Box flexGrow={1} flexShrink={1} minWidth={grafica ? 0 : undefined}>
               {linea}
             </Box>

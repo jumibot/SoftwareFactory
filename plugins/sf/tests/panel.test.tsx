@@ -1052,6 +1052,28 @@ test('En curso: arriba, desplegada, cómo probarla, como en observación, y lo c
   await ui.unmount()
 })
 
+// Los sangrados de la ficha, iguales en la app y en el terminal: el número de un paso o del título, arriba con la
+// primera línea (no centrado entre varias), y el número del título, alineado a la derecha con su hueco (451).
+for (const surface of ['terminal', 'desktop'] as const)
+  test(`${surface}: en la ficha, el número del paso y el del título van arriba, con sus huecos (451)`, async (...m) => {
+    const largo = 'Un paso largo que se parte en varias líneas dentro del ancho del panel '.repeat(3).trim()
+    await preparar(m, { cola: [{ id: 7, texto: 'Con pasos', estado: 'en-cola', descripcion: 'detalle', pasos: [{ texto: largo, estado: 'pendiente' }] }] })
+    const ui = conClients(await m[0].ui.mount({ ...PANEL, surface }))
+    if (surface === 'terminal') await ui.press({ key: 'pet:cola:7' })
+    else await ui.pointer({ type: 'up', x: 3, y: 0, button: 'left', in: 'pet:cola:7' })
+    await ui.press({ key: 'pasos:cola:7' })
+    // La fila del paso: el número, en una caja de 4 columnas, junto a su texto, alineados arriba.
+    const filas = ((await ui.findAll({ type: 'Box' })) as Nodo[]).filter(x => x.props.flexDirection === 'row' && x.props.alignItems === 'flex-start')
+    expect(filas.length).toBeGreaterThan(0)
+    expect(await conProps(ui, { type: 'Box' }, { flexDirection: 'row', alignItems: 'flex-start', width: undefined })).toBe(true)
+    // Una fila con la caja del número (ancho 4) y a su derecha el texto del paso.
+    const conPaso = ((await ui.findAll({ type: 'Box' })) as Nodo[]).filter(x => x.props.alignItems === 'flex-start' && JSON.stringify(x).includes('Un paso largo'))
+    expect(conPaso.length).toBeGreaterThan(0)
+    // El hueco del número de la tarea (2 columnas para el 7) delante: en el terminal, la caja de la cabeza; en la app, la del Client.
+    expect(await conProps(ui, { type: 'Box' }, { paddingLeft: 2, flexShrink: 0 })).toBe(true)
+    await ui.unmount()
+  })
+
 test('En observación: el campo «comprobado» de antes, como un paso hecho; sin ✓ ni apartado en «Prueba» (288)', async (...m) => {
   const { cambiarCola } = await preparar(m)
   await cambiarCola(CERRADAS)

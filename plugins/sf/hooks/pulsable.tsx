@@ -15,7 +15,7 @@ export type TextoDatos = string | { estilo: Record<string, string | number | boo
 export type PropsPulsable =
   | { forma: 'etiqueta'; texto: TextoDatos; fondo: string }
   | { forma: 'texto'; texto: TextoDatos }
-  | { forma: 'linea'; cabeza: TextoDatos | null; ancho: number; cuerpo: TextoDatos; abierta: boolean; flecha: string }
+  | { forma: 'linea'; cabeza: TextoDatos | null; ancho: number; delante: number; cuerpo: TextoDatos; abierta: boolean; flecha: string }
 
 const Pulsable: ClientModule = (datos, surface) => {
   const { Box, Text } = surface.elements
@@ -35,9 +35,11 @@ const Pulsable: ClientModule = (datos, surface) => {
     )
   if (p.forma === 'texto') return <Text>{texto(p.texto)}</Text>
   return (
-    <Box flexDirection="row" minWidth={0} width="100%">
+    // Arriba y no centrado: si el título se parte en varias líneas, el número queda con la primera, como en el terminal;
+    // el hueco delante alinea los números a la derecha.
+    <Box flexDirection="row" alignItems="flex-start" minWidth={0} width="100%">
       {p.cabeza !== null && (
-        <Box minWidth={p.ancho} flexShrink={0}>
+        <Box minWidth={p.ancho} flexShrink={0} paddingLeft={p.delante}>
           {typeof p.cabeza === 'string' ? <Text>{p.cabeza}</Text> : texto(p.cabeza)}
         </Box>
       )}
