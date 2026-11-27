@@ -2,7 +2,7 @@ import { expect, mock, test } from 'claude-code/testing'
 import type { Incorporacion, Peticion } from '../types'
 import { ANCHO_ETIQUETA, COLOR_TAREA_CLARO, FONDO_ORDEN, MARCA_AVISO_EMERGENTE, MARCA_ERROR_EMERGENTE, anchoComun, centrar, puntosDe } from '../hooks/estilo'
 import { abreviarRutas, duracionEmergente, pareceError, textoEmergente } from '../hooks/emergentes'
-import { avisoComprobacion, avisoDependencias, esperaAlPropietario, listaParaProbar, proximaComprobacion, subirManifiesto } from '../hooks/cola'
+import { avisoComprobacion, avisoDependencias, esperaAlPropietario, listaParaProbar, proximaComprobacion, subirManifiesto, textoTurbo, PROMPT_TURBO } from '../hooks/cola'
 import { claveIncorporacion, colorDelEstilo, tareasEnDevelop } from '../hooks/lectura'
 import { colorDeSesion } from '../hooks/constantes'
 import { numeroTarea } from '../hooks/foco'
@@ -8429,4 +8429,18 @@ test('En curso (442): sin cola (una carpeta sin SF), nada', async (...m) => {
   delete archivos[COLA]
   await escribe(m, 'hola')
   expect(enCursos.at(-1)).toBe(undefined)
+})
+
+test('TURBO dice cuántas tareas hay en curso y en cola y pide confirmación antes de pasar de seis (383)', () => {
+  const lista = (c: number, q: number, o = 0) => [
+    ...Array.from({ length: c }, () => ({ estado: 'en-curso' })),
+    ...Array.from({ length: q }, () => ({ estado: 'en-cola' })),
+    ...Array.from({ length: o }, () => ({ estado: 'en-observacion' })),
+  ]
+  const t = textoTurbo(lista(4, 5, 2))
+  expect(t.startsWith(PROMPT_TURBO)).toBe(true)
+  expect(t).toContain('Hay 4 en curso y 5 en cola.')
+  expect(t).toContain('pasar de 6')
+  expect(t).toContain('espera mi confirmación')
+  expect(textoTurbo(lista(0, 0))).toContain('Hay 0 en curso y 0 en cola.')
 })

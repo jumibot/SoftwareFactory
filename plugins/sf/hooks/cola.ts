@@ -1047,9 +1047,19 @@ export async function pedirConfiguracion($: $, args: string): Promise<string> {
 // atiende el panel.
 export const PROMPT_TURBO =
   'TURBO: pon en curso, cada una con su subagente, las tareas de la cola que se pueden hacer sin interactuar con el propietario; lanza también el subagente de las tareas en curso que aún no lo tienen, y avísame de cuáles.'
-export function pedirTurbo($: $): void {
+// Como mucho seis tareas en curso a la vez (383): el texto dice cuántas hay en curso y en cola, y pide confirmación
+// antes de pasar de seis.
+export const MAX_EN_CURSO = 6
+export function textoTurbo(p: { estado: string }[]): string {
+  const enCurso = p.filter(x => x.estado === 'en-curso').length
+  const enCola = p.filter(x => x.estado === 'en-cola').length
+  const hay = `Hay ${enCurso} en curso y ${enCola} en cola.`
+  const pide = `Si con las que pongas en curso pasaran de ${MAX_EN_CURSO}, antes de pasar de ${MAX_EN_CURSO} dime en una línea cuántas hay y cuáles añadirías, y espera mi confirmación.`
+  return `${PROMPT_TURBO} ${hay} ${pide}`
+}
+export function pedirTurbo($: $, peticiones: { estado: string }[] = []): void {
   $.clock.after(50, () => {
-    void encargarAClaude($, PROMPT_TURBO).catch(err => emergenteError($, `TURBO: no se pudo pasar a Claude: ${String(err)}`))
+    void encargarAClaude($, textoTurbo(peticiones)).catch(err => emergenteError($, `TURBO: no se pudo pasar a Claude: ${String(err)}`))
   })
   emergente($, 'TURBO: se lo paso a Claude.')
 }

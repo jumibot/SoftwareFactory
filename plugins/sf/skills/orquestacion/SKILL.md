@@ -18,7 +18,7 @@ La entrega el mod de la SF al empezar la sesión, tras `/clear` y tras compactar
 
 - **El foco** es una sola tarea, nunca un grupo («Cerrar tareas EN CURSO» no es un foco). Lo fija el propietario con sus palabras («vamos a probar la …», «cambia el foco a la …») o pulsando Activar rama en ella; sin foco, es la tarea sobre la que más escribe. Se guarda en la cola (382): con sus palabras, `cola.py foco N` (Activar rama ya lo guarda); al empezar, tras /clear y tras compactar, el mod da su línea. Sigue en observación. Acaba al cerrarse la tarea (se quita solo) o cuando él la deja: lo dice, o lleva un rato sin hablar de ella (`foco --quitar`). Nada más lo mueve: ni anotar, añadir pasos, poner en curso, cerrar o lanzar otra, ni otro botón del panel, ni que pregunte por otra o la encargue.
 - **Lo de otra tarea** es todo lo que no avanza el foco: una petición o un bug nuevos, también al anotarlos; lo que el propietario pregunta o encarga de otra; lo que traen de otra el panel, el mod o un subagente; las propuestas y preguntas sobre otra.
-- **La respuesta con foco**, en este orden: la línea 🅵🅾🅲🆄🆂 («Cómo escribir»); lo del foco y, si de él no hay nada nuevo, lo que espera del propietario en una línea o nada, que la línea basta (no se cuenta que su subagente sigue trabajando); tras dos líneas en blanco, cada una con un solo espacio duro (U+00A0), el rótulo «OTRAS TAREAS» como código en línea, con dos espacios al final, y en la línea siguiente una raya continua como código («────────────», 12 caracteres), también con dos espacios al final; debajo, una línea por tarea, sin guion ni paréntesis, con cuatro espacios duros (U+00A0, no espacios normales: cuatro normales hacen un bloque de código), «· » y la etiqueta ᴏꜰꜰ-ᴛᴏᴘɪᴄ como código en línea (morado), en versalitas, para que pese menos que el foco; el resto, texto normal, con negritas si hacen falta (dentro del código no se ven); cada línea termina en dos espacios normales para forzar el salto; si un off-topic no cabe en una línea, se parte a mano por un espacio, a unos 90 caracteres, y cada línea de continuación se sangra con seis espacios duros (U+00A0), bajo el texto del «·» (384, variante definitiva).
+- **La respuesta con foco**, en este orden: la línea 🅵🅾🅲🆄🆂 («Cómo escribir»); lo del foco y, si de él no hay nada nuevo, lo que espera del propietario en una línea o nada, que la línea basta (no se cuenta que su subagente sigue trabajando); tras dos líneas en blanco, cada una con un solo espacio duro (U+00A0), el rótulo «OTRAS TAREAS» como código en línea, con dos espacios al final, y en la línea siguiente una raya continua como código («────────────», 12 caracteres), también con dos espacios al final; debajo, una línea por tarea, sin guion ni paréntesis, con cuatro espacios duros (U+00A0, no espacios normales: cuatro normales hacen un bloque de código), «· » y la etiqueta ᴏꜰꜰ-ᴛᴏᴘɪᴄ como código en línea (morado), en versalitas, para que pese menos que el foco; el resto, texto normal, con negritas si hacen falta (dentro del código no se ven); cada línea termina en dos espacios normales para forzar el salto; si un off-topic no cabe en una línea, se parte a mano por un espacio, a unos 90 caracteres, y cada línea de continuación se sangra con seis espacios duros (U+00A0), bajo el texto del «·» (384, variante definitiva); entre dos off-topic va una línea de separación que solo lleva el carácter invisible U+2800 (patrón braille en blanco) seguido de dos espacios normales, y todo el bloque, del rótulo al último off-topic, es un único párrafo, sin líneas vacías (384).
 - **Una pregunta sin tarea** (una duda general, de Claude Code, de cómo funciona algo): sin la línea del foco; se responde y nada más. Si destapa una petición o un bug, se anota y va como off-topic, con la línea del foco.
 - **Menús** (333): nunca con texto a medio escribir en la caja del prompt (el mod lo bloquea: la pregunta va en una línea al final de la respuesta). Con foco, solo de su tarea; la pregunta sobre otra, en su línea off-topic, también al anotar. Sin foco, libremente.
 - **Tras un rato sin escribir** (332): a los 10 minutos sin prompt desde el último turno, el mod deja en la caja del prompt, sin enviarla, «¿Seguimos con «<título>» (T❸ ❾ ❷ )?», con la tarea de la rama activa o la en curso más reciente. Claude no hace nada para eso.
@@ -73,6 +73,16 @@ Off-topic que no cabe en una línea, partido a mano (foco en la 379):
       la ficha y prueba dos hipótesis antes de tocar nada; si confirma la primera, lo deja  
       anotado en la tarea y no cambia el foco.  
 
+Dos off-topic (foco en la 379; la línea entre ambos lleva solo el carácter invisible U+2800 y dos espacios):
+  🅵🅾🅲🆄🆂 `SF COMO UN PROYECTO MÁS (T❸ ❶ ❾ )`
+ 
+ 
+`OTRAS TAREAS`  
+`────────────`  
+    · `ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❹ ❸ ❷ : lista para probar ▶️  
+⠀  
+    · `ᴏꜰꜰ-ᴛᴏᴘɪᴄ` T❹ ❸ ❻ : subagente lanzado  
+
 El foco espera su OK, con opción recomendada (foco en la 379):
   🅵🅾🅲🆄🆂 `SF COMO UN PROYECTO MÁS (T❸ ❼ ❾ )`
   + ¿Le doy el OK al texto recomendado ⭐ de la línea del CLAUDE.md❓
@@ -96,6 +106,8 @@ El foco espera su OK, con opción recomendada (foco en la 379):
 
 Cerrar antes que abrir (157): antes de proponer poner en curso una tarea nueva, empujar a cerrar las en curso que se pueden cerrar, llevando al propietario lo que necesitan para probar, decidir o cerrar. Las peticiones y los defectos nuevos se siguen anotando al llegar.
 
+Máximo seis en curso (383): salvo que el propietario las ponga en curso a mano, no más de seis a la vez. Con TURBO, si se superarían, pedirle confirmación antes, en una línea: cuántas hay y cuáles se añadirían. Para no llegar al límite, empujar a cerrar las que se puedan.
+
 1. Si el enunciado no basta, lo que falte va como primeros pasos («Concretar …», «Decidir …») y se pregunta como paso de la tarea.
 2. `cola.py choques N`; con choques, decir con cuál y qué archivos, recomendar esperar o fusionar y seguir solo con el OK.
 3. Planificar los pasos con cuidado y anotarlos en la cola, sin pedir aprobación; el propietario los corrige cuando quiera.
@@ -114,7 +126,7 @@ Cerrar antes que abrir (157): antes de proponer poner en curso una tarea nueva, 
 
 ## Subagentes
 
-- **Lanzar** cada tarea al ponerla en curso, sin preguntar (376), avisando en una línea, con la descripción «Tarea NN: …»; las en curso que aún no lo tengan, al final de cada turno y con TURBO. Compartir archivos no frena, salvo alto riesgo de pérdidas; necesitar el resultado de otra, sí. Las de la cola, solo al ponerlas en curso: sin TURBO, lo decide el propietario; con TURBO, el principal pone en curso, cada una con su subagente, las que no lo necesitan y avisa de cuáles. Una deliberativa (investigar, deliberar, diseñar), sin rama ni `cola.py subagente` (278).
+- **Lanzar** cada tarea al ponerla en curso, sin preguntar (376), avisando en una línea, con la descripción «Tarea NN: …»; las en curso que aún no lo tengan, al final de cada turno y con TURBO. Compartir archivos no frena, salvo alto riesgo de pérdidas; necesitar el resultado de otra, sí. Las de la cola, solo al ponerlas en curso: sin TURBO, lo decide el propietario; con TURBO, el principal pone en curso, cada una con su subagente, las que no lo necesitan y avisa de cuáles, sin pasar de seis en curso sin confirmación (383). Una deliberativa (investigar, deliberar, diseñar), sin rama ni `cola.py subagente` (278).
 - **El modelo** de cada hilo, el que mejor encaje con su trabajo (dificultad, riesgo y coste), no el mismo para todos (339).
 - **Al abrir una sesión**, y cada vez que el mod avise de en curso sin subagente, lanzar los que faltan es lo primero del turno, antes de contestar: los de la anterior ya no viven. El mod lo avisa el primero, en cada mensaje mientras falten; y, aparte, los terminados sin recoger.
 - **Un subagente vivo por tarea** hasta su cierre (375): cada encargo sobre ella, también en la prueba, se le pasa a él (SendMessage). Si un paso espera al propietario, el subagente queda vivo esperando.
@@ -152,7 +164,7 @@ Una tarea de código (implementar, corregir) tampoco crea ni cambia ningún otro
 
 ## Libre
 
-Libre es sin foco; con foco, vale solo «Si el foco espera». Lo primero: desbloquear y cerrar lo que está en curso (157). Preguntar al propietario lo que esperan de él las tareas en curso (no las en observación), empezando por la más prioritaria; solo después, proponer abrir otras.
+Libre es sin foco; con foco, vale solo «Si el foco espera». Lo primero: desbloquear y cerrar lo que está en curso (157). Preguntar al propietario lo que esperan de él las tareas en curso (no las en observación), empezando por la más prioritaria; solo después, proponer abrir otras, sin pasar de seis en curso (383).
 
 ## Preguntar
 

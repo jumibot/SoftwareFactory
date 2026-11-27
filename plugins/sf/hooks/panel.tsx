@@ -1473,7 +1473,7 @@ export function registrarPanel(on: Parameters<Register>[0]): void {
       est.tipo !== 'sin-sf' ? (
         <Box marginRight={separa} flexShrink={0} width={caja(anchoDe('TURBO'))} backgroundColor={fondoFuera(FONDO_ETIQUETA)}>
           {enCaja(
-            <Button key="turbo" label="TURBO" plain onPress={() => pedirTurbo($)}>
+            <Button key="turbo" label="TURBO" plain onPress={() => pedirTurbo($, est.peticiones)}>
               <Text color={COLOR_TURBO} weight="bold" backgroundColor={FONDO_ETIQUETA}>
                 {rotulo('TURBO', anchoDe('TURBO'))}
               </Text>
