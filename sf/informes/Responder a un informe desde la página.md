@@ -1,222 +1,247 @@
 ---
 antetitulo: Software Factory · Informe de diseño · Noviembre 2026
-lema: Eliges en la página y pulsas Enviar; // Claude recibe tus respuestas en el chat como un mensaje tuyo.
-subtitulo: Cómo puede una página de un informe mandar a la sesión de Claude Code las respuestas a sus preguntas, qué ofrece hoy el mod de la SF para hacerlo, qué diseño se recomienda y qué alternativas hay.
-version: Versión 1.0 · 27/11/2026
+lema: Un servidor local para las páginas de la SF; // tus respuestas llegan al chat como un mensaje tuyo.
+subtitulo: Cómo puede una página generada por la SF hablar con la sesión de Claude Code, con las respuestas de un informe como primer uso, qué ofrece hoy el mod, qué diseño se recomienda y qué protege.
+version: Versión 2.0 · 27/11/2026
 estado: Propuesta · Tarea 475
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
 menu: secciones
 tipo: Informe de diseño
-pie: Informe de la tarea «Contestar las preguntas de un informe desde la página y que las respuestas lleguen a Claude» (475). Parte del código del mod de la SF (register.tsx, avisos.ts, cola.ts, lectura.ts, python.ts), de la API de mods de esta versión de Claude Code (claude-code.d.ts y reference.md de la skill plugin-authoring), del kit de documentos (herramientas.js, codigo.js) y de la especificación de Local Network Access. Espera la decisión del propietario de la Software Factory.
+pie: Informe de la tarea «Contestar las preguntas de un informe desde la página y que las respuestas lleguen a Claude» (475). Parte del código del mod de la SF (register.tsx, avisos.ts, cola.ts, lectura.ts, python.ts), de la API de mods de esta versión de Claude Code (claude-code.d.ts y reference.md de la skill plugin-authoring), del kit de documentos (herramientas.js, codigo.js) y de la decisión «El servidor local del mod escucha cualquier petición de una página generada por la SF, con un token nuevo cada vez que se abre» (416). Espera la decisión del propietario de la Software Factory sobre las preguntas abiertas.
 ---
 # Responder a un informe desde la página
 
-## Resumen | Un servidor local del mod sirve el informe y recoge las respuestas | Resumen {#resumen}
+## Resumen | Un servidor local genérico, con un token nuevo en cada apertura | Resumen {#resumen}
 
-Se propone que **el mod de la SF levante un servidor pequeño en el propio ordenador** (solo en `127.0.0.1`, la dirección que no sale de la máquina). Ese servidor hace dos cosas: **sirve los informes** que se abren desde la SF y **recibe las respuestas** que el propietario elige en sus fichas de preguntas. Al pulsar «Enviar», la página manda las elegidas. El mod las pasa al chat como un mensaje del propietario, con el título del informe y cada pregunta con su elección y su matiz. El principal las registra en el informe y en las decisiones, como hace hoy con las que se escriben a mano.
+Por decisión del propietario (416), **el mod de la SF levanta en el propio ordenador un servidor genérico**, solo en `127.0.0.1` (la dirección que no sale de la máquina). No recoge solo respuestas de informes: **atiende cualquier petición de una página que haya generado la SF**, para poder montar interfaces externas con él. Lo que lo protege es doble: la página la ha generado Claude y la sirve el propio servidor, y **cada vez que se abre una página interactiva lleva un token nuevo**; sin ese token, el servidor no atiende. El propietario lo usará de momento solo en su ordenador y no pidió limitar las peticiones a tipos declarados.
 
-La API de mods no deja al mod escuchar en un puerto, pero sí lanzar un proceso hijo que vive con la sesión (`$.process.spawn`) y leer lo que escribe. Ese hijo es un script de Python, que ya es requisito de la SF. Para pasar el mensaje al chat, el mod usa lo mismo que ya usa el panel: `$.prompt.submit` como mensaje del propietario, que espera a que Claude acabe lo que está haciendo y, tras un Esc, deja el texto escrito en el prompt. Que el servidor sirva también la página evita el permiso de red local que Chrome pide a una página abierta desde el disco y le da a la página el puerto y su token sin archivos extra. Si la sesión no está abierta, las respuestas se quedan guardadas en la página y se pueden copiar para pegarlas en el chat.
+**La respuesta de un informe es el primer uso.** En las fichas de preguntas se elige y se pulsa «Enviar»; la página manda una petición con las elecciones, y el mod la pone en el chat como un mensaje del propietario, con el título del informe y cada pregunta con su elección y su matiz. El principal las registra en el informe y en las decisiones, como hace hoy con las que se escriben a mano. Cualquier otra interfaz futura usa el mismo camino: su petición llega al chat, o a quien la atienda.
 
-Quedan **cinco preguntas** para el propietario. La más importante es si se acepta el servidor local que sirve el informe (pregunta 1). Salen dos tareas de implementar y pasos en dos tareas que ya existen.
+La API de mods no deja al mod escuchar en un puerto, pero sí lanzar un proceso hijo que vive con la sesión (`$.process.spawn`). Ese hijo es un script de Python, requisito ya de la SF. Para escribir en el chat, el mod usa lo que ya usa el panel: `$.prompt.submit` como mensaje del propietario, que espera a que Claude acabe lo que hace y, tras un Esc, deja el texto escrito en el prompt.
 
-[Ver las cinco preguntas](#por-decidir){: .salto}
+De las cinco preguntas del informe anterior, la primera ya está decidida por 416; quedan **cuatro abiertas más una nueva** sobre qué se hace con una petición que no es una respuesta de informe. La más importante es esa nueva ([Qué pasa con una petición que no es una respuesta (6)](#p6)). Salen dos tareas de implementar y pasos en dos tareas que ya existen.
+
+[Ver las cinco preguntas abiertas](#por-decidir){: .salto}
 
 <figure class="vertical" style="margin:1.8rem 0 1.4rem;">
-<svg viewBox="0 0 560 470" width="100%" role="img" aria-label="El recorrido de una respuesta: la página del informe, servida desde 127.0.0.1, manda las elegidas al servidor local; el servidor, hijo del mod, comprueba el token y se las pasa al mod; el mod las pone en el chat como mensaje del propietario; el principal las registra en el informe y en las decisiones" style="font-family:var(--fuente-texto);display:block">
+<svg viewBox="0 0 560 470" width="100%" role="img" aria-label="El recorrido de una petición: la página generada por la SF, servida desde 127.0.0.1 con su token, manda una petición al servidor local; el servidor, hijo del mod, comprueba el token y se la pasa al mod; el mod la pone en el chat como mensaje del propietario o la entrega a quien la atiende; el principal actúa, por ejemplo registra las respuestas en el informe y en las decisiones" style="font-family:var(--fuente-texto);display:block">
 <rect x="10" y="10" width="440" height="70" rx="10" fill="none" style="stroke:var(--primario-linea)" stroke-width="1.5"/>
-<text x="26" y="40" font-size="18" font-weight="700" style="fill:var(--oscuro)">La página del informe</text>
-<text x="26" y="64" font-size="15" style="fill:var(--texto-suave)">eliges en cada ficha y pulsas Enviar</text>
+<text x="26" y="40" font-size="18" font-weight="700" style="fill:var(--oscuro)">La página generada por la SF</text>
+<text x="26" y="64" font-size="15" style="fill:var(--texto-suave)">lleva su token; manda una petición</text>
 <rect x="10" y="105" width="440" height="70" rx="10" fill="none" style="stroke:var(--primario-linea)" stroke-width="1.5"/>
 <text x="26" y="135" font-size="18" font-weight="700" style="fill:var(--oscuro)">El servidor local, en 127.0.0.1</text>
-<text x="26" y="159" font-size="15" style="fill:var(--texto-suave)">hijo del mod; comprueba el token del informe</text>
+<text x="26" y="159" font-size="15" style="fill:var(--texto-suave)">hijo del mod; sin token válido, no atiende</text>
 <rect x="10" y="200" width="440" height="70" rx="10" fill="none" style="stroke:var(--primario)" stroke-width="2.5"/>
 <text x="26" y="230" font-size="18" font-weight="700" style="fill:var(--oscuro)">El mod de la SF</text>
-<text x="26" y="254" font-size="15" style="fill:var(--texto-suave)">lee lo que llega y lo pasa al chat</text>
+<text x="26" y="254" font-size="15" style="fill:var(--texto-suave)">lee la petición y la encamina</text>
 <rect x="10" y="295" width="440" height="70" rx="10" fill="none" style="stroke:var(--primario-linea)" stroke-width="1.5"/>
-<text x="26" y="325" font-size="18" font-weight="700" style="fill:var(--oscuro)">El chat</text>
-<text x="26" y="349" font-size="15" style="fill:var(--texto-suave)">un mensaje tuyo con el informe y cada elección</text>
+<text x="26" y="325" font-size="18" font-weight="700" style="fill:var(--oscuro)">El chat, o quien la atienda</text>
+<text x="26" y="349" font-size="15" style="fill:var(--texto-suave)">un mensaje tuyo con lo que manda la página</text>
 <rect x="10" y="390" width="440" height="70" rx="10" fill="none" style="stroke:var(--primario-linea)" stroke-width="1.5"/>
 <text x="26" y="420" font-size="18" font-weight="700" style="fill:var(--oscuro)">El principal</text>
-<text x="26" y="444" font-size="15" style="fill:var(--texto-suave)">registra el informe y las decisiones</text>
+<text x="26" y="444" font-size="15" style="fill:var(--texto-suave)">actúa; con un informe, lo registra</text>
 <path d="M230 80 V105 M230 175 V200 M230 270 V295 M230 365 V390" style="stroke:var(--texto-suave)" stroke-width="1.5" fill="none"/>
 <path d="M224 99 L230 105 L236 99 M224 194 L230 200 L236 194 M224 289 L230 295 L236 289 M224 384 L230 390 L236 384" style="stroke:var(--texto-suave)" stroke-width="1.5" fill="none"/>
 <path d="M450 140 H490 V45 H456" style="stroke:var(--texto-suave)" stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>
 <path d="M462 39 L456 45 L462 51" style="stroke:var(--texto-suave)" stroke-width="1.5" fill="none"/>
-<text x="498" y="98" font-size="13" style="fill:var(--texto-suave)">estado</text>
-<text x="498" y="114" font-size="13" style="fill:var(--texto-suave)">de cada</text>
-<text x="498" y="130" font-size="13" style="fill:var(--texto-suave)">ficha</text>
+<text x="498" y="98" font-size="13" style="fill:var(--texto-suave)">acuse a</text>
+<text x="498" y="114" font-size="13" style="fill:var(--texto-suave)">la página</text>
 </svg>
+<figcaption><em>Una petición recorre siempre el mismo camino; lo que cambia es qué es y quién la atiende.</em></figcaption>
 </figure>
 
 ## Lo que hay hoy | Qué permite cada pieza, comprobado en el código y la documentación | Lo que hay {#lo-que-hay}
 
-Cada vía se ha comprobado en el código del mod, en los tipos de la API de mods de esta versión de Claude Code (`claude-code.d.ts`, unas 29 700 líneas) y en su `reference.md`, o en la especificación del navegador. Lo que no se ha podido probar se dice como tal.
+Cada vía se ha comprobado en el código del mod, en los tipos de la API de mods de esta versión de Claude Code (`claude-code.d.ts`, unas 29 700 líneas) y en su `reference.md`. Lo que no se ha podido probar se dice como tal.
 
 ::: tarjetas 2 plegables
 
 ### El mod no escucha, pero lanza un hijo que sí {color=turquesa icono=codigo}
 
-La API del mod no tiene servidor: `$.http.fetch` solo **hace** peticiones hacia fuera, y no hay nada que abra un puerto. Lo que sí hay es `$.process.spawn`, que lanza un proceso que vive con la sesión. Su documentación pone de ejemplo «un hijo para toda la sesión» que sigue tras el hook y acaba con el hijo o al descargarse el módulo. El mod lee, trozo a trozo, lo que escribe ese hijo. A ese hijo solo se le puede pasar texto por su entrada estándar **al arrancar**: después no hay forma de escribirle por ahí. Python 3.9 ya es requisito de la SF, y el mod ya lo detecta (`python.ts`); su biblioteca estándar trae el servidor HTTP.
+La API del mod no tiene servidor: `$.http.fetch` solo **hace** peticiones hacia fuera. Lo que sí hay es `$.process.spawn`, que lanza un proceso que vive con la sesión; su documentación pone de ejemplo «un hijo para toda la sesión», que acaba con la sesión o al descargarse el módulo. El mod lee, trozo a trozo, lo que escribe ese hijo. Al hijo solo se le puede pasar texto por su entrada estándar **al arrancar**: después no hay forma de escribirle por ahí. Python 3.9 ya es requisito de la SF y el mod ya lo detecta (`python.ts`); su biblioteca estándar trae el servidor HTTP.
 
 ### El mod ya sabe poner un mensaje en el chat {color=turquesa icono=dialogo}
 
-`encargarAClaude` (`avisos.ts`) llama a `$.prompt.submit({ text, asUser: true })`, que entra como un mensaje del propietario. Si Claude está trabajando, el mensaje espera a que acabe su turno: nunca se mezcla con él. Tras un Esc, el motor no lo admite (`drop`). Entonces el mod lo deja escrito en el prompt con `$.prompt.fill` para enviarlo con Intro, y lo dice en un aviso. Lo usan ya `/sf_paso`, Activar rama y otros botones del panel.
+`encargarAClaude` (`avisos.ts`) llama a `$.prompt.submit({ text, asUser: true })`, que entra como un mensaje del propietario. Si Claude está trabajando, el mensaje espera a que acabe su turno. Tras un Esc, el motor no lo admite (`drop`): el mod lo deja escrito en el prompt con `$.prompt.fill` para enviarlo con Intro, y lo dice en un aviso. Lo usan ya `/sf_paso`, Activar rama y otros botones del panel.
 
 ### Una página abierta desde el disco y la red local {color=aviso icono=aviso}
 
-Chrome pide permiso a una página que llama a una dirección local («Local Network Access», en Chrome desde la versión 141). La especificación trata, «por ahora», una página abierta desde el disco (`file://`) como de la red local. Llamar desde ella a `127.0.0.1` pediría, por tanto, el permiso «loopback-network». Es una deducción de la especificación, **sin probar** en el navegador del propietario. Una página servida desde `127.0.0.1` que llama a su propio origen no pide nada.
+Chrome pide permiso a una página que llama a una dirección local («Local Network Access», desde la versión 141). La especificación trata, «por ahora», una página abierta desde el disco (`file://`) como de la red local, así que llamar desde ella a `127.0.0.1` pediría el permiso «loopback-network». Es una deducción, **sin probar** en el navegador del propietario. Una página servida desde `127.0.0.1` que llama a su propio origen no pide nada: por eso el servidor sirve las páginas.
 
 ### La página ya guarda archivos y copia texto {color=turquesa icono=documento}
 
-El «Guardar» de las notas del kit de documentos (`herramientas.js`) ya escribe archivos desde una página abierta del disco con `showSaveFilePicker`, y descarga el archivo en los navegadores que no lo tienen. El botón de copiar de los bloques de código (`codigo.js`) ya copia al portapapeles, con un respaldo para cuando el navegador no deja. Las dos sirven de vía de respaldo.
+El «Guardar» de las notas del kit de documentos (`herramientas.js`) ya escribe archivos desde una página abierta del disco, y el botón de copiar de los bloques de código (`codigo.js`) ya copia al portapapeles. Las dos sirven de vía de respaldo cuando no hay servidor.
 
 ### Vigilar un archivo es consultar cada poco {color=info icono=lupa}
 
-El mod no tiene un aviso de «este archivo ha cambiado». Tiene temporizadores (`$.clock.every`) y `$.fs.stat`, y su propia documentación pone de ejemplo leer un archivo cada segundo. El latido del mod ya pasa una vez por minuto, que es poco para esto: habría que consultar cada dos o tres segundos. Un hook de los ajustes de Claude Code (`UserPromptSubmit`) podría añadir el archivo de respuestas, pero solo con el siguiente mensaje del propietario.
+El mod no tiene un aviso de «este archivo ha cambiado»: tiene temporizadores (`$.clock.every`) y `$.fs.stat`. El latido del mod pasa una vez por minuto, poco para esto. Con el servidor como hijo que escribe una línea por petición, el mod no necesita consultar nada.
 
 ### Otras vías del motor, más lejanas {color=info icono=rama}
 
-El motor conoce los mensajes que llegan por un **canal** de un servidor MCP (Slack, Telegram; origen `channel`). Usarlo pide un servidor MCP en el plugin y una opción al arrancar Claude Code, que aquí no se ha probado. **Claude in Chrome** puede leer la página abierta, pero solo cuando el propietario se lo pide y con la extensión conectada. Un **Artifact** de claude.ai con base de datos recoge lo que se hace en la página, pero sube el informe a claude.ai.
+El motor conoce los mensajes que llegan por un **canal** de un servidor MCP (origen `channel`); usarlo pide un servidor MCP en el plugin y una opción al arrancar Claude Code, sin probar aquí. **Claude in Chrome** puede leer la página, pero solo cuando se lo pides. Un **Artifact** de claude.ai con base de datos recoge lo que se hace en la página, pero sube el informe a claude.ai.
 
 :::
 
 ## El diseño recomendado | Cómo se conecta, qué protege y qué cambia | Diseño {#diseno}
 
-### El servidor y cómo lo encuentra la página {#diseno-servidor}
+### El servidor genérico y la página que lo usa {#diseno-servidor}
 
-- **Quién lo levanta.** El mod, solo en la sesión que tiene la SF activa en el proyecto (decisión «Una sola sesión con la SF por proyecto», 193). Lanza `tools/respuestas.py` del plugin con `$.process.spawn` y el Python detectado. Le pasa por la entrada estándar, al arrancar, la carpeta del proyecto, el puerto preferido y el secreto de la sesión. Con `/sf_forzar_inactiva` o al cerrar la sesión, el mod lo para. Con `/reload-plugins` se descarga el módulo, el hijo muere y el `session.start` siguiente lo vuelve a levantar. Cuándo se enciende es la pregunta [Cuándo está encendido el servidor (2)](#p2).
-- **El puerto.** La primera vez lo elige el sistema (puerto 0) y el mod lo guarda en `$.store`, por proyecto. Las siguientes veces se pide el mismo y, si está ocupado, otro. El hijo escribe el puerto en su primera línea, y el mod lo anota en `~/.claude/sf/respuestas-<clave del proyecto>.json`, la carpeta donde ya viven las copias de `cola.py` y el progreso de la incorporación. Así lo encuentra `cola.py`. Con el puerto estable, una página abierta sigue conectada tras un `/reload-plugins` o una sesión nueva.
-- **Cómo llega la página.** El que abre el documento lo abre por el servidor, `http://127.0.0.1:<puerto>/sf/informes/<informe>.html`, si el servidor responde, y desde el disco si no. Lo abren el botón Abrir del panel (tarea de la decisión «El botón Abrir de una tarea abre su documento», 396) y la orden de cada vuelta de un documento (decisión «Cada vuelta de un documento la lleva a develop una sola orden», 393). La página sabe dónde mandar porque su dirección es la del servidor, y el servidor pone el token en la página al servirla. El HTML del repositorio no cambia y no lleva ningún token.
-- **Abierta desde el disco**, con doble clic o desde otra carpeta, la página no sabe el puerto: deja elegir igual y su botón es «Copiar las respuestas». Dice también cómo abrirla conectada: con Abrir, desde el panel.
+- **Quién lo levanta.** El mod, solo en la sesión que tiene la SF activa en el proyecto (decisión «Una sola sesión con la SF por proyecto», 193). Lanza `tools/servidor_local.py` del plugin con `$.process.spawn` y el Python detectado, y le pasa por la entrada estándar, al arrancar, la carpeta del proyecto, el puerto preferido y el secreto de la sesión. Con `/sf_forzar_inactiva` o al cerrar la sesión, el mod lo para; con `/reload-plugins` muere el hijo y el siguiente arranque lo levanta de nuevo. Cuándo se enciende es la pregunta [Cuándo está encendido el servidor (2)](#p2).
+- **El puerto.** La primera vez lo elige el sistema y el mod lo guarda por proyecto en `$.store`; las siguientes veces se pide el mismo y, si está ocupado, otro. El hijo escribe el puerto en su primera línea.
+- **La página es de la SF.** Una página interactiva la genera Claude con el generador de documentos (o con una skill que lo haga) y solo se abre por la SF: Abrir en el panel o la orden de cada vuelta de un documento (decisiones «El botón Abrir de una tarea abre su documento», 396, y «Cada vuelta de un documento la lleva a develop una sola orden», 393). Al abrirla, la orden pide al servidor que la **registre**, y el servidor solo sirve páginas registradas: una web cualquiera, o un archivo que no abrió la SF, no es una página suya.
+- **El token, nuevo en cada apertura.** Al registrar la página, el servidor genera un token aleatorio (nuevo cada vez, no derivado del anterior) y abre `http://127.0.0.1:<puerto>/<ruta>?t=<token>`. Al servirla, pone el token dentro de la página (`window.SF`). El HTML del repositorio no cambia ni lleva ningún token. Abrir de nuevo la página da otro token y deja de valer el anterior de esa página; con una sesión nueva, valen solo los nuevos.
+- **Cualquier petición.** El servidor atiende cualquier petición de una página con token válido (ruta, método y cuerpo libres, hasta el tamaño máximo). No hay lista de tipos declarados: así se pueden montar interfaces nuevas sin tocar el servidor. Lo que la petición **hace** lo decide quien la atiende (ver más abajo).
+- **Abierta desde el disco**, con doble clic o desde otra carpeta, la página no tiene puerto ni token: no es una página abierta por la SF. Las fichas de preguntas se pueden elegir igual y su botón es «Copiar las respuestas»; la página dice cómo abrirla conectada: con Abrir, desde el panel.
 
-### La seguridad {#diseno-seguridad}
+### La seguridad, ajustada a esto {#diseno-seguridad}
+
+La decisión (416) fija la protección: página generada por la SF y token nuevo en cada apertura, para uso local. Se mantiene el resto de lo barato, sin limitar tipos de petición, porque no cuesta nada ni quita lo genérico.
 
 ::: columnas 2
 
-**Solo dentro del ordenador**
+**Lo que decide 416**
 
 - Escucha solo en `127.0.0.1`, nunca en todas las interfaces: nada de fuera de la máquina llega al puerto.
-- Solo sirve archivos `.html` de `sf/` y `docs/` del proyecto, sin listados ni `..`, y una sola ruta de entrada, `POST /respuestas`.
+- Solo sirve páginas registradas por la SF al abrirlas; sin token válido, no atiende ninguna petición.
+- El token es aleatorio, nuevo en cada apertura y solo vive mientras dura la sesión; no se guarda en git.
+- No hay lista de tipos de petición: el servidor las atiende todas.
+
+|||
+
+**Lo que se añade sin limitar tipos**
+
 - Sin cabeceras CORS: ninguna web de internet lee lo que contesta.
-
-**Un token por informe y comprobaciones**
-
-- Cada informe recibe su token, derivado del secreto de la sesión y de su ruta (HMAC). Va solo en la página servida, nunca en git; con una sesión nueva cambia.
-- El servidor rechaza todo lo que no traiga el `Host` y el `Origin` del propio servidor (contra el truco de un dominio que apunta a `127.0.0.1`). También rechaza lo que no sea JSON con la cabecera del token, que obliga a una consulta previa que no se contesta.
-- Limita el tamaño (64 KB, y 2000 caracteres por matiz). Comprueba que las preguntas existen y siguen abiertas en el `.md`.
+- Rechaza lo que no traiga el `Host` y el `Origin` del propio servidor, contra el truco de un dominio que apunta a `127.0.0.1` («rebinding»).
+- Limita el tamaño de la petición (64 KB) y su ritmo, para que una página con un fallo no llene el chat.
+- Guarda un registro de lo recibido, que se puede mirar si algo raro llega.
 
 :::
 
-El texto que manda la página entra en el chat como un mensaje del propietario: lo ha escrito él. La protección está en que solo su página, servida por su sesión, sepa el token.
+**El límite que se acepta.** Con peticiones libres, cualquier página abierta por la SF, y quien tenga su token mientras dura, puede poner un texto en el chat como mensaje del propietario. Si un día se abre a otras personas o a otros equipos, habría que declarar tipos de petición, atar el token a cada página y no pasar texto libre al chat. Hoy no hace falta, y el propietario lo valoró y no lo pidió.
 
-### Las fichas en la página {#diseno-fichas}
+### La respuesta de un informe, el primer uso {#diseno-fichas}
 
-El generador común de documentos (`documento_a_html.py`) añade a cada pregunta abierta de `::: preguntas` lo que hace falta para contestarla. Su comportamiento vive en un script nuevo del kit, `respuestas.js`, que no sale al imprimir ni en la copia guardada:
+El generador común (`documento_a_html.py`) añade a cada pregunta abierta de `::: preguntas` lo que hace falta para contestarla. Su comportamiento vive en un script nuevo del kit, `respuestas.js`, que no sale al imprimir ni en la copia guardada:
 
 - elegir una opción (A, B, C…) pulsando en ella, con la recomendada marcada como hoy, y un campo «Matiz» opcional;
 - una barra fija «Enviar a Claude · N elegidas», solo con la página conectada; desde el disco, «Copiar las respuestas»;
 - **el estado de cada ficha**, con su marca: *Abierta*, *Elegida* (guardada en el navegador, sin enviar), *Enviada* (el mod la ha recibido), *En el chat* (Claude ya la tiene o la verá al acabar lo que hace), *Escrita en tu prompt* (tras un Esc: pulsa Intro) y *Guardada aquí* (sin sesión);
 - al regenerar el informe con la pregunta `estado=decidida`, la ficha sale decidida y la página olvida lo que tenía guardado para ella.
 
-La página manda la ruta del informe, su versión y su huella (las del pie del HTML). Si no coinciden con el `.md` actual, el mensaje lo dice, para que el principal mire si la pregunta ha cambiado.
+Lo elegido se guarda en el navegador por la dirección de la página **sin** el token, de modo que al abrirla otra vez, con su token nuevo, las elecciones siguen ahí. La página manda la ruta del informe, su versión y su huella (las del pie del HTML); si no coinciden con el `.md` actual, el mensaje lo dice, para que el principal mire si la pregunta ha cambiado. El envío es una petición más: `POST /respuestas` con las elecciones en JSON.
 
-### El mensaje que llega al chat {#diseno-mensaje}
+### Cómo llega una petición al chat, o a quien la atienda {#diseno-mensaje}
 
-El servidor escribe una línea por envío. El mod la convierte en el mensaje, le contesta *Enviada* al servidor y llama a `encargarAClaude`. Cuando el mensaje entra en el chat, contesta *En el chat*. El servidor lo guarda y la página lo pregunta cada pocos segundos. Al hijo no se le puede escribir tras arrancar, así que el mod le contesta con `$.http.fetch` a una ruta interna con su propia clave, o con un archivo de acuse si la política de red del motor no deja llamar a `127.0.0.1`: es lo primero que hay que probar. El mensaje, con cada pregunta por su título y su número entre paréntesis (decisión «Cada pregunta al propietario se entiende sola», 397):
+El servidor escribe una línea por petición. El mod la lee y la encamina:
+
+1. **Por defecto, al chat.** El mod la convierte en un mensaje del propietario con el nombre de la página y lo que manda, y llama a `encargarAClaude`. El principal decide qué hacer, como con cualquier mensaje tuyo.
+2. **A quien la atienda.** Una petición puede ir marcada para otro destino (un proceso hijo, una skill, un script) cuando una interfaz necesite una respuesta inmediata sin pasar por Claude. Cómo se marca y si ya se diseña es la pregunta [Qué pasa con una petición que no es una respuesta (6)](#p6).
+3. **El acuse.** Al hijo no se le puede escribir tras arrancar, así que el mod contesta con `$.http.fetch` a una ruta interna con su propia clave, o con un archivo de acuse si la política de red del motor no deja llamar a `127.0.0.1` (lo primero que hay que probar). La página pregunta el estado cada pocos segundos y lo enseña.
+
+El mensaje de las respuestas de un informe, con cada pregunta por su título y su número entre paréntesis (decisión «Cada pregunta al propietario se entiende sola», 397):
 
 ```text
-Respuestas al informe «Responder a un informe desde la página» (tarea 475), versión 1.0, enviadas desde la página:
+Respuestas al informe «Responder a un informe desde la página» (tarea 475), versión 2.0, enviadas desde la página:
 
-- Cómo encuentra la página la sesión de Claude (pregunta 1): A, la recomendada.
+- Cuándo está encendido el servidor (pregunta 2): A, la recomendada.
 - Qué hace Claude al recibir las respuestas (pregunta 3): B. Matiz: «solo la primera vez».
-- Sin responder: Cuándo está encendido el servidor (pregunta 2).
+- Sin responder: Mandar solo algunas respuestas (pregunta 4).
 
 Regístralas en el informe (una vuelta, con sf:informe_deliberativa) y en las decisiones que salgan.
 ```
 
-Si la sesión no está abierta, el envío falla. La página deja las elegidas en *Guardada aquí*, en el navegador, y lo vuelve a intentar cada diez segundos mientras está abierta. «Copiar las respuestas» copia este mismo texto, para pegarlo en el chat. Con una sesión nueva, el token anterior ya no vale: el servidor contesta «recarga la página», y al recargarla las elecciones siguen ahí, porque el navegador las guarda por dirección y el puerto no cambia.
+Si la sesión no está abierta, la petición falla. La página deja las elegidas en *Guardada aquí* y lo vuelve a intentar cada diez segundos mientras está abierta; «Copiar las respuestas» copia el mismo texto para pegarlo en el chat. Con una sesión nueva, el token anterior no vale: el servidor contesta «ábrela de nuevo desde la SF», y las elecciones siguen en el navegador.
 
 ## Alternativas | Las otras formas de hacerlo, con sus pros y sus contras | Alternativas {#alternativas}
 
 ::: tarjetas 2 plegables
 
+### Un servidor solo para las respuestas de informe {color=aviso icono=rama}
+
+**Pros:** superficie mínima; solo atiende una ruta y un formato conocidos.
+
+**Contras:** es lo que proponía la versión 1.0 y el propietario lo descartó (416): hay que ampliarlo para cada interfaz nueva, y se quería uno reutilizable.
+
+### Un servidor genérico con tipos de petición declarados {color=aviso icono=carpeta}
+
+**Pros:** cada página dice qué peticiones puede hacer y el servidor rechaza las demás; es lo más seguro si algún día se abre a otros.
+
+**Contras:** hay que declarar cada tipo antes de usarlo. El propietario lo consideró y no lo pidió (416): solo lo usará en local. Queda como la salida natural si cambia el alcance.
+
 ### La página desde el disco llama al servidor {color=aviso icono=rama}
 
-**Pros:** el mismo archivo sirve con doble clic; no cambia cómo se abren los documentos.
+**Pros:** el mismo archivo sirve con doble clic.
 
-**Contras:** Chrome trataría la llamada como de la red local y pediría permiso, o la bloquearía (sin probar). La página tendría que saber el puerto y el token por un archivo junto al informe, fuera de git. Todas las páginas del disco tienen el mismo origen, «null», y el servidor no las distingue.
+**Contras:** Chrome trataría la llamada como de la red local y pediría permiso, o la bloquearía (sin probar). Todas las páginas del disco comparten el origen «null», y el servidor no las distingue: el token por apertura no se podría poner en la página.
 
 ### Un archivo de respuestas que el mod vigila {color=aviso icono=carpeta}
 
-**Pros:** sin red ni servidor; funciona aunque la sesión esté cerrada, porque el archivo se recoge al abrirla. El «Guardar» de las notas ya lo hace así.
+**Pros:** sin red ni servidor; funciona aunque la sesión esté cerrada.
 
-**Contras:** el diálogo de guardar la primera vez, eligiendo la carpeta correcta, o el archivo en Descargas. El mod tiene que consultar cada dos o tres segundos. La página no sabe si Claude lo ha recibido.
+**Contras:** el diálogo de guardar la primera vez, o el archivo en Descargas; consultar cada dos o tres segundos; la página no sabe si Claude lo ha recibido; y no sirve para otras interfaces.
 
 ### Solo copiar al portapapeles {color=info icono=documento}
 
 **Pros:** trivial; el botón de copiar del kit ya existe.
 
-**Contras:** sigue a mano: el propietario pega en el chat. Es el respaldo del diseño recomendado, no la solución.
+**Contras:** sigue a mano. Es el respaldo del diseño recomendado, no la solución.
 
 ### Un canal MCP del plugin {color=info icono=dialogo}
 
 **Pros:** es la vía del motor para mensajes que llegan de fuera.
 
-**Contras:** pide un servidor MCP en el plugin y arrancar Claude Code con la opción de canales, que no se ha probado aquí. Además, el servidor HTTP seguiría haciendo falta.
+**Contras:** pide un servidor MCP en el plugin y una opción al arrancar Claude Code, sin probar, y el servidor HTTP seguiría haciendo falta.
 
-### Claude in Chrome lee la página {color=info icono=lupa}
+### Claude in Chrome lee la página o un Artifact con base de datos {color=info icono=lupa}
 
-**Pros:** sin servidor ni cambios en el mod.
+**Pros:** sin servidor propio.
 
-**Contras:** necesita la extensión conectada, y el propietario tiene que avisar a Claude. Claude lee el navegador del propietario.
-
-### Publicar el informe como Artifact {color=info icono=documento}
-
-**Pros:** la página guarda las respuestas en su base de datos, y Claude las lee.
-
-**Contras:** sube el informe a claude.ai, pide red y cuenta, y cambia dónde viven los informes, que hoy son archivos del repositorio.
+**Contras:** el primero necesita la extensión y que avises a Claude; el segundo sube el informe a claude.ai y cambia dónde viven los informes. Ninguno da una interfaz propia en local.
 
 :::
 
+## Decidido | Lo que el propietario ya fijó | Decidido {#decidido}
+
+| Nº | Decisión | Qué fija aquí |
+| --- | --- | --- |
+| 416 | El servidor local del mod escucha cualquier petición de una página generada por la SF, con un token nuevo cada vez que se abre | El servidor es genérico, en `127.0.0.1`, con la página servida por él y un token nuevo en cada apertura. Resuelve [Cómo encuentra la página la sesión de Claude (1)](#p1) y marca el límite de la seguridad. |
+
 ## Por decidir | Lo que tiene que elegir el propietario | Por decidir {#por-decidir}
 
-Cinco preguntas, por importancia. La primera decide el diseño entero; las demás lo afinan.
+Cinco preguntas abiertas, por importancia. La primera de este bloque es nueva; la antigua primera ya la resolvió la decisión 416 y se queda abajo, marcada.
 
 ::: preguntas 2 plegables
 
-### Cómo encuentra la página la sesión de Claude (1) {recomendada=A} {: #p1}
+### Qué pasa con una petición que no es una respuesta (6) {recomendada=A} {: #p6}
 
-Para que «Enviar» llegue a Claude, la página del informe tiene que hablar con el mod de la SF de tu sesión. El mod no puede escuchar por sí mismo; sí puede lanzar un pequeño servidor en tu ordenador.
+Hoy, lo que escribes en el chat lo lee Claude y actúa. Con el servidor genérico, una página puede mandar peticiones de cualquier clase, no solo respuestas de un informe, y hay que decidir qué hace el mod con ellas.
 
 Opción A
-:   El mod levanta un servidor en `127.0.0.1` que **sirve el informe** y recoge las respuestas. Abrir y la orden de cada vuelta lo abren por él. Con doble clic, desde el disco, solo se puede copiar.
+:   Todas van al chat como un mensaje tuyo, con el nombre de la página y lo que manda. Claude decide qué hacer, como con cualquier mensaje. Si una interfaz necesita una respuesta inmediata sin pasar por Claude, se diseña cuando haga falta.
 
 Opción B
-:   El mismo servidor, pero la página se abre desde el disco, como hoy, y lo llama. Puede que Chrome pida permiso de red local cada vez, o lo bloquee; hay que probarlo.
-
-Opción C
-:   Sin servidor: la página guarda un archivo de respuestas y el mod lo recoge consultando la carpeta cada pocos segundos.
+:   Desde ya, una petición puede ir marcada para una ruta que atiende un script del plugin, sin pasar por el chat, y devuelve su respuesta a la página.
 
 Recomendación
-:   **A.** Es la única que no depende de un permiso ni de un diálogo del navegador y que dice en la página si Claude ya tiene las respuestas; además, da a la página el puerto y su token sin archivos extra.
+:   **A.** Es lo que da hoy todo lo que se necesita (las respuestas de un informe) con un solo camino; B añade un mecanismo de despacho que nadie usa aún, y se puede añadir después sin cambiar lo anterior.
 
 ### Cuándo está encendido el servidor (2) {recomendada=A} {: #p2}
 
-El servidor solo hace falta mientras hay un informe con preguntas abiertas en el navegador. Encendido de más es un puerto abierto en tu ordenador sin usar, aunque solo se llegue a él desde la propia máquina.
+El servidor solo hace falta mientras hay una página interactiva abierta. Encendido de más es un puerto abierto en tu ordenador sin usar, aunque solo se llegue a él desde la propia máquina.
 
 Opción A
-:   Se enciende al abrir el primer documento por la SF y sigue hasta cerrar la sesión, o hasta `/sf_forzar_inactiva`.
+:   Se enciende al abrir la primera página interactiva por la SF y sigue hasta cerrar la sesión, o hasta `/sf_forzar_inactiva`.
 
 Opción B
 :   Siempre, desde que empieza la sesión con la SF activa.
 
 Recomendación
-:   **A.** Solo está encendido cuando se usa, y una página abierta sigue conectada durante toda la sesión.
+:   **A.** Solo está encendido cuando se usa, y una página abierta sigue conectada toda la sesión.
 
 ### Qué hace Claude al recibir las respuestas (3) {recomendada=A} {: #p3}
 
-Las respuestas llegan al chat como un mensaje tuyo. Hoy, cuando contestas en el chat, Claude registra lo que dices en el informe y en las decisiones.
+Las respuestas de un informe llegan al chat como un mensaje tuyo. Hoy, cuando contestas en el chat, Claude registra lo que dices en el informe y en las decisiones.
 
 Opción A
 :   Las registra directamente, como si las hubieras escrito: una vuelta del informe y sus decisiones. Solo te pregunta si un matiz deja algo dudoso.
@@ -253,17 +278,36 @@ Opción B
 Recomendación
 :   **A.** El recurso es el mismo; limitarlo costaría más que no hacerlo.
 
+### Cómo encuentra la página la sesión de Claude (1) {estado=decidida elegida=A recomendada=A} {: #p1}
+
+Para que «Enviar» llegue a Claude, la página del informe tiene que hablar con el mod de la SF de tu sesión, y el mod no puede escuchar por sí mismo.
+
+Opción A
+:   El mod levanta un servidor en `127.0.0.1` que **sirve la página** y recoge sus peticiones. Abrir y la orden de cada vuelta la abren por él. Con doble clic, desde el disco, solo se puede copiar.
+
+Opción B
+:   El mismo servidor, pero la página se abre desde el disco, como hoy, y lo llama; Chrome puede pedir permiso de red local o bloquearlo.
+
+Opción C
+:   Sin servidor: la página guarda un archivo de respuestas y el mod lo recoge consultando la carpeta cada pocos segundos.
+
+Recomendación
+:   **A.** Es la única que no depende de un permiso del navegador y que permite poner un token nuevo en la página al servirla.
+
+Decisión
+:   **A, y genérico:** el servidor escucha cualquier petición de una página generada por la SF, con un token nuevo en cada apertura (decisión 416).
+
 :::
 
 ## Tareas | Las tareas que salen | Tareas {#tareas}
 
-Con la opción A en [Cómo encuentra la página la sesión de Claude (1)](#p1). Si se elige otra, cambian las dos primeras.
+Con el servidor genérico de la decisión 416 y la respuesta de informe como primer uso.
 
 | Tarea | Tipo | Qué hace |
 | --- | --- | --- |
-| Servir los documentos y recibir sus respuestas desde un servidor local del mod | implementar | `tools/respuestas.py` y el mod: levantarlo con el puerto guardado y el secreto de la sesión, las comprobaciones de seguridad, el archivo con el puerto para `cola.py`, el mensaje al chat con `encargarAClaude` y los acuses. Primero, probar en Chrome y Edge que `$.http.fetch` llega a `127.0.0.1` y qué pasa con una página del disco. |
-| Contestar las preguntas en la página: elegir, matizar, Enviar y el estado de cada ficha | implementar | El generador común y `respuestas.js` del kit: las fichas que se eligen, la barra de Enviar o Copiar, el estado de cada ficha y lo guardado en el navegador; y el texto de `sf:crear_documentos` y `sf:informe_deliberativa`. |
-| Abrir el documento por el servidor cuando está encendido | paso | En la tarea del botón Abrir (decisión 396) y en la de la orden de cada vuelta (decisión 393): abrir `http://127.0.0.1:<puerto>/…` si el servidor responde y, si no, el archivo. |
+| Servir las páginas de la SF y atender sus peticiones desde un servidor local del mod | implementar | `tools/servidor_local.py` y el mod: levantarlo con el puerto guardado y el secreto de la sesión; registrar cada página al abrirla y darle un token nuevo; servirla con el token dentro; las comprobaciones de seguridad; el encaminado de cada petición al chat con `encargarAClaude` y los acuses. Primero, probar en Chrome y Edge que `$.http.fetch` llega a `127.0.0.1`. |
+| Contestar las preguntas en la página: elegir, matizar, Enviar y el estado de cada ficha | implementar | El generador común y `respuestas.js` del kit: las fichas que se eligen, la barra de Enviar o Copiar, el estado de cada ficha y lo guardado en el navegador; y el texto de `sf:crear_documentos` y `sf:informe_deliberativa`. Depende de la anterior. |
+| Abrir las páginas interactivas por el servidor, con su token nuevo | paso | En la tarea del botón Abrir (decisión 396) y en la de la orden de cada vuelta (decisión 393): registrar la página, abrir la dirección con su token y, si el servidor no está, el archivo. |
 | Qué hace el principal con un mensaje de respuestas | paso | En la primera tarea: la regla en `sf:orquestacion` (texto en el anexo). |
 | Actualizar «Cómo funciona la Software Factory» y Actualizar «Cómo funciona el panel» | documentar | Al cerrarse la primera tarea, con el texto del anexo. |
 
@@ -271,11 +315,11 @@ Con la opción A en [Cómo encuentra la página la sesión de Claude (1)](#p1). 
 
 **«Cómo funciona la Software Factory»**, al final de «El mod de estado»:
 
-> El mod también recoge las respuestas a las preguntas de los documentos. Al abrir un documento desde la SF, lo sirve un pequeño servidor que el mod levanta en el propio ordenador (`127.0.0.1`, que no sale de la máquina). En sus fichas de preguntas se elige y se pulsa «Enviar», y las respuestas llegan al chat como un mensaje del propietario. Cada documento lleva su token, y sin la sesión abierta las respuestas se quedan en la página para enviarlas o copiarlas después.
+> El mod también levanta en el propio ordenador un servidor local (`127.0.0.1`, que no sale de la máquina) que sirve las páginas interactivas que genera la SF y atiende sus peticiones. Cada vez que se abre una página interactiva lleva un token nuevo, y sin él el servidor no atiende. Lo primero que hace con él es recoger las respuestas a las preguntas de los documentos: se elige y se pulsa «Enviar», y llegan al chat como un mensaje del propietario. Sin la sesión abierta, las respuestas se quedan en la página para enviarlas o copiarlas después.
 
 **«Cómo funciona el panel»**, en «Actuar desde el panel», un apartado nuevo «Las respuestas de los documentos»:
 
-> Abrir y la orden de cada vuelta abren el documento por el servidor local del mod si está encendido (`http://127.0.0.1:<puerto>/…`). En la página, cada pregunta abierta se contesta eligiendo una opción y, si hace falta, un matiz. «Enviar a Claude» las manda, y cada ficha dice si está elegida, enviada, en el chat o guardada en la página. El mod pone en el chat un mensaje tuyo con el título del documento y cada pregunta con su elección. Si Claude está trabajando, el mensaje espera a que acabe; tras un Esc, se queda escrito en el prompt para enviarlo con Intro. Abierto desde el disco, el documento solo permite copiar las respuestas.
+> Abrir y la orden de cada vuelta abren el documento por el servidor local del mod si está encendido (`http://127.0.0.1:<puerto>/…`), con un token nuevo en cada apertura. En la página, cada pregunta abierta se contesta eligiendo una opción y, si hace falta, un matiz. «Enviar a Claude» las manda, y cada ficha dice si está elegida, enviada, en el chat o guardada en la página. El mod pone en el chat un mensaje tuyo con el título del documento y cada pregunta con su elección. Si Claude está trabajando, el mensaje espera a que acabe; tras un Esc, se queda escrito en el prompt para enviarlo con Intro. Abierto desde el disco, el documento solo permite copiar las respuestas.
 
 **`sf:orquestacion`**, en lo que hace el principal con cada mensaje del propietario:
 
