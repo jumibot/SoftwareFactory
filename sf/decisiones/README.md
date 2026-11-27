@@ -19,6 +19,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 402 | 2026-11-27 | [El número de una tarea va sin letra, y su color dice si está en curso o cerrada](402-2026-11-27-el-numero-de-una-tarea-va-sin-letra-y-su-color-dice-si-esta-en-curso-o-cerrada.md) |
 | 401 | 2026-11-27 | [Ningún proyecto escribe en la SF, y lo que es de la SF se dice en una línea](401-2026-11-27-ningun-proyecto-escribe-en-la-sf-y-lo-que-es-de-la-sf-se-dice-en-una-linea.md) |
 | 400 | 2026-11-27 | [Las órdenes de una tarea, como etiquetas en el menú de la tarea desplegada](400-2026-11-27-las-ordenes-de-una-tarea-como-etiquetas-en-el-menu-de-la-tarea-desplegada.md) |
 | 399 | 2026-11-27 | [Los documentos de la SF van en la carpeta sf/ y su máquina en .sf/](399-2026-11-27-los-documentos-de-la-sf-van-en-la-carpeta-sf-y-su-maquina-en-sf.md) |
