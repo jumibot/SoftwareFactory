@@ -1,5 +1,7 @@
 # Un solo aviso de proyecto atrasado en el panel
 
+Estado: deprecada el 2026-11-27 por «Que el proyecto va por detrás de la SF lo dice un solo aviso en el panel lateral, y la caja sobre el prompt da las dos versiones» (411); lo demás, por «La línea gris del proyecto sale del panel» (166).
+
 - **Origen:** SoftwareFactory, 2026-10-31, tarea «El panel avisa dos veces de que el proyecto no está al día con la SF» (189), vista en SmartColdBox y sprite_animation. El propietario, al ver el arreglo propuesto: «mantenla».
 - **Contexto:** en un proyecto incorporado con una SF anterior, el panel lateral decía lo mismo dos veces: la línea gris «SF 1.1.0 → 1.2.2 · 1/7 Visión» y el aviso amarillo «incorporado con la SF 1.1.0; va por la 1.2.2: pide a Claude «pon el proyecto al día con la SF»».
 - **Decisión:** en el panel lateral, la línea gris da solo la versión con que se incorporó el proyecto, «SF 1.1.0 · 1/7 Visión», sin «→»; el aviso amarillo, que dice qué hacer, es el único aviso. La caja pequeña sobre el prompt, que no tiene aviso amarillo, conserva «SF 1.1.0 → 1.2.2».
