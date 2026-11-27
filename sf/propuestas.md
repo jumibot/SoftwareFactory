@@ -428,6 +428,24 @@ Solicitar aprobación explícita del propietario antes de aplicar cada cambio de
   Antes no se puede: el panel cargado no conoce las ayudas y las tomaría por pasos obligatorios, que bloquean Cerrar.
 - **Estado:** pasada a la tarea 272 de la cola el 2026-11-01.
 
+### P26 Tareas periódicas en la cola
+
+- **Origen:** SoftwareFactory, 2026-11-27. Sale de la pregunta «Cómo se programa: tarea periódica o aviso del panel» del informe «Cuidar lo que se publica» (tarea 331): el propietario eligió el aviso del panel para la revisión de repositorios públicos (decisión «Los repositorios públicos se revisan cada 15 días…») y dejó las tareas periódicas en general como propuesta aparte.
+- **Tipo:** especificar.
+- **Observación y evidencia:** hay trabajo que se repite (revisar los repositorios públicos cada 15 días, por ejemplo) y la cola solo conoce tareas de una vez. Hoy cada caso se resuelve con un aviso propio del panel.
+- **Cambio propuesto:**
+  1. Una tarea de la cola con programación (cada N días o una fecha) que, al vencer, pasa sola a en curso y queda pendiente de la sesión, como una tarea más.
+  2. Al cerrarse, vuelve a en cola con la fecha de su siguiente vencimiento, en lugar de pasar a observación o terminar.
+  3. Un campo nuevo en la petición (`programacion`) con su intervalo y la fecha del último vencimiento.
+- **Pegas por resolver antes de decidir:**
+  - **Máximo de seis en curso:** una periódica que vence con seis en curso no cabe. Habría que decidir si espera en cola con aviso, o si cuenta aparte del máximo.
+  - **Quién cambia el estado de la cola:** hoy solo lo cambia una sesión, con `cola.py`. Pasar sola a en curso exige que lo haga el latido del panel o un hook de arranque de sesión, y que ninguno escriba la cola a la vez que otra sesión.
+  - **Campo nuevo:** cambia el formato de `.sf/peticiones.json` y obliga a tocar `cola.py`, `hooks/cola.ts`, el panel y `sf:flujo_tareas`, con migración de las colas existentes.
+  - **Proyectos cerrados:** si el proyecto no está abierto al vencer, la tarea espera a la siguiente sesión; la SF no programa actividad en segundo plano.
+- **Beneficio e impacto:** el trabajo repetido deja de depender de la memoria del propietario y se ve en la cola como el resto. Afecta a la cola, al panel, a `sf:flujo_tareas`, a la metodología y a la especificación.
+- **Verificación prevista:** con una periódica de prueba en una cola temporal, ver que pasa a en curso al vencer, que respeta el máximo de seis y que al cerrarla vuelve a en cola con su nueva fecha.
+- **Estado:** propuesta, pendiente de decisión.
+
 ## Descartadas
 
 - **Montar el método como *preset* de Spec Kit** (2026-10-25): arrastraría su programa, una rama por funcionalidad y su orden fijo de pasos, sin aprobación humana. Ver la decisión «Método propio, técnicas reutilizadas».
