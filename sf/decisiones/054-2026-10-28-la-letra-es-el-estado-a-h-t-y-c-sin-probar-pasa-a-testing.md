@@ -1,5 +1,7 @@
 # La letra es el estado: A, H, T y C; Sin probar pasa a Testing
 
+Estado: deprecada el 2026-11-27 por «El número de una tarea va sin letra, y su color dice si está en curso o cerrada» (402); lo demás, por «Testing pasa a llamarse «En observación»» (212).
+
 - **Origen:** SoftwareFactory, 2026-10-28. El propietario: «Por la misma razón usemos la T para las Sin Probar y renombramos la sección a Testing. Una tarea en todos los sitios en los que aparezca tendrá la misma letra (estado) y número (código de procesamiento)». En Cerradas: «Si esta pendiente de test una T y sino una C (cerrada y testeada)». Testing sustituye a «Sin probar» «En todos».
 - **Contexto:** la A y la H solo decían de dónde venía la tarea; en Sin probar y en Cerradas no se veía en qué estado estaba.
 - **Decisión:** la letra de una tarea es su estado y el número, su código; los dos son los mismos en todos los sitios donde aparece. A: en cola o en curso, entró en esta sesión. H: en cola o en curso, ya estaba al abrirla (una H no pasa a A). T: en Testing. C: cerrada y probada, ya fuera de la cola. En Cerradas, T si espera prueba, C si está probada y A o H si se ha reabierto. «Sin probar» pasa a llamarse Testing en el panel, la metodología y los documentos; en `.sf/peticiones.json` el estado sigue siendo `sin-probar`. La P de las planificadas queda en la propuesta P23. Sustituye en parte a «Bloque TAREAS con A y H»: la letra ya no es solo el origen.
