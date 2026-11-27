@@ -1,5 +1,7 @@
 # Configuración inicial: tareas y repo siempre, el resto opcional
 
+Estado: deprecada el 2026-11-27 por «Lo mínimo de todo proyecto SF son las tareas, el repositorio y el registro de decisiones; la metodología se elige» (410); lo demás, por «El mod entrega las reglas y sf:orquestacion al empezar la sesión, tras /clear y tras compactar» (379).
+
 - **Origen:** SoftwareFactory, 2026-10-30, tareas 171 y 190. Al preparar el plugin para otros proyectos aparece el caso de un proyecto que no quiere seguir la metodología pero sí usar la cola y la gestión del repositorio. El propietario: «se tendría que entrar en un modo configuración inicial. Lo mínimo es que sf gestione las tareas y el repo. Esto siempre».
 - **Contexto:** la incorporación da todo o nada: identidad, estado por fases, reglas del método en el `CLAUDE.md`, `docs/decisiones/` y reorganización de `docs/`. El CLI de la cola y el flujo de ramas no dependen del método, pero el panel y las reglas importadas sí lo dan por hecho.
 - **Opciones:** solo método completo; dos modos fijos (completo y solo cola y repo); una configuración inicial con un mínimo fijo y el resto elegible.
