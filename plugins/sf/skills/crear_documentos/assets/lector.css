@@ -69,9 +69,11 @@
    girando desde el lomo, como una hoja que se pasa. Sin animación con movimiento reducido. */
 .lector-paso { width: 1.7rem; height: 1.7rem; font-size: .85rem; border-color: transparent; color: #a9a9ae; }
 .lector-paso:hover { color: #e4e4e8; }
-/* La marca del proyecto en el marco del lector, como el logo de un aparato: data-marca="/SF" y, si se quiere,
-   sus colores: --lector-marca para las letras («SF») y --lector-marca-claro para lo que va delante («/»), como el
-   logo de la SF, con la barra más clara que las letras (decisión 255). */
+/* La marca del proyecto, como el logo de un aparato: data-marca="/SF" y, si se quiere, sus colores, los del logo del
+   proyecto con la barra más clara que las letras (decisión 255): --lector-marca para las letras («SF») y
+   --lector-marca-claro para lo que va delante («/»), sobre el papel de la pantalla de entrada; y
+   --lector-marca-marco y --lector-marca-marco-claro, los del logo para fondo oscuro, en el marco oscuro. Sin los del
+   marco, el marco toma los del papel. */
 /* Pantalla de entrada (encendido del lector): papel de tinta electrónica, el logo grande y la invitación. */
 .lector-portada { position: absolute; inset: 0; z-index: 3; border-radius: inherit; display: flex; flex-direction: column;
                   align-items: center; justify-content: center; gap: 1.6rem; padding: 2rem 2.2rem; text-align: center;
@@ -82,8 +84,8 @@
                        border: 0; padding: .2em .35em; border-radius: 12px; cursor: pointer; color: var(--lector-marca-claro, #161616); }
 .lector-portada-logo b { color: var(--lector-marca, #161616); }
 /* Latido: un halo suave en los colores de la marca que respira lento; es también la señal de foco. */
-.lector-portada-logo { --halo1: color-mix(in srgb, var(--lector-marca, #827dbd) 45%, transparent);
-                       --halo2: color-mix(in srgb, var(--lector-marca-claro, #b3aee6) 55%, transparent);
+.lector-portada-logo { --halo1: color-mix(in srgb, var(--lector-marca, #161616) 45%, transparent);
+                       --halo2: color-mix(in srgb, var(--lector-marca-claro, #161616) 55%, transparent);
                        animation: lector-latido 2s ease-in-out infinite alternate; }
 .lector-portada-logo:focus-visible { outline: none; }
 @keyframes lector-latido {
@@ -97,8 +99,9 @@
 .lector-portada .lector-portada-aviso { position: absolute; left: 1.4rem; right: 1.4rem; bottom: 1rem; max-width: none;
                                         font: .7rem/1.4 var(--fuente-texto); letter-spacing: .02em; color: #5a574f; }
 .lector-portada p { margin: 0; max-width: 17rem; font: italic 1.08rem/1.55 'Iowan Old Style', 'Palatino Linotype', Palatino, Georgia, serif; color: #2a2926; }
-.lector-marca { flex: none; font: 700 .78rem/1 var(--fuente-texto); letter-spacing: .02em; color: var(--lector-marca-claro, #e4e4e8); }
-.lector-marca b { color: var(--lector-marca, #b8b8bd); font-weight: 700; }
+.lector-marca { flex: none; font: 700 .78rem/1 var(--fuente-texto); letter-spacing: .02em;
+                color: var(--lector-marca-marco-claro, var(--lector-marca-claro, #e4e4e8)); }
+.lector-marca b { color: var(--lector-marca-marco, var(--lector-marca, #b8b8bd)); font-weight: 700; }
 .lector .libro-fin button { background: #161616; color: #e7e3d9; border-radius: 4px; }
 @media screen {
   :root[data-theme="dark"] .libro:not(.lector .libro) { background: var(--superficie); border-color: var(--linea); color: var(--texto);

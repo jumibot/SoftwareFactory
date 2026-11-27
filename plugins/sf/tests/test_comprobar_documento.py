@@ -56,6 +56,53 @@ def f(**kw):
 
 ANCHO = '<div class="demasiado-ancho" style="width: 900px">Un bloque de 900 px.</div>'
 
+PORTADA_OSCURA = """---
+destino: proyecto
+herramientas: ninguna
+portada: oscura
+---
+# Prueba de la portada oscura
+
+Entrada con `código en línea` en la portada.
+
+## Uno | Primera {#uno}
+
+Texto.
+"""
+
+PARRAFO = ('<p>Àlex abrió el portátil con el café todavía caliente y repasó la cola: un bug en el gemelo, una petición de '
+           'Laura y tres tareas a medias que nadie había vuelto a mirar desde el viernes por la tarde.</p>')
+HISTORIA = """---
+destino: proyecto
+herramientas: ninguna
+---
+# Prueba de la historia: abrir en el lector
+
+<div class="lector" data-titulo="Historia · prólogo" data-al-abrir="historia" data-marca="/SF" data-invitacion="Pulsa el logo">
+<div class="libro">
+<p class="libro-capitulo">Prólogo</p>
+<p class="libro-titulo">Un lunes</p>
+""" + '\n'.join([PARRAFO] * 24) + """
+</div>
+</div>
+
+## Uno | Primera {#uno}
+
+Texto de la primera sección.
+
+<div class="caso">
+<p class="caso-etiqueta">El caso · capítulo 1 · El martes</p>
+<p>El martes, Àlex fijó el objetivo.</p>
+</div>
+
+<p class="palido" style="color:#dddddd">Texto pálido, para ver que el documento se mide.</p>
+
+<figure class="vertical">
+<svg viewBox="0 0 200 60" width="200" role="img" aria-label="Una caja" style="font-family:var(--fuente-texto)"><rect x="10" y="10" width="180" height="40" fill="none" stroke="#333333"/><text x="100" y="36" text-anchor="middle" font-size="16" fill="#222222">Caja</text></svg>
+<figcaption>Una caja.</figcaption>
+</figure>
+"""
+
 
 def hay_navegador() -> bool:
     try:
@@ -96,9 +143,9 @@ class EnElNavegador(unittest.TestCase):
         cls._tmp.cleanup()
 
     @classmethod
-    def generar(cls, nombre: str, extra: str) -> Path:
+    def generar(cls, nombre: str, extra: str, texto: str = '') -> Path:
         md = cls.dir / f'{nombre}.md'
-        md.write_text(MD.format(extra=extra), encoding='utf-8')
+        md.write_text(texto or MD.format(extra=extra), encoding='utf-8')
         r = subprocess.run([sys.executable, '-I', '-X', 'utf8', str(GENERADOR), str(md), '--identidad', 'ninguna',
                             '--logo', 'ninguno', '--tema', 'tinta'], capture_output=True, text=True, encoding='utf-8')
         assert r.returncode == 0, r.stderr + r.stdout
@@ -124,6 +171,24 @@ class EnElNavegador(unittest.TestCase):
         self.assertFalse([e for e in lista if e.startswith('escritorio')], lista)
         self.assertTrue(any(e.startswith('A4: se corta por la derecha div.demasiado-ancho') for e in lista), lista)
         self.assertEqual(cdoc.main([str(self.mal), '--pdf', str(self.dir / 'mal.pdf')]), 1)
+
+    def test_el_codigo_en_linea_se_lee_sobre_la_portada_oscura(self):
+        # El fondo suave del código es claro y el texto de la portada oscura, blanco: sin su regla, 1,08:1.
+        html = self.generar('portada-oscura', '', PORTADA_OSCURA)
+        lista = cdoc.errores(cdoc.comprobar(html, self.dir / 'portada-oscura.pdf'))
+        self.assertFalse([e for e in lista if 'code' in e], lista)
+
+    def test_el_documento_que_abre_en_la_historia_se_mide(self):
+        # Con data-al-abrir="historia", la capa del lector oculta el documento: se mide después de salir de ella. Y el
+        # prólogo, antes de la primera sección, no entra en la portada, que cabe sola en la primera página del A4.
+        html = self.generar('historia', '', HISTORIA)
+        res = cdoc.comprobar(html, self.dir / 'historia.pdf')
+        lista = cdoc.errores(res)
+        self.assertTrue(any('p.palido' in e and e.startswith('escritorio (1300 px), claro: contraste') for e in lista), lista)
+        self.assertTrue(res['diagramas'], 'sin la comprobación de los diagramas')
+        self.assertTrue(all(len(m['figuras']) == 1 for m in res['diagramas']), res['diagramas'])
+        self.assertLessEqual(res['a4']['portada']['alto'], cdoc.A4_ALTO)
+        self.assertFalse([e for e in lista if e.startswith('A4: la portada')], lista)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,8 @@
 /* Lector de libros (.lector) y «Leer la historia completa». Sin librerías; sin JS, el texto se ve seguido. */
 (function () {
   var CLAVE_PASO = 'sf-lector-paso';
+  // Los colores de la marca: en el papel de la pantalla de entrada y en el marco oscuro, cada uno con los suyos.
+  var MARCA = ['--lector-marca', '--lector-marca-claro', '--lector-marca-marco', '--lector-marca-marco-claro'];
   // Dónde va el texto del documento: en el generador común, la portada y <main>; .report-body, en los HTML de la maqueta antigua.
   var DOC = ['.portada', 'main', '.report-body'];
   function enDoc(sel) { return DOC.map(function (d) { return sel.split(', ').map(function (x) { return d + ' ' + x; }).join(', '); }).join(', '); }
@@ -36,7 +38,7 @@
     if (fuente) {
       var marca = document.createElement('span'); marca.className = 'lector-marca'; marca.setAttribute('aria-hidden', 'true');
       marca.innerHTML = marcaHTML(fuente.getAttribute('data-marca'));
-      ['--lector-marca', '--lector-marca-claro'].forEach(function (v) { var c = fuente.style.getPropertyValue(v); if (c) lector.style.setProperty(v, c); });
+      MARCA.forEach(function (v) { var c = fuente.style.getPropertyValue(v); if (c) lector.style.setProperty(v, c); });
       barra.insertBefore(marca, barra.firstChild);
     }
     var pie = document.createElement('div'); pie.className = 'lector-pie';
@@ -214,7 +216,7 @@
     var fuente = document.querySelector('.lector[data-al-abrir="historia"]');
     if (!boton && fuente && fuente.getAttribute('data-marca')) {
       var portada = document.createElement('div'); portada.className = 'lector-portada';
-      ['--lector-marca', '--lector-marca-claro'].forEach(function (v) { var c = fuente.style.getPropertyValue(v); if (c) portada.style.setProperty(v, c); });
+      MARCA.forEach(function (v) { var c = fuente.style.getPropertyValue(v); if (c) portada.style.setProperty(v, c); });
       var inv = fuente.getAttribute('data-invitacion') || 'Pulsa el logo para entrar en la historia';
       var bp = document.createElement('button'); bp.type = 'button'; bp.className = 'lector-portada-logo';
       bp.innerHTML = marcaHTML(fuente.getAttribute('data-marca')); bp.setAttribute('aria-label', inv);

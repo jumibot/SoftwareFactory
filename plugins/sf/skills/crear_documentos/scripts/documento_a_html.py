@@ -467,6 +467,8 @@ def colores_al_tema(h: str, tema: dict) -> str:
 # Clases de los recursos que vienen de la visión (assets/narrativa.css): su estilo solo entra si el documento los usa.
 USA_NARRATIVA = re.compile(r'class="(?:escena|caso|expediente|aviso-ficcion|ficha|comparativa|faq|ejemplo|subseccion|'
                            r'subsubseccion)\b|<figure(?:\s|>)')
+# Lo narrativo que puede ir antes de la primera sección y no es portada (un prólogo en el lector, una escena, un caso).
+RELATO_ANTES = re.compile(r'<div\b[^>]*\bclass="(?:lector|libro|escena|caso)\b')
 
 
 def recuadros(h: str) -> str:
@@ -788,8 +790,12 @@ def main():
     # Las citas «>» antes de la primera sección son avisos de alcance global: van al principio, fuera de las secciones.
     bloques = re.split(r"\n\s*\n", portada_md.strip()) if portada_md.strip() else []
     avisos_md = "\n\n".join(b for b in bloques if b.lstrip().startswith(">"))
-    portada_md = "\n\n".join(b for b in bloques if not b.lstrip().startswith(">"))
+    # Un lector, una página de libro, una escena o un caso antes de la primera sección (el prólogo de una novela) no son
+    # portada: van al principio del cuerpo, tras los avisos, para que la portada quepa sola en la primera página del A4.
+    relato = [b for b in bloques if RELATO_ANTES.match(b.lstrip())]
+    portada_md = "\n\n".join(b for b in bloques if not b.lstrip().startswith(">") and b not in relato)
     avisos = f'<div class="avisos-globales">{recuadros(a_html(avisos_md))}</div>' if avisos_md else ""
+    avisos += a_html("\n\n".join(relato)) if relato else ""
 
     # Portada. Con «antetitulo», el nombre es el titular y el lema va debajo; sin él, el lema es el titular.
     # Su forma la da el estilo (portada.forma); sin estilo.json, la cabecera del .md, como antes.

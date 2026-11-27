@@ -297,7 +297,7 @@ Tres niveles de lectura, que se distinguen por la tipografía y también por la 
 
 Dentro de un bloque HTML no se dejan líneas en blanco: el conversor de Markdown lo cortaría.
 
-**Página de libro y lector** (opción novela). Es un recurso común: su sintaxis, sus atributos y cómo se ve están en sf:crear_documentos («Lector de libros»). Aquí, la novela pone su prólogo y su epílogo en un `.lector`; el del prólogo lleva `data-al-abrir="historia"`, `data-marca` con los colores del proyecto del documento, `data-invitacion` que enlaza la historia con el tema y, si hace falta, `data-tema`, `data-subtitulo` y `data-aviso`.
+**Página de libro y lector** (opción novela). Es un recurso común: su sintaxis, sus atributos y cómo se ve están en sf:crear_documentos («Lector de libros»). Aquí, la novela pone su prólogo y su epílogo en un `.lector`; el del prólogo lleva `data-al-abrir="historia"`, `data-marca` con los colores del logo del proyecto del documento (los del logo para fondo claro en el papel y los del logo para fondo oscuro en el marco), `data-invitacion` que enlaza la historia con el tema y, si hace falta, `data-tema`, `data-subtitulo` y `data-aviso`.
 
 Otros componentes de la skill: `.aviso-ficcion` (aviso de ficción al principio) y `.comparativa` (rejilla de versiones; no se usa en documentos nuevos, ver «Comparar versiones»). Los componentes propios de un proyecto (por ejemplo, el formato de lo que entrega a sus usuarios) van en el CSS de su identidad y se explican en sus reglas.
 

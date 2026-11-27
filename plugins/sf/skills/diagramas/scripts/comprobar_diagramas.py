@@ -12,8 +12,10 @@ En cada ancho, para cada <svg> de una <figure> que se vea:
   - accesibilidad: nombre accesible, ningún role="img" con hijos que se pulsan, y nodos pulsables de 24 px o más;
   - interacción (figuras data-diagrama): cada nodo se pulsa en su centro, Intro abre su ficha en el HUD (sin salirse de
     la figura por los lados) y resalta su recorrido, y Escape la cierra y devuelve el foco.
-Con --oscuro, también con data-theme="dark" en <html> (los temas con «colores-oscuro»). Sale con 1 si hay errores. Requiere Playwright (pip install playwright); sin su Chromium, usa el Chrome o el Edge del
-equipo.
+Con --oscuro, también con data-theme="dark" en <html> (los temas con «colores-oscuro»). Un documento que abre en la
+historia (data-al-abrir="historia", el lector de crear_documentos) se mide después de salir de ella, como el lector que
+pasa al documento. Sale con 1 si hay errores. Requiere Playwright (pip install playwright); sin su Chromium, usa el
+Chrome o el Edge del equipo.
 """
 import argparse
 import json
@@ -201,6 +203,15 @@ async () => {
 """
 
 
+# Salir de la historia completa (lector.js): con data-al-abrir="historia", el documento queda oculto debajo de la capa
+# hasta que el lector sale de ella; se sale con Escape, como el lector, y si no, se quita la capa.
+SALIR_HISTORIA = """() => {
+  if (document.querySelector('.lector-capa')) document.dispatchEvent(new KeyboardEvent('keydown', {key: 'Escape', bubbles: true}));
+  document.querySelectorAll('.lector-capa').forEach(c => c.remove());
+  document.documentElement.classList.remove('lector-abierto', 'historia-primero');
+}"""
+
+
 def revisar(medida, letra_min):
     """Añade a cada figura los errores y avisos de contraste, con el cálculo de Python."""
     for f in medida['figuras']:
@@ -250,6 +261,7 @@ def comprobar(ruta: Path, anchos, letra_min: float, modos=('claro',)):
                 errores_js = []
                 pagina.on('pageerror', lambda e: errores_js.append(str(e)))
                 pagina.goto(ruta.resolve().as_uri())
+                pagina.evaluate(SALIR_HISTORIA)
                 if modo == 'oscuro':
                     # Sin transiciones: en una figura oculta (la otra orientación) no avanzan y el color medido sería el
                     # del claro.

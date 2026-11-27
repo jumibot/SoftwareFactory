@@ -48,11 +48,27 @@ class Lector(unittest.TestCase):
         self.assertIn('aria-label="Página siguiente"', h)
 
     def test_marca_con_la_barra_clara(self):
-        # Como el logo «/SF» (decisión 255): lo que va delante de las letras, en el morado claro; las letras, en el de la marca.
+        # Como el logo «/SF» (decisión 255): lo que va delante de las letras, en el color -claro; las letras, en el otro.
         h = self.generar(LECTOR)
         self.assertIn('.lector-portada-logo b { color: var(--lector-marca, #161616); }', h)
-        self.assertIn('.lector-marca b { color: var(--lector-marca, #b8b8bd);', h)
         self.assertIn('cursor: pointer; color: var(--lector-marca-claro, #161616); }', h)
+
+    def test_la_marca_del_marco_oscuro_tiene_sus_variables(self):
+        # El papel de la pantalla de entrada es claro y el marco, oscuro: cada uno con los colores de su logo; sin los del
+        # marco, los del papel, como antes.
+        h = self.generar(LECTOR)
+        self.assertIn('color: var(--lector-marca-marco-claro, var(--lector-marca-claro, #e4e4e8)); }', h)
+        self.assertIn('.lector-marca b { color: var(--lector-marca-marco, var(--lector-marca, #b8b8bd));', h)
+        self.assertIn("'--lector-marca-marco', '--lector-marca-marco-claro'", h)   # lector.js los pasa al marco y a la entrada
+
+    def test_sin_los_colores_antiguos_de_la_sf(self):
+        # La SF usa el estilo Áureo: el morado del logo antiguo (decisión 255) no queda en el lector ni en sus skills.
+        skills = Path(__file__).resolve().parents[1] / 'skills'
+        for archivo in ('crear_documentos/assets/lector.css', 'crear_documentos/assets/lector.js',
+                        'crear_documentos/SKILL.md', 'documento_vision/SKILL.md'):
+            texto = (skills / archivo).read_text(encoding='utf-8').lower()
+            for viejo in ('#827dbd', '#b3aee6'):
+                self.assertNotIn(viejo, texto, archivo)
 
     def test_sin_lector_no_lleva_script(self):
         h = self.generar('<div class="caso">\n<p class="caso-etiqueta">El caso · prólogo</p>\n<p>Texto.</p>\n</div>\n')
@@ -77,6 +93,24 @@ class LectorComun(unittest.TestCase):
         self.assertIn('data-kit="skills/crear_documentos/assets/lector.css"', h)
         self.assertIn('data-kit="skills/crear_documentos/assets/lector.js"', h)
         self.assertIn('<div class="lector" data-titulo="Historia · prólogo">', h)
+
+    def test_el_prologo_antes_de_la_primera_seccion_no_va_en_la_portada(self):
+        # La portada se imprime sola en la primera página del A4: el prólogo en el lector va al principio del cuerpo, y
+        # el resto del texto antes de la primera sección sigue en la portada.
+        comun = Path(__file__).resolve().parents[1] / 'skills' / 'crear_documentos' / 'scripts' / 'documento_a_html.py'
+        with tempfile.TemporaryDirectory(ignore_cleanup_errors=True) as d:
+            md = Path(d) / 'doc.md'
+            md.write_text('---\ndestino: proyecto\nherramientas: ninguna\n---\n# Prueba\n\nEntrada de la portada.\n\n'
+                          + LECTOR + '\n## Uno\n\nTexto.\n', encoding='utf-8')
+            r = subprocess.run([sys.executable, '-I', '-X', 'utf8', str(comun), str(md), '--identidad', 'ninguna',
+                                '--logo', 'ninguno'], capture_output=True, text=True, encoding='utf-8')
+            self.assertEqual(r.returncode, 0, r.stderr)
+            h = md.with_suffix('.html').read_text(encoding='utf-8')
+        portada = h.split('<header class="portada', 1)[1].split('</header>', 1)[0]
+        self.assertIn('Entrada de la portada.', portada)
+        self.assertNotIn('class="lector"', portada)
+        cuerpo = h.split('<main id="contenido" tabindex="-1">', 1)[1]
+        self.assertLess(cuerpo.index('<div class="lector" data-titulo="Historia · prólogo">'), cuerpo.index('class="seccion"'))
 
 
 VISION = """<!-- destino: proyecto -->

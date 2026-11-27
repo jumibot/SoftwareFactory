@@ -15,6 +15,8 @@ y enlaces internos a un `#id` que no existe.
 Luego lo imprime en A4 (el PDF, en --pdf o en la carpeta temporal) y mira, con la hoja de impresión: nada cortado por la
 derecha, sin menú ni herramientas, la portada sola en la primera página y ninguna tarjeta ni figura (que no se parten)
 más alta que una página.
+Un documento que abre en la historia (data-al-abrir="historia") se mide después de salir de ella, como el lector que
+pasa al documento: si no, la capa lo deja oculto y no se mide nada.
 Por último, si tiene diagramas, pasa la comprobación de la skill diagramas (comprobar_diagramas.py, a 375 y 1440, con
 --oscuro si hay paleta oscura). Sale con 1 si hay errores. Requiere Playwright (pip install playwright); sin su
 Chromium, usa el Chrome o el Edge del equipo.
@@ -194,6 +196,7 @@ def comprobar(ruta: Path, pdf: Path, diagramas: bool = True) -> dict:
                     p.on('pageerror', lambda e, js=js: js.append(str(e)))
                     p.on('console', lambda m, c=consola: c.append(m.text) if m.type == 'error' else None)
                     p.goto(ruta.resolve().as_uri())
+                    p.evaluate(cd.SALIR_HISTORIA)
                     p.add_style_tag(content='*, *::before, *::after { transition: none !important; animation: none !important; }'
                                             ' html { scroll-behavior: auto !important; }')
                     if modo == 'oscuro':   # lo que hace el modo oscuro de «Lectura» (lectura.js)
@@ -210,6 +213,7 @@ def comprobar(ruta: Path, pdf: Path, diagramas: bool = True) -> dict:
             # A4: el PDF y, con la hoja de impresión al ancho de la caja de la página, lo que se mide.
             p = nav.new_page(viewport={'width': A4_ANCHO, 'height': A4_ALTO})
             p.goto(ruta.resolve().as_uri())
+            p.evaluate(cd.SALIR_HISTORIA)
             p.emulate_media(media='print')
             p.evaluate("window.dispatchEvent(new Event('beforeprint'))")
             p.evaluate(ABRIR_TODO)
