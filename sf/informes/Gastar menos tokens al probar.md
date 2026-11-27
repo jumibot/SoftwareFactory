@@ -2,7 +2,7 @@
 antetitulo: Software Factory · Informe de investigación · Noviembre 2026
 lema: Lo caro no es lo que dicen las pruebas, // sino cuántas veces se lanzan.
 subtitulo: Dónde se van los tokens cuando un subagente comprueba su trabajo, qué herramientas ya lo resumen y cómo sería una sola orden de Python que elija, lance y resuma las comprobaciones.
-version: Versión 1.2 · 27/11/2026
+version: Versión 1.3 · 27/11/2026
 estado: Propuesta · Tarea 474
 destino: proyecto
 herramientas: buscador lectura cabecera tablas

@@ -5,14 +5,14 @@ pie: SF · PROBAR | HOY
 foco: pruebas
 nodos:
   vuelta: Acabar la vuelta | cambió archivos
-  pruebas: Lanzar pruebas a mano | 6 órdenes
+  pruebas: Lanzar a mano | una ronda por prueba
   repetir: ¿Falló o cambió? | vuelve a lanzar | dec
   espera: Esperar a las lentas | 6 min, corren aparte
   leer: Leer lo que escriben | hasta 536 líneas
   captura: Mirar capturas | 8 imágenes | externo
 flechas:
   inicio > vuelta
-  vuelta > pruebas: UNA A UNA
+  vuelta > pruebas: 6 DE MEDIA
   pruebas > repetir: RESULTADO
   repetir > pruebas: REPITE | rojo, vuelta
   pruebas > espera: LENTA
