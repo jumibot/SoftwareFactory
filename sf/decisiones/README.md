@@ -426,7 +426,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | 10 | 2026-10-26 | [JKanban, con un MCP a medida e instalado dentro de la SF](010-2026-10-26-jkanban-con-un-mcp-a-medida-e-instalado-dentro-de-la-sf.md) |
 | 9 | 2026-10-25 | [Método propio, técnicas reutilizadas](009-2026-10-25-metodo-propio-tecnicas-reutilizadas.md) |
 | 8 | 2026-10-25 | [Perfil técnico «Escritorio Python con MVP y agente Claude Code»](008-2026-10-25-perfil-tecnico-escritorio-python-con-mvp-y-agente-claude-code.md) |
-| 7 | 2026-10-25 | [Fuente de las skills en la SF y lo propio de cada proyecto en `docs/identidad/`](007-2026-10-25-fuente-de-las-skills-en-la-sf-y-lo-propio-de-cada-proyecto-en-docs-identidad.md) (sustituida en parte) |
+| 7 | 2026-10-25 | [Fuente de las skills en la SF y lo propio de cada proyecto en `docs/identidad/`](007-2026-10-25-fuente-de-las-skills-en-la-sf-y-lo-propio-de-cada-proyecto-en-docs-identidad.md) |
 | 6 | 2026-10-25 | [Tamaño y orden de las devslices](006-2026-10-25-tamano-y-orden-de-las-devslices.md) |
 | 5 | 2026-10-25 | [Skill de infografía técnica generalizada](005-2026-10-25-skill-de-infografia-tecnica-generalizada.md) |
 | 4 | 2026-10-25 | [Skill de visión independiente de OncoCore y del dominio](004-2026-10-25-skill-de-vision-independiente-de-oncocore-y-del-dominio.md) |
