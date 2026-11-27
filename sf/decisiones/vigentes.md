@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 425 | 2026-11-27 | [En una prueba piloto, la entrada de los dibujantes la escribe el agente que conoce el tema, y la referencia es lo único del principal](425-2026-11-27-en-una-prueba-piloto-la-entrada-de-los-dibujantes-la-escribe-el-agente-que-conoce-el-tema-y-la-referencia-es-lo-unico-del-principal.md) |
 | 424 | 2026-11-27 | [En una prueba piloto de una skill gráfica, cada gráfico se crea en un subagente limpio](424-2026-11-27-en-una-prueba-piloto-de-una-skill-grafica-cada-grafico-se-crea-en-un-subagente-limpio.md) |
 | 423 | 2026-11-27 | [Un diagrama recibe un glosario de sus elementos importantes y sus rótulos se apoyan en él](423-2026-11-27-un-diagrama-recibe-un-glosario-de-sus-elementos-importantes-y-sus-rotulos-se-apoyan-en-el.md) |
 | 422 | 2026-11-27 | [Los rótulos de un diagrama dicen quién hace qué con las palabras del lector, y una lectura en frío lo comprueba](422-2026-11-27-los-rotulos-de-un-diagrama-dicen-quien-hace-que-con-las-palabras-del-lector-y-una-lectura-en-frio-lo-comprueba.md) |
