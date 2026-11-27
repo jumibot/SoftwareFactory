@@ -1,5 +1,7 @@
 # Una decisión por archivo, en `docs/decisiones/`
 
+Estado: deprecada el 2026-11-27 por «Una decisión por archivo, con su número de orden total, y el índice lo genera un comando» (398); lo demás, por «Las decisiones son material de la SF: siempre en sf/decisiones/» (208), «Las decisiones, en un solo formato: regla y porqué» (388), «Vigentes y deprecadas, en dos catálogos distintos con un punto de entrada común» (389) y «La fecha del nombre de archivo de una decisión es la de su registro» (390).
+
 - **Origen:** SoftwareFactory, 2026-10-29, tarea 103. El propietario: «prefiero que cada decisión se convierta en un md distinto y crear una carpeta de decisiones».
 - **Contexto:** todas las decisiones iban en un solo `docs/decisiones.md`, y cada una nueva se escribía arriba del todo y en la tabla del índice. Al cerrar una tarea con squash, dos ramas que añadían decisiones chocaban siempre en ese archivo.
 - **Decisión:** cada decisión es un archivo en `docs/decisiones/`, `NNN-AAAA-MM-DD-titulo.md` (número de orden total, fecha del origen, título sin tildes ni signos), con `# Título`, la línea de sustituida si toca y las viñetas de siempre. El índice, `docs/decisiones/README.md`, lo genera un comando, sin Claude («Comandos antes que inferencia»): `plugins/sf/tools/indice_decisiones.py`. Dos ramas que añaden decisiones ya no tocan el mismo archivo escrito a mano. El índice se junta sin choques (`docs/decisiones/README.md merge=union` en `.gitattributes`) y, tras juntar, se regenera para dejarlo en orden.
