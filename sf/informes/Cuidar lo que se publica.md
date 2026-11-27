@@ -2,14 +2,14 @@
 antetitulo: Software Factory · Informe de diseño · Noviembre 2026
 lema: Revisar lo ya publicado // y decidir si develop se queda fuera.
 subtitulo: Cada cuánto, con qué y qué hacer al revisar los repositorios públicos del propietario, y si develop puede guardarse en uno privado.
-version: Versión 1.0 · 27/11/2026
-estado: Propuesta · Tarea 331
+version: Versión 1.1 · 27/11/2026
+estado: Decidido · Tarea 331
 portada: oscura
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
 menu: secciones
 tipo: Informe de diseño
-pie: Informe de la tarea «Cuidar lo que se publica: revisar los repositorios públicos y guardar develop en uno privado» (331). Parte de revision_publica.py, cola.py, hooks/cola.ts y las decisiones 252, 259 y 280; no se ha accedido a GitHub. Espera la decisión del propietario.
+pie: Informe de la tarea «Cuidar lo que se publica: revisar los repositorios públicos y guardar develop en uno privado» (331). Parte de revision_publica.py, cola.py, hooks/cola.ts y las decisiones 252, 259 y 280; no se ha accedido a GitHub. Decidido por el propietario en las decisiones 391 y 392.
 ---
 # Cuidar lo que se publica
 
@@ -19,9 +19,9 @@ Hoy la SF revisa lo que **sale**: `revision_publica.py` mira los commits nuevos 
 
 La copia privada de develop es una opción por proyecto, pero con una pega: RELEASE pasa main por fast-forward desde develop, así que **los commits de develop salen igualmente al publicar**. Solo se queda fuera lo que aún no se ha publicado y las ramas de tarea. La 252 ya descartó una vez subir solo main y tags («no quiero complicarlo»); aquí se reabre con ese dato.
 
-Quedan 6 preguntas abiertas: 1-4 sobre la revisión, 5-6 sobre la copia privada.
+El propietario ha decidido las 6 preguntas y no queda ninguna abierta. Se revisa cada 15 días con la herramienta de la SF y el escaneo de GitHub, y se avisa en el panel (decisión «Los repositorios públicos se revisan cada 15 días…», 391); develop sigue en el remoto del proyecto, sin copia privada (decisión «Sin copia privada de develop…», 392). Sale una tarea, la 465, y una propuesta, «Tareas periódicas en la cola» (P26).
 
-[Ver las 6 preguntas](#por-decidir){: .salto}
+[Ver lo decidido](#decidido){: .salto}
 
 ## Hoy | Lo que ya revisa la SF y lo que no | Hoy {#hoy}
 
@@ -54,14 +54,16 @@ Límites: esta revisión detecta por patrones, no entiende el contexto; un histo
 | 252 | La SF se trabaja en el repositorio público, con revisión antes de publicar | develop se sube al público; se valoró subir solo main y tags y no se quiso |
 | 259 | Revisión antes de publicar: bloquear en público, preguntar en privado, y revisar también al subir develop | La herramienta y su política, de la que parte este informe |
 | 280 | Migración al repositorio público: develop público, ramas de tarea locales y _respaldo/ públicos | Hoy las ramas feature no se suben |
+| 391 | Los repositorios públicos se revisan cada 15 días con la herramienta de la SF y lo encontrado se avisa en el panel | Preguntas 1 a 4: herramienta de la SF con el escaneo de GitHub además, cada 15 días con aviso del panel, sin escribir en proyectos ajenos |
+| 392 | Sin copia privada de develop: develop sigue en el remoto del proyecto | Pregunta 5, opción A; la 6 decae |
 
 ## Por decidir | Lo que queda por decidir | Por decidir {#por-decidir}
 
-Seis preguntas, por importancia. Las 1 a 4 son de la revisión periódica; la 5 y la 6, de la copia privada ([propuesta de separación](#a-copia)).
+Las seis preguntas, por importancia, están decididas; ninguna sigue abierta. Las 1 a 4 son de la revisión periódica (decisión 391); la 5 y la 6, de la copia privada (decisión 392).
 
 ::: preguntas 2 plegables
 
-### 1 · Con qué se revisan los repositorios públicos {recomendada=B} {: #p1}
+### 1 · Con qué se revisan los repositorios públicos {estado=decidida elegida=B} {: #p1}
 
 Hoy `revision_publica.py` ya sabe buscar; falta el recorrido de repositorios y la periodicidad.
 
@@ -77,7 +79,10 @@ Opción C
 Recomendación
 :   **B**, con la opción A activada además, que es gratis. La nube (C) se descarta por no ver rutas ni usuario de la máquina, que es lo que más se cuela.
 
-### 2 · Cada cuánto se revisan {recomendada=B} {: #p2}
+Decisión
+:   **B**, con el escaneo de secretos de GitHub activado además. Decisión 391.
+
+### 2 · Cada cuánto se revisan {estado=decidida elegida=B} {: #p2}
 
 Opción A
 :   Solo a mano, cuando el propietario lo pida.
@@ -91,7 +96,10 @@ Opción C
 Recomendación
 :   **B.** Los repositorios públicos cambian poco entre releases; un aviso propio del panel evita depender de la memoria sin lanzar nada en segundo plano.
 
-### 3 · Qué se hace con lo encontrado {recomendada=A} {: #p3}
+Decisión
+:   **B**: cada 15 días, con aviso del panel cuando vence. Decisión 391.
+
+### 3 · Qué se hace con lo encontrado {estado=decidida elegida=A} {: #p3}
 
 Opción A
 :   El panel lo avisa con la lista corta (repositorio, archivo, motivo) y una orden para abrir la lista completa. El arreglo de cada repositorio se hace en una sesión de ese proyecto, como pidió el propietario; la SF no toca repositorios ajenos.
@@ -105,7 +113,10 @@ Opción C
 Recomendación
 :   **A.** Avisar y no escribir en proyectos ajenos; B puede venir después con la sesión del proyecto ya abierta.
 
-### 4 · Cómo se programa: tarea periódica o aviso del panel {recomendada=B} {: #p4}
+Decisión
+:   **A**: el panel avisa y cada repositorio se arregla en una sesión de su proyecto. Decisión 391.
+
+### 4 · Cómo se programa: tarea periódica o aviso del panel {estado=decidida elegida=B} {: #p4}
 
 El paso «Diseñar las tareas periódicas: una tarea que pasa sola a en curso según su programación» pide decidir si la SF tiene tareas periódicas en general.
 
@@ -121,7 +132,10 @@ Opción C
 Recomendación
 :   **B.** Resuelve este caso con poco; las tareas periódicas son un cambio grande de la cola y merecen su propia propuesta.
 
-### 5 · Si develop puede guardarse en un repositorio privado {recomendada=A} {: #p5}
+Decisión
+:   **B**: aviso del panel para esta revisión; las tareas periódicas, como propuesta aparte (P26, «Tareas periódicas en la cola»). Decisión 391.
+
+### 5 · Si develop puede guardarse en un repositorio privado {estado=decidida elegida=A} {: #p5}
 
 Con repositorio público, la 252 sube develop al público. Con fast-forward de develop a main, lo que se publica en cada RELEASE son los mismos commits: la copia privada no evita que salgan, solo que salgan antes de tiempo.
 
@@ -137,7 +151,10 @@ Opción C
 Recomendación
 :   **A**, salvo que el propietario quiera guardar ramas y trabajo aún sin publicar fuera del equipo; entonces **B**. La ganancia es pequeña frente a la complicación que ya se rechazó en la 252. Esta pregunta reabre su concreción.
 
-### 6 · Si es B, cómo se configura {recomendada=A} {: #p6}
+Decisión
+:   **A**: sin copia privada; develop sigue en el remoto del proyecto. Decisión 392.
+
+### 6 · Si es B, cómo se configura {estado=decidida} {: #p6}
 
 Depende de la [pregunta 5](#p5).
 
@@ -150,38 +167,39 @@ Opción B
 Recomendación
 :   **A.** No cambia el significado de `remoto` para los proyectos que no lo usen.
 
+Decisión
+:   Decae: al no haber copia privada (pregunta 5, opción A), no hay nada que configurar. Decisión 392.
+
 :::
 
-## Separar | Las separaciones propuestas | Separar {#separar}
+## Separar | Las separaciones, al día | Separar {#separar}
 
 ::: tarjetas 2
 
 ### 1 · La copia privada {: #a-copia}
 
 Se lleva
-:   Las preguntas [5](#p5) y [6](#p6), si el propietario quiere la opción. Es otra tarea: toca `configuracion.py`, `cola.py`, `hooks/cola.ts`, `sf:configurar_proyecto` y `sf:incorporar_proyecto_a_sf`.
+:   Las preguntas [5](#p5) y [6](#p6).
 
 Adónde
-:   Una tarea nueva de programar, o ninguna si la respuesta a la 5 es A.
+:   Ninguna tarea: la 5 se decidió con A y la 6 decae (decisión 392).
 
 ### 2 · Tareas periódicas en general {: #a-periodicas}
 
 Se lleva
-:   La opción A de la [pregunta 4](#p4), como propuesta en `sf/propuestas.md`.
+:   La opción A de la [pregunta 4](#p4).
 
 Adónde
-:   Una propuesta, no una tarea, hasta que el propietario la quiera.
+:   La propuesta «Tareas periódicas en la cola» (P26) en `sf/propuestas.md`, no una tarea, hasta que el propietario la quiera.
 
 :::
 
 ## Tareas | Las tareas que salen | Tareas {#tareas}
 
-Ninguna se crea hasta que el propietario responda. Las propuestas son:
-
 | Tarea | Tipo | Qué hace |
 | --- | --- | --- |
-| Revisión periódica de los repositorios públicos | programar | Ampliar `revision_publica.py` con el recorrido de repositorios y su historial, y el aviso del panel por fecha de la última revisión (1 a 3) |
-| Activar secret scanning y push protection | operación | Guía de activación en los repositorios públicos del propietario (1, opción A) |
-| Copia privada de develop por proyecto | programar | Campo `respaldo`, subida de develop y ramas, y RELEASE de main y tags (5 y 6, si se elige B) |
-| Actualizar la documentación y la metodología | documental | «Cómo funciona la SF», «Cómo funciona el panel», la metodología y `sf:flujo_tareas`, cada una en su tarea y su subagente |
-| Propuesta: tareas periódicas | documental | Añadir a `sf/propuestas.md` el diseño de la opción A de la 4 |
+| 465 · Revisar cada 15 días los repositorios públicos y avisar en el panel de lo encontrado | programar | Ampliar `revision_publica.py` con el recorrido de repositorios y su historial, y el aviso del panel por la fecha de la última revisión; incluye, como paso, activar el escaneo de secretos de GitHub en los repositorios públicos (decisión 391) |
+| Actualizar la documentación y la metodología | documental | Las que pida la 465 al aplicarse («Cómo funciona…», la metodología y las skills), cada una en su tarea y su subagente |
+
+Sin tarea: la copia privada (decisión 392). La propuesta «Tareas periódicas en la cola» (P26) está en `sf/propuestas.md`.
+

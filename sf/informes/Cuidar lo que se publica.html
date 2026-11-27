@@ -316,10 +316,52 @@ a.salto { font-size: .875rem; }
 .pie { margin-top: 3rem; border-top: 1px solid var(--linea); padding: 1rem 0 2.5rem; font-size: .875rem; color: var(--texto-suave); }
 .pie p { margin: 0 0 .4rem; }
 code { font-size: .88em; background: var(--fondo-suave); padding: .05em .3em; border-radius: 3px; overflow-wrap: anywhere; }
-/* Bloques de código: fondo suave y filete (pagina.codigo: bloque, el de por defecto; «linea» los deja entre dos líneas). */
-pre { background: var(--fondo-suave); border-left: 3px solid var(--primario); padding: .9rem 1.1rem; margin: 1rem 0 1.4rem;
-      border-radius: 0 var(--esquinas, 6px) var(--esquinas, 6px) 0; overflow-x: auto; line-height: 1.5; font-size: .9rem; }
-pre code { background: none; padding: 0; border-radius: 0; font-size: inherit; }
+/* Bloques de código: fondo suave y las esquinas de las demás cajas (pagina.codigo: bloque, el de por defecto; «linea» los
+ * deja entre dos líneas). */
+pre { background: var(--fondo-suave); padding: .9rem 1.1rem; margin: 1rem 0 1.4rem; border-radius: var(--esquinas, 8px);
+      overflow-x: auto; line-height: 1.5; font-size: .9rem; scrollbar-width: thin; scrollbar-color: var(--borde) transparent; }
+pre code { background: none; padding: 0; border-radius: 0; font-size: inherit; font-variant-ligatures: none; }
+/* La caja de cada bloque (scripts/resaltar_codigo.py): la barra con el lenguaje, que pliega y despliega el bloque, y
+ * «Copiar» (assets/codigo.js); el código se desplaza en horizontal dentro de la caja sin ensanchar la página. */
+.codigo { background: var(--fondo-suave); margin: 1rem 0 1.4rem; min-width: 0; max-width: 100%;
+          border-radius: var(--esquinas, 8px); }
+.codigo > pre { background: none; border: 0; border-radius: 0; margin: 0; max-width: 100%; }
+.codigo-barra { display: flex; align-items: center; gap: .6rem; min-height: 1.9rem; padding: .35rem .6rem 0 1.1rem;
+                font-family: var(--fuente-texto); font-size: .78rem; color: var(--texto-suave); }
+.codigo-barra + pre { padding-top: .45rem; }
+.codigo.plegado > .codigo-barra { padding-bottom: .35rem; }
+.codigo-lenguaje { font-weight: 650; letter-spacing: .06em; text-transform: uppercase; }
+.codigo-plegar { flex: 1; display: flex; align-items: center; gap: .55rem; min-width: 0; margin: 0 0 0 -.3rem; padding: .2rem .3rem;
+                 font: inherit; color: inherit; text-align: left; background: none; border: 0; border-radius: 4px; cursor: pointer; }
+.codigo-plegar::before { content: ""; flex: none; width: .42em; height: .42em; margin: 0 .1rem 0 .15rem;
+                         border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+                         transform: translateY(-.1em) rotate(45deg); transition: transform .15s; }
+.codigo-plegar[aria-expanded="false"]::before { transform: rotate(-45deg); }
+.codigo-plegar:hover { color: var(--texto); background: none; }
+.codigo-lineas { display: none; font-weight: 400; }
+.codigo.plegado .codigo-lineas { display: inline; }
+.codigo-copiar { flex: none; font: inherit; font-weight: 650; color: var(--texto-suave); background: var(--superficie);
+                 border: 1px solid var(--borde-campo, var(--borde)); border-radius: 4px; padding: .2rem .6rem; line-height: 1.3;
+                 cursor: pointer; }
+.codigo-copiar:hover { color: var(--texto); background: var(--superficie); border-color: var(--texto-suave); }
+:is(.codigo-copiar, .codigo-plegar):focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; }
+/* Ámbitos plegables (resaltar_codigo.py y codigo.js): la flecha, en el margen izquierdo de la línea que abre el ámbito;
+ * plegado, «…» al final de esa línea. Sin JS no hay flechas ni margen. */
+.codigo > pre.con-ambitos { padding-left: 1.6rem; }
+pre .amb-flecha { position: relative; display: inline-block; box-sizing: border-box; width: 1.15rem; height: 1.25em;
+                  margin: 0 .35rem 0 -1.5rem; padding: 0; vertical-align: -.3em; font: inherit; line-height: 1; color: var(--texto-suave);
+                  background: none; border: 0; border-radius: 3px; cursor: pointer; opacity: .7; }
+pre .amb-flecha::before { content: ""; position: absolute; left: 50%; top: 50%; width: .4em; height: .4em;
+                          border-right: 1.6px solid currentColor; border-bottom: 1.6px solid currentColor;
+                          transform: translate(-50%, -70%) rotate(45deg); transition: transform .15s; }
+pre .amb-flecha[aria-expanded="false"]::before { transform: translate(-70%, -50%) rotate(-45deg); }
+pre .amb-flecha:hover, pre .amb-flecha:focus-visible, pre .amb-flecha[aria-expanded="false"] { opacity: 1; color: var(--texto); }
+pre .amb-flecha:hover { background: var(--fondo-medio); }
+pre .amb-flecha:focus-visible { outline: 2px solid var(--acento); outline-offset: 0; }
+.amb.plegado > .amb-cabeza > .amb-marca::after { content: "…"; margin-left: .4em; padding: 0 .4em; border-radius: 3px;
+                                                  background: var(--fondo-medio); color: var(--texto); }
+@media (prefers-reduced-motion: reduce) { .codigo-plegar::before, pre .amb-flecha::before { transition: none; } }
+:is(.tarjeta, .columna, .tarjeta-cuerpo) { min-width: 0; }  /* un código largo no ensancha su columna */
 /* Coloreado de los bloques de código (scripts/resaltar_codigo.py): colores con significado fijo, variables --sx-…. */
 :root { --sx-clave: var(--primario-texto, var(--primario)); --sx-cadena: #1f812d; --sx-numero: #a6501a; --sx-palabra: var(--acento);
         --sx-funcion: #1f7a7a; --sx-atributo: #a6501a; --sx-comentario: var(--texto-suave); }
@@ -391,6 +433,16 @@ pre code .sx-c { color: var(--sx-comentario); font-style: italic; }
   .recuadro.decision { background: var(--fondo); color: var(--texto); }
   .recuadro.decision .recuadro-etiqueta, .recuadro.decision h3 { color: var(--primario-texto, var(--primario)); }
   a { color: inherit; text-decoration: none; }
+  /* Código: las líneas largas se parten en la hoja en vez de cortarse; sin «Copiar» */
+  .codigo-copiar, .codigo-lineas, .codigo-plegar::before, .codigo-barra:not(:has(.codigo-lenguaje:not(.codigo-generico))) {
+    display: none !important; }
+  .codigo > pre[hidden] { display: block !important; }  /* plegado en pantalla, desplegado en la hoja */
+  .amb-flecha, .amb-marca { display: none !important; }
+  .amb-cuerpo[hidden] { display: inline !important; }
+  .codigo > pre.con-ambitos { padding-left: 1.1rem; }
+  pre, .codigo > pre { white-space: pre-wrap; overflow-wrap: anywhere; overflow: visible; font-size: 8.5pt; }
+  .codigo-barra, .codigo.plegado > .codigo-barra { min-height: 0; padding-bottom: 0; font-size: 7.5pt; }
+  .codigo, pre { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 
   </style>
@@ -782,8 +834,8 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <div class="hoja">
   <main id="contenido" tabindex="-1"><details class="seccion" id="resumen" open><summary class="seccion-titulo"><span class="etiqueta">01 / Resumen</span><h2>Revisar con lo que ya hay, avisar en el panel, y la copia privada con cautela</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Hoy la SF revisa lo que <strong>sale</strong>: <code>revision_publica.py</code> mira los commits nuevos al subir develop y en RELEASE, y bloquea si el remoto es público (259). No mira lo que <strong>ya está publicado</strong> ni los demás proyectos entre releases. Se propone una revisión periódica de los repositorios públicos del propietario con la misma herramienta, ampliada para recorrer todo el historial, que avise en el panel y deje el arreglo a una sesión de cada proyecto.</p>
 <p>La copia privada de develop es una opción por proyecto, pero con una pega: RELEASE pasa main por fast-forward desde develop, así que <strong>los commits de develop salen igualmente al publicar</strong>. Solo se queda fuera lo que aún no se ha publicado y las ramas de tarea. La 252 ya descartó una vez subir solo main y tags («no quiero complicarlo»); aquí se reabre con ese dato.</p>
-<p>Quedan 6 preguntas abiertas: 1-4 sobre la revisión, 5-6 sobre la copia privada.</p>
-<p><a class="salto" href="#por-decidir">Ver las 6 preguntas</a></p></div></details><details class="seccion" id="hoy"><summary class="seccion-titulo"><span class="etiqueta">02 / Hoy</span><h2>Lo que ya revisa la SF y lo que no</h2></summary><div class="seccion-cuerpo"><div class="tarjetas cols-3">
+<p>El propietario ha decidido las 6 preguntas y no queda ninguna abierta. Se revisa cada 15 días con la herramienta de la SF y el escaneo de GitHub, y se avisa en el panel (decisión «Los repositorios públicos se revisan cada 15 días…», 391); develop sigue en el remoto del proyecto, sin copia privada (decisión «Sin copia privada de develop…», 392). Sale una tarea, la 465, y una propuesta, «Tareas periódicas en la cola» (P26).</p>
+<p><a class="salto" href="#decidido">Ver lo decidido</a></p></div></details><details class="seccion" id="hoy"><summary class="seccion-titulo"><span class="etiqueta">02 / Hoy</span><h2>Lo que ya revisa la SF y lo que no</h2></summary><div class="seccion-cuerpo"><div class="tarjetas cols-3">
 <article class="tarjeta">
 <h3>Qué cubre</h3>
 <p><code>revision_publica.py</code> busca secretos, datos personales, rutas de la máquina y archivos internos en los commits entre el último tag y develop. Lo lanzan RELEASE y <code>cola.py subir</code> (también al cerrar una tarea). Con remoto público, lo nuevo bloquea; lo ya subido pide permiso (259).</p>
@@ -821,128 +873,149 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 <td data-label="Decisión">Migración al repositorio público: develop público, ramas de tarea locales y _respaldo/ públicos</td>
 <td data-label="Qué fija aquí">Hoy las ramas feature no se suben</td>
 </tr>
+<tr>
+<td data-label="Nº">391</td>
+<td data-label="Decisión">Los repositorios públicos se revisan cada 15 días con la herramienta de la SF y lo encontrado se avisa en el panel</td>
+<td data-label="Qué fija aquí">Preguntas 1 a 4: herramienta de la SF con el escaneo de GitHub además, cada 15 días con aviso del panel, sin escribir en proyectos ajenos</td>
+</tr>
+<tr>
+<td data-label="Nº">392</td>
+<td data-label="Decisión">Sin copia privada de develop: develop sigue en el remoto del proyecto</td>
+<td data-label="Qué fija aquí">Pregunta 5, opción A; la 6 decae</td>
+</tr>
 </tbody>
-</table></div></details><details class="seccion" id="por-decidir"><summary class="seccion-titulo"><span class="etiqueta">05 / Por decidir</span><h2>Lo que queda por decidir</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Seis preguntas, por importancia. Las 1 a 4 son de la revisión periódica; la 5 y la 6, de la copia privada (<a href="#a-copia">propuesta de separación</a>).</p>
+</table></div></details><details class="seccion" id="por-decidir"><summary class="seccion-titulo"><span class="etiqueta">05 / Por decidir</span><h2>Lo que queda por decidir</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Las seis preguntas, por importancia, están decididas; ninguna sigue abierta. Las 1 a 4 son de la revisión periódica (decisión 391); la 5 y la 6, de la copia privada (decisión 392).</p>
 <div class="tarjetas preguntas cols-2">
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="B" id="p1" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="B" id="p1" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">1 · Con qué se revisan los repositorios públicos</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">1 · Con qué se revisan los repositorios públicos</h3><span class="estado-pregunta decidida">Decidida · B</span></summary>
 <div class="tarjeta-cuerpo">
 <p>Hoy <code>revision_publica.py</code> ya sabe buscar; falta el recorrido de repositorios y la periodicidad.</p>
 <dl>
-<dt class="opcion">Opción A</dt>
-<dd class="opcion">Solo lo de GitHub (secret scanning y push protection, que se activan por repositorio). Sin código nuevo, pero solo secretos.</dd>
-<dt class="opcion recomendada">Opción B<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Herramienta de la SF: ampliar <code>revision_publica.py</code> con un recorrido de los repositorios públicos y su historial. Cubre secretos, datos personales y rutas; corre en el equipo del propietario.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Rutina programada en la nube (skill <code>schedule</code>) que ejecuta la revisión. Corre sola, pero no ve la identidad de la máquina ni los repositorios locales, y gasta cuota sin que el propietario lo vea.</dd>
+<dt class="opcion descartada">Opción A</dt>
+<dd class="opcion descartada">Solo lo de GitHub (secret scanning y push protection, que se activan por repositorio). Sin código nuevo, pero solo secretos.</dd>
+<dt class="opcion elegida">Opción B<span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion elegida">Herramienta de la SF: ampliar <code>revision_publica.py</code> con un recorrido de los repositorios públicos y su historial. Cubre secretos, datos personales y rutas; corre en el equipo del propietario.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Rutina programada en la nube (skill <code>schedule</code>) que ejecuta la revisión. Corre sola, pero no ve la identidad de la máquina ni los repositorios locales, y gasta cuota sin que el propietario lo vea.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>B</strong>, con la opción A activada además, que es gratis. La nube (C) se descarta por no ver rutas ni usuario de la máquina, que es lo que más se cuela.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>B</strong>, con el escaneo de secretos de GitHub activado además. Decisión 391.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="B" id="p2" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="B" id="p2" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">2 · Cada cuánto se revisan</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">2 · Cada cuánto se revisan</h3><span class="estado-pregunta decidida">Decidida · B</span></summary>
 <div class="tarjeta-cuerpo">
 <dl>
-<dt class="opcion">Opción A</dt>
-<dd class="opcion">Solo a mano, cuando el propietario lo pida.</dd>
-<dt class="opcion recomendada">Opción B<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Cada 15 días, avisando cuando pasa el plazo sin revisar: el latido del panel mira la fecha de la última revisión y, si venció, avisa; revisar es un clic.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Cada vez que se abre sesión, si pasó una semana.</dd>
+<dt class="opcion descartada">Opción A</dt>
+<dd class="opcion descartada">Solo a mano, cuando el propietario lo pida.</dd>
+<dt class="opcion elegida">Opción B<span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion elegida">Cada 15 días, avisando cuando pasa el plazo sin revisar: el latido del panel mira la fecha de la última revisión y, si venció, avisa; revisar es un clic.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Cada vez que se abre sesión, si pasó una semana.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>B.</strong> Los repositorios públicos cambian poco entre releases; un aviso propio del panel evita depender de la memoria sin lanzar nada en segundo plano.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>B</strong>: cada 15 días, con aviso del panel cuando vence. Decisión 391.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p3" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" id="p3" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">3 · Qué se hace con lo encontrado</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">3 · Qué se hace con lo encontrado</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">El panel lo avisa con la lista corta (repositorio, archivo, motivo) y una orden para abrir la lista completa. El arreglo de cada repositorio se hace en una sesión de ese proyecto, como pidió el propietario; la SF no toca repositorios ajenos.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Además, se apunta una petición en la cola de cada proyecto afectado. Más directo, pero escribe en colas de proyectos no abiertos.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Solo un informe en un archivo, sin avisar.</dd>
+<dt class="opcion elegida">Opción A<span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion elegida">El panel lo avisa con la lista corta (repositorio, archivo, motivo) y una orden para abrir la lista completa. El arreglo de cada repositorio se hace en una sesión de ese proyecto, como pidió el propietario; la SF no toca repositorios ajenos.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Además, se apunta una petición en la cola de cada proyecto afectado. Más directo, pero escribe en colas de proyectos no abiertos.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Solo un informe en un archivo, sin avisar.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> Avisar y no escribir en proyectos ajenos; B puede venir después con la sesión del proyecto ya abierta.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A</strong>: el panel avisa y cada repositorio se arregla en una sesión de su proyecto. Decisión 391.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="B" id="p4" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="B" id="p4" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">4 · Cómo se programa: tarea periódica o aviso del panel</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">4 · Cómo se programa: tarea periódica o aviso del panel</h3><span class="estado-pregunta decidida">Decidida · B</span></summary>
 <div class="tarjeta-cuerpo">
 <p>El paso «Diseñar las tareas periódicas: una tarea que pasa sola a en curso según su programación» pide decidir si la SF tiene tareas periódicas en general.</p>
 <dl>
-<dt class="opcion">Opción A</dt>
-<dd class="opcion">Tareas periódicas en la cola: una tarea con programación que pasa sola a en curso al vencer. Útil en general, pero choca con el máximo de seis en curso (453), con que un cambio de estado de la cola lo hace una sesión, y no existe hoy ningún campo de programación.</dd>
-<dt class="opcion recomendada">Opción B<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Para esta revisión, un aviso del panel con la fecha de la última (pregunta 2); las tareas periódicas generales, como propuesta aparte con su diseño.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">Rutina programada en la nube que crea la tarea; depende de que la cola sea accesible desde la nube, que no lo es.</dd>
+<dt class="opcion descartada">Opción A</dt>
+<dd class="opcion descartada">Tareas periódicas en la cola: una tarea con programación que pasa sola a en curso al vencer. Útil en general, pero choca con el máximo de seis en curso (453), con que un cambio de estado de la cola lo hace una sesión, y no existe hoy ningún campo de programación.</dd>
+<dt class="opcion elegida">Opción B<span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion elegida">Para esta revisión, un aviso del panel con la fecha de la última (pregunta 2); las tareas periódicas generales, como propuesta aparte con su diseño.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">Rutina programada en la nube que crea la tarea; depende de que la cola sea accesible desde la nube, que no lo es.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>B.</strong> Resuelve este caso con poco; las tareas periódicas son un cambio grande de la cola y merecen su propia propuesta.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>B</strong>: aviso del panel para esta revisión; las tareas periódicas, como propuesta aparte (P26, «Tareas periódicas en la cola»). Decisión 391.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p5" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" data-elegida="A" id="p5" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">5 · Si develop puede guardarse en un repositorio privado</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">5 · Si develop puede guardarse en un repositorio privado</h3><span class="estado-pregunta decidida">Decidida · A</span></summary>
 <div class="tarjeta-cuerpo">
 <p>Con repositorio público, la 252 sube develop al público. Con fast-forward de develop a main, lo que se publica en cada RELEASE son los mismos commits: la copia privada no evita que salgan, solo que salgan antes de tiempo.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Como hoy: develop público, ramas feature locales (252 y 280). Se mantiene la revisión al subir.</dd>
-<dt class="opcion">Opción B</dt>
-<dd class="opcion">Opcional por proyecto: remoto privado de respaldo con develop y ramas de tarea; al público, solo main y tags en RELEASE.</dd>
-<dt class="opcion">Opción C</dt>
-<dd class="opcion">B, y además RELEASE publica en main un commit compuesto (squash) en lugar de la historia de develop. Es lo único que oculta de verdad el historial, pero rompe el fast-forward y las versiones dejan de coincidir con develop.</dd>
+<dt class="opcion elegida">Opción A<span class="marca-opcion elegida">Elegida</span></dt>
+<dd class="opcion elegida">Como hoy: develop público, ramas feature locales (252 y 280). Se mantiene la revisión al subir.</dd>
+<dt class="opcion descartada">Opción B</dt>
+<dd class="opcion descartada">Opcional por proyecto: remoto privado de respaldo con develop y ramas de tarea; al público, solo main y tags en RELEASE.</dd>
+<dt class="opcion descartada">Opción C</dt>
+<dd class="opcion descartada">B, y además RELEASE publica en main un commit compuesto (squash) en lugar de la historia de develop. Es lo único que oculta de verdad el historial, pero rompe el fast-forward y las versiones dejan de coincidir con develop.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A</strong>, salvo que el propietario quiera guardar ramas y trabajo aún sin publicar fuera del equipo; entonces <strong>B</strong>. La ganancia es pequeña frente a la complicación que ya se rechazó en la 252. Esta pregunta reabre su concreción.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision"><strong>A</strong>: sin copia privada; develop sigue en el remoto del proyecto. Decisión 392.</dd>
 </dl>
 </div>
 </details>
-<details class="tarjeta con-cabecera pregunta abierta plegable" data-recomendada="A" id="p6" open="open">
+<details class="tarjeta con-cabecera pregunta decidida plegable" id="p6" open="open">
 <summary class="tarjeta-cabecera">
-<h3 class="tarjeta-titulo">6 · Si es B, cómo se configura</h3><span class="estado-pregunta abierta">Abierta</span></summary>
+<h3 class="tarjeta-titulo">6 · Si es B, cómo se configura</h3><span class="estado-pregunta decidida">Decidida</span></summary>
 <div class="tarjeta-cuerpo">
 <p>Depende de la <a href="#p5">pregunta 5</a>.</p>
 <dl>
-<dt class="opcion recomendada">Opción A<span class="marca-opcion recomendada">Recomendada</span></dt>
-<dd class="opcion recomendada">Un campo nuevo <code>respaldo</code> en <code>.sf/proyecto.json</code> con el remoto privado. <code>origin</code> sigue siendo el público: <code>cola.py subir</code> y el push del cierre pasan a <code>respaldo</code>, y RELEASE sube a <code>origin</code> solo main y el tag.</dd>
+<dt class="opcion">Opción A</dt>
+<dd class="opcion">Un campo nuevo <code>respaldo</code> en <code>.sf/proyecto.json</code> con el remoto privado. <code>origin</code> sigue siendo el público: <code>cola.py subir</code> y el push del cierre pasan a <code>respaldo</code>, y RELEASE sube a <code>origin</code> solo main y el tag.</dd>
 <dt class="opcion">Opción B</dt>
 <dd class="opcion">Invertir: <code>remoto</code> pasa a ser el privado y se añade <code>publicacion</code> con el público.</dd>
 <dt class="recomendacion">Recomendación</dt>
 <dd class="recomendacion"><strong>A.</strong> No cambia el significado de <code>remoto</code> para los proyectos que no lo usen.</dd>
+<dt class="decision">Decisión</dt>
+<dd class="decision">Decae: al no haber copia privada (pregunta 5, opción A), no hay nada que configurar. Decisión 392.</dd>
 </dl>
 </div>
 </details>
-</div></div></details><details class="seccion" id="separar"><summary class="seccion-titulo"><span class="etiqueta">06 / Separar</span><h2>Las separaciones propuestas</h2></summary><div class="seccion-cuerpo"><div class="tarjetas cols-2">
+</div></div></details><details class="seccion" id="separar"><summary class="seccion-titulo"><span class="etiqueta">06 / Separar</span><h2>Las separaciones, al día</h2></summary><div class="seccion-cuerpo"><div class="tarjetas cols-2">
 <article class="tarjeta">
 <h3 id="a-copia">1 · La copia privada</h3>
 <dl>
 <dt>Se lleva</dt>
-<dd>Las preguntas <a href="#p5">5</a> y <a href="#p6">6</a>, si el propietario quiere la opción. Es otra tarea: toca <code>configuracion.py</code>, <code>cola.py</code>, <code>hooks/cola.ts</code>, <code>sf:configurar_proyecto</code> y <code>sf:incorporar_proyecto_a_sf</code>.</dd>
+<dd>Las preguntas <a href="#p5">5</a> y <a href="#p6">6</a>.</dd>
 <dt>Adónde</dt>
-<dd>Una tarea nueva de programar, o ninguna si la respuesta a la 5 es A.</dd>
+<dd>Ninguna tarea: la 5 se decidió con A y la 6 decae (decisión 392).</dd>
 </dl>
 </article>
 <article class="tarjeta">
 <h3 id="a-periodicas">2 · Tareas periódicas en general</h3>
 <dl>
 <dt>Se lleva</dt>
-<dd>La opción A de la <a href="#p4">pregunta 4</a>, como propuesta en <code>sf/propuestas.md</code>.</dd>
+<dd>La opción A de la <a href="#p4">pregunta 4</a>.</dd>
 <dt>Adónde</dt>
-<dd>Una propuesta, no una tarea, hasta que el propietario la quiera.</dd>
+<dd>La propuesta «Tareas periódicas en la cola» (P26) en <code>sf/propuestas.md</code>, no una tarea, hasta que el propietario la quiera.</dd>
 </dl>
 </article>
-</div></div></details><details class="seccion" id="tareas"><summary class="seccion-titulo"><span class="etiqueta">07 / Tareas</span><h2>Las tareas que salen</h2></summary><div class="seccion-cuerpo"><p class="entradilla">Ninguna se crea hasta que el propietario responda. Las propuestas son:</p>
-<table>
+</div></div></details><details class="seccion" id="tareas"><summary class="seccion-titulo"><span class="etiqueta">07 / Tareas</span><h2>Las tareas que salen</h2></summary><div class="seccion-cuerpo"><table>
 <thead>
 <tr>
 <th>Tarea</th>
@@ -952,33 +1025,19 @@ html.con-columna .columna-herramientas > .herr-notas.por-seccion[data-modo="colu
 </thead>
 <tbody>
 <tr>
-<td data-label="Tarea">Revisión periódica de los repositorios públicos</td>
+<td data-label="Tarea">465 · Revisar cada 15 días los repositorios públicos y avisar en el panel de lo encontrado</td>
 <td data-label="Tipo">programar</td>
-<td data-label="Qué hace">Ampliar <code>revision_publica.py</code> con el recorrido de repositorios y su historial, y el aviso del panel por fecha de la última revisión (1 a 3)</td>
-</tr>
-<tr>
-<td data-label="Tarea">Activar secret scanning y push protection</td>
-<td data-label="Tipo">operación</td>
-<td data-label="Qué hace">Guía de activación en los repositorios públicos del propietario (1, opción A)</td>
-</tr>
-<tr>
-<td data-label="Tarea">Copia privada de develop por proyecto</td>
-<td data-label="Tipo">programar</td>
-<td data-label="Qué hace">Campo <code>respaldo</code>, subida de develop y ramas, y RELEASE de main y tags (5 y 6, si se elige B)</td>
+<td data-label="Qué hace">Ampliar <code>revision_publica.py</code> con el recorrido de repositorios y su historial, y el aviso del panel por la fecha de la última revisión; incluye, como paso, activar el escaneo de secretos de GitHub en los repositorios públicos (decisión 391)</td>
 </tr>
 <tr>
 <td data-label="Tarea">Actualizar la documentación y la metodología</td>
 <td data-label="Tipo">documental</td>
-<td data-label="Qué hace">«Cómo funciona la SF», «Cómo funciona el panel», la metodología y <code>sf:flujo_tareas</code>, cada una en su tarea y su subagente</td>
-</tr>
-<tr>
-<td data-label="Tarea">Propuesta: tareas periódicas</td>
-<td data-label="Tipo">documental</td>
-<td data-label="Qué hace">Añadir a <code>sf/propuestas.md</code> el diseño de la opción A de la 4</td>
+<td data-label="Qué hace">Las que pida la 465 al aplicarse («Cómo funciona…», la metodología y las skills), cada una en su tarea y su subagente</td>
 </tr>
 </tbody>
-</table></div></details></main>
-  <footer class="pie"><p>SoftwareFactory · Informe de diseño · Versión 1.0 · 27/11/2026 · Propuesta · Tarea 331</p><p>Informe de la tarea «Cuidar lo que se publica: revisar los repositorios públicos y guardar develop en uno privado» (331). Parte de revision_publica.py, cola.py, hooks/cola.ts y las decisiones 252, 259 y 280; no se ha accedido a GitHub. Espera la decisión del propietario.</p><p class="procedencia">Generado el 27/11/2026 12:40 · fuente Cuidar lo que se publica.md · huella 5d068cafca7b · sin commit · estilo v4</p></footer>
+</table>
+<p>Sin tarea: la copia privada (decisión 392). La propuesta «Tareas periódicas en la cola» (P26) está en <code>sf/propuestas.md</code>.</p></div></details></main>
+  <footer class="pie"><p>SoftwareFactory · Informe de diseño · Versión 1.1 · 27/11/2026 · Decidido · Tarea 331</p><p>Informe de la tarea «Cuidar lo que se publica: revisar los repositorios públicos y guardar develop en uno privado» (331). Parte de revision_publica.py, cola.py, hooks/cola.ts y las decisiones 252, 259 y 280; no se ha accedido a GitHub. Decidido por el propietario en las decisiones 391 y 392.</p><p class="procedencia">Generado el 27/11/2026 17:51 · fuente Cuidar lo que se publica.md · huella 2834727158af · commit 985a89e (con cambios sin commit) · estilo v4</p></footer>
 </div>
 <script data-kit="skills/crear_documentos/assets/plegado.js">
 /* Secciones y tarjetas plegables de los documentos del generador común (skill crear_documentos).
