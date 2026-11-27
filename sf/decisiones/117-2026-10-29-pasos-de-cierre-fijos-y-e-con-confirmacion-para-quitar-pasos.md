@@ -1,6 +1,6 @@
 # Pasos de cierre fijos y E con confirmación para quitar pasos
 
-> **Sustituida en parte** el 2026-10-29 por «Cerrar exige siempre el paso de cerrar; quitar el de probar es cerrar sin probar»: «Probar la tarea» sí se quita, y quitarlo es cerrar sin probar. «Cerrar la tarea» sigue sin quitarse y la E de dos clics sigue vigente.
+Estado: deprecada el 2026-11-27 por «Un paso pendiente se quita con dos clics en su «×»; los de cierre, nunca» (409); lo demás, por «Las órdenes de una tarea, como etiquetas en el menú de la tarea desplegada» (400), «El paso de prueba es «Activar rama para poder probar»» (172) y «Los pasos de cierre, desde que la tarea entra en curso» (174).
 
 - **Origen:** SoftwareFactory, 2026-10-29, tarea 138. El propietario decide cómo se quitan los pasos desde el panel.
 - **Contexto:** cada paso pendiente llevaba un «−» que lo quitaba con un clic, también «Probar la tarea» y «Cerrar la tarea», que la C necesita para saber que la tarea solo espera cerrarse. Un clic suelto bastaba para perder un paso.

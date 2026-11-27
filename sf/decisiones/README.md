@@ -316,7 +316,7 @@ Una decisión se registra con `cola.py decision "Título" --archivo RUTA [--push
 | 120 | 2026-10-29 | [Cabecera en dos filas y botón TURBO](120-2026-10-29-cabecera-en-dos-filas-y-boton-turbo.md) |
 | 119 | 2026-10-29 | [La ⚙ sale solo con un subagente trabajando](119-2026-10-29-la-rueda-dentada-sale-solo-con-un-subagente-trabajando.md) |
 | 118 | 2026-10-29 | [Arriba, todas las tareas en curso enteras](118-2026-10-29-arriba-todas-las-tareas-en-curso-enteras.md) |
-| 117 | 2026-10-29 | [Pasos de cierre fijos y E con confirmación para quitar pasos](117-2026-10-29-pasos-de-cierre-fijos-y-e-con-confirmacion-para-quitar-pasos.md) (sustituida en parte) |
+| 117 | 2026-10-29 | [Pasos de cierre fijos y E con confirmación para quitar pasos](117-2026-10-29-pasos-de-cierre-fijos-y-e-con-confirmacion-para-quitar-pasos.md) |
 | 116 | 2026-10-29 | [El paso de documentar es crear la tarea de documentos](116-2026-10-29-el-paso-de-documentar-es-crear-la-tarea-de-documentos.md) |
 | 115 | 2026-10-29 | [Flujo de tareas: respuestas a la revisión de la tabla de estados](115-2026-10-29-flujo-de-tareas-respuestas-a-la-revision-de-la-tabla-de-estados.md) |
 | 114 | 2026-10-29 | [La sección 2 de la metodología resume el flujo de tareas y remite a sf:flujo_tareas](114-2026-10-29-la-seccion-2-de-la-metodologia-resume-el-flujo-de-tareas-y-remite-a-sf-flujo-tareas.md) |
