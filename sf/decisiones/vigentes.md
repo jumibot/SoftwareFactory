@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 448 | 2026-11-28 | [Un diagrama lo pide un agente con contexto, que entrega lo que exige el contrato de la skill](448-2026-11-28-un-diagrama-lo-pide-un-agente-con-contexto-que-entrega-lo-que-exige-el-contrato-de-la-skill.md) |
 | 447 | 2026-11-28 | [Las interacciones con el exterior son entradas y salidas: una bolita sólida y la flecha directa](447-2026-11-28-las-interacciones-con-el-exterior-son-entradas-y-salidas-una-bolita-solida-y-la-flecha-directa.md) |
 | 446 | 2026-11-28 | [La etiqueta de un flujo va, preferentemente, cerca de su salida](446-2026-11-28-la-etiqueta-de-un-flujo-va-preferentemente-cerca-de-su-salida.md) |
 | 445 | 2026-11-28 | [Con dos carpetas abiertas, el carril entre ellas desaparece y cada flujo va de caja a caja](445-2026-11-28-con-dos-carpetas-abiertas-el-carril-entre-ellas-desaparece-y-cada-flujo-va-de-caja-a-caja.md) |
