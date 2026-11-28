@@ -1,0 +1,5 @@
+# Las uniones se resuelven carpeta a carpeta y carril a carril, primero de cada caja contra las otras carpetas
+
+Regla: el tercer nivel del dibujo (uniones, 442) se hace por partes. Se empieza por la primera carpeta y, dentro de ella, carril a carril: para cada carril se resuelve de qué caja de la carpeta sale cada uno de sus flujos y a qué caja de ella llega cada uno de los que entran. En este paso los flujos se resuelven de cada caja de una carpeta contra las otras carpetas (hasta su borde), no aún contra las cajas de dentro de la otra carpeta. Después se sigue con la carpeta siguiente, y cada carpeta se revisa antes de pasar a la otra.
+
+Porqué: mantener el procedimiento de arriba abajo también dentro del nivel de uniones: un carril y una carpeta cada vez, para que cada parte se pueda comprobar y no se mezcle la complejidad (norma del propietario, 28/11/2026, tarea 483).
