@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 437 | 2026-11-28 | [Entre dos carpetas basta un carril, y su etiqueta muestra la complejidad](437-2026-11-28-entre-dos-carpetas-basta-un-carril-y-su-etiqueta-muestra-la-complejidad.md) |
 | 436 | 2026-11-28 | [La vertical aprovecha el ancho del escritorio y en el móvil las cajas se ajustan a su contenido](436-2026-11-28-la-vertical-aprovecha-el-ancho-del-escritorio-y-en-el-movil-las-cajas-se-ajustan-a-su-contenido.md) |
 | 435 | 2026-11-28 | [El dibujo empieza por las carpetas colapsadas y después atiende los detalles](435-2026-11-28-el-dibujo-empieza-por-las-carpetas-colapsadas-y-despues-atiende-los-detalles.md) |
 | 434 | 2026-11-28 | [Claude abre las páginas conectadas con una herramienta del mod, siempre a través de sf_proxy](434-2026-11-28-claude-abre-las-paginas-conectadas-con-una-herramienta-del-mod-siempre-a-traves-de-sf-proxy.md) |
