@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 428 | 2026-11-28 | [El generador de diagramas decide por fases: carpetas, su contenido, los flujos y, al final, el dibujo](428-2026-11-28-el-generador-de-diagramas-decide-por-fases-carpetas-su-contenido-los-flujos-y-al-final-el-dibujo.md) |
 | 427 | 2026-11-27 | [Lo que pinta un diagrama lo decide el subagente de la tarea, sin condicionarlo](427-2026-11-27-lo-que-pinta-un-diagrama-lo-decide-el-subagente-de-la-tarea-sin-condicionarlo.md) |
 | 426 | 2026-11-27 | [El glosario de un diagrama es una referencia que inspira al dibujante, no una obligación](426-2026-11-27-el-glosario-de-un-diagrama-es-una-referencia-que-inspira-al-dibujante-no-una-obligacion.md) |
 | 425 | 2026-11-27 | [En una prueba piloto, la entrada de los dibujantes la escribe el agente que conoce el tema, y la referencia es lo único del principal](425-2026-11-27-en-una-prueba-piloto-la-entrada-de-los-dibujantes-la-escribe-el-agente-que-conoce-el-tema-y-la-referencia-es-lo-unico-del-principal.md) |
