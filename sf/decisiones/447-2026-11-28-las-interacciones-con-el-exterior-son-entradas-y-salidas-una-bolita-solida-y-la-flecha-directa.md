@@ -1,0 +1,5 @@
+# Las interacciones con el exterior son entradas y salidas: una bolita sólida y la flecha directa
+
+Regla: lo que viene de fuera del sistema o sale fuera (el usuario u otro elemento con una relación de uso con el sistema) no se dibuja como caja ni como carpeta. Cada entrada o salida es una bolita sólida, que representa la interfaz o conexión, y de ahí sale (o ahí llega) la flecha directa a la caja que la recibe (o de la que sale), con su etiqueta y, si hace falta, quién la origina. Las entradas y salidas se identifican al concretar, antes de empezar a generar: en los datos se marcan como tales, no como nodos ni zonas. El procedimiento por niveles no cambia: con la carpeta cerrada, la flecha llega a su borde (como un carril); desplegada, a su caja (444). En el flujo de audio de LupDub, ACCIONES deja de ser una carpeta y sus acciones pasan a ser entradas del usuario.
+
+Porqué: hay que distinguir lo que forma parte del sistema de las interacciones con lo de fuera; representarlas como una carpeta más mezcla las dos cosas y complica el dibujo, y con la bolita queda una carpeta menos y el diseño se simplifica (norma del propietario, 28/11/2026, tarea 483).
