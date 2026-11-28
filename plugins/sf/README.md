@@ -35,6 +35,8 @@ El color de las sesiones sale del primario del estilo del proyecto (`docs/identi
 
 La configuración se cambia con `/sf_config` (o pidiéndoselo a Claude): la skill `sf:configurar_proyecto` la enseña, pregunta qué cambiar con menús, pide el OK y lo aplica en `develop` con su commit, sin tarea. `tools/configuracion.py` (`ver` y `detectar`, solo lee) la comprueba y detecta las convenciones, para esa skill y para la incorporación.
 
+`tools/comprobar.py` comprueba cualquier proyecto en una orden y dos rondas: selecciona por lo que cubre cada test frente a develop, con caché por hash, y ejecuta a la vez lo seleccionado (pytest por archivo y en trozos; el resto, con el reparto de su runner), con un resumen de pocas líneas y el log en la carpeta temporal. Sus fuentes de tests son enchufables: hoy, la detección por el stack. `--todo --sin-cache`, la pasada completa antes de dejar una tarea lista para probar.
+
 Sin metodología, el panel no da fase ni lee `.sf/estado.json`. Un valor que no se entiende, o un remoto que no existe o no apunta a GitHub, sale en los avisos del panel.
 
 `.sf/estado.json`, fuera de git, guarda el estado en el método (solo con metodología):
