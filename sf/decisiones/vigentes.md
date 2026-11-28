@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 442 | 2026-11-28 | [Un diagrama se construye de arriba abajo, por niveles de abstracción, cada uno con sus reglas](442-2026-11-28-un-diagrama-se-construye-de-arriba-abajo-por-niveles-de-abstraccion-cada-uno-con-sus-reglas.md) |
 | 441 | 2026-11-28 | [Segundo paso del dibujo: el contenido de cada carpeta, solo con sus flujos internos](441-2026-11-28-segundo-paso-del-dibujo-el-contenido-de-cada-carpeta-solo-con-sus-flujos-internos.md) |
 | 440 | 2026-11-28 | [La carpeta cerrada enseña su descripción, y las etiquetas se colocan en el espacio libre sin agrandar el dibujo](440-2026-11-28-la-carpeta-cerrada-ensena-su-descripcion-y-las-etiquetas-se-colocan-en-el-espacio-libre-sin-agrandar-el-dibujo.md) |
 | 439 | 2026-11-28 | [El carril entre carpetas lleva una descripción de lo que pasa, y el número de flujos solo si cabe](439-2026-11-28-el-carril-entre-carpetas-lleva-una-descripcion-de-lo-que-pasa-y-el-numero-de-flujos-solo-si-cabe.md) |
