@@ -2,13 +2,13 @@
 antetitulo: Software Factory · Informe de investigación · Noviembre 2026
 lema: Lo caro no es lo que dicen los tests, // sino cuántas veces se lanzan.
 subtitulo: Dónde se van los tokens cuando un subagente testea su trabajo, en la SF y en otros proyectos, y cómo sería una orden del plugin que detecte los tests de cualquier proyecto, los lance y resuma.
-version: Versión 2.0 · 27/11/2026
-estado: Propuesta · Tarea 474
+version: Versión 2.1 · 28/11/2026
+estado: Decidido · Tarea 474
 destino: proyecto
 herramientas: buscador lectura cabecera tablas
 menu: secciones
 tipo: Informe de investigación
-pie: Informe de la tarea «Gastar menos tokens al probar, con una herramienta de Python que lo resuma» (474). Parte de 418 transcripciones de subagentes de la SF y 93 de otros siete proyectos del propietario (del 25/10 al 27/11/2026), de ejecuciones reales de cada comprobación en develop y de las skills crear_documentos, diagramas y orquestación. De los otros proyectos solo se usan cifras y el nombre de su stack. Espera la decisión del propietario de la Software Factory.
+pie: Informe de la tarea «Gastar menos tokens al probar, con una herramienta de Python que lo resuma» (474). Parte de 418 transcripciones de subagentes de la SF y 93 de otros siete proyectos del propietario (del 25/10 al 27/11/2026), de ejecuciones reales de cada comprobación en develop y de las skills crear_documentos, diagramas y orquestación. De los otros proyectos solo se usan cifras y el nombre de su stack. Decidido por el propietario de la Software Factory el 28/11/2026: la opción recomendada en las seis preguntas.
 ---
 # Testear con una sola orden
 
@@ -16,7 +16,7 @@ pie: Informe de la tarea «Gastar menos tokens al probar, con una herramienta de
 
 Testear el trabajo se lleva cerca de un tercio de lo que gastan los subagentes de la SF (el 29 % del contexto que releen, en 418 subagentes de este mes) y entre el 1 % y el 9 % en los otros proyectos del propietario (4,7 % en conjunto, en 93 subagentes). Casi nada de ese gasto está en lo que dicen los tests: los subagentes ya recortan las salidas, y lo que leen de todas las comprobaciones juntas no llega al 6 % del texto que reciben. Lo caro es **cuántas llamadas hacen**: cada orden es un turno, y en cada turno el subagente relee todo lo que lleva, unos 137.000 tokens de media en la SF. La mediana es parecida en todos los proyectos: 6 llamadas de test por subagente en la SF y 7 en los demás (16 o más el 10 % que más, 26 como mucho fuera de la SF). Lo que cambia es qué se lanza: en la SF, tests de Python y del plugin; en los otros proyectos, sobre todo comprobaciones de documentos y capturas con Playwright (el 90 % de sus llamadas), y casi ningún test de código (17 llamadas de 271).
 
-Se propone una orden del plugin, `comprobar.py`, que sirve a cualquier proyecto bajo la SF y que el subagente lanza **una vez por vuelta**. Sabe qué tests tiene el proyecto porque detecta su stack (pytest, npm o pnpm test con vitest o jest, cargo test, go test, dotnet test, Playwright, tsc, eslint…) y, cuando eso no basta, lee una declaración del proyecto en `.sf/`. Además aprende: cada comprobación que lanza queda registrada en el proyecto (comando, duración, qué cubre, si se puede partir), y con ese registro sabe qué tests hay, también los que nadie declaró, y puede lanzarlos todos o solo los que tocan lo cambiado. Después hace lo mismo en todos, en dos rondas dentro de la misma orden. Primera ronda, seleccionar, de forma determinista: están registrados todos los tests y cada uno dice qué archivos cubre; se salta solo el que ninguno de los archivos cambiados toca (o cuya caché por hash coincide), y el que no declara qué cubre corre siempre, así que ninguno se queda olvidado. Segunda ronda, ejecutar a la vez lo seleccionado y devolver unas pocas líneas, con el detalle de lo que falla y la salida entera en un log. Lo que depende del stack (cómo se lanza en paralelo, cómo se filtra por lo cambiado, cómo se resume) vive en un detector por stack. La SF es un caso más: sus reglas son su declaración. Quitaría alrededor de dos tercios de ese gasto, según cuántas llamadas sueltas queden; en la SF, la suite entera baja de unos 7 minutos a unos 2½.
+Se hará una orden del plugin, `comprobar.py`, que sirve a cualquier proyecto bajo la SF y que el subagente lanza **una vez por vuelta**. Sabe qué tests tiene el proyecto porque detecta su stack (pytest, npm o pnpm test con vitest o jest, cargo test, go test, dotnet test, Playwright, tsc, eslint…) y, cuando eso no basta, lee una declaración del proyecto en `.sf/`. Además aprende: cada comprobación que lanza queda registrada en el proyecto (comando, duración, qué cubre, si se puede partir), y con ese registro sabe qué tests hay, también los que nadie declaró, y puede lanzarlos todos o solo los que tocan lo cambiado. Después hace lo mismo en todos, en dos rondas dentro de la misma orden. Primera ronda, seleccionar, de forma determinista: están registrados todos los tests y cada uno dice qué archivos cubre; se salta solo el que ninguno de los archivos cambiados toca (o cuya caché por hash coincide), y el que no declara qué cubre corre siempre, así que ninguno se queda olvidado. Segunda ronda, ejecutar a la vez lo seleccionado y devolver unas pocas líneas, con el detalle de lo que falla y la salida entera en un log. Lo que depende del stack (cómo se lanza en paralelo, cómo se filtra por lo cambiado, cómo se resume) vive en un detector por stack. La SF es un caso más: sus reglas son su declaración. Quitaría alrededor de dos tercios de ese gasto, según cuántas llamadas sueltas queden; en la SF, la suite entera baja de unos 7 minutos a unos 2½.
 
 Los dos esquemas siguientes tienen la misma forma y escala para compararlos de un vistazo: primero cómo se testea hoy, después cómo sería con la orden.
 
@@ -24,9 +24,9 @@ Los dos esquemas siguientes tienen la misma forma y escala para compararlos de u
 
 ![](diagramas/comprobar-una-orden.diagrama)
 
-Quedan seis preguntas: qué hace la orden, cómo conoce los tests de cada proyecto (detectándolos, declarándolos o aprendiéndolos al lanzarlos), cuándo se fía de lo ya comprobado, qué pasa con las capturas, cómo se pide usarla y qué hacer con los tests lentos.
+El propietario ha decidido las seis preguntas, con la opción recomendada en todas: qué hace la orden, cómo conoce los tests de cada proyecto (los declara, los aprende al lanzarlos y los detecta), cuándo se fía de lo ya comprobado, qué pasa con las capturas, cómo se pide usarla y qué hacer con los tests lentos. No queda ninguna abierta, y salen cuatro tareas.
 
-[Ver las seis preguntas](#por-decidir){: .salto}
+[Ver lo decidido](#decidido){: .salto} [Ver las cuatro tareas](#tareas){: .salto}
 
 ## Gasto | Dónde se van los tokens al testear | El gasto {#gasto}
 
@@ -212,7 +212,7 @@ Idea del propietario: que se lancen todos los tests registrados y que cada test 
 
 **Con la pasada completa.** Antes de dejar la tarea lista para probar, `comprobar.py --todo --sin-cache` lanza todos los tests sin seleccionar ni fiarse de la caché, y es donde se aprende `cubre`. Además hace de red de seguridad: si un test que la selección se habría saltado falla en la pasada completa, la orden lo dice («`cubre` incompleto en este test») y propone ampliarlo.
 
-**El problema serio y su salida.** El riesgo de este diseño es un `cubre` demasiado estrecho: un test que debería haberse ejecutado y se salta, justo lo que el propietario quiere evitar. Lo cubren tres cosas: lo desconocido corre, lo aprendido se mide en vez de suponerse y la pasada completa antes de cerrar lo atrapa. Lo que no cubre es el tiempo entre dos pasadas completas, en que un fallo puede esperar a la pasada final; por eso las rondas de cada vuelta sirven para avisar pronto y no sustituyen a la pasada final. Si el propietario prefiere cero riesgo, la alternativa es lanzar siempre todo y quedarse solo con la caché (opción B de la [pregunta 3](#p3)), que ahorra menos.
+**El problema serio y su salida.** El riesgo de este diseño es un `cubre` demasiado estrecho: un test que debería haberse ejecutado y se salta, justo lo que el propietario quiere evitar. Lo cubren tres cosas: lo desconocido corre, lo aprendido se mide en vez de suponerse y la pasada completa antes de cerrar lo atrapa. Lo que no cubre es el tiempo entre dos pasadas completas, en que un fallo puede esperar a la pasada final; por eso las rondas de cada vuelta sirven para avisar pronto y no sustituyen a la pasada final. Lanzar siempre todo y quedarse solo con la caché, sin riesgo pero con menos ahorro, era la opción B de la [pregunta 3](#p3); el propietario eligió la A.
 
 ### Una orden de Python o una herramienta del mod {#tool}
 
@@ -302,24 +302,32 @@ Lo propio de la SF es que tiene la suite más pesada de todos los proyectos medi
 
 ## Alternativas | Lo que se valoró | Alternativas {#alternativas}
 
-Las otras formas de gastar menos dejan sin tocar lo que más pesa, el número de llamadas, o lo tocan a cambio de algo peor. La orden propuesta es la única que baja a la vez las llamadas, las esperas en segundo plano y las salidas largas, sirve a todos los proyectos y se apoya en algo que la SF ya decidió para la cola: juntar en una orden lo que antes eran varias («Sin subagente de la cola: órdenes compuestas…», 284).
+Las otras formas de gastar menos dejan sin tocar lo que más pesa, el número de llamadas, o lo tocan a cambio de algo peor. La orden elegida es la única que baja a la vez las llamadas, las esperas en segundo plano y las salidas largas, sirve a todos los proyectos y se apoya en algo que la SF ya decidió para la cola: juntar en una orden lo que antes eran varias («Sin subagente de la cola: órdenes compuestas…», 284).
 
 | Alternativa | A favor | En contra |
 | --- | --- | --- |
-| La orden `comprobar.py` con detección y declaración (propuesta) | Una llamada por vuelta en cualquier proyecto; elige, salta lo ya pasado y no pasa a segundo plano | Código que mantener; los detectores y las reglas de qué mira cada comprobación pueden quedarse cortos |
+| La orden `comprobar.py` con detección y declaración (la elegida) | Una llamada por vuelta en cualquier proyecto; elige, salta lo ya pasado y no pasa a segundo plano | Código que mantener; los detectores y las reglas de qué mira cada comprobación pueden quedarse cortos |
 | Una orden que solo junta y resume lo que se le pide | Más sencilla, sin reglas ni caché | El subagente sigue eligiendo qué lanzar y repite lo que ya pasó |
 | Solo reglas en el encargo («una orden compuesta, con `-q` y `tail`») | Sin código | Ya se hace en buena parte; depende de la memoria y no quita las esperas |
 | Un hook que recorte las salidas largas | Automático, sin cambiar los encargos | Las salidas ya son cortas; no baja las llamadas, que es lo caro |
 | Un subagente barato que testee y resuma | Su contexto es pequeño | Lanzarlo y esperarlo cuesta turnos del que lo llama; el fallo llega de segunda mano |
 | `pytest-xdist` para la suite | Paraleliza sin escribir nada | Una dependencia más en cada equipo; solo acelera pytest, no los demás stacks |
 
-## Por decidir | Lo que queda por decidir | Por decidir {#por-decidir}
+## Decidido | Lo que decidió el propietario | Decidido {#decidido}
 
-Seis preguntas, de la más importante a la menos. La primera decide si se hace la orden; las demás, cómo. Cada una se entiende sola, partiendo de lo que ves hoy.
+El propietario eligió la opción recomendada en las seis preguntas, y quedó registrado en una sola decisión.
+
+| Nº | Decisión | Qué fija aquí |
+| --- | --- | --- |
+| 430 | Una orden del plugin comprueba cualquier proyecto: selecciona en una ronda, ejecuta en otra y resume | Las seis preguntas, opción A: la orden en dos rondas ([1](#p1)); tres fuentes de tests, declarados, vistos y detectados ([2](#p2)); selección por lo que cubre cada test, con caché y pasada completa final ([3](#p3)); capturas solo si hacen falta ([4](#p4)); el encargo lo exige ([5](#p5)); reparto del runner o shards ([6](#p6)) |
+
+## Preguntas | Las seis preguntas, decididas | Preguntas {#por-decidir}
+
+Seis preguntas, de la más importante a la menos, todas decididas con la opción A. La primera decidía si se hace la orden; las demás, cómo.
 
 ::: preguntas 2 plegables
 
-### 1 · Qué hace la orden nueva de comprobar {recomendada=A} {: #p1}
+### 1 · Qué hace la orden nueva de comprobar {recomendada=A estado=decidida elegida=A} {: #p1}
 
 Hoy, en cualquier proyecto, al acabar cada vuelta el subagente lanza a mano entre cuatro y veinte órdenes de test o de comprobación, una por turno, y en cada turno relee todo su contexto. Hay que elegir hasta dónde llega la herramienta nueva.
 
@@ -335,7 +343,10 @@ Opción C
 Recomendación
 :   **A.** Es la única que quita llamadas y esperas, que es donde está el gasto; B y C dejan al subagente decidiendo y repitiendo.
 
-### 2 · Cómo sabe la orden qué tests tiene cada proyecto {recomendada=A} {: #p2}
+Decisión
+:   **A**: una orden del plugin que selecciona en una ronda y ejecuta a la vez en otra, con pocas líneas de resumen; una sola por vuelta, en cualquier proyecto (decisión 430).
+
+### 2 · Cómo sabe la orden qué tests tiene cada proyecto {recomendada=A estado=decidida elegida=A} {: #p2}
 
 Cada proyecto testea a su manera: pytest, npm test, cargo test, Playwright, o las órdenes de documentos de la SF. Hoy el subagente lo averigua leyendo el proyecto y lo lanza como puede, y nadie anota lo que lanza. La orden tiene que conocerlo, y qué cubre cada test, sin que nadie lo reescriba cada vez; el propietario propone, además, que la SF aprenda los tests al lanzarlos.
 
@@ -351,7 +362,10 @@ Opción C
 Recomendación
 :   **A.** Detectar arranca en frío y encuentra lo que nadie ha lanzado; lo visto añade lo que la detección no ve y los tiempos reales; y declarar manda cuando hace falta. Cada una por separado tiene un hueco que las otras dos tapan.
 
-### 3 · Qué tests se saltan {recomendada=A} {: #p3}
+Decisión
+:   **A**: tres fuentes, por prioridad: lo declarado en `.sf/comprobar.json`, lo visto lanzar en `.sf/comprobaciones-vistas.json`, con su duración, y lo detectado por el stack (decisión 430).
+
+### 3 · Qué tests se saltan {recomendada=A estado=decidida elegida=A} {: #p3}
 
 Hoy el subagente decide a ojo qué lanzar y repite comprobaciones aunque no haya cambiado nada desde que pasaron (un documento se comprueba 3 o 4 veces por tarea en la SF); otras veces se deja un test sin lanzar. La orden puede decidirlo de forma determinista: se registran todos los tests, cada uno dice qué archivos cubre, y en la ronda de selección se salta el que ningún archivo cambiado toca o el que, tocándolo, tiene el mismo hash que la última vez que pasó. El riesgo es que lo que un test dice cubrir se quede corto y se salte uno que hacía falta.
 
@@ -367,7 +381,10 @@ Opción C
 Recomendación
 :   **A.** Es determinista (los mismos archivos dan siempre la misma lista), no deja olvidos porque lo desconocido corre, y la pasada completa final atrapa un `cubre` que se quedara corto; B ahorra menos y C no ahorra las repeticiones.
 
-### 4 · Qué hace el subagente con las capturas de pantalla {recomendada=A} {: #p4}
+Decisión
+:   **A**: selección determinista por lo que cubre cada test, más la caché por hash; un test sin declaración corre siempre, y antes de dejar la tarea lista para probar, una pasada completa sin selección ni caché (decisión 430).
+
+### 4 · Qué hace el subagente con las capturas de pantalla {recomendada=A estado=decidida elegida=A} {: #p4}
 
 Además de las comprobaciones automáticas, muchos subagentes sacan capturas con Playwright y las miran: cada imagen son unos 1.500 tokens que se quedan en el contexto (583 en la SF este mes, unas 8 por subagente que las usa; 89 llamadas de Playwright en los otros proyectos).
 
@@ -383,7 +400,10 @@ Opción C
 Recomendación
 :   **A.** Quita las capturas de costumbre sin dejar a ciegas un cambio de aspecto, que la comprobación no juzga.
 
-### 5 · Cómo se pide al subagente que la use {recomendada=A} {: #p5}
+Decisión
+:   **A**: solo si el cambio es visual o la comprobación avisa de algo que no sabe medir, en una sola imagen que saca la orden (decisión 430).
+
+### 5 · Cómo se pide al subagente que la use {recomendada=A estado=decidida elegida=A} {: #p5}
 
 La orden solo ahorra si se usa en lugar de las sueltas, y hoy cada subagente sigue su costumbre. Lo único que leen todos los subagentes, en cualquier proyecto, es el encargo que les escribe el agente principal.
 
@@ -396,7 +416,10 @@ Opción B
 Recomendación
 :   **A.** Sin decirlo en el encargo, cada subagente seguiría con su costumbre.
 
-### 6 · Qué hacer con los tests lentos {recomendada=A} {: #p6}
+Decisión
+:   **A**: el encargo lo exige: una llamada al acabar cada vuelta, con el plazo de 10 minutos; las sueltas, solo para depurar; y su línea «Comprobado: …» pasa tal cual al informe (decisión 430).
+
+### 6 · Qué hacer con los tests lentos {recomendada=A estado=decidida elegida=A} {: #p6}
 
 Un proyecto con muchos tests tarda más que el plazo de una orden y el subagente los deja en segundo plano y los vigila con más turnos. En la SF, la suite de Python seguida tarda 6 minutos; casi todo es de los tests de la cola y de un test de diagramas que pasa cada tema (67 s solo). La mayoría de los runners de otros stacks (vitest, jest, cargo, go) ya reparten solos; pytest no.
 
@@ -412,18 +435,21 @@ Opción C
 Recomendación
 :   **A.** Sirve a cualquier stack sin instalar nada; con los shards, el techo de la SF es `claude plugin test`, y acelerar el test de los temas no bajaría el total.
 
+Decisión
+:   **A**: el reparto del runner cuando lo tiene y shards por archivo cuando no (decisión 430).
+
 :::
 
 ## Tareas | Las tareas que salen | Tareas {#tareas}
 
-Si el propietario elige lo recomendado, salen cuatro tareas, en este orden. La primera lleva las preguntas [1](#p1), [2](#p2), [3](#p3) y [6](#p6); la tercera, [4](#p4) y [5](#p5).
+Salen cuatro tareas, en este orden, que aplican la decisión 430. La primera lleva lo decidido en las preguntas [1](#p1), [3](#p3) y [6](#p6); la segunda, la [2](#p2); la tercera, la [4](#p4) y la [5](#p5); la cuarta pone al día los documentos.
 
 | Tarea | Tipo | Qué hace |
 | --- | --- | --- |
-| Comprobar con una sola orden: selecciona en una ronda, ejecuta a la vez en otra y resume | Desarrollo | Crea `comprobar.py` en el plugin, con la detección de stacks y su reparto, la selección por lo que cubre cada test (con la medición de cobertura en la pasada completa), el registro de lo lanzado, la caché por hash, los shards, el log y sus tests; verifica las opciones de cada runner en proyectos reales; al mes, vuelve a medir el gasto con el mismo método |
-| Declarar y registrar las comprobaciones de cada proyecto | Desarrollo | `.sf/comprobar.json` (a mano, con `cubre` por test) y `.sf/comprobaciones-vistas.json` (lo aprendido al lanzar, en `.gitignore`); la incorporación y «poner al día» proponen la declaración a partir de lo detectado; la SF declara las suyas |
-| El encargo y las skills de documentos comprueban con la orden nueva | Desarrollo | Cambia la línea de comprobar del encargo (orquestación) y la «Comprobación» de crear_documentos y diagramas |
-| Actualizar el arranque y «Cómo se desarrolla la Software Factory» | Documental | Pone en ambos la orden nueva en lugar de las tres sueltas (texto propuesto en el anexo) |
+| Testear con una sola orden por vuelta, que elige, lanza a la vez y resume | Desarrollo | Crea `comprobar.py` en el plugin, con la detección de stacks y su reparto, la selección por lo que cubre cada test (con la medición de cobertura en la pasada completa), el registro de lo lanzado, la caché por hash, los shards, el log y sus tests; verifica las opciones de cada runner en proyectos reales; al mes, vuelve a medir el gasto con el mismo método |
+| Que la orden sepa qué tests tiene cada proyecto sin escribirlos cada vez | Desarrollo | `.sf/comprobar.json` (a mano, con `cubre` por test) y `.sf/comprobaciones-vistas.json` (lo aprendido al lanzar, en `.gitignore`); la incorporación y «poner al día» proponen la declaración a partir de lo detectado; la SF declara las suyas |
+| Que cada subagente compruebe con la orden y saque capturas solo cuando hacen falta | Desarrollo | Cambia la línea de comprobar del encargo (orquestación) y la «Comprobación» de crear_documentos y diagramas, con la regla de las capturas |
+| Actualizar el arranque y «Cómo se desarrolla la Software Factory», para que digan cómo se comprueba con la orden | Documental | Pone en ambos la orden nueva en lugar de las tres sueltas, cuando exista (texto propuesto en el anexo; el del arranque, con el OK del propietario) |
 
 ## Anexo · Cómo se midió | Método y límites | Medida {#medicion}
 
