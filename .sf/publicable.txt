@@ -2,3 +2,6 @@
 D:\Projectes\Contador/
 D:\\Projectes\\Contador/
 /home/Año
+
+# Ruta de log ya anonimizada en el informe de la 474 y sus respaldos: el usuario va tapado con «…» (OK del propietario, 28/11/2026)
+C:\Users\…\Temp\sf-comprobar\
