@@ -1,0 +1,5 @@
+# El generador que solo dibuja: proceso y estados primero, bloques cerrados si no cabe, migrar los diagramas y orientación fuera de los datos
+
+Regla, para aplicar la decisión 428: (1) se empieza por los diagramas de proceso y de estados; arquitectura, piezas y los demás tipos no se tocan por ahora; (2) si a una anchura no cabe el dibujo con todo abierto, esa anchura enseña los bloques cerrados y cada uno se abre en su sitio; solo es un error de la skill que una carpeta no quepa ni sola; (3) las marcas de colocación de los diagramas que ya hay (lado, izquierda, salida, una-columna, anillo, columnas) se aceptan como alias obsoletos con aviso, sin efecto, y los diagramas se migran en la misma tarea; (4) la orientación sale de los datos: la decide el generador en cada anchura y el lector puede cambiarla en la página.
+
+Porqué: son las recomendaciones del subagente de la tarea 401 al rehacer el generador en el marco de la decisión 428; el propietario las aceptó (norma del propietario, 28/11/2026).
