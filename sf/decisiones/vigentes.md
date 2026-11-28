@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 438 | 2026-11-28 | [Esqueleto de carpetas: por capas, recursivo, vista cerrada en todos los tipos, aviso por vista y una sola vertical](438-2026-11-28-esqueleto-de-carpetas-por-capas-recursivo-vista-cerrada-en-todos-los-tipos-aviso-por-vista-y-una-sola-vertical.md) |
 | 437 | 2026-11-28 | [Entre dos carpetas basta un carril, y su etiqueta muestra la complejidad](437-2026-11-28-entre-dos-carpetas-basta-un-carril-y-su-etiqueta-muestra-la-complejidad.md) |
 | 436 | 2026-11-28 | [La vertical aprovecha el ancho del escritorio y en el móvil las cajas se ajustan a su contenido](436-2026-11-28-la-vertical-aprovecha-el-ancho-del-escritorio-y-en-el-movil-las-cajas-se-ajustan-a-su-contenido.md) |
 | 435 | 2026-11-28 | [El dibujo empieza por las carpetas colapsadas y después atiende los detalles](435-2026-11-28-el-dibujo-empieza-por-las-carpetas-colapsadas-y-despues-atiende-los-detalles.md) |
