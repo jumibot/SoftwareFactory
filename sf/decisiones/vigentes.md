@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 433 | 2026-11-28 | [Las viñetas que dependen de otra van un nivel más adentro](433-2026-11-28-las-vinetas-que-dependen-de-otra-van-un-nivel-mas-adentro.md) |
 | 432 | 2026-11-28 | [Las viñetas de un off-topic van separadas por una línea vacía, también antes de la primera](432-2026-11-28-las-vinetas-de-un-off-topic-van-separadas-por-una-linea-vacia.md) |
 | 431 | 2026-11-28 | [Las carpetas son concepto: se dibujan en horizontal y en vertical; si la horizontal no cabe, se ve con scroll lateral](431-2026-11-28-las-carpetas-son-concepto-se-dibujan-en-horizontal-y-en-vertical-si-la-horizontal-no-cabe-se-ve-con-scroll-lateral.md) |
 | 430 | 2026-11-28 | [Una orden del plugin comprueba cualquier proyecto: selecciona en una ronda, ejecuta en otra y resume](430-2026-11-28-una-orden-del-plugin-comprueba-cualquier-proyecto-selecciona-en-una-ronda-ejecuta-en-otra-y-resume.md) |
