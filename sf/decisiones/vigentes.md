@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 435 | 2026-11-28 | [El dibujo empieza por las carpetas colapsadas y después atiende los detalles](435-2026-11-28-el-dibujo-empieza-por-las-carpetas-colapsadas-y-despues-atiende-los-detalles.md) |
 | 434 | 2026-11-28 | [Claude abre las páginas conectadas con una herramienta del mod, siempre a través de sf_proxy](434-2026-11-28-claude-abre-las-paginas-conectadas-con-una-herramienta-del-mod-siempre-a-traves-de-sf-proxy.md) |
 | 433 | 2026-11-28 | [Las viñetas que dependen de otra van un nivel más adentro](433-2026-11-28-las-vinetas-que-dependen-de-otra-van-un-nivel-mas-adentro.md) |
 | 432 | 2026-11-28 | [Las viñetas de un off-topic van separadas por una línea vacía, también antes de la primera](432-2026-11-28-las-vinetas-de-un-off-topic-van-separadas-por-una-linea-vacia.md) |
