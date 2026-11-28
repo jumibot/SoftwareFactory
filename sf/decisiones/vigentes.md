@@ -4,6 +4,7 @@ Las decisiones que se aplican, la más reciente arriba. Las superadas están en 
 
 | Nº | Fecha | Decisión |
 | --- | --- | --- |
+| 432 | 2026-11-28 | [Las viñetas de un off-topic van separadas por una línea vacía](432-2026-11-28-las-vinetas-de-un-off-topic-van-separadas-por-una-linea-vacia.md) |
 | 431 | 2026-11-28 | [Las carpetas son concepto: se dibujan en horizontal y en vertical; si la horizontal no cabe, se ve con scroll lateral](431-2026-11-28-las-carpetas-son-concepto-se-dibujan-en-horizontal-y-en-vertical-si-la-horizontal-no-cabe-se-ve-con-scroll-lateral.md) |
 | 430 | 2026-11-28 | [Una orden del plugin comprueba cualquier proyecto: selecciona en una ronda, ejecuta en otra y resume](430-2026-11-28-una-orden-del-plugin-comprueba-cualquier-proyecto-selecciona-en-una-ronda-ejecuta-en-otra-y-resume.md) |
 | 429 | 2026-11-28 | [El generador que solo dibuja: proceso y estados primero, bloques cerrados si no cabe, migrar los diagramas y orientación fuera de los datos](429-2026-11-28-el-generador-que-solo-dibuja-proceso-y-estados-primero-bloques-cerrados-si-no-cabe-migrar-los-diagramas-y-orientacion-fuera-de-los-datos.md) |
