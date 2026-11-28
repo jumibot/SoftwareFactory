@@ -1,0 +1,5 @@
+# El generador de diagramas decide por fases: carpetas, su contenido, los flujos y, al final, el dibujo
+
+Regla: el generador de la skill de diagramas trabaja en cuatro fases, cada una sobre lo que decidió la anterior y sin deshacerla: (1) decidir las carpetas (los bloques que eligió el dibujante, cada uno una vez, y cómo se colocan entre sí); (2) decidir todo lo que va dentro de cada carpeta (el orden y la colocación de sus cajas); (3) decidir los flujos (por dónde va cada flecha, dentro de una carpeta y entre carpetas, también las de ida y vuelta); (4) dibujarlo lo mejor posible en cada anchura. Una fase posterior no cambia lo que decidió una anterior para que algo quepa: si no se puede, el fallo es de la skill.
+
+Porqué: en el piloto de la tarea 401 con un esquema de la tarea 475, el generador colocaba las cajas por el orden del recorrido y luego ponía las carpetas alrededor; con flujos de ida y vuelta repetía carpetas o daba errores de vueltas largas, y el dibujante acababa cambiando unos bloques por actor, más acertados, por otros que cupieran (norma del propietario, 28/11/2026).
