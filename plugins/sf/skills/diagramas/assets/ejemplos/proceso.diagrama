@@ -25,3 +25,10 @@ fichas:
   ff: main pasa a ser develop, sin merge, con el tag vX.Y.Z.
   push: Las dos ramas y el tag, al remoto.
   no: No sube la versión ni toca main; dice cómo arreglarlo.
+recorrido:
+  eleg: El propietario pulsa RELEASE y elige patch, minor o major.
+  eleg > dec: Antes de tocar nada, comprueba que todo está en orden.
+  dec > no: Si algo falla, se para aquí y dice qué falta: no se publica a medias.
+  dec > ver: Si está en orden, sube la versión de los manifiestos en develop.
+  ff: main pasa a ser develop sin merge, con su tag: lo publicado es exactamente lo probado.
+  push: Las dos ramas y el tag llegan al remoto; los proyectos ya pueden actualizar.

@@ -1,0 +1,92 @@
+objetivo: Que el propietario, antes de leer «Lo que hay hoy» y el diseño, vea de una ojeada el recorrido completo de lo que pasa al pulsar «Enviar» en la página: por dónde va la petición hasta llegar al chat como un mensaje suyo, dónde se comprueba que vale, y por dónde vuelve a la página el estado de lo enviado. Es el mapa que resume el informe; el detalle (rutas, cabeceras, seguridad añadida) queda para el texto.
+
+concepto: Una ida y vuelta entre la página y el chat, con sf_proxy como única puerta. La ida: la página abierta por la SF manda su petición con el token de esa apertura y un número nuevo; sf_proxy la acepta o la rechaza en ese punto (sin token válido o con número repetido, no pasa), escribe una línea para el mod, y el mod la pone en el chat como mensaje del propietario, donde el principal la registra. La vuelta: como al hijo no se le puede escribir después de arrancar, el mod le devuelve el acuse por otra vía (una llamada a sf_proxy con su propia clave), y la página lo recoge preguntando cada pocos segundos y enseña el estado en cada ficha. Detalle medio: los cinco o seis actores y los pasos del recorrido con su nombre corto, la comprobación como un único punto de control, y la asimetría de los dos canales (ida por la salida del hijo, vuelta por petición al servidor). Sin rutas concretas, sin las comprobaciones de seguridad una a una, sin el registro previo de la página ni el caso sin servidor más allá, si acaso, de una nota.
+
+puntos-clave:
+  Todo pasa por sf_proxy, en 127.0.0.1 y de una sola sesión: la página nunca habla con el mod ni con Claude directamente. | proxy
+  La página que envía es una página abierta por la SF y servida por sf_proxy, con un token nuevo en esa apertura. | env
+  El punto de control está en sf_proxy: token válido y número de petición nuevo; si no, se rechaza y no llega a nadie. | ctl > rech
+  De sf_proxy al mod, una línea por petición aceptada (la salida del proceso hijo); el mod la convierte en mensaje del propietario con encargarAClaude. | lin > chat
+  En el chat el mensaje espera a que Claude acabe su turno; tras un Esc queda escrito en el prompt para enviarlo con Intro. | chat
+  El principal lo trata como cualquier mensaje del propietario: registra las respuestas en el informe y en las decisiones. | reg
+  La vuelta va por otro camino: el mod manda el acuse a sf_proxy con su clave, y la página lo consulta cada pocos segundos. | chat > guard > est
+  La página enseña el estado de cada ficha según ese acuse: enviada, en el chat, escrita en tu prompt (y, por la 419, avisos y la pregunta que pasa a decidida). | est
+modulos-clave: pag, proxy, cc, env, ctl, rech, lin, chat, reg, guard, est
+interconexiones-clave:
+  env > ctl
+  ctl > lin > chat
+  chat > reg
+  chat > guard > est
+decisiones: ctl
+actores: propietario, página del informe, sf_proxy, mod de la SF, chat de la sesión, principal
+glosario:
+  sf_proxy | servidor local que el mod de la SF lanza como proceso hijo, solo en 127.0.0.1 y para una sola sesión de Claude; sirve las páginas interactivas y atiende sus peticiones
+  front | la interfaz propia de cada documento con preguntas; el informe deliberativo es el primero
+  token | clave aleatoria que la página recibe en cada apertura por la SF; sin uno válido, sf_proxy no atiende
+  número de petición | contador creciente que la página pone en cada petición; sf_proxy rechaza uno repetido o anterior
+  encargarAClaude | función del mod que pone un texto en el chat como mensaje del propietario ($.prompt.submit)
+  acuse | estado de una petición (enviada, en el chat, en el prompt, no entregada) que el mod devuelve a sf_proxy y la página consulta
+  línea del hijo | lo que sf_proxy escribe en su salida por cada petición aceptada y el mod lee; es el único canal de ida hacia el mod
+  127.0.0.1 | dirección local que no sale del ordenador
+
+tipo: proceso
+titulo: Cómo viaja una respuesta desde la página
+descripcion: La ida va de la página al chat por la línea del hijo; la vuelta, del mod a la página por otro camino. Las dos pasan por sf_proxy.
+pie: SF · FRONT | IDA Y VUELTA
+foco: ctl
+opciones: orientacion=vertical, abiertos
+nodos:
+  env: Enviar las respuestas | el propietario, con el token
+  ctl: ¿Token y número valen? | dec
+  rech: Rechazar la petición | acaba ahí: no llega a nadie
+  lin: Avisar al mod | una línea por la salida del hijo
+  chat: Poner el mensaje en el chat | el mod; espera al fin del turno
+  reg: Registrar las respuestas | el principal, en informe y decisiones
+  guard: Guardar el acuse | el mod lo manda con su clave
+  est: Enseñar el estado | la página, cada pocos segundos
+zonas:
+  pag: PÁGINA DEL INFORME | env, est
+  proxy: SF_PROXY · LOCAL | ctl, rech, lin, guard
+  cc: SESIÓN DE CLAUDE CODE | chat, reg
+flechas:
+  inicio > env
+  env > ctl: PETICIÓN | flujo cauce=ida
+  ctl > rech: NO | rojo
+  ctl > lin: SÍ | flujo cauce=ida
+  lin > chat: LÍNEA DEL HIJO | flujo cauce=ida
+  chat > reg | flujo cauce=ida
+  chat > guard: ACUSE | discontinua cauce=vuelta
+  guard > est: CONSULTA | discontinua cauce=vuelta
+fichas:
+  env: La página la abre la SF y la sirve sf_proxy, con un token nuevo en cada apertura.
+    - la página numera cada petición con un número creciente
+    - no habla nunca con el mod ni con Claude: solo con sf_proxy
+  ctl: El único punto de control, en sf_proxy.
+    - SÍ: token válido de esta apertura y número de petición nuevo
+    - NO (rojo): sin token válido, o con un número repetido o anterior
+  rech: La petición se queda en sf_proxy: no llega al mod ni al chat.
+  lin: sf_proxy escribe una línea en su salida por cada petición aceptada; el mod la lee.
+    - es el único canal de ida hacia el mod
+    - codigo: sf_proxy: 127.0.0.1, proceso hijo de una sola sesión
+  chat: El mod la convierte en mensaje del propietario.
+    - codigo: encargarAClaude
+    - espera a que Claude acabe su turno
+    - tras un Esc, queda escrita en el prompt para enviarla con Intro
+  reg: El principal la trata como cualquier mensaje del propietario.
+    - claude: registra las respuestas en el informe y en las decisiones
+  guard: La vuelta va por otro camino: al hijo no se le puede escribir después de arrancar, así que el mod llama a sf_proxy con su propia clave.
+    - ACUSE: enviada, en el chat, en el prompt o no entregada
+  est: La página pregunta a sf_proxy cada pocos segundos y enseña el estado en cada ficha.
+    - enviada, en el chat o escrita en tu prompt
+    - por la decisión 419, también los avisos y la pregunta que pasa a decidida
+recorrido:
+  env: El propietario elige en las fichas y pulsa «Enviar»; la página manda la petición con su token y un número nuevo.
+  env > ctl: La petición solo puede ir a sf_proxy: la página no habla con nadie más.
+  ctl: sf_proxy mira el token y el número; es el único punto de control.
+  ctl > rech: Sin token válido o con número repetido, se rechaza y no llega a nadie.
+  ctl > lin: Si vale, sigue hacia el mod.
+  lin > chat: sf_proxy escribe una línea en su salida y el mod la lee: es la ida.
+  chat: El mod pone el mensaje en el chat como del propietario; espera al fin del turno o queda en el prompt tras un Esc.
+  reg: El principal registra las respuestas en el informe y en las decisiones.
+  chat > guard: Al hijo no se le puede escribir: el mod devuelve el acuse con una llamada a sf_proxy, con su clave.
+  guard > est: La página pregunta cada pocos segundos y enseña en cada ficha el estado de lo enviado.

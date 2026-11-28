@@ -90,7 +90,7 @@
   const t = herramienta('diagramas', 'Diagramas', 'Diagramas',
     '<div class="herr-lectura dg-ajustes"><div class="dg-acciones"><button type="button" class="lc-tablas" data-dg-poner="def">Por defecto</button>' +
     '<button type="button" class="lc-tablas" data-dg-poner="orig">Como el original</button></div>' + GRUPOS.map(grupo).join('') +
-    `<p class="lc-ayuda">Vale para las ${figs.length === 1 ? 'figura' : figs.length + ' figuras'} del documento. Se recuerda en este navegador, para este documento.</p></div>`);
+    `<p class="lc-ayuda">Vale para ${figs.length === 1 ? 'la figura' : 'las ' + figs.length + ' figuras'} del documento. Se recuerda en este navegador, para este documento.</p></div>`);
   // Los grupos empiezan plegados; el que abra el lector se recuerda, como los ajustes («Por defecto» no los toca).
   const CLAVE_G = 'documento-diagramas-grupos:' + ruta;
   const abiertos = leer(CLAVE_G, []) || [];
@@ -101,6 +101,16 @@
 
   const controles = [...t.el.querySelectorAll('[data-dg]')];
 
+  // La horizontal que no cabe (data-sin-h en la figura, con las variantes que no la tienen): si no cabe en ninguna
+  // figura, la opción se desactiva; si no cabe en algunas, al elegirla se dice cuántas se quedan en vertical.
+  const sinH = f => (f.dataset.sinH || '').split(' ').filter(Boolean).length;
+  const opH = t.el.querySelector('select[data-dg="orientacion"] option[value="horizontal"]');
+  if (opH && figs.every(f => sinH(f) === 4)) { opH.disabled = true; opH.textContent = 'Horizontal (no cabe)'; }
+  const avisoH = document.createElement('p');
+  avisoH.className = 'lc-ayuda dg-aviso-h'; avisoH.hidden = true;
+  const selH = t.el.querySelector('select[data-dg="orientacion"]');
+  if (selH) selH.closest('label').after(avisoH);
+
   function pintar() {
     const f = figs[0];
     for (const c of controles) {
@@ -108,6 +118,10 @@
       if (c.type === 'checkbox') c.checked = !f.classList.contains('d-no-' + k) && !c.disabled;
       else c.value = leerFig(f, k) || c.options[0].value;
     }
+    const n = figs.filter(f => sinH(f)).length;
+    avisoH.hidden = !(selH && selH.value === 'horizontal' && n);
+    avisoH.textContent = n === figs.length ? 'No cabe en horizontal: se ve en vertical.'
+      : `${n} de ${figs.length} no caben en horizontal: se ven en vertical.`;
   }
   controles.forEach(c => c.addEventListener('change', () => {
     pref[c.dataset.dg] = c.type === 'checkbox' ? c.checked : c.value;

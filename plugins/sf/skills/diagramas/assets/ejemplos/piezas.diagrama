@@ -11,7 +11,8 @@ nodos:
   skills: Skills | método y documentos
   deps: Dependencias | threejs · oklch · gsap | externo
 zonas:
-  plugin: PLUGIN SF · PLUGINS/SF/ | cmd, hooks, tools, tests, tpl, skills
+  plugin: PLUGIN SF · PLUGINS/SF/ | mod, tools, tests, tpl, skills
+  mod: MOD · HOOKS/ | cmd, hooks
 flechas:
   cmd > hooks: ABRE
   hooks > tools: LANZA

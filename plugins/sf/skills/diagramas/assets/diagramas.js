@@ -4,16 +4,19 @@
  *   - nodos: <g data-nodo="id"> con su caja principal en class="d-caja";
  *   - flechas: data-de="id" y data-a="id" en el <path> o <line>;
  *   - fichas: <div class="d-fichas" hidden> con un <div data-ficha="id" data-nombre="Nombre"> por nodo.
- * Sin JavaScript, el dibujo se ve entero, sin fichas. Hueco reservado: data-modo en la figura
- * (p. ej. «replay», por decidir) y window.sfDiagramas.modos para registrarlo más adelante. */
+ *   - recorrido (replay), opcional: <div class="d-pasos" hidden> con un <div data-paso-nodo="id"> o
+ *     <div data-paso-de="a" data-paso-a="b"> por paso, con su porqué; la figura lleva data-modo="recorrer".
+ * Sin JavaScript, el dibujo se ve entero, sin fichas ni recorrido. Más modos: data-modo en la figura y
+ * window.sfDiagramas.modos[nombre](figura). */
 (function () {
   'use strict';
   const api = window.sfDiagramas = window.sfDiagramas || { modos: {} };
   // En la copia que guardan las herramientas del documento, sin HUD ni resaltado.
   (window.alCopiarDocumento = window.alCopiarDocumento || []).push(c => {
-    c.querySelectorAll('.d-hud').forEach(x => x.remove());
-    c.querySelectorAll('.d-resaltando').forEach(x => x.classList.remove('d-resaltando'));
-    c.querySelectorAll('.d-on, .d-vecino').forEach(x => x.classList.remove('d-on', 'd-vecino'));
+    c.querySelectorAll('.d-hud, .diagrama .d-barra').forEach(x => x.remove());
+    c.querySelectorAll('.d-resaltando, .d-recorriendo, .d-solo-nuevo').forEach(x => x.classList.remove('d-resaltando', 'd-recorriendo', 'd-solo-nuevo'));
+    c.querySelectorAll('.d-tapa.d-plegada').forEach(x => x.classList.remove('d-plegada'));
+    c.querySelectorAll('.d-on, .d-vecino, .d-visto').forEach(x => x.classList.remove('d-on', 'd-vecino', 'd-visto'));
     c.querySelectorAll('figure.d-gen').forEach(f => f.style.removeProperty('--d-rotulo'));
   });
 
@@ -66,6 +69,13 @@
     hud.innerHTML = '<button type="button" class="d-cerrar" aria-label="Cerrar la ficha">✕</button><div class="d-cuerpo"></div>';
     fig.appendChild(hud);
 
+    function marca(f, on) {  // la punta de una flecha resaltada, del color del resaltado
+      if (!marcaOn || !f.hasAttribute('marker-end')) return;
+      if (!f.dataset.marca) f.dataset.marca = f.getAttribute('marker-end');
+      // «auto»: cada SVG tiene la suya, con el id de su punta normal y «-on» detrás
+      const m = marcaOn === 'auto' ? f.dataset.marca.replace(/\)$/, '-on)') : `url(#${marcaOn})`;
+      f.setAttribute('marker-end', on ? m : f.dataset.marca);
+    }
     function resalta(id) {
       fig.classList.toggle('d-resaltando', !!id);
       const vecinos = new Set();
@@ -73,12 +83,7 @@
         const on = !!id && (f.dataset.de === id || f.dataset.a === id);
         f.classList.toggle('d-on', on);
         if (on) { vecinos.add(f.dataset.de); vecinos.add(f.dataset.a); }
-        if (marcaOn && f.hasAttribute('marker-end')) {
-          if (!f.dataset.marca) f.dataset.marca = f.getAttribute('marker-end');
-          // «auto»: cada SVG tiene la suya, con el id de su punta normal y «-on» detrás
-          const marca = marcaOn === 'auto' ? f.dataset.marca.replace(/\)$/, '-on)') : `url(#${marcaOn})`;
-          f.setAttribute('marker-end', on ? marca : f.dataset.marca);
-        }
+        marca(f, on);
       });
       nodos.forEach(g => {
         g.classList.toggle('d-on', g.dataset.nodo === id);
@@ -119,6 +124,8 @@
       }
       if (nodo) desde = nodo;
       cuerpo.textContent = '';
+      const tipo = fichas.get(id).dataset.tipo;   // el chip del nodo, como tipo encima del nombre
+      if (tipo) { const t = document.createElement('p'); t.className = 'd-tipo'; t.textContent = tipo; cuerpo.appendChild(t); }
       const h = document.createElement('h4'); h.textContent = nombre(id); cuerpo.appendChild(h);
       [...fichas.get(id).children].forEach(c => cuerpo.appendChild(c.cloneNode(true)));
       hud.hidden = false; coloca(desde || fig);
@@ -130,23 +137,120 @@
       g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button');
       g.setAttribute('aria-expanded', 'false'); g.setAttribute('aria-controls', hud.id);
       g.setAttribute('aria-label', nombre(id) + ': ver su ficha');
-      const pasa = () => !fijo && !no('resaltado');
+      const pasa = () => !fijo && !rec && !no('resaltado');
       g.addEventListener('pointerenter', e => { if (pasa() && e.pointerType === 'mouse') resalta(id); });
-      g.addEventListener('pointerleave', e => { if (!fijo && e.pointerType === 'mouse') resalta(null); });
+      g.addEventListener('pointerleave', e => { if (!fijo && !rec && e.pointerType === 'mouse') resalta(null); });
       g.addEventListener('focus', () => { if (pasa()) resalta(id); });
-      g.addEventListener('blur', () => { if (!fijo) resalta(null); });
-      g.addEventListener('click', () => abre(fijo === id ? null : id, g));
+      g.addEventListener('blur', () => { if (!fijo && !rec) resalta(null); });
+      // Durante el recorrido, pulsar un nodo salta a su paso (si lo tiene).
+      const pulsa = () => { if (rec) { const k = pasos.findIndex(p => p.nodo === id); if (k >= 0) ir(k); return; } abre(fijo === id ? null : id, g); };
+      g.addEventListener('click', pulsa);
       g.addEventListener('keydown', e => {
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abre(fijo === id ? null : id, g); }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pulsa(); }
       });
     });
 
-    hud.querySelector('.d-cerrar').addEventListener('click', () => abre(null));
+    hud.querySelector('.d-cerrar').addEventListener('click', () => rec ? salir() : abre(null));
     fig.addEventListener('keydown', e => {
+      if (rec) {
+        const k = { ArrowRight: paso + 1, ArrowLeft: paso - 1, Home: 0, End: pasos.length - 1 }[e.key];
+        if (k !== undefined) { e.preventDefault(); ir(Math.max(0, Math.min(k, pasos.length - 1))); return; }
+      }
       if (e.key !== 'Escape') return;
-      if (fijo) { e.stopPropagation(); abre(null); }
+      if (rec) { e.stopPropagation(); salir(); }
+      else if (fijo) { e.stopPropagation(); abre(null); }
     });
-    document.addEventListener('pointerdown', e => { if (fijo && !fig.contains(e.target)) abre(null); });
+
+    // Recorrer (replay): los pasos de .d-pasos, uno a uno, con ← y → o los botones del HUD. Cada paso ilumina su nodo o
+    // su flecha (con sus dos extremos) y cuenta en el HUD qué pasa y por qué; sin texto, el de la ficha del nodo. Lo ya
+    // recorrido queda a media luz, como en una película; sin movimiento si se pide menos (diagramas.css).
+    const pasos = [...fig.querySelectorAll('.d-pasos > div')].map(d => ({ nodo: d.dataset.pasoNodo, de: d.dataset.pasoDe,
+      a: d.dataset.pasoA, texto: d.textContent.trim() }));
+    let rec = false, paso = -1, boton = null;
+    const visible = sel => [...fig.querySelectorAll(sel)].find(e => { const r = e.getBoundingClientRect(); return r.width + r.height > 0; });
+    const esDe = (f, p) => !p.nodo && f.dataset.de === p.de && f.dataset.a === p.a;
+    function ir(k) {
+      paso = k; const p = pasos[k], antes = pasos.slice(0, k);
+      fig.classList.add('d-resaltando', 'd-recorriendo');
+      const extremos = new Set(p.nodo ? [p.nodo] : [p.de, p.a]);
+      const vistos = new Set(antes.flatMap(q => q.nodo ? [q.nodo] : [q.de, q.a]));
+      flechas.forEach(f => {
+        const on = esDe(f, p);
+        f.classList.toggle('d-on', on); marca(f, on);
+        f.classList.toggle('d-visto', !on && antes.some(q => esDe(f, q)));
+      });
+      nodos.forEach(g => {
+        const id = g.dataset.nodo;
+        g.classList.toggle('d-on', p.nodo === id);
+        g.classList.toggle('d-vecino', !p.nodo && extremos.has(id));
+        g.classList.toggle('d-visto', !extremos.has(id) && vistos.has(id));
+      });
+      const cuerpo = hud.querySelector('.d-cuerpo');
+      cuerpo.textContent = '';
+      const n = document.createElement('p'); n.className = 'd-paso-n'; n.textContent = `Paso ${k + 1} de ${pasos.length}`;
+      const h = document.createElement('h4'); h.textContent = p.nodo ? nombre(p.nodo) : `${nombre(p.de)} → ${nombre(p.a)}`;
+      cuerpo.append(n);
+      const tipo = p.nodo && fichas.get(p.nodo) && fichas.get(p.nodo).dataset.tipo;
+      if (tipo) { const t = document.createElement('p'); t.className = 'd-tipo'; t.textContent = tipo; cuerpo.appendChild(t); }
+      cuerpo.append(h);
+      if (p.texto) { const t = document.createElement('p'); t.textContent = p.texto; cuerpo.appendChild(t); }
+      else if (p.nodo && fichas.get(p.nodo)) [...fichas.get(p.nodo).children].forEach(c => cuerpo.appendChild(c.cloneNode(true)));
+      const nav = document.createElement('div'); nav.className = 'd-nav';
+      nav.innerHTML = '<button type="button" data-ir="-1">← Anterior</button><button type="button" data-ir="1">Siguiente →</button>';
+      nav.querySelector('[data-ir="-1"]').disabled = k === 0;
+      nav.querySelector('[data-ir="1"]').disabled = k === pasos.length - 1;
+      nav.querySelectorAll('button').forEach(b => b.addEventListener('click', () => ir(paso + +b.dataset.ir)));
+      cuerpo.appendChild(nav);
+      hud.hidden = false;
+      // el HUD, junto al nodo del paso o, en una flecha, junto a su destino (así no tapa la flecha)
+      const el = visible(`[data-nodo="${p.nodo || p.a}"]`) || visible(`path[data-de="${p.de}"][data-a="${p.a}"]`);
+      coloca(el || fig);
+      const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+      (nav.querySelector('[data-ir="1"]:not(:disabled)') || nav.querySelector('button:not(:disabled)')).focus({ preventScroll: true });
+      hud.scrollIntoView({ block: 'nearest', behavior: quieto ? 'auto' : 'smooth' });
+    }
+    function salir() {
+      rec = false; paso = -1;
+      fig.classList.remove('d-recorriendo');
+      fig.querySelectorAll('.d-visto').forEach(e => e.classList.remove('d-visto'));
+      resalta(null); hud.hidden = true; hud.querySelector('.d-cuerpo').textContent = '';
+      if (boton) { boton.setAttribute('aria-pressed', 'false'); boton.textContent = '▶ Recorrer paso a paso'; boton.focus(); }
+    }
+    // «Solo lo nuevo»: con nodos o flechas «nuevo», un botón deja a media luz todo lo demás.
+    const nuevo = fig.querySelector('.d-nodo.nuevo, .d-fl.d-nuevo');
+    let barra = null;
+    const enBarra = b => {
+      if (!barra) {
+        barra = document.createElement('div'); barra.className = 'd-barra';
+        const tras = fig.querySelector(':scope > .d-ayuda') || fig.querySelector(':scope > .d-cabecera');
+        if (tras) tras.after(barra); else fig.prepend(barra);
+      }
+      barra.appendChild(b);
+    };
+    if (nuevo) {
+      fig.querySelectorAll('.d-et[data-de]').forEach(e => {
+        if (fig.querySelector(`.d-fl.d-nuevo[data-de="${e.dataset.de}"][data-a="${e.dataset.a}"]`)) e.classList.add('d-nuevo');
+      });
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'd-rec d-nuevo-b';
+      b.setAttribute('aria-pressed', 'false'); b.textContent = 'Solo lo nuevo';
+      b.addEventListener('click', () => {
+        const on = fig.classList.toggle('d-solo-nuevo'); b.setAttribute('aria-pressed', String(on));
+      });
+      enBarra(b);
+    }
+    if (pasos.length) {
+      boton = document.createElement('button'); boton.type = 'button'; boton.className = 'd-rec';
+      boton.setAttribute('aria-pressed', 'false'); boton.textContent = '▶ Recorrer paso a paso';
+      boton.addEventListener('click', () => {
+        if (rec) { salir(); return; }
+        if (fijo) abre(null);
+        rec = true; boton.setAttribute('aria-pressed', 'true'); boton.textContent = '■ Salir del recorrido';
+        ir(0);
+      });
+      enBarra(boton);
+      if (barra.firstChild !== boton) barra.prepend(boton);
+    }
+    document.addEventListener('pointerdown', e => { if (fijo && !rec && !fig.contains(e.target)) abre(null); });
 
     const modo = fig.dataset.modo;
     if (modo && api.modos[modo]) api.modos[modo](fig);
@@ -172,7 +276,7 @@
     if (!r) return;
     if (!r.dataset.y0) { r.dataset.y0 = r.getAttribute('y'); r.dataset.h0 = r.getAttribute('height'); }
     const X = +r.getAttribute('x'), W = +r.getAttribute('width'), y0 = +r.dataset.y0, h0 = +r.dataset.h0, cy = y0 + h0 / 2;
-    const H = abierta ? +r.dataset.hd : +r.dataset.hp, Y = cy - H / 2, croq = svg.dataset.forma === 'croqueta';
+    const H = abierta ? +r.dataset.hd : +r.dataset.hp, Y = cy - H / 2, croq = (svg.dataset.formaDibujo || svg.dataset.forma) === 'croqueta';
     const rx = croq ? Math.min(H, W) / 2 : +r.getAttribute('rx') || 0;
     r.setAttribute('y', Y); r.setAttribute('height', H); if (croq) r.setAttribute('rx', rx);
     const dy = Y - y0;
@@ -242,6 +346,67 @@
     modo();
   }
 
-  const iniciar = () => { document.querySelectorAll('[data-diagrama]').forEach(montar); document.querySelectorAll('figure.d-gen').forEach(f => { esquinas(f); plegado(f); rotulos(f); }); };
+  // Zonas que se pliegan: pulsar su nombre (o Intro o Espacio en él) pone encima una tapa con su nombre, en su sitio;
+  // pulsar la tapa la quita.
+  function zonas(fig) {
+    fig.querySelectorAll('.d-zona-g').forEach(g => {
+      const tapa = g.closest('svg').querySelector(`.d-tapa[data-zona="${g.dataset.zona}"]`);
+      if (!tapa) return;
+      const pon = on => {
+        tapa.classList.toggle('d-plegada', on); g.setAttribute('aria-expanded', String(!on));
+        g.setAttribute('aria-label', `${on ? 'Desplegar' : 'Plegar'} la zona ${g.dataset.nombre}`);
+      };
+      g.addEventListener('click', e => { e.stopPropagation(); pon(!tapa.classList.contains('d-plegada')); });
+      g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pon(!tapa.classList.contains('d-plegada')); } });
+      tapa.addEventListener('click', e => { e.stopPropagation(); pon(false); g.focus({ preventScroll: true }); });
+    });
+  }
+  // Bloques (decisión 415): la figura empieza con los bloques cerrados; pulsar uno lo abre en su sitio (su estado) y
+  // el nombre de su zona lo vuelve a cerrar. «Abrir todos», el dibujo entero; «Recorrer» también lo abre entero.
+  function bloques(fig) {
+    const est = [...fig.querySelectorAll(':scope > .d-vista')];
+    if (!est.length) return;
+    let barra = fig.querySelector(':scope > .d-barra');
+    if (!barra) {
+      barra = document.createElement('div'); barra.className = 'd-barra';
+      const tras = fig.querySelector(':scope > .d-ayuda') || fig.querySelector(':scope > .d-cabecera');
+      if (tras) tras.after(barra); else fig.prepend(barra);
+    }
+    const bt = (texto, estado) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'd-rec d-bloques-b';
+      b.dataset.ver = estado; b.textContent = texto; b.addEventListener('click', () => ver(estado, null, [b, null])); barra.appendChild(b); return b; };
+    // ancla: lo pulsado (o la barra) se queda donde estaba en la pantalla, para que la página no salte al cambiar
+    const visible = sel => sel && [...fig.querySelectorAll(sel)].find(x => x.getBoundingClientRect().width);
+    const ver = (e, foco, ancla) => {
+      const antes = ancla && ancla[0] ? ancla[0].getBoundingClientRect().top : null;
+      est.forEach(d => { const era = d.hidden; d.hidden = d.dataset.vista !== e; if (era && !d.hidden && antes !== null) { d.classList.remove('d-entra'); void d.offsetWidth; d.classList.add('d-entra'); } });
+      if (antes !== null) {
+        const n = visible(ancla[1]) || (ancla[0].getBoundingClientRect().width ? ancla[0] : null);
+        const d = n ? n.getBoundingClientRect().top - antes : 0;
+        if (Math.abs(d) > 1) window.scrollBy(0, d);
+      }
+      fig.dataset.bloque = e;
+      barra.querySelectorAll('.d-bloques-b').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ver === e || (b.dataset.ver === 'cerrado' && e !== 'todo'))));
+      if (foco) { const n = [...fig.querySelectorAll(foco)].find(x => x.getBoundingClientRect().width); if (n) n.focus({ preventScroll: true }); }
+    };
+    bt('Bloques cerrados', 'cerrado'); bt('Abrir todos', 'todo');
+    const bloque = t => { const n = t.closest && t.closest('[data-nodo^="_b"]'); return n && fig.contains(n) ? n : null; };
+    const nombre = t => { const g = t.closest && t.closest('.d-zona-g'); const d = g && g.closest('.d-vista'); return g && d && /^b\d+$/.test(d.dataset.vista) ? d : null; };
+    // el foco sigue al bloque solo con el teclado; con el ratón no se mueve (sin anillo de foco)
+    const abre = (n, tecla) => { const z = `.d-vista[data-vista="b${n.dataset.nodo.slice(2)}"] .d-zona-g`; ver('b' + n.dataset.nodo.slice(2), tecla && z, [n, z]); };
+    const cierra = (d, tecla) => { const b = `.d-vista[data-vista="cerrado"] [data-nodo="_${d.dataset.vista}"]`;
+      ver('cerrado', tecla && b, [[...d.querySelectorAll('.d-zona-g')].find(x => x.getBoundingClientRect().width), b]); };
+    fig.addEventListener('click', e => {
+      const n = bloque(e.target), d = !n && nombre(e.target);
+      if (n) { e.stopPropagation(); abre(n); } else if (d) { e.stopPropagation(); cierra(d); }
+      else if (e.target.closest && e.target.closest('.d-rec:not(.d-bloques-b):not(.d-nuevo-b)') && fig.dataset.bloque !== 'todo') ver('todo');
+    }, true);
+    fig.addEventListener('keydown', e => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const n = bloque(e.target), d = !n && nombre(e.target);
+      if (n) { e.preventDefault(); e.stopPropagation(); abre(n, true); } else if (d) { e.preventDefault(); e.stopPropagation(); cierra(d, true); }
+    }, true);
+    ver('cerrado');
+  }
+  const iniciar = () => { document.querySelectorAll('[data-diagrama]').forEach(montar); document.querySelectorAll('figure.d-gen').forEach(f => { esquinas(f); plegado(f); rotulos(f); zonas(f); bloques(f); }); };
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar); else iniciar();
 })();

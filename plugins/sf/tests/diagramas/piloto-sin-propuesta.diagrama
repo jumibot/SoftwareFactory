@@ -1,0 +1,42 @@
+tipo: proceso
+titulo: Cómo se testeará con la orden
+descripcion: Qué hace el subagente al acabar una vuelta con comprobar.py, y cuántos turnos cuesta.
+objetivo: Que se vea que, en cualquier proyecto, una sola llamada por vuelta sustituye a la serie de hoy, y de dónde sale el ahorro. Va en el Resumen del informe, justo después del esquema de hoy.
+concepto: El subagente lanza una sola orden por vuelta. La orden sabe qué tests hay, en una primera ronda selecciona de forma determinista los que tocan lo cambiado, se salta los que ya pasaron igual (caché por hash), en una segunda ronda ejecuta a la vez lo seleccionado y devuelve un resumen de pocas líneas; la salida entera va a un log.
+puntos-clave:
+  Una sola orden por vuelta, en cualquier proyecto. | detectar
+  Cada test dice qué cubre y la selección es determinista: ninguno se olvida. | elegir
+  Se salta lo que ya pasó con el mismo hash. | marca > resumen
+  Lo seleccionado corre a la vez, con el reparto de su stack. | lanzar
+  El subagente solo lee unas pocas líneas; lo largo va a un log. | lanzar > registro
+modulos-clave: detectar, elegir, marca, lanzar, resumen, registro
+interconexiones-clave:
+  elegir > marca > lanzar > resumen
+  marca > resumen
+  lanzar > registro
+compara-con: hoy.diagrama
+# actores: subagente que testea, comprobar.py
+foco: detectar
+opciones: orientacion=vertical
+nodos:
+  detectar: El subagente lanza comprobar.py | 1 orden = 1 turno por vuelta
+  elegir: comprobar.py elige los tests que tocan | ronda 1, determinista
+  marca: comprobar.py salta lo que ya pasó | mismo hash, sin repetir
+  lanzar: comprobar.py ejecuta a la vez lo elegido | ronda 2, con el reparto del stack
+  resumen: comprobar.py da un resumen al subagente | pocas líneas en su contexto
+  registro: comprobar.py guarda la salida entera | en un log, fuera del contexto
+flechas:
+  inicio > detectar
+  detectar > elegir | flujo
+  elegir > marca: CADA TEST DICE QUÉ CUBRE | flujo
+  marca > lanzar: LO NUEVO | flujo
+  lanzar > resumen | flujo
+  marca > resumen: YA PASÓ | discontinua
+  lanzar > registro: SALIDA | discontinua
+fichas:
+  detectar: El subagente lanza una sola orden por vuelta, igual en cualquier proyecto; la orden sabe qué tests hay.
+  elegir: Cada test dice qué cubre; la selección es determinista, así que ningún test se olvida.
+  marca: Se salta lo que ya pasó con el mismo hash.
+  lanzar: Lo elegido corre a la vez, con el reparto de su stack.
+  resumen: El subagente solo lee unas pocas líneas.
+  registro: La salida entera y las capturas van a un log, no al contexto del subagente.

@@ -1,0 +1,60 @@
+tipo: proceso
+titulo: Cómo testeará el subagente con comprobar.py
+descripcion: Una sola llamada por vuelta; el resto lo hace la orden.
+foco: lanzar
+opciones: orientacion=vertical
+actores:
+  subagente: Quien testea el trabajo de la tarea
+  comprobar.py: La orden que selecciona, ejecuta y resume
+objetivo: Que se vea que, en cualquier proyecto, una sola llamada por vuelta sustituye a la serie de hoy, y de dónde sale el ahorro. Va en el Resumen del informe, justo después del esquema de hoy.
+concepto: El subagente lanza una sola orden por vuelta. La orden sabe qué tests hay, en una primera ronda selecciona de forma determinista los que tocan lo cambiado, se salta los que ya pasaron igual (caché por hash), en una segunda ronda ejecuta a la vez lo seleccionado y devuelve un resumen de pocas líneas; la salida entera va a un log.
+puntos-clave:
+  Una sola orden por vuelta, en cualquier proyecto. | detectar
+  Cada test dice qué cubre y la selección es determinista: ninguno se olvida. | elegir
+  Se salta lo que ya pasó con el mismo hash. | marca > resumen
+  Lo seleccionado corre a la vez, con el reparto de su stack. | lanzar
+  El subagente solo lee unas pocas líneas; lo largo va a un log. | lanzar > registro
+modulos-clave: detectar, elegir, marca, lanzar, resumen, registro
+interconexiones-clave:
+  elegir > marca > lanzar > resumen
+  marca > resumen
+  lanzar > registro
+compara-con: piloto-hoy.diagrama
+glosario:
+  subagente | Quien testea el trabajo de una tarea al acabar cada vuelta (una tanda de cambios; comprobar.py se lanza una vez por vuelta): lanza las órdenes, lee lo que devuelven y copia el resultado a su informe.
+  llamada o turno | Cada orden que lanza el subagente es una llamada y un turno de su conversación; en cada turno relee todo su contexto (unos 137.000 tokens en la SF), por eso el coste está en cuántas llamadas hace y no en lo que dicen los tests.
+  test | Cada comprobación que se lanza: tests de pytest, vitest o cargo, claude plugin test o validate, tipos o lint, comprobar documentos o diagramas, o Playwright; cada uno puede declarar qué archivos cubre.
+  salida | El texto que escribe una orden: entera pueden ser hasta 536 líneas (claude plugin test) que el subagente lee; con comprobar.py solo lee 4 o 5 líneas y el resto va a un log aparte, que solo se mira para depurar un fallo.
+  segundo plano | Orden lenta (la suite de Python tarda 6 minutos, más que los 120 s de una orden normal) que se deja corriendo y que el subagente vigila con más llamadas.
+  caché por hash | Un hash de los archivos de un test y de su orden: si coincide con el de la última vez que pasó, el test se salta y lo dice; evita la repetición de lo que ya pasó sin cambios.
+  ronda 1: seleccionar | Compara los archivos modificados con lo que cubre cada test y lista qué corre y qué se salta, con su porqué; es determinista y el test que no declara qué cubre corre siempre.
+  ronda 2: ejecutar | Lanza a la vez lo seleccionado, cada test en su proceso y con el reparto de su stack (el runner o shards por archivo, como pytest); la pasada completa antes de dejar la tarea lista para probar lanza todo sin seleccionar ni caché.
+  captura | Imagen con Playwright que el subagente saca y mira: unos 1.500 tokens que se quedan en el contexto.
+nodos:
+  detectar: Lanzar comprobar.py | una llamada por vuelta; detecta los tests del proyecto
+  elegir: Ronda 1: seleccionar tests | los que cubren lo cambiado, determinista
+  marca: Saltar lo que ya pasó | mismo hash de la última vez, no se repite
+  lanzar: Ronda 2: ejecutar a la vez | cada test en su proceso, con el reparto de su stack
+  resumen: Devolver el resumen | 4 o 5 líneas, no 536
+  registro: Guardar la salida entera | en un log, solo para depurar
+flechas:
+  inicio > detectar
+  detectar > elegir: RONDA 1 | flujo
+  elegir > marca: HASH | flujo
+  marca > lanzar: LO NUEVO | flujo
+  lanzar > resumen: RESULTADO | flujo
+  marca > resumen: YA PASÓ | discontinua
+  lanzar > registro: SALIDA | discontinua
+fichas:
+  detectar: El subagente lanza una sola orden por vuelta, en cualquier proyecto.
+    - comprobar.py: sabe qué tests hay
+  elegir: Compara los archivos modificados con lo que cubre cada test.
+    - ronda 1: lista qué corre y qué se salta, con su porqué
+    - claude: un test que no declara qué cubre corre siempre
+  marca: Un hash de los archivos del test y de su orden.
+    - caché por hash: si coincide con la última vez que pasó, se salta y lo dice
+  lanzar: Lanza a la vez lo seleccionado.
+    - ronda 2: cada test en su proceso, con el runner o shards por archivo
+    - pasada completa: antes de dejar la tarea lista para probar, todo sin selección ni caché
+  resumen: El subagente lee solo 4 o 5 líneas y las copia a su informe.
+  registro: La salida entera va a un log aparte, que solo se mira para depurar un fallo.

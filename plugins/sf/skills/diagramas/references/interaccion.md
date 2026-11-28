@@ -10,6 +10,7 @@ Lo que la SF añade a diagram-design: el diagrama se explora. Cada nodo tiene su
 | Nodo | `<g data-nodo="id">` con su caja principal en `class="d-caja"` (recibe el clic en todo su interior) |
 | Flecha | `data-de="id"` y `data-a="id"` en su `<path>` o `<line>`, y en el `<text>` de su etiqueta |
 | Fichas | `<div class="d-fichas" hidden>` al final de la figura, con un `<div data-ficha="id" data-nombre="Nombre">…</div>` por nodo, en el orden del dibujo |
+| Recorrido | `<div class="d-pasos" hidden>` con un `<div data-paso-nodo="id">porqué</div>` o `<div data-paso-de="a" data-paso-a="b">porqué</div>` por paso, en el orden de la historia; la figura lleva `data-diagrama data-modo="recorrer"` |
 | Forma | `class="vertical"` (400) o `class="ancho"` (960); las dos versiones con `solo-estrecho` y `solo-ancho`. El generador añade `data-cajas` y `data-forma` en cada `<svg>` (sus cuatro variantes) y la figura enseña la de `data-d-cajas` y `data-d-forma` |
 
 Un nodo sin ficha no se pulsa. El texto de las fichas es la descripción larga del diagrama: lo que dice el dibujo está también ahí o en la prosa.
@@ -19,6 +20,9 @@ Un nodo sin ficha no se pulsa. El texto de las fichas es la descripción larga d
 - **Pulsar un nodo** (clic, toque, Intro o Espacio): su ficha sale en el **HUD**: con la figura de 800 px o más, a la altura del nodo y fuera del dibujo si cabe, si no a su lado; con la figura más estrecha, a todo su ancho, bajo el nodo (o encima si no cabe). Volver a pulsarlo la cierra.
 - **Resaltado**: el nodo, sus flechas de entrada y salida, sus etiquetas y los nodos del otro extremo; lo demás, al 28 %. Las flechas del recorrido, según el ajuste «Recorrido»: en el segundo color del tema (por defecto), en el acento o más gruesas con su color. Con el ratón al pasar, con el teclado al llegar con el tabulador, y fijo mientras su ficha está abierta.
 - **Plegar una caja**: el circulito de su esquina (`<g class="d-plegar" data-plegar="id">`, que el script hace botón con `aria-expanded`) la pliega o la despliega; no abre la ficha. La caja cambia de alto en su sitio, centrada (`data-hd` y `data-hp` en su `<rect>`), y los extremos de sus flechas vuelven a su contorno; las demás no se mueven: recolocar la figura por cada combinación de cajas no cabe en un SVG generado. Con «Máximo una desplegada», empiezan todas plegadas; abrir una pliega la anterior, y volver a pulsar la abierta la pliega.
+- **Solo lo nuevo** (con nodos o flechas `nuevo`; las flechas de un nodo nuevo, también): botón «Solo lo nuevo» en la misma barra (`aria-pressed`): la figura lleva `d-solo-nuevo` y lo demás va a media luz.
+- **Zonas que se pliegan** (todas las figuras del generador): el nombre de cada zona es un botón (`d-zona-g`, `aria-expanded`, 30 de alto: 24 px o más a 375); pulsarlo, o Intro o Espacio en él, pone encima la tapa de la zona (`d-tapa`) con su nombre, en su sitio; pulsar la tapa la quita. La copia que guarda el documento sale sin tapas.
+- **Recorrer** (con recorrido; sin él, el de las flechas `flujo`): el script pone sobre el dibujo el botón «▶ Recorrer paso a paso» (`aria-pressed`). Pulsado, el HUD enseña el paso: «Paso k de N», el nodo (o «Origen → Destino») y su porqué (sin texto, la ficha del nodo), con Anterior y Siguiente; junto al nodo del paso o, en una flecha, junto a su destino. → y ← avanzan y retroceden, Inicio y Fin van al primero y al último; pulsar un nodo con paso salta a él. El paso, entero; lo ya recorrido, a media luz (`d-visto`); lo demás, atenuado. Escape, ✕ o el botón (ya «Salir del recorrido») salen y devuelven el foco al botón. Sin movimiento con `prefers-reduced-motion`.
 - **Escape** cierra el HUD y devuelve el foco al nodo. También cierran ✕ y pulsar fuera de la figura.
 - **Sin JavaScript**: el dibujo entero, sin fichas. **Al imprimir**: sin HUD ni atenuado.
 - **Copias** de las herramientas del documento: sin HUD ni resaltado (`window.alCopiarDocumento`).
@@ -30,6 +34,6 @@ Un nodo sin ficha no se pulsa. El texto de las fichas es la descripción larga d
 - Lo que se pulsa mide 24 × 24 px o más en pantalla (el script de comprobación lo mide a 375).
 - Foco visible: borde del primario en la caja; transiciones de 0,15 s que se apagan con `prefers-reduced-motion`.
 
-## Hueco para más modos
+## Más modos
 
-`data-modo="<nombre>"` en la figura llama a `window.sfDiagramas.modos[<nombre>](figura)` si existe. Reservado para el replay (un recorrido paso a paso con su porqué), que se decidirá en una tarea aparte; hoy no hay ningún modo.
+`data-modo="<nombre>"` en la figura llama a `window.sfDiagramas.modos[<nombre>](figura)` si existe. El recorrido (`data-modo="recorrer"`) lo lleva el propio script.

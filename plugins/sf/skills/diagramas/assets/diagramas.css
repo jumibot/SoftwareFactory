@@ -50,8 +50,21 @@
 .d-hud .d-cerrar:hover { background: var(--fondo, #e0f4f3); color: var(--tinta-oscura, var(--oscuro, #004d47)); }
 .d-hud .d-cerrar:focus-visible { outline: 3px solid var(--primario-linea, var(--primario, #00726b)); outline-offset: -3px; }
 
+/* Recorrer (replay): el botón, sobre el dibujo; en el HUD, el número del paso y Anterior / Siguiente. Lo ya recorrido,
+   a media luz; el paso, entero. */
+.diagrama .d-barra { margin: 0 0 .9rem; }
+.diagrama .d-rec, .d-hud .d-nav button { min-height: 32px; padding: .25rem .8rem; font: inherit; font-size: .875rem; cursor: pointer;
+  background: var(--d-papel); color: var(--tinta-oscura, var(--oscuro, #004d47)); border: 1px solid var(--texto-suave, #555); border-radius: var(--esquinas, 6px); }
+.diagrama .d-rec[aria-pressed="true"] { background: var(--fondo, #e0f4f3); }
+.diagrama .d-rec:focus-visible, .d-hud .d-nav button:focus-visible { outline: 3px solid var(--primario-linea, var(--primario, #00726b)); outline-offset: 1px; }
+.d-hud .d-nav { display: flex; justify-content: space-between; gap: .5rem; margin: .4rem 0 .2rem; }
+.d-hud .d-nav button:disabled { opacity: .45; cursor: default; }
+.d-hud .d-paso-n { margin: 0 3rem .1rem 0; font: .72rem ui-monospace, Consolas, monospace; letter-spacing: .06em; text-transform: uppercase; color: var(--texto-suave, #555); }
+.diagrama.d-resaltando .d-visto { opacity: .6; }
 @media print {
-  .d-hud { display: none !important; }
+  .d-hud, .diagrama .d-barra { display: none !important; }
+  .d-gen > .d-vista[data-vista="todo"] { display: block !important; }      /* los bloques, abiertos al imprimir */
+  .d-gen > .d-vista:not([data-vista="todo"]) { display: none !important; }
   .diagrama.d-resaltando [data-nodo], .diagrama.d-resaltando [data-de] { opacity: 1; }
   .diagrama { break-inside: avoid; }
 }
@@ -73,6 +86,57 @@
 .d-gen .salida > .d-caja, .d-gen .externo > .d-caja { stroke: var(--texto-tenue, #666); }
 .d-gen .salida > .d-caja { fill: var(--fondo-medio, #ebeae7); }
 .d-gen .externo > .d-caja { stroke-dasharray: 5 4; }
+/* Acción (fuera del camino, cambia algo): píldora con borde morado. Previsto (aún no existe): discontinuo y en gris. */
+.d-gen .accion > .d-caja { stroke: var(--b-morado, #9333ea); stroke-width: 1.5; }
+.d-gen .previsto > .d-caja { stroke-dasharray: 5 4; stroke: var(--texto-tenue, #666); }
+.d-gen .previsto :is(.d-nn, .d-sb) { fill: var(--texto-suave, #555); font-style: italic; }
+/* Zonas que se pliegan: el nombre se pulsa; plegada, una tapa con su nombre en su sitio. «Solo lo nuevo»: lo demás,
+   a media luz. */
+.d-hud .d-tipo { margin: 0 0 .15rem; font: 600 .7rem/1.2 var(--mono, ui-monospace, monospace); letter-spacing: .08em; text-transform: uppercase; color: var(--texto-suave, #555); }
+.d-hud .d-li-codigo code { font-family: var(--mono, ui-monospace, monospace); font-size: .85em; }
+.d-gen .d-zona-t { fill: transparent; }
+.d-gen > .d-vista[hidden] { display: none; }
+/* chips apagados o encendidos: cada uno con su dibujo (apagados, las cajas no les guardan sitio) */
+.d-gen.d-no-chips [data-chips="si"], .d-gen:not(.d-no-chips) [data-chips="no"] { display: none !important; }
+/* al cambiar de vista, la nueva entra con un fundido corto (sin él, si se pide menos movimiento) */
+.d-gen > .d-vista.d-entra { animation: d-entra .18s ease-out; }
+@keyframes d-entra { from { opacity: .35; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .d-gen > .d-vista.d-entra { animation: none; } }
+/* Bloques y zonas, en carpeta (decisión 415): la zona abierta, una carpeta grande con su nombre en la pestaña; el bloque
+   cerrado, la misma carpeta en pequeño, con su nombre en la pestaña y sus pasos. Las dos, con el fondo suave del color
+   de su cauce. Entre bloques, una flecha ancha y rellena del color de su cauce. */
+.d-gen rect.d-zona { fill: none; stroke: none; }
+.d-gen .d-carpeta { fill: var(--texto-tenue, #666); fill-opacity: 0; stroke: var(--texto-tenue, #666); stroke-width: 1.2; }
+.d-gen .d-carpeta-zona { stroke-width: 1; }
+.d-gen .d-carpeta-base { fill: var(--d-papel); stroke: none; }
+.d-gen .d-carpeta.d-tinte-acento { fill: var(--primario-linea, var(--primario, #00726b)); stroke: var(--primario-linea, var(--primario, #00726b)); }
+.d-gen .d-carpeta.d-tinte-segundo { fill: var(--segundo, #2f5597); stroke: var(--segundo, #2f5597); }
+.d-gen .d-carpeta.d-tinte-morado { fill: var(--b-morado, #9333ea); stroke: var(--b-morado, #9333ea); }
+.d-gen .d-carpeta.d-tinte-verde { fill: var(--b-verde, #15803d); stroke: var(--b-verde, #15803d); }
+.d-gen .bloque > .d-carpeta { fill-opacity: .09; stroke-width: 1.4; }
+.d-gen .bloque > .d-carpeta:not([class*="d-tinte-"]) { fill-opacity: .06; }
+.d-gen .d-carpeta-zona[class*="d-tinte-"] { fill-opacity: .04; }
+.d-gen.d-no-color .d-carpeta { fill: var(--texto-tenue, #666); stroke: var(--texto-tenue, #666); }
+.d-gen text.d-bloque-n { font-family: var(--mono, ui-monospace, Consolas, monospace); font-weight: 700; letter-spacing: .06em; fill: var(--texto, #1a1a1a); }
+.d-gen text.d-bloque-s { font-weight: 500; fill: var(--texto, #1a1a1a); }
+.d-gen [data-nodo^="_b"] { cursor: pointer; }
+.d-gen .bloque.d-on > .d-carpeta { stroke-width: 2.2; }
+.d-gen .d-fl.d-fl-bloque { stroke-width: 10 !important; stroke-dasharray: none !important; stroke-linejoin: miter; }
+.d-gen .d-cabeza { fill: var(--texto-tenue, #666); }
+.d-gen .d-cabeza.d-l-acento { fill: var(--primario-linea, var(--primario, #00726b)); }
+.d-gen .d-cabeza.d-l-segundo { fill: var(--segundo, #2f5597); }
+.d-gen .d-cabeza.d-l-morado { fill: var(--b-morado, #9333ea); }
+.d-gen .d-cabeza.d-l-verde { fill: var(--b-verde, #15803d); }
+.d-gen.d-no-color .d-cabeza { fill: var(--texto-suave, #555); }
+.d-gen .d-zona-g { cursor: pointer; }
+.d-gen .d-zona-g:focus { outline: none; }
+.d-gen .d-zona-g:focus-visible .d-zona-t { stroke: var(--primario-linea, var(--primario, #00726b)); stroke-width: 1.2; stroke-dasharray: 3 2; }
+.d-gen .d-tapa { display: none; cursor: pointer; }
+.d-gen .d-tapa.d-plegada { display: inline; }
+.d-gen .d-tapa rect { fill: var(--fondo-medio, #ebeae7); stroke: var(--texto-tenue, #666); stroke-dasharray: 5 4; }
+.d-gen .d-tapa-n { fill: var(--texto, #1a1a1a); font-weight: 600; letter-spacing: .04em; }
+.d-gen.d-solo-nuevo :is(.d-nodo:not(.nuevo):not(.foco), .d-fl:not(.d-nuevo), .d-et:not(.d-nuevo)) { opacity: .25; }
+@media (prefers-reduced-motion: no-preference) { .d-gen :is(.d-nodo, .d-fl, .d-et) { transition: opacity .2s; } }
 .d-gen .d-nn { font-weight: 650; fill: var(--texto, #1a1a1a); }
 .d-gen .d-sb { fill: var(--texto-suave, #555); }
 .d-gen :is(.foco, .salida) .d-sb { fill: color-mix(in srgb, var(--texto-suave, #555) 55%, var(--texto, #1a1a1a)); }  /* sobre el fondo tintado del foco y de la salida, el gris suave no llega a 4,5:1 */
@@ -89,10 +153,20 @@
 .d-gen .d-fl.d-l-segundo { stroke: var(--segundo, #2f5597); }
 .d-gen .d-fl.d-l-gris { stroke: var(--texto-tenue, #666); }
 .d-gen .d-fl.d-l-verde { stroke: var(--b-verde, #15803d); }
+/* Leyenda de los cauces: una raya del color de cada uno, con su nombre */
+.d-gen .d-cauces { display: flex; flex-wrap: wrap; gap: .3rem 1.1rem; margin: 0 0 .6rem; font: .75rem/1.4 var(--mono, ui-monospace, monospace); letter-spacing: .06em; text-transform: uppercase; color: var(--texto-suave, #555); }
+.d-gen .d-cauce { display: inline-flex; align-items: center; gap: .4rem; }
+.d-gen .d-cauce-m { display: inline-block; width: 1.6em; border-top: 3px solid var(--texto-tenue, #666); }
+.d-gen .d-c-acento { border-color: var(--primario-linea, var(--primario, #00726b)); }
+.d-gen .d-c-segundo { border-color: var(--segundo, #2f5597); }
+.d-gen .d-c-morado { border-color: var(--b-morado, #9333ea); }
+.d-gen .d-c-verde { border-color: var(--b-verde, #15803d); }
+.d-gen.d-no-color .d-cauce-m { border-color: var(--texto-suave, #555); }
 .d-gen .d-fl.d-l-rojo { stroke: var(--b-rojo, #c81e1e); }
 .d-gen .d-fl.d-l-morado { stroke: var(--b-morado, #9333ea); }
 .d-gen .d-fl { stroke: var(--texto-suave, #555); stroke-width: var(--d-fl); }
 .d-gen .d-fl.d-principal { stroke: var(--primario-linea, var(--primario, #00726b)); }
+.d-gen .d-fl.d-flujo { stroke-width: calc(var(--d-fl) + .6); }   /* lleva el concepto que fluye: el trazo principal */
 .d-gen .d-discontinua { stroke-dasharray: 6 5; }
 .d-gen .d-punta { fill: var(--texto-suave, #555); fill: context-stroke; }
 .d-gen .d-punta-on { fill: var(--primario-linea, var(--primario, #00726b)); }
@@ -105,6 +179,10 @@
 .d-gen .d-nota-x { fill: var(--texto, #1a1a1a); }
 .d-gen .d-zona { fill: none; stroke: var(--texto-tenue, #666); stroke-width: 1.2; stroke-dasharray: 4 4; }
 .d-gen text.d-carril, .d-gen text.d-num { fill: var(--d-rotulo); }   /* nombres de zona y carriles */
+/* el nombre de una zona es el título de su bloque: en negrita y en el color del texto (contraste de sobra en claro y en
+   oscuro); la cabecera de una zona de dentro, en seminegrita */
+.d-gen text.d-zona-n { fill: var(--texto, #1a1a1a); font-weight: 700; letter-spacing: .06em; }
+.d-gen text.d-subzona { font-weight: 600; }
 .d-gen .d-regla, .d-gen .d-vida { stroke: var(--texto-tenue, #666); stroke-width: var(--d-fl); }
 .d-gen .d-carril-g .d-regla { stroke-width: 1; }   /* el carril, de 1 como diagram-design */
 .d-gen :is(.d-regla.d-fase, .d-vida) { stroke: var(--d-rotulo); }   /* unen nodos: 3:1 como las flechas, con cualquier tema */
@@ -150,6 +228,12 @@
 .d-gen:not([data-d-forma="croqueta"]) svg[data-forma="croqueta"], .d-gen[data-d-forma="croqueta"] svg[data-forma="redondeada"] { display: none !important; }
 .diagrama[data-d-orientacion="vertical"] .solo-ancho, .diagrama[data-d-orientacion="horizontal"] .solo-estrecho { display: none; }
 .diagrama[data-d-orientacion="vertical"] .solo-estrecho, .diagrama[data-d-orientacion="horizontal"] .solo-ancho { display: block; }
+/* Sin horizontal en la variante que se ve (data-sin-h: las variantes sin ella): sus notas, las de la vertical; y, si se
+   elige «Horizontal», el aviso de que no cabe. Nunca se queda sin dibujo: su vertical no es solo-estrecho. */
+.d-gen .d-aviso-h { display: none; margin: 0 0 .6rem; font-size: .875rem; color: var(--texto-suave, #555); }
+.d-gen:is([data-sin-h~="desplegadas-redondeada"][data-d-cajas="desplegadas"]:not([data-d-forma="croqueta"]), [data-sin-h~="desplegadas-croqueta"][data-d-cajas="desplegadas"][data-d-forma="croqueta"], [data-sin-h~="plegadas-redondeada"]:is([data-d-cajas="plegadas"], [data-d-cajas="acordeon"]):not([data-d-forma="croqueta"]), [data-sin-h~="plegadas-croqueta"]:is([data-d-cajas="plegadas"], [data-d-cajas="acordeon"])[data-d-forma="croqueta"]) svg.d-notas-svg.vertical { display: block; }
+.d-gen:is([data-sin-h~="desplegadas-redondeada"][data-d-cajas="desplegadas"]:not([data-d-forma="croqueta"]), [data-sin-h~="desplegadas-croqueta"][data-d-cajas="desplegadas"][data-d-forma="croqueta"], [data-sin-h~="plegadas-redondeada"]:is([data-d-cajas="plegadas"], [data-d-cajas="acordeon"]):not([data-d-forma="croqueta"]), [data-sin-h~="plegadas-croqueta"]:is([data-d-cajas="plegadas"], [data-d-cajas="acordeon"])[data-d-forma="croqueta"]) svg.d-notas-svg.solo-ancho { display: none !important; }
+.d-gen:is([data-sin-h~="desplegadas-redondeada"][data-d-cajas="desplegadas"]:not([data-d-forma="croqueta"]), [data-sin-h~="desplegadas-croqueta"][data-d-cajas="desplegadas"][data-d-forma="croqueta"], [data-sin-h~="plegadas-redondeada"]:is([data-d-cajas="plegadas"], [data-d-cajas="acordeon"]):not([data-d-forma="croqueta"]), [data-sin-h~="plegadas-croqueta"]:is([data-d-cajas="plegadas"], [data-d-cajas="acordeon"])[data-d-forma="croqueta"])[data-d-orientacion="horizontal"] .d-aviso-h { display: block; }
 /* Plegar una caja sola: el circulito de su esquina (lo monta diagramas.js; sin JavaScript no sale). La caja crece o
    encoge en su sitio y sus flechas la siguen; las demás no se mueven. */
 .d-gen .d-plegado { display: none; }

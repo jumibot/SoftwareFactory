@@ -1,0 +1,41 @@
+tipo: proceso
+titulo: Cómo se testea hoy
+descripcion: Qué hace el subagente al acabar una vuelta, y cuántos turnos cuesta.
+objetivo: Que se vea de un vistazo que lo caro al testear es el número de llamadas sueltas, cada una un turno que relee todo el contexto, y no lo que dicen los tests. Va en el Resumen del informe, justo antes del esquema de la propuesta, para compararse con él.
+concepto: Al acabar una vuelta, el subagente decide por su cuenta qué tests lanzar, sin mirar lo cambiado, y lanza una orden por comprobación, una por turno; lee su salida entera y, si algo falla o cambia, vuelve a lanzar lo que ya había pasado. Lo lento pasa a segundo plano y lo vigila con más turnos. Es igual en todos los proyectos.
+puntos-clave:
+  Nadie elige por lo cambiado ni hay caché: lo decide el subagente por su cuenta. | elegir
+  Cada comprobación es una llamada suelta, un turno que relee unos 137.000 tokens. | lanzar
+  Se lee la salida entera y las capturas, que se quedan en el contexto. | lanzar > leer
+  Un fallo o un cambio vuelve a lanzar lo que ya había pasado. | repetir > lanzar
+  Lo lento se vigila en segundo plano con más turnos. | lanzar > espera
+modulos-clave: vuelta, elegir, lanzar, leer, repetir, espera
+interconexiones-clave:
+  lanzar > leer > repetir > lanzar
+  lanzar > espera
+compara-con: propuesta.diagrama
+# actores: subagente que testea
+foco: lanzar
+opciones: orientacion=vertical
+nodos:
+  vuelta: El subagente acaba la vuelta | cada proyecto, igual
+  elegir: El subagente decide qué tests lanzar | sin mirar lo cambiado ni caché
+  lanzar: El subagente lanza una orden por test | 1 turno = 137.000 tokens
+  leer: El subagente lee la salida entera | y las capturas, en el contexto
+  repetir: El subagente relanza lo que ya pasó | si algo falla o cambia
+  espera: El subagente vigila lo lento | en segundo plano, con más turnos
+flechas:
+  inicio > vuelta
+  vuelta > elegir | flujo
+  elegir > lanzar: UNA POR TEST | flujo
+  lanzar > leer | flujo
+  leer > repetir: FALLO | flujo
+  repetir > lanzar: OTRA VEZ | vuelta
+  lanzar > espera: LENTO | discontinua
+fichas:
+  vuelta: Hoy lo hace igual cualquier proyecto.
+  elegir: Nadie selecciona por lo cambiado y no hay caché: elige el subagente por su cuenta.
+  lanzar: Una orden por comprobación, una por turno; cada turno relee unos 137.000 tokens del contexto.
+  leer: Lee toda la salida y las capturas, que se quedan en el contexto.
+  repetir: Un fallo o un cambio vuelve a lanzar lo que ya había pasado.
+  espera: Lo lento corre en segundo plano y el subagente lo vigila con más turnos.

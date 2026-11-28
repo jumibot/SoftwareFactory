@@ -1,0 +1,59 @@
+tipo: proceso
+titulo: Cómo testea hoy el subagente
+descripcion: Una llamada por comprobación, cada una un turno que relee el contexto.
+foco: lanzar
+opciones: orientacion=vertical
+actores:
+  subagente: Quien testea el trabajo de la tarea
+objetivo: Que se vea de un vistazo que lo caro al testear es el número de llamadas sueltas, cada una un turno que relee todo el contexto, y no lo que dicen los tests. Va en el Resumen del informe, justo antes del esquema de la propuesta, para compararse con él.
+concepto: Al acabar una vuelta, el subagente decide por su cuenta qué tests lanzar, sin mirar lo cambiado, y lanza una orden por comprobación, una por turno; lee su salida entera y, si algo falla o cambia, vuelve a lanzar lo que ya había pasado. Lo lento pasa a segundo plano y lo vigila con más turnos. Es igual en todos los proyectos.
+puntos-clave:
+  Nadie elige por lo cambiado ni hay caché: lo decide el subagente por su cuenta. | elegir
+  Cada comprobación es una llamada suelta, un turno que relee unos 137.000 tokens. | lanzar
+  Se lee la salida entera y las capturas, que se quedan en el contexto. | lanzar > leer
+  Un fallo o un cambio vuelve a lanzar lo que ya había pasado. | repetir > lanzar
+  Lo lento se vigila en segundo plano con más turnos. | lanzar > espera
+modulos-clave: vuelta, elegir, lanzar, leer, repetir, espera
+interconexiones-clave:
+  lanzar > leer > repetir > lanzar
+  lanzar > espera
+compara-con: piloto-propuesta.diagrama
+glosario:
+  subagente | Quien testea el trabajo de una tarea al acabar cada vuelta (una tanda de cambios; comprobar.py se lanza una vez por vuelta): lanza las órdenes, lee lo que devuelven y copia el resultado a su informe.
+  llamada o turno | Cada orden que lanza el subagente es una llamada y un turno de su conversación; en cada turno relee todo su contexto (unos 137.000 tokens en la SF), por eso el coste está en cuántas llamadas hace y no en lo que dicen los tests.
+  test | Cada comprobación que se lanza: tests de pytest, vitest o cargo, claude plugin test o validate, tipos o lint, comprobar documentos o diagramas, o Playwright; cada uno puede declarar qué archivos cubre.
+  salida | El texto que escribe una orden: entera pueden ser hasta 536 líneas (claude plugin test) que el subagente lee; con comprobar.py solo lee 4 o 5 líneas y el resto va a un log aparte, que solo se mira para depurar un fallo.
+  segundo plano | Orden lenta (la suite de Python tarda 6 minutos, más que los 120 s de una orden normal) que se deja corriendo y que el subagente vigila con más llamadas.
+  caché por hash | Un hash de los archivos de un test y de su orden: si coincide con el de la última vez que pasó, el test se salta y lo dice; evita la repetición de lo que ya pasó sin cambios.
+  ronda 1: seleccionar | Compara los archivos modificados con lo que cubre cada test y lista qué corre y qué se salta, con su porqué; es determinista y el test que no declara qué cubre corre siempre.
+  ronda 2: ejecutar | Lanza a la vez lo seleccionado, cada test en su proceso y con el reparto de su stack (el runner o shards por archivo, como pytest); la pasada completa antes de dejar la tarea lista para probar lanza todo sin seleccionar ni caché.
+  captura | Imagen con Playwright que el subagente saca y mira: unos 1.500 tokens que se quedan en el contexto.
+nodos:
+  vuelta: Acaba la vuelta | el subagente pasa a testear
+  elegir: Decidir qué tests lanzar | el subagente, sin mirar lo cambiado ni caché
+  lanzar: Lanzar un test por llamada | N llamadas, cada turno relee 137.000 tokens
+  leer: Leer la salida entera | hasta 536 líneas y capturas de 1.500 tokens
+  repetir: Relanzar lo que ya pasó | tras cada fallo o cambio
+  espera: Vigilar en segundo plano | suite de 6 min, con más llamadas
+flechas:
+  inicio > vuelta
+  vuelta > elegir
+  elegir > lanzar: UNA POR TEST | flujo
+  lanzar > leer: SALIDA | flujo
+  leer > repetir: FALLA O CAMBIA
+  repetir > lanzar: OTRA LLAMADA | vuelta
+  lanzar > espera: SI ES LENTO | discontinua
+fichas:
+  vuelta: Cada vuelta es una tanda de cambios de la tarea.
+    - subagente: al acabarla, testea lo hecho
+  elegir: Nada elige por lo cambiado y no hay caché por hash.
+    - subagente: decide por su cuenta qué test lanzar
+  lanzar: Cada orden es una llamada y un turno de la conversación.
+    - 137.000 tokens: lo que relee cada turno en la SF
+    - llamadas: ahí está el coste, no en lo que dicen los tests
+  leer: El subagente lee la salida entera de cada test.
+    - 536 líneas: lo que puede dar claude plugin test
+    - captura: 1.500 tokens que se quedan en el contexto
+  repetir: Un fallo o un cambio hace volver a lanzar lo que ya había pasado.
+  espera: Un test lento se deja en segundo plano y se vigila con más llamadas.
+    - 6 min: la suite de Python, más que los 120 s de una orden normal

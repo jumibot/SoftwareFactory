@@ -1,0 +1,73 @@
+objetivo: Que el lector entienda, de un vistazo, el camino completo de sus respuestas desde que elige una opción en la página hasta que la ve registrada en el documento, y qué pasa en cada caso en que el camino se corta (sin sesión de Claude, página caducada, página abierta desde el disco). Iría en el informe «Responder a un informe desde la página», en la sección «El diseño recomendado», al principio de «Cómo llega una petición al chat, o a quien la atienda» (o justo después de «La respuesta de un informe, el primer front»), como resumen visual de lo que ya está implementado.
+
+concepto: El propietario abre el documento desde la SF y la página le llega servida por sf_proxy, un servidor local de la sesión de Claude, con un token nuevo de esa apertura dentro. En cada pregunta abierta elige una opción y, si quiere, escribe un matiz; lo elegido se guarda al momento como borrador en el navegador, así que sigue ahí si cierra y vuelve a abrir la página. Al pulsar «Enviar a Claude», la página junta todas las respuestas elegidas y aún no enviadas en un solo mensaje y lo manda a sf_proxy en una única petición con el token y un número de petición mayor que el anterior. sf_proxy comprueba el token y el número: si el número ya se usó, contesta 409 y la página lo reintenta una vez con el número siguiente; si lo acepta, contesta 202 y las fichas pasan a «Enviada». sf_proxy pasa la petición al mod de la SF, que la pone en el chat como un mensaje del propietario, con el nombre de la página; si Claude está ocupado, el mensaje espera a que acabe, y si Claude Code no lo admite (tras un Esc), queda escrito en el prompt para enviarlo con Intro. El mod le dice a sf_proxy dónde ha quedado (en el chat, escrito en el prompt o sin entregar), y cuando Claude empieza y acaba el turno con ese mensaje se lo avisa a la página. Claude lee las respuestas, las registra en el documento y en las decisiones que salgan, y regenera el HTML. Mientras tanto la página pregunta a sf_proxy cada pocos segundos por su estado: así cada ficha pasa a «En el chat» o «Escrita en tu prompt», aparecen los avisos de Claude y, cuando el archivo se ha regenerado, la página lee la versión nueva sin recargar, pone en su sitio como decididas las preguntas que Claude ha registrado, avisa de las que han cambiado o son nuevas, y ofrece «Ver la versión nueva», que solo recarga si el propietario lo pulsa; lo elegido y no enviado sigue guardado. Si cambia una respuesta ya enviada, se vuelve a enviar solo esa y vale la última. Las ramas: sin sesión (sf_proxy no contesta, porque la sesión se cerró), las respuestas quedan «Guardadas aquí» y la página reintenta el envío cada 10 segundos mientras esté abierta, y se envían solas si la sesión vuelve; con el token caducado (la página se abrió otra vez o hay una sesión nueva), sf_proxy contesta 401, la página dice que hay que abrirla de nuevo desde la SF, deja de enviar y solo ofrece copiar, con las respuestas guardadas; abierta desde el disco, con doble clic, no hay sf_proxy ni token: se elige igual, todo queda guardado en el navegador y el único camino es «Copiar las respuestas» y pegar el texto en el chat.
+
+puntos-clave:
+  Las respuestas se envían todas juntas en un solo mensaje al pulsar Enviar, y hasta entonces quedan guardadas como borrador en el navegador. | elegir > enviar
+  Cada apertura de la página lleva su propio token y cada envío un número nuevo, así que una petición repetida o de otra apertura no vale. | tok > num
+  La respuesta llega al chat como un mensaje del propietario, y Claude la registra en el documento sin volver a preguntar. | chat > reg
+  La página se pone al día sola cada pocos segundos, pero la versión nueva del documento solo la carga el propietario cuando quiere. | ver
+  Si no hay sesión, las respuestas no se pierden: se reintentan cada diez segundos; si la página ha caducado o se abrió desde el disco, se copian y se pegan en el chat. | ses > enviar > ses
+  Si la página ha caducado o se abrió desde el disco, se copian y se pegan en el chat. | tok > copiar
+  Abierta desde el disco no hay sf_proxy ni token. | disco > copiar
+modulos-clave: elegir, enviar, ses, tok, num, chat, reg, ver, copiar, disco
+interconexiones-clave:
+  enviar > ses
+  ses > tok
+  tok > num
+  num > chat
+  chat > reg
+  reg > ver
+  ses > enviar > ses
+  num > enviar
+  tok > copiar
+  disco > copiar
+decisiones: ses, tok, num
+
+actores: Propietario, Página, sf_proxy, Mod de la SF, Claude
+
+titulo: Cómo viaja una respuesta desde la página
+descripcion: Del clic en una opción a verla registrada en el documento, y qué pasa si el camino se corta.
+tipo: proceso
+opciones: completo, una-columna
+foco: chat
+nodos:
+  elegir: Elegir opciones | la página, que las guarda como borrador en el navegador
+  enviar: Enviar a Claude | la página, en un solo mensaje con token y número
+  ses: ¿Responde sf_proxy? | dec
+  tok: ¿Token vigente? | sf_proxy compara el de esta apertura | dec
+  num: ¿Número nuevo? | sf_proxy compara con el anterior | dec
+  chat: Poner en el chat | el mod; espera si Claude está ocupado
+  reg: Registrar respuestas | Claude, en el documento y las decisiones; regenera el HTML
+  ver: Ver versión nueva | la página avisa; solo recarga si el propietario pulsa
+  copiar: Copiar y pegar en el chat | las respuestas guardadas; el camino acaba en el chat
+  disco: Abrir desde el disco | sin sf_proxy ni token
+flechas:
+  inicio > elegir
+  elegir > enviar | flujo
+  enviar > ses | flujo
+  ses > tok: SÍ | flujo
+  ses > enviar: REINTENTA 10 S | vuelta
+  tok > num: SÍ | flujo
+  tok > copiar: 401 CADUCADO | rojo
+  num > chat: 202 ACEPTA | flujo
+  num > enviar: 409 OTRO Nº | vuelta
+  chat > reg | flujo
+  reg > ver | flujo
+  disco > copiar
+fichas:
+  elegir: Cada opción y matiz se guardan al momento; siguen ahí si cierra y vuelve.
+  enviar: Junta todas las respuestas elegidas y aún no enviadas.
+    - codigo: sf_proxy: recibe una única petición
+  ses: Si no contesta, la sesión de Claude se cerró.
+    - NO: las respuestas quedan «Guardadas aquí» y la página reintenta cada 10 segundos
+  tok: Cada apertura de la página lleva su token.
+    - NO: sf_proxy contesta 401; hay que abrirla de nuevo desde la SF
+  num: Cada envío lleva un número mayor que el anterior.
+    - NO: sf_proxy contesta 409 y la página reintenta una vez con el siguiente
+  chat: El mensaje llega como del propietario, con el nombre de la página.
+    - claude: si no lo admite, tras un Esc, queda escrito en el prompt
+  reg: Claude lee las respuestas, las registra y regenera el HTML.
+  ver: La página lee la versión nueva sin recargar y ofrece verla.
+  copiar: Es el único camino cuando la página caducó o no hay servidor.
+  disco: Con doble clic se elige igual; todo queda en el navegador.

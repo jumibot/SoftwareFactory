@@ -1,0 +1,47 @@
+objetivo: Que se vea de un vistazo que lo caro al testear es el número de llamadas sueltas, cada una un turno que relee todo el contexto, y no lo que dicen los tests. Va en el Resumen del informe, justo antes del esquema de la propuesta, para compararse con él.
+concepto: Al acabar una vuelta, el subagente elige a ojo qué testear y lanza una orden por comprobación, una por turno; lee su salida entera y, si algo falla o cambia, vuelve a lanzar lo que ya había pasado. Lo lento pasa a segundo plano y lo vigila con más turnos. Es igual en todos los proyectos.
+puntos-clave:
+  Nadie elige por lo cambiado ni hay caché: se decide a ojo. | elegir
+  Cada comprobación es una llamada suelta, un turno que relee unos 137.000 tokens. | lanzar
+  Se lee la salida entera y las capturas, que se quedan en el contexto. | lanzar > leer
+  Un fallo o un cambio vuelve a lanzar lo que ya había pasado. | repetir > lanzar
+  Lo lento se vigila en segundo plano con más turnos. | lanzar > espera
+modulos-clave: vuelta, elegir, lanzar, leer, repetir, espera
+interconexiones-clave:
+  lanzar > leer > repetir > lanzar
+  lanzar > espera
+compara-con: propuesta.diagrama
+tipo: proceso
+titulo: Cómo se testea hoy
+descripcion: Una llamada por test y por turno; se repite lo ya pasado y se lee todo.
+pie: SF · TESTEAR | HOY
+foco: lanzar
+nodos:
+  vuelta: Acabar la vuelta | cambió archivos
+  elegir: Elegir a ojo | sin selección ni caché
+  lanzar: Lanzar uno a uno | 1 turno por test, 6 de media
+  leer: Leer la salida | hasta 536 líneas y capturas
+  repetir: ¿Falló o cambió? | vuelve a lanzar | dec
+  espera: Vigilar lo lento | 6 min en segundo plano | externo lado
+flechas:
+  inicio > vuelta | flujo
+  vuelta > elegir | flujo
+  elegir > lanzar: CADA TEST | flujo
+  lanzar > leer: SALIDA ENTERA | flujo
+  leer > repetir | flujo
+  repetir > lanzar: REPITE | rojo vuelta
+  lanzar > espera: SI TARDA | discontinua
+fichas:
+  vuelta: El subagente termina un cambio y quiere testearlo.
+  elegir: Decide a ojo qué lanzar; nada compara lo cambiado con lo que cubre cada test, ni recuerda lo que ya pasó.
+  lanzar: Una orden por comprobación (pytest, claude plugin test, generar y comprobar documentos, Playwright…), cada una en su turno; en cada turno relee todo lo que lleva.
+    - SF: mediana 6 llamadas por subagente, 22 o más en el 10 % que más; unos 137.000 tokens releídos por turno
+    - otros proyectos: mediana 7
+  leer: La salida entra entera en lo que el subagente lee, salvo lo que recorta a mano (-q, tail).
+    - claude plugin test, hasta 536 líneas
+    - capturas de Playwright: unas 8 por subagente que las usa, ~1.500 tokens cada una
+  repetir: Tras un fallo o un cambio, lanza otra vez lo que ya había pasado.
+    - generar un documento, 4 veces (25 en el 10 % que más)
+    - pytest, 2 (hasta 82); claude plugin test, 3
+  espera: La suite de Python tarda 368 s, más que el plazo de una orden: pasa a segundo plano y el subagente la vigila con más llamadas.
+    - 188 veces en el mes, en la SF

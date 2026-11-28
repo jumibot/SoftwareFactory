@@ -17,6 +17,8 @@ Los 45 tipos de diagram-design (commit `f24d98b`), con sus convenciones y límit
 
 El patrón pone sus piezas y un presupuesto más estricto; el tipo pone la maquetación.
 
+Los límites son recomendaciones: si un diagrama tiene que ser completo, se pasa de ellos con `opciones: completo` y se cuida su lectura (`references/lectura.md`).
+
 ## Los más usados en la SF
 
 | Tipo | Para | Convenciones | Límite | En vertical |

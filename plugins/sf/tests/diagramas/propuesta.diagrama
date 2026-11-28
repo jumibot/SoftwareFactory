@@ -1,0 +1,50 @@
+objetivo: Que se vea que, en cualquier proyecto, una sola llamada por vuelta sustituye a la serie de hoy, y de dónde sale el ahorro. Va en el Resumen del informe, justo después del esquema de hoy.
+concepto: El subagente lanza una sola orden por vuelta. La orden sabe qué tests hay, en una primera ronda selecciona de forma determinista los que tocan lo cambiado, se salta los que ya pasaron igual (caché por hash), en una segunda ronda ejecuta a la vez lo seleccionado y devuelve un resumen de pocas líneas; la salida entera va a un log.
+puntos-clave:
+  Una sola orden por vuelta, en cualquier proyecto. | detectar
+  Cada test dice qué cubre y la selección es determinista: ninguno se olvida. | elegir
+  Se salta lo que ya pasó con el mismo hash. | marca > resumen
+  Lo seleccionado corre a la vez, con el reparto de su stack. | lanzar
+  El subagente solo lee unas pocas líneas; lo largo va a un log. | lanzar > registro
+modulos-clave: detectar, elegir, marca, lanzar, resumen, registro
+interconexiones-clave:
+  elegir > marca > lanzar > resumen
+  marca > resumen
+  lanzar > registro
+compara-con: hoy.diagrama
+tipo: proceso
+titulo: Una sola orden por vuelta
+descripcion: En cualquier proyecto: una ronda selecciona, otra ejecuta a la vez y devuelve pocas líneas.
+pie: SF · TESTEAR | CON LA ORDEN
+foco: lanzar
+nodos:
+  detectar: Saber qué tests hay | una orden por vuelta
+  elegir: Ronda 1: seleccionar | cada test dice qué cubre
+  marca: ¿Ya pasó igual? | caché por hash | dec
+  lanzar: Ronda 2: lanzar a la vez | 1 turno para todos
+  resumen: Leer el resumen | 4 o 5 líneas
+  registro: Guardar la salida | en un log | externo
+flechas:
+  inicio > detectar | flujo
+  detectar > elegir: TODOS | flujo
+  elegir > marca: LOS QUE TOCA | flujo
+  marca > lanzar: CAMBIÓ | flujo
+  marca > resumen: IGUAL | verde
+  lanzar > resumen: RESULTADOS | flujo
+  lanzar > registro: SALIDA ENTERA | discontinua
+fichas:
+  detectar: Junta tres fuentes; si dos dicen lo mismo, manda el declarado, luego el visto, luego el detectado.
+    - declarados: .sf/comprobar.json
+    - vistos: lo que la SF ya lanzó, con su duración y lo que cubre
+    - detectados: por el stack (pytest, vitest, cargo, go, dotnet, Playwright, tsc, eslint)
+  elegir: Compara los archivos modificados con lo que cubre cada test y lista qué corre y qué se salta, con su porqué.
+    - los mismos archivos dan siempre la misma lista
+    - un test que no declara qué cubre corre siempre
+  marca: Un hash de los archivos y de la orden de cada test.
+    - igual que la última vez que pasó: no se repite
+    - antes de dejar la tarea lista para probar, pasada completa sin selección ni caché
+  lanzar: Todo lo seleccionado a la vez, cada cosa en su proceso, con el reparto de su stack.
+    - en la SF, la suite de 434 s a 155 s; todo en unos 2 minutos, sin segundo plano
+  resumen: Lo que el subagente lee: una línea por comprobación y el error de lo que falla.
+    - de unas 6 llamadas a 1 o 2 por vuelta: unos dos tercios menos de gasto (estimación)
+  registro: La salida entera de cada orden, para depurar un fallo; la duración se anota en lo visto.
